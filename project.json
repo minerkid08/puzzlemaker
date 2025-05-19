@@ -1,0 +1,13 @@
+{
+  "projects": [
+    {
+      "name": "puzzlemaker",
+      "type": "program",
+      "out": "puzzlemaker",
+      "build": [],
+      "libs": ["cutils", "glad", "cimgui", "cglm", "stb"],
+      "lang": "c",
+      "linkArgs": ["-lglfw", "-lm", "-lstdc++"]
+    }
+  ]
+}

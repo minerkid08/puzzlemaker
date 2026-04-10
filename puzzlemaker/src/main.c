@@ -11,12 +11,12 @@
 #include <GLFW/glfw3.h>
 #include <string.h>
 
-#include "voxel.h"
 #include "camera.h"
-#include "utils.h"
-#include "voxelModification.h"
 #include "item.h"
 #include "ui.h"
+#include "utils.h"
+#include "voxel.h"
+#include "voxelModification.h"
 
 #define MODE_NONE 0
 #define MODE_ORBIT 1
@@ -30,6 +30,10 @@ double my;
 
 vec3 tempPos;
 vec3 tempRot;
+
+char windowHovered = 0;
+
+ImGuiIO* io;
 
 void findSelected()
 {
@@ -64,20 +68,18 @@ void mouseZoomCallback(GLFWwindow* window, double x, double y);
 
 int main()
 {
-  initItems();
+	initItems();
 
-  ItemDefinition def;
-  def.name = "testItem";
-  def.boundingBox[0] = 1.0f;
-  def.boundingBox[1] = 1.0f;
-  def.boundingBox[2] = 0.1f;
+	ItemDefinition def;
+	def.name = "testItem";
+	def.boundingBox[0] = 1.0f;
+	def.boundingBox[1] = 1.0f;
+	def.boundingBox[2] = 0.1f;
 
-  def.faceRestrictions = FaceRestriction_Wall;
-  def.snappingMode = SnappingMode_Center;
+	def.faceRestrictions = FaceRestriction_Wall;
+	def.snappingMode = SnappingMode_Center;
 
-  def.material = "item.png";
-
-  addItemDef(&def);
+	def.material = "item.png";
 
 	initVoxels();
 
@@ -86,15 +88,21 @@ int main()
 	glfwMakeContextCurrent(window);
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
-  initRenderer();
-  initCamera();
+	initRenderer();
+	initCamera();
 
-  initUi(window);
+	addItemDef(&def);
+
+	initUi(window);
+
+	io = igGetIO();
 
 	glfwSetKeyCallback(window, keyCallback);
 	glfwSetMouseButtonCallback(window, mouseCallback);
 	glfwSetCursorPosCallback(window, mouseMoveCallback);
 	glfwSetScrollCallback(window, mouseZoomCallback);
+
+	glfwSwapInterval(1);
 
 	glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
 
@@ -107,20 +115,20 @@ int main()
 		dt = now - lastTime;
 		lastTime = now;
 
-    updateCamera();
+		updateCamera();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		drawVoxels(cameraPos, cameraRot);
 		endFrame();
 
-    uiNewFrame();
+		uiNewFrame();
 
-    igBegin("demo", 0, 0);
-    igShowDemoWindow(0);
-    igEnd();
+		igBegin("items", 0, 0);
 
-    uiEndFrame();
+		igEnd();
+
+		uiEndFrame();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -131,6 +139,8 @@ int main()
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+	if (io->WantCaptureMouse)
+		return;
 	if (action == GLFW_PRESS)
 	{
 		if (key == GLFW_KEY_1)
@@ -140,8 +150,8 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 		if (key == GLFW_KEY_3)
 			voxelTogglePortal();
 
-    if(key == GLFW_KEY_4)
-      addItem(0);
+		if (key == GLFW_KEY_4)
+			addItem(0);
 	}
 }
 
@@ -149,6 +159,8 @@ int mouseMode = 0;
 
 void mouseCallback(GLFWwindow* window, int button, int action, int mods)
 {
+	if (io->WantCaptureMouse)
+		return;
 	if (action == GLFW_PRESS)
 	{
 		tx = mx;
@@ -182,12 +194,13 @@ void mouseCallback(GLFWwindow* window, int button, int action, int mods)
 
 void mouseMoveCallback(GLFWwindow* window, double x, double y)
 {
+	if (io->WantCaptureMouse)
+		return;
 	mx = x;
 	my = y;
 
 	double dx = tx - x;
 	double dy = ty - y;
-
 
 	if (mouseMode == MODE_ORBIT)
 	{
@@ -209,6 +222,8 @@ void mouseMoveCallback(GLFWwindow* window, double x, double y)
 
 void mouseZoomCallback(GLFWwindow* window, double x, double y)
 {
+	if (io->WantCaptureMouse)
+		return;
 	cameraPos[0] += forward[0] * y * 0.1;
 	cameraPos[1] += forward[1] * y * 0.1;
 	cameraPos[2] += forward[2] * y * 0.1;

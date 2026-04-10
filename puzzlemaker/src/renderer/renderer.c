@@ -52,6 +52,14 @@ void setCamMat(mat4 mat)
 
 void initRenderer()
 {
+	texture = loadTexture("wall.png");
+
+	glErrCheck();
+	glActiveTexture(GL_TEXTURE0);
+	glErrCheck();
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glErrCheck();
+
 	prgmId = makeShader();
 
 	glUseProgram(prgmId);
@@ -97,12 +105,6 @@ void initRenderer()
 		error = glGetError();
 	}
 
-	texture = loadTexture("wall.png");
-	glErrCheck();
-	glActiveTexture(GL_TEXTURE0);
-	glErrCheck();
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glErrCheck();
 
 	verts = malloc(sizeof(Vertex) * NUM_VERTS);
 	vertBase = verts;

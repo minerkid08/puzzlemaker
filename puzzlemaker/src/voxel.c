@@ -2,6 +2,7 @@
 
 #include "cglm/vec3.h"
 #include "renderer/renderer.h"
+#include "renderer/texture.h"
 #include "utils.h"
 #include <string.h>
 
@@ -13,8 +14,12 @@ ivec3 currentVoxelPos;
 Voxel* currentVoxel;
 char currentDir;
 
+static unsigned int texture;
+
 void initVoxels()
 {
+  texture = loadTexture("wall.png");
+
 	memset(voxels, 0, sizeof(voxels));
 	for (int i = 0; i < VOXEL_COUNT; i++)
 	{
@@ -47,6 +52,8 @@ Voxel* getVoxelv(ivec3 pos)
 
 void drawVoxels(vec3 cameraPos, vec3 cameraRot)
 {
+  bindTexture(texture);
+
 	mat4 camMat;
 	glm_mat4_identity(camMat);
 	glm_translate(camMat, cameraPos);

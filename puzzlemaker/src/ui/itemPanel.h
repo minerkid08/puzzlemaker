@@ -1,0 +1,2 @@
+void initItemPanel();
+void itemPanelRender();

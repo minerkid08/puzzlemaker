@@ -17,6 +17,7 @@
 #include "utils.h"
 #include "voxel.h"
 #include "voxelModification.h"
+#include "ui/itemPanel.h"
 
 #define MODE_NONE 0
 #define MODE_ORBIT 1
@@ -81,12 +82,12 @@ int main()
 
 	def.material = "item.png";
 
-	initVoxels();
-
 	glfwInit();
 	GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "puzzlemaker", 0, 0);
 	glfwMakeContextCurrent(window);
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+
+	initVoxels();
 
 	initRenderer();
 	initCamera();
@@ -94,6 +95,7 @@ int main()
 	addItemDef(&def);
 
 	initUi(window);
+  initItemPanel();
 
 	io = igGetIO();
 
@@ -122,11 +124,9 @@ int main()
 		drawVoxels(cameraPos, cameraRot);
 		endFrame();
 
-		uiNewFrame();
+    uiNewFrame();
 
-		igBegin("items", 0, 0);
-
-		igEnd();
+    itemPanelRender();
 
 		uiEndFrame();
 

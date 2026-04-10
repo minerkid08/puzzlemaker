@@ -2,7 +2,6 @@
 #include "cglm/types.h"
 #include "glad/glad.h"
 #include "renderer/shader.h"
-#include "texture.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,8 +10,6 @@ static unsigned int prgmId;
 static unsigned int va;
 static unsigned int vb;
 static unsigned int ib;
-
-static unsigned int texture;
 
 #pragma pack(1)
 typedef struct
@@ -52,14 +49,6 @@ void setCamMat(mat4 mat)
 
 void initRenderer()
 {
-	texture = loadTexture("wall.png");
-
-	glErrCheck();
-	glActiveTexture(GL_TEXTURE0);
-	glErrCheck();
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glErrCheck();
-
 	prgmId = makeShader();
 
 	glUseProgram(prgmId);
@@ -94,17 +83,10 @@ void initRenderer()
 		v += 4;
 	}
 
+
 	glCreateBuffers(1, &ib);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indsSize, inds, GL_STATIC_DRAW);
-
-	int error = glGetError();
-	while (error)
-	{
-		printf("gl error: %d\n", error);
-		error = glGetError();
-	}
-
 
 	verts = malloc(sizeof(Vertex) * NUM_VERTS);
 	vertBase = verts;
@@ -113,6 +95,12 @@ void initRenderer()
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
+}
+
+void bindTexture(unsigned int texture)
+{
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
 }
 
 void endFrame()

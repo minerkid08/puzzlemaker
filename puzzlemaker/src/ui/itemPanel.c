@@ -1,40 +1,44 @@
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
+
 #include "item.h"
 
-#include "dynList.h"
 #include "cimgui.h"
-
-#include <string.h>
+#include "dynList.h"
 
 const char** itemNames;
 
+int defCount;
+
 void initItemPanel()
 {
-  ItemDefinition* defs = getItemDefinitions();
+	ItemDefinition* defs = getItemDefinitions();
 
-  int s = dynList_size(defs);
+	defCount = dynList_size(defs);
 
-  int len = 0;
-  for(int i = 0; i < s; i++)
-  {
-    len += strlen(defs->name);
-    len++;
-  }
-  len++;
+	itemNames = dynList_new(defCount, sizeof(const char*));
 
-  addLabel = malloc(len);
-  len = 0;
-  for(int i = 0; i < s; i++)
-  {
-    strcpy(addLabel + len, defs->name);
-    len += strlen(defs->name);
-    addLabel[len] = 0;
-    len++;
-  }
-  addLabel[len] = 0;
+	for (int i = 0; i < defCount; i++)
+		itemNames[i] = defs[i].name;
 }
 
 void itemPanelRender()
 {
-  igShowDemoWindow(0);
+	igBegin("items", 0, 0);
+	ImVec2 zero;
+	zero.x = 0;
+	zero.y = 0;
+
+	if (igButton("add", zero))
+		igOpenPopup("pick");
+
+	if (igBeginPopup("pick", 0))
+	{
+		for(int i = 0; i < defCount; i++)
+		{
+			if(igSelectable(itemNames[i], 0, 0, zero))
+				printf("%s\n", itemNames[i]);
+		}
+		igEndPopup();
+	}
+	igEnd();
 }

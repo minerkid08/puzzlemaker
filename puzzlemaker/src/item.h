@@ -2,23 +2,43 @@
 
 #include <cglm/cglm.h>
 
-#define FaceRestriction_None (1 >> 0)
-#define FaceRestriction_Wall (1 >> 1)
-#define FaceRestriction_Floor (1 >> 2)
-#define FaceRestriction_Ceiling (1 >> 3)
-
-#define SnappingMode_Center (1 >> 0)
-#define SnappingMode_Corner (1 >> 1)
-#define SnappingMode_None (1 >> 2)
+typedef union
+{
+	int i;
+	float f;
+	char b;
+	char* s;
+} V;
 
 typedef struct
 {
 	const char* name;
-	int faceRestrictions;
-	int snappingMode;
-	vec3 boundingBox;
-	const char* material;
-  unsigned int texture;
+	int type;
+	V defaultValue;
+} ItemKvDef;
+
+typedef struct
+{
+	const char* name;
+	const char* trueInput;
+	const char* falseOutput;
+} InputDef;
+
+typedef struct
+{
+	const char* name;
+	const char* trueOutput;
+	const char* falseOutput;
+	char inverted;
+} OutputDef;
+
+typedef struct
+{
+	const char* name;
+	const char* modelName;
+	const char* textureName;
+	ItemKvDef* kvs;
+	
 } ItemDefinition;
 
 typedef struct

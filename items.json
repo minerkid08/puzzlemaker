@@ -1,0 +1,36 @@
+{
+	{
+		"name": "door",
+		"model": "door.stl",
+		"mat": "door.png",
+		"keyvalues": [
+			{
+				"name": "startOpened",
+				"type": "boolean",
+				"defaultValue": false
+			},
+			{
+				"name": "frontPortal",
+				"type": "boolean",
+				"defaultValue": false
+			},
+			{
+				"name": "backPortal",
+				"type": "boolean",
+				"defaultValue": false
+			}
+		],
+		"inputs": [
+			{
+				"name": "open",
+				"trueInput": "Open",
+				"falseInput": "Close",
+			},
+			{
+				"name": "lock",
+				"trueInput": "Lock",
+				"falseInput": "Unlock",
+			}
+		]
+	}
+}

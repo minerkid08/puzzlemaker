@@ -12,6 +12,7 @@
 #include <string.h>
 
 #include "camera.h"
+#include "compileThread.h"
 #include "item.h"
 #include "ui.h"
 #include "ui/itemPanel.h"
@@ -58,6 +59,7 @@ void mouseZoomCallback(GLFWwindow* window, double x, double y);
 
 int main()
 {
+	startCompileThread();
 	glfwInit();
 	GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "puzzlemaker", 0, 0);
 	glfwMakeContextCurrent(window);

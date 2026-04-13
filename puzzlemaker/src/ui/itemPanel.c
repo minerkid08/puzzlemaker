@@ -1,8 +1,10 @@
 #include <stdbool.h>
+#include <stdio.h>
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 
 #include "item.h"
 
+#include "ui/itemPanel.h"
 #include "cimgui.h"
 #include "dynList.h"
 #include "save.h"
@@ -15,6 +17,8 @@ extern Item** pickPtr;
 
 static char buf[50];
 static char filename[50];
+
+void openCompilePopup(const char* filename);
 
 void initItemPanel()
 {
@@ -44,8 +48,17 @@ void itemPanelRender()
 		save(filename);
 	if (igButton("load", zero))
 		load(filename);
-	if (igButton("export", zero))
+	if (igButton("compile", zero))
+	{
+		printf("exporting");
+		fflush(stdout);
 		exportMap(filename);
+		printf("exported");
+		fflush(stdout);
+		openCompilePopup(filename);
+	}
+
+	updateCompilePopup();
 
 	if (igButton("add", zero))
 		igOpenPopup_Str("pick", 0);

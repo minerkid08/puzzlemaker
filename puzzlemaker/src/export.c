@@ -21,15 +21,17 @@ static const char* vaxis[] = {"[0 0 -1 0] 0.25", "[0 0 -1 0] 0.25", "[0 -1 0 0] 
 
 #define SIDEINDENT "      "
 
+static char filename[64];
+
 void addSide(FILE* file, ivec3 verts[4], int i, int dir, const char* mat)
 {
 	fprintf(file, "\n    side\n    {\n");
 	fprintf(file, SIDEINDENT "\"id\" \"%d\"\n", i + 1);
 
 	char planeBuf[50];
-	snprintf(planeBuf, 50, "(%d %d %d) (%d %d %d) (%d %d %d)", verts[0][0] * 64, verts[0][1] * 64, verts[0][2] * 64,
-			 verts[1][0] * 64, verts[1][1] * 64, verts[1][2] * 64, verts[2][0] * 64, verts[2][1] * 64,
-			 verts[2][2] * 64);
+	snprintf(planeBuf, 50, "(%d %d %d) (%d %d %d) (%d %d %d)", -verts[0][0] * 64, verts[0][2] * 64, verts[0][1] * 64,
+			 -verts[1][0] * 64, verts[1][2] * 64, verts[1][1] * 64, -verts[2][0] * 64, verts[2][2] * 64,
+			 verts[2][1] * 64);
 
 	fprintf(file, SIDEINDENT "\"plane\" \"%s\"\n", planeBuf);
 
@@ -37,10 +39,10 @@ void addSide(FILE* file, ivec3 verts[4], int i, int dir, const char* mat)
 	fprintf(file, SIDEINDENT "{\n");
 	fprintf(file, SIDEINDENT "  \"numpts\" \"4\"\n");
 
-	fprintf(file, SIDEINDENT "  \"point\" \"0 %d %d %d\"\n", verts[1][0] * 64, verts[1][2] * 64, verts[1][1] * 64);
-	fprintf(file, SIDEINDENT "  \"point\" \"1 %d %d %d\"\n", verts[3][0] * 64, verts[3][2] * 64, verts[3][1] * 64);
-	fprintf(file, SIDEINDENT "  \"point\" \"2 %d %d %d\"\n", verts[2][0] * 64, verts[2][2] * 64, verts[2][1] * 64);
-	fprintf(file, SIDEINDENT "  \"point\" \"3 %d %d %d\"\n", verts[0][0] * 64, verts[0][2] * 64, verts[0][1] * 64);
+	fprintf(file, SIDEINDENT "  \"point\" \"0 %d %d %d\"\n", -verts[1][0] * 64, verts[1][2] * 64, verts[1][1] * 64);
+	fprintf(file, SIDEINDENT "  \"point\" \"1 %d %d %d\"\n", -verts[3][0] * 64, verts[3][2] * 64, verts[3][1] * 64);
+	fprintf(file, SIDEINDENT "  \"point\" \"2 %d %d %d\"\n", -verts[2][0] * 64, verts[2][2] * 64, verts[2][1] * 64);
+	fprintf(file, SIDEINDENT "  \"point\" \"3 %d %d %d\"\n", -verts[0][0] * 64, verts[0][2] * 64, verts[0][1] * 64);
 
 	fprintf(file, SIDEINDENT "}\n");
 	fprintf(file, SIDEINDENT "\"material\" \"%s\"\n", mat);
@@ -160,7 +162,7 @@ entity
   "angles" "%f %f %f"
   "targetname" "%s"
   "file" "%s")",
-			item->index, item->pos[0] * 64, item->pos[2] * 64, item->pos[1] * 64, item->dir[0], item->dir[1],
+			item->index, -item->pos[0] * 64, item->pos[2] * 64, item->pos[1] * 64, item->dir[0], item->dir[1],
 			item->dir[2], buf, item->def->instanceName);
 
 	int outputLen = dynList_size(item->outputs);
@@ -187,8 +189,9 @@ entity
 	fprintf(file, "\n}");
 }
 
-void exportMap(const char* filename)
+void exportMap(const char* name)
 {
+	snprintf(filename, 64, "%s.vmf", name);
 	FILE* file = fopen(filename, "wb");
 
 	fprintf(file, R"(versioninfo
@@ -303,4 +306,5 @@ cordons
 {
   "active" "0"
 })");
+	fclose(file);
 }

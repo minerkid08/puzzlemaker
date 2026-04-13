@@ -6,8 +6,10 @@
 #include <stdio.h>
 #include <string.h>
 
-void save(const char* filename)
+char filename[64];
+void save(const char* name)
 {
+	snprintf(filename, 64, "%s.chamb", name);
 	cJSON* json = cJSON_CreateObject();
 
 	cJSON* zArr = cJSON_CreateArray();
@@ -90,8 +92,9 @@ void save(const char* filename)
 	free(str);
 }
 
-void load(const char* filename)
+void load(const char* name)
 {
+	snprintf(filename, 64, "%s.chamb", name);
 	FILE* file = fopen(filename, "rb");
 
 	fseek(file, 0, SEEK_END);

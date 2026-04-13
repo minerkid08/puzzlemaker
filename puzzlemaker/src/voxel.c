@@ -65,10 +65,6 @@ void drawVoxels(vec3 cameraPos, vec3 cameraRot)
 
 	setCamMat(camMat);
 
-	vec3 verts[4] = {{0.5, 0.5, -2}, {0.5, -0.5, -2}, {-0.5, 0.5, -2}, {-0.5, -0.5, -2}};
-	vec3 verts2[4] = {{0.5, 0.5, -2}, {0.5, 0.5, -1}, {0.5, -0.5, -2}, {0.5, -0.5, -1}};
-	vec3 verts3[4] = {{-0.5, 0.5, -2}, {-0.5, 0.5, -1}, {-0.5, -0.5, -2}, {-0.5, -0.5, -1}};
-
 	for (int z = 0; z < MAP_SIZE; z++)
 	{
 		for (int y = 0; y < MAP_SIZE; y++)

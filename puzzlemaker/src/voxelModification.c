@@ -9,6 +9,13 @@ void voxelPush()
 	if (currentVoxel == 0)
 		return;
 
+	if (currentVoxelPos[0] == 0 || currentVoxelPos[0] == MAP_SIZE - 1)
+		return;
+	if (currentVoxelPos[1] == 0 || currentVoxelPos[1] == MAP_SIZE - 1)
+		return;
+	if (currentVoxelPos[2] == 0 || currentVoxelPos[2] == MAP_SIZE - 1)
+		return;
+
 	currentVoxel->solid = 0;
 
 	ivec3 dir;

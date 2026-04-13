@@ -5,7 +5,7 @@
       "type": "program",
       "out": "puzzlemaker",
       "build": [],
-      "libs": ["clib", "glad", "cimgui", "cglm", "stb"],
+      "libs": ["clib", "glad", "cimgui", "cglm", "stb", "cjson"],
       "lang": "c",
       "linkArgs": ["-lglfw", "-lm", "-lstdc++"]
     }

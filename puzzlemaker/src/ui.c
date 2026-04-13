@@ -1,15 +1,9 @@
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
+#define CIMGUI_USE_OPENGL3
+#define CIMGUI_USE_GLFW
 #include <GLFW/glfw3.h>
 #include <cimgui.h>
-
-void ImGui_ImplGlfw_InitForOpenGL(GLFWwindow*, char);
-void ImGui_ImplGlfw_Shutdown();
-void ImGui_ImplGlfw_NewFrame();
-
-void ImGui_ImplOpenGL3_Init(const char*);
-void ImGui_ImplOpenGL3_Shutdown();
-void ImGui_ImplOpenGL3_RenderDrawData(ImDrawData*);
-void ImGui_ImplOpenGL3_NewFrame();
+#include <cimgui_impl.h>
 
 static ImGuiContext* ctx;
 static ImGuiIO* io;
@@ -17,7 +11,8 @@ static ImGuiIO* io;
 void initUi(GLFWwindow* window)
 {
 	ctx = igCreateContext(0);
-	io = igGetIO();
+	io = igGetIO_Nil();
+  io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
 	const char* glslVersion = "#version 330 core";
 	ImGui_ImplGlfw_InitForOpenGL(window, 1);

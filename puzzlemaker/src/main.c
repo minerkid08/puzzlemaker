@@ -14,10 +14,10 @@
 #include "camera.h"
 #include "item.h"
 #include "ui.h"
+#include "ui/itemPanel.h"
 #include "utils.h"
 #include "voxel.h"
 #include "voxelModification.h"
-#include "ui/itemPanel.h"
 
 #define MODE_NONE 0
 #define MODE_ORBIT 1
@@ -31,30 +31,19 @@ double my;
 
 vec3 tempPos;
 vec3 tempRot;
+vec4 mouseDir;
 
 char windowHovered = 0;
+
+Item** pickPtr = 0;
 
 ImGuiIO* io;
 
 void findSelected()
 {
-	mat4 rotMat;
-
-	glm_mat4_identity(rotMat);
-	glm_rotate_z(rotMat, cameraRot[2], rotMat);
-	glm_rotate_y(rotMat, cameraRot[1], rotMat);
-	glm_rotate_x(rotMat, cameraRot[0], rotMat);
-
-	vec4 dir = {0, 0, -1, 1};
-
-	dir[1] = (fovy / 2) - (my / WINDOW_HEIGHT) * fovy;
-	dir[0] = (-fovx / 2) + (mx / WINDOW_WIDTH) * fovx;
-
-	glm_mat4_mulv(rotMat, dir, dir);
-
 	currentVoxel = 0;
 	RaycastHit hit;
-	if (voxelRaycast(cameraPos, dir, 10, &hit))
+	if (voxelRaycast(cameraPos, mouseDir, 10, &hit))
 	{
 		currentVoxel = hit.voxel;
 		currentDir = hit.dir;
@@ -69,35 +58,17 @@ void mouseZoomCallback(GLFWwindow* window, double x, double y);
 
 int main()
 {
-	initItems();
-
-	ItemDefinition def;
-	def.name = "testItem";
-	def.boundingBox[0] = 1.0f;
-	def.boundingBox[1] = 1.0f;
-	def.boundingBox[2] = 0.1f;
-
-	def.faceRestrictions = FaceRestriction_Wall;
-	def.snappingMode = SnappingMode_Center;
-
-	def.material = "item.png";
-
 	glfwInit();
 	GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "puzzlemaker", 0, 0);
 	glfwMakeContextCurrent(window);
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
+	initItems();
+
 	initVoxels();
 
 	initRenderer();
 	initCamera();
-
-	addItemDef(&def);
-
-	initUi(window);
-  initItemPanel();
-
-	io = igGetIO();
 
 	glfwSetKeyCallback(window, keyCallback);
 	glfwSetMouseButtonCallback(window, mouseCallback);
@@ -105,6 +76,11 @@ int main()
 	glfwSetScrollCallback(window, mouseZoomCallback);
 
 	glfwSwapInterval(1);
+
+	initUi(window);
+	initItemPanel();
+
+	io = igGetIO_Nil();
 
 	glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
 
@@ -124,9 +100,11 @@ int main()
 		drawVoxels(cameraPos, cameraRot);
 		endFrame();
 
-    uiNewFrame();
+		drawItems();
 
-    itemPanelRender();
+		uiNewFrame();
+
+		itemPanelRender();
 
 		uiEndFrame();
 
@@ -179,7 +157,34 @@ void mouseCallback(GLFWwindow* window, int button, int action, int mods)
 		}
 		if (button == GLFW_MOUSE_BUTTON_1)
 		{
-			findSelected();
+			mat4 rotMat;
+
+			glm_mat4_identity(rotMat);
+			glm_rotate_z(rotMat, cameraRot[2], rotMat);
+			glm_rotate_y(rotMat, cameraRot[1], rotMat);
+			glm_rotate_x(rotMat, cameraRot[0], rotMat);
+
+			vec4 dir = {0, 0, -1, 1};
+
+			dir[1] = (fovy / 2) - (my / WINDOW_HEIGHT) * fovy;
+			dir[0] = (-fovx / 2) + (mx / WINDOW_WIDTH) * fovx;
+
+			glm_mat4_mulv(rotMat, dir, mouseDir);
+
+			currentVoxel = 0;
+			Item* item = findSelectedItem(cameraPos, mouseDir, 10);
+			if (pickPtr)
+			{
+				*pickPtr = item;
+				pickPtr = 0;
+			}
+			else if (item)
+				setSelectedItem(item);
+			else
+      {
+				setSelectedItem(0);
+				findSelected();
+      }
 		}
 	}
 	if (action == GLFW_RELEASE)

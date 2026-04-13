@@ -1,9 +1,11 @@
 #pragma once
 
+#include "renderer/mesh.h"
 #include <cglm/cglm.h>
 
-typedef union
-{
+#define TYPE_BOOLEAN 1
+
+typedef union {
 	int i;
 	float f;
 	char b;
@@ -21,7 +23,7 @@ typedef struct
 {
 	const char* name;
 	const char* trueInput;
-	const char* falseOutput;
+	const char* falseInput;
 } InputDef;
 
 typedef struct
@@ -29,7 +31,6 @@ typedef struct
 	const char* name;
 	const char* trueOutput;
 	const char* falseOutput;
-	char inverted;
 } OutputDef;
 
 typedef struct
@@ -37,21 +38,54 @@ typedef struct
 	const char* name;
 	const char* modelName;
 	const char* textureName;
+	const char* instanceName;
 	ItemKvDef* kvs;
-	
+
+  InputDef* inputs;
+  OutputDef* outputs;
+
+  Mesh mesh;
+  unsigned int texture;
+
+  vec4 bound1;
+  vec4 bound2;
 } ItemDefinition;
 
 typedef struct
 {
+	ItemKvDef* def;
+	V value;
+} ItemKv;
+
+typedef struct Item Item;
+
+typedef struct
+{
+	OutputDef* def;
+	Item* entity;
+	InputDef* input;
+  char inverted;
+} ItemOutput;
+
+struct Item
+{
+	int index;
 	int id;
 	vec3 pos;
 	vec3 dir;
-} Item;
+  mat4 transform;
+  
+  ItemKv* kv;
+  ItemOutput* outputs;
+
+	ItemDefinition* def;
+};
 
 void initItems();
 
 void drawItems();
 
+void updateItemTransform(Item* item);
 void updateSelectedItem();
 Item* findSelectedItem(vec3 pos, vec3 dir, float len);
 Item* getSelectedItem();
@@ -61,6 +95,7 @@ void endMove();
 
 void addItemDef(ItemDefinition* def);
 ItemDefinition* getItemDefinitions();
+Item** getItems();
 
 Item* addItem(int id);
-void removeItem(int id);
+void removeItem(Item* item);

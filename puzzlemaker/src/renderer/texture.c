@@ -4,15 +4,24 @@
 
 unsigned int loadTexture(const char* filename)
 {
+	int l = strlen(filename) + 17;
+	char* buf = malloc(l + 1);
+
+	sprintf(buf, "assets/materials/%s\n", filename);
+	buf[l] = 0;
+
 	int channels;
 	int width;
 	int height;
-	unsigned char* data = stbi_load(filename, &width, &height, &channels, 0);
+	unsigned char* data = stbi_load(buf, &width, &height, &channels, 0);
 	if (data == 0)
 	{
-		printf("failed to load image: '%s'\n", filename);
+		printf("failed to load image: '%s'\n", buf);
 		return 0;
 	}
+
+  free(buf);
+
 	int format = (channels == 4 ? GL_RGBA : GL_RGB);
 	int intFormat = (channels == 4 ? GL_RGBA8 : GL_RGBA8);
 	unsigned int id;

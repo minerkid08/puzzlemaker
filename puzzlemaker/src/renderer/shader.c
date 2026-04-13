@@ -3,42 +3,23 @@
 #include "glad/glad.h"
 #include <stdio.h>
 #include <stdlib.h>
-
-const char* vertSrc = R"(
-#version 330 core
-layout(location = 0) in vec4 pos;
-layout(location = 1) in vec2 uv;
-layout(location = 2) in vec4 tint;
-uniform mat4 mat;
-uniform mat4 cam;
-out vec2 iuv;
-out vec4 itint;
-void main()
-{
-  iuv = uv;
-  itint = tint;
-  gl_Position = mat * cam * pos;
-}
-)";
-
-const char* fragSrc = R"(
-#version 330 core
-uniform sampler2D tex;
-in vec2 iuv;
-in vec4 itint;
-out vec4 color;
-void main()
-{
-  color = texture(tex, iuv) * itint;
-}
-)";
+#include <string.h>
 
 int makeShaderInt(int type, const char* src);
 
-unsigned int makeShader()
+unsigned int makeShader(const char* name)
 {
-	int vert = makeShaderInt(GL_VERTEX_SHADER, vertSrc);
-	int frag = makeShaderInt(GL_FRAGMENT_SHADER, fragSrc);
+  int len = strlen(name) + 14;
+
+  char* buf = malloc(len + 1);
+
+  sprintf(buf, "shaders/%s.vert", name);
+	int vert = makeShaderInt(GL_VERTEX_SHADER, buf);
+
+  sprintf(buf, "shaders/%s.frag", name);
+	int frag = makeShaderInt(GL_FRAGMENT_SHADER, buf);
+
+  free(buf);
 
 	int prgmId = glCreateProgram();
 	glAttachShader(prgmId, vert);
@@ -79,10 +60,22 @@ void setUndformi(unsigned int id, const char* name, int value)
 	glUniform1i(loc, value);
 }
 
-int makeShaderInt(int type, const char* src)
+int makeShaderInt(int type, const char* filename)
 {
+  FILE* file = fopen(filename, "rb");
+
+  fseek(file, 0, SEEK_END);
+  int l = ftell(file);
+  fseek(file, 0, SEEK_SET);
+  
+  char* buf = malloc(l + 1);
+  fread(buf, 1, l, file);
+  fclose(file);
+  buf[l] = 0;
+
 	int id = glCreateShader(type);
-	glShaderSource(id, 1, &src, 0);
+	glShaderSource(id, 1, (const char**)&buf, 0);
+  free(buf);
 	glCompileShader(id);
 	int state;
 	glGetShaderiv(id, GL_COMPILE_STATUS, &state);

@@ -1,21 +1,14 @@
-{
+[
 	{
 		"name": "door",
-		"model": "door.stl",
+		"model": "door.obj",
 		"mat": "door.png",
+    "instance": "puzzlemaker/door",
+    "bound1": [0, 0, -1],
+    "bound2": [0.5, 2, 1],
 		"keyvalues": [
 			{
-				"name": "startOpened",
-				"type": "boolean",
-				"defaultValue": false
-			},
-			{
-				"name": "frontPortal",
-				"type": "boolean",
-				"defaultValue": false
-			},
-			{
-				"name": "backPortal",
+				"name": "startOpen",
 				"type": "boolean",
 				"defaultValue": false
 			}
@@ -23,14 +16,54 @@
 		"inputs": [
 			{
 				"name": "open",
-				"trueInput": "Open",
-				"falseInput": "Close",
+				"trueInput": "instance:door;Open",
+				"falseInput": "instance:door;Close"
 			},
 			{
 				"name": "lock",
-				"trueInput": "Lock",
-				"falseInput": "Unlock",
+				"trueInput": "instance:door;Lock",
+				"falseInput": "instance:door;Unlock"
 			}
-		]
+		],
+		"outputs": []
+	},
+	{
+		"name": "cube",
+		"model": "cube.obj",
+		"mat": "cube.png",
+    "instance": "puzzlemaker/cube",
+    "bound1": [-0.5, 0, -0.5],
+    "bound2": [0.5, 1, 0.5],
+		"keyvalues": [],
+		"inputs": [],
+		"outputs": []
+	},
+  {
+    "name": "button",
+    "model": "button.obj",
+    "mat": "button.png",
+    "instance": "puzzlemaker/button",
+    "bound1": [-1, 0, -1],
+    "bound2": [1, 0.3, 1],
+    "keyvalues": [],
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "press",
+        "trueOutput": "instance:(button);OnPressed",
+        "falseOutput": "instance:(button);OnUnPressed"
+      }
+    ]
+  },
+	{
+		"name": "start",
+		"model": "cube.obj",
+		"mat": "door.png",
+    "instance": "puzzlemaker/start",
+    "bound1": [-0.5, 0, -0.5],
+    "bound2": [0.5, 1, 0.5],
+		"keyvalues": [],
+		"inputs": [],
+		"outputs": []
 	}
-}
+]

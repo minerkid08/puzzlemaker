@@ -2,7 +2,7 @@
 #include "cglm/types.h"
 #include "glad/glad.h"
 #include "renderer/shader.h"
-#include <stdio.h>
+#include "debug.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -27,14 +27,27 @@ static int quadCount = 0;
 #define NUM_QUADS 64
 #define NUM_VERTS NUM_QUADS * 4
 
+static mat4 camMat;
+static mat4 projMat;
+
+mat4* getProjMat()
+{
+  return &projMat;
+}
+
+mat4* getCamMat()
+{
+  return &camMat;
+}
+
 void setProjMat(mat4 mat)
 {
-	setUniformMat4(prgmId, "mat", mat);
+  memcpy(projMat, mat, sizeof(mat4));
 }
 
 void setCamMat(mat4 mat)
 {
-	setUniformMat4(prgmId, "cam", mat);
+  memcpy(camMat, mat, sizeof(mat4));
 }
 
 #define glErrCheck()                                                                                                   \
@@ -49,11 +62,9 @@ void setCamMat(mat4 mat)
 
 void initRenderer()
 {
-	prgmId = makeShader();
+  initDebug();
 
-	glUseProgram(prgmId);
-
-	setUndformi(prgmId, "tex", 0);
+	prgmId = makeShader("voxel");
 
 	glCreateVertexArrays(1, &va);
 	glBindVertexArray(va);
@@ -62,12 +73,12 @@ void initRenderer()
 	glBindBuffer(GL_ARRAY_BUFFER, vb);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * NUM_VERTS, 0, GL_DYNAMIC_DRAW);
 
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(float), 0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)(4 * sizeof(float)));
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(float), 0);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)(6 * sizeof(float)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)(4 * sizeof(float)));
 	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)(6 * sizeof(float)));
 
 	int indsSize = sizeof(unsigned int) * 6 * NUM_QUADS;
 	unsigned int* inds = malloc(indsSize);
@@ -82,7 +93,6 @@ void initRenderer()
 		inds[i + 5] = v + 3;
 		v += 4;
 	}
-
 
 	glCreateBuffers(1, &ib);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib);
@@ -105,12 +115,19 @@ void bindTexture(unsigned int texture)
 
 void endFrame()
 {
+  glBindVertexArray(va);
 	glBindBuffer(GL_ARRAY_BUFFER, vb);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * vertCount, vertBase);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib);
 	glUseProgram(prgmId);
+
+	setUndformi(prgmId, "tex", 0);
+	setUniformMat4(prgmId, "cam", camMat);
+	setUniformMat4(prgmId, "mat", projMat);
+
 	glDrawElements(GL_TRIANGLES, quadCount * 6, GL_UNSIGNED_INT, 0);
 
+  glBindVertexArray(0);
 	verts = vertBase;
 	vertCount = 0;
 	quadCount = 0;
@@ -140,4 +157,21 @@ void drawVerts(vec3* positions, vec4 tint)
 	quadCount++;
 	if (quadCount >= NUM_QUADS)
 		endFrame();
+}
+
+void drawMesh(Mesh *mesh, unsigned int texture, mat4 transform)
+{
+  bindTexture(texture);
+  glBindVertexArray(mesh->vertexArray);
+	glBindBuffer(GL_ARRAY_BUFFER, mesh->vertBuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->indexBuffer);
+	glUseProgram(mesh->shader);
+
+	setUndformi(mesh->shader, "tex", 0);
+	setUniformMat4(mesh->shader, "cam", camMat);
+	setUniformMat4(mesh->shader, "mat", projMat);
+	setUniformMat4(mesh->shader, "trans", transform);
+
+	glDrawElements(GL_TRIANGLES, mesh->vertCount, GL_UNSIGNED_INT, 0);
+  glBindVertexArray(0);
 }

@@ -79,16 +79,31 @@ void itemPanelRender()
 	{
 		igText("%s, %d", currentItem->def->name, currentItem->index);
 		if (igButton("remove", zero))
+    {
 			removeItem(currentItem);
+      goto end;
+    }
 
-		if (igDragFloat3("position", currentItem->pos, 0.25, 0.0f, 0.0f, "%.3f", 0))
+		if (igDragFloat3("position", currentItem->pos, 0.01f, 0.0f, 0.0f, "%.3f", 0))
 			updateItemTransform(currentItem);
-		if (igDragFloat3("rotation", currentItem->dir, 45, 0.0f, 0.0f, "%.3f", 0))
+		if (igDragFloat3("rotation", currentItem->dir, 0.01f, 0.0f, 0.0f, "%.3f", 0))
 			updateItemTransform(currentItem);
 
-		igSeparator();
+		igSeparatorText("kvs");
 
-		int l = dynList_size(currentItem->outputs);
+    int l = dynList_size(currentItem->def->kvs);
+    for(int i = 0; i < l; i++)
+    {
+      ItemKv* kv = &currentItem->kv[i];
+      if(kv->def->type == TYPE_INT)
+        igInputInt(kv->def->name, &kv->value.i, 1, 0, 0);
+      if(kv->def->type == TYPE_BOOL)
+        igCheckbox(kv->def->name, (bool*)&kv->value.b);
+    }
+
+		igSeparatorText("outputs");
+
+		l = dynList_size(currentItem->outputs);
 
 		int defCount = dynList_size(currentItem->def->outputs);
 		if (defCount == 0)
@@ -163,5 +178,6 @@ void itemPanelRender()
 			}
 		}
 	}
+end:
 	igEnd();
 }

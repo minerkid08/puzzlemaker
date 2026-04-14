@@ -81,6 +81,20 @@ void save(const char* name)
 			cJSON_AddStringToObject(outputJson, "input", outputItem->input->name);
 			cJSON_AddStringToObject(outputJson, "output", outputItem->def->name);
 		}
+
+		cJSON* kvList = cJSON_CreateObject();
+		cJSON_AddItemToObject(itemJson, "kv", kvList);
+    int l = dynList_size(item->kv);
+    for(int i = 0; i < l; i++)
+    {
+      ItemKv* kv = &item->kv[i];
+      cJSON* item;
+      if(kv->def->type == TYPE_INT)
+        item = cJSON_CreateNumber(kv->value.i);
+      if(kv->def->type == TYPE_BOOL)
+        item = cJSON_CreateBool(kv->value.b);
+      cJSON_AddItemToObject(kvList, kv->def->name, item);
+    }
 	}
 
 	char* str = cJSON_PrintUnformatted(json);
@@ -166,7 +180,6 @@ void load(const char* name)
 		item->dir[2] = jsonArrGetFloat(rot, 2);
 
     item->def = &getItemDefinitions()[item->id];
-		item->kv = dynList_new(0, sizeof(ItemKv));
     updateItemTransform(item);
 
     cJSON* outputList = cJSON_GetObjectItem(itemJson, "outputs");
@@ -199,5 +212,21 @@ void load(const char* name)
       }
       free((void*)inputName);
     }
+
+    cJSON* kvJson = cJSON_GetObjectItem(itemJson, "kv");
+    int len = dynList_size(item->def->kvs);
+		item->kv = dynList_new(len, sizeof(ItemKv));
+    for(int i = 0; i < len; i++)
+    {
+      ItemKvDef* def = &item->def->kvs[i];
+      ItemKv* kv = &item->kv[i];
+      kv->def = def;
+
+      if(def->type == TYPE_INT)
+        kv->value.i = jsonGetInt(kvJson, def->name);
+      if(def->type == TYPE_BOOL)
+        kv->value.b = jsonGetBool(kvJson, def->name);
+    }
 	}
+  cJSON_free(json);
 }

@@ -9,7 +9,7 @@
 		"keyvalues": [
 			{
 				"name": "startOpen",
-				"type": "boolean",
+				"type": "bool",
 				"defaultValue": false
 			}
 		],
@@ -31,10 +31,22 @@
 		"name": "cube",
 		"model": "cube.obj",
 		"mat": "cube.png",
-    "instance": "puzzlemaker/cube",
+    "entity": "prop_weighted_cube",
     "bound1": [-0.5, 0, -0.5],
     "bound2": [0.5, 1, 0.5],
-		"keyvalues": [],
+		"keyvalues": [
+    {
+      "name": "CubeBehavior",
+      "type": "int",
+      "defaultValue": 0
+    },
+    {
+      "name": "CubeShape",
+      "type": "int",
+      "defaultValue": 0
+    }
+    ],
+    "statickvs": [],
 		"inputs": [],
 		"outputs": []
 	},
@@ -50,8 +62,8 @@
     "outputs": [
       {
         "name": "press",
-        "trueOutput": "instance:(button);OnPressed",
-        "falseOutput": "instance:(button);OnUnPressed"
+        "trueOutput": "instance:button;OnPressed",
+        "falseOutput": "instance:button;OnUnPressed"
       }
     ]
   },
@@ -59,7 +71,7 @@
 		"name": "start",
 		"model": "cube.obj",
 		"mat": "door.png",
-    "instance": "puzzlemaker/start",
+    "entity": "info_player_start",
     "bound1": [-0.5, 0, -0.5],
     "bound2": [0.5, 1, 0.5],
 		"keyvalues": [],

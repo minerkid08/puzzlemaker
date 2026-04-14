@@ -95,7 +95,24 @@ int main()
 		dt = now - lastTime;
 		lastTime = now;
 
+		float moveForward = glfwGetKey(window, GLFW_KEY_W) - glfwGetKey(window, GLFW_KEY_S);
+		float moveRight = glfwGetKey(window, GLFW_KEY_D) - glfwGetKey(window, GLFW_KEY_A);
+
+		float lookUp = glfwGetKey(window, GLFW_KEY_UP) - glfwGetKey(window, GLFW_KEY_DOWN);
+		float lookRight = glfwGetKey(window, GLFW_KEY_RIGHT) - glfwGetKey(window, GLFW_KEY_LEFT);
+
+		cameraRot[0] += lookUp * dt;
+		cameraRot[1] -= lookRight * dt;
+
 		updateCamera();
+
+    cameraPos[0] += forward[0] * moveForward * dt * 2;
+    cameraPos[1] += forward[1] * moveForward * dt * 2;
+    cameraPos[2] += forward[2] * moveForward * dt * 2;
+
+    cameraPos[0] += right[0] * moveRight * dt * 2;
+    cameraPos[1] += right[1] * moveRight * dt * 2;
+    cameraPos[2] += right[2] * moveRight * dt * 2;
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -129,9 +146,6 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 			voxelPull();
 		if (key == GLFW_KEY_3)
 			voxelTogglePortal();
-
-		if (key == GLFW_KEY_4)
-			addItem(0);
 	}
 }
 
@@ -183,10 +197,10 @@ void mouseCallback(GLFWwindow* window, int button, int action, int mods)
 			else if (item)
 				setSelectedItem(item);
 			else
-      {
+			{
 				setSelectedItem(0);
 				findSelected();
-      }
+			}
 		}
 	}
 	if (action == GLFW_RELEASE)

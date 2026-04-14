@@ -30,8 +30,8 @@ void addSide(FILE* file, ivec3 verts[4], int i, int dir, const char* mat)
 
 	char planeBuf[50];
 	snprintf(planeBuf, 50, "(%d %d %d) (%d %d %d) (%d %d %d)", -verts[0][0] * 64, verts[0][2] * 64, verts[0][1] * 64,
-			 -verts[1][0] * 64, verts[1][2] * 64, verts[1][1] * 64, -verts[2][0] * 64, verts[2][2] * 64,
-			 verts[2][1] * 64);
+			 -verts[2][0] * 64, verts[2][2] * 64, verts[2][1] * 64, -verts[3][0] * 64, verts[3][2] * 64,
+			 verts[3][1] * 64);
 
 	fprintf(file, SIDEINDENT "\"plane\" \"%s\"\n", planeBuf);
 
@@ -39,10 +39,10 @@ void addSide(FILE* file, ivec3 verts[4], int i, int dir, const char* mat)
 	fprintf(file, SIDEINDENT "{\n");
 	fprintf(file, SIDEINDENT "  \"numpts\" \"4\"\n");
 
-	fprintf(file, SIDEINDENT "  \"point\" \"0 %d %d %d\"\n", -verts[1][0] * 64, verts[1][2] * 64, verts[1][1] * 64);
-	fprintf(file, SIDEINDENT "  \"point\" \"1 %d %d %d\"\n", -verts[3][0] * 64, verts[3][2] * 64, verts[3][1] * 64);
-	fprintf(file, SIDEINDENT "  \"point\" \"2 %d %d %d\"\n", -verts[2][0] * 64, verts[2][2] * 64, verts[2][1] * 64);
-	fprintf(file, SIDEINDENT "  \"point\" \"3 %d %d %d\"\n", -verts[0][0] * 64, verts[0][2] * 64, verts[0][1] * 64);
+	fprintf(file, SIDEINDENT "  \"point\" \"0 %d %d %d\"\n", -verts[0][0] * 64, verts[0][2] * 64, verts[0][1] * 64);
+	fprintf(file, SIDEINDENT "  \"point\" \"1 %d %d %d\"\n", -verts[2][0] * 64, verts[2][2] * 64, verts[2][1] * 64);
+	fprintf(file, SIDEINDENT "  \"point\" \"2 %d %d %d\"\n", -verts[3][0] * 64, verts[3][2] * 64, verts[3][1] * 64);
+	fprintf(file, SIDEINDENT "  \"point\" \"3 %d %d %d\"\n", -verts[1][0] * 64, verts[1][2] * 64, verts[1][1] * 64);
 
 	fprintf(file, SIDEINDENT "}\n");
 	fprintf(file, SIDEINDENT "\"material\" \"%s\"\n", mat);
@@ -153,7 +153,9 @@ void generateItem(FILE* file, Item* item)
 	char buf[100];
 	snprintf(buf, 100, "%s%d", item->def->name, item->index);
 
-	fprintf(file, R"(
+	if (item->def->type == ENTITY_TYPE_INSTANCE)
+	{
+		fprintf(file, R"(
 entity
 {
   "id" "%d"
@@ -162,8 +164,26 @@ entity
   "angles" "%f %f %f"
   "targetname" "%s"
   "file" "%s")",
-			item->index, -item->pos[0] * 64, item->pos[2] * 64, item->pos[1] * 64, item->dir[0], item->dir[1],
-			item->dir[2], buf, item->def->instanceName);
+				item->index, -item->pos[0] * 64, item->pos[2] * 64, item->pos[1] * 64, item->dir[0], item->dir[1],
+				item->dir[2], buf, item->def->instanceName);
+	}
+	else
+	{
+		fprintf(file, R"(
+entity
+{
+  "id" "%d"
+  "classname" "%s"
+  "origin" "%f %f %f"
+  "angles" "%f %f %f"
+  "targetname" "%s")",
+				item->index, item->def->instanceName, -item->pos[0] * 64, item->pos[2] * 64, item->pos[1] * 64,
+				item->dir[0], item->dir[1], item->dir[2], buf);
+	}
+
+	int l = dynList_size(item->def->staticKvs);
+	for (int i = 0; i < l; i++)
+		fprintf(file, "\n %s", item->def->staticKvs[i]);
 
 	int outputLen = dynList_size(item->outputs);
 	if (outputLen > 0)
@@ -175,13 +195,17 @@ entity
 			snprintf(buf, 100, "%s%d", output->entity->def->name, output->entity->index);
 			if (output->inverted)
 			{
-				fprintf(file, "    \"%s\" \"%s,%s,,0,-1\"\n", output->def->trueOutput, buf, output->input->falseInput);
-				fprintf(file, "    \"%s\" \"%s,%s,,0,-1\"\n", output->def->falseOutput, buf, output->input->trueInput);
+				fprintf(file, "    \"%s\" \"%s\x1b%s\x1b\x1b 0\x1b-1\"\n", output->def->trueOutput, buf,
+						output->input->falseInput);
+				fprintf(file, "    \"%s\" \"%s\x1b%s\x1b\x1b 0\x1b-1\"\n", output->def->falseOutput, buf,
+						output->input->trueInput);
 			}
 			else
 			{
-				fprintf(file, "    \"%s\" \"%s,%s,,0,-1\"\n", output->def->trueOutput, buf, output->input->trueInput);
-				fprintf(file, "    \"%s\" \"%s,%s,,0,-1\"\n", output->def->falseOutput, buf, output->input->falseInput);
+				fprintf(file, "    \"%s\" \"%s\x1b%s\x1b\x1b 0\x1b-1\"\n", output->def->trueOutput, buf,
+						output->input->trueInput);
+				fprintf(file, "    \"%s\" \"%s\x1b%s\x1b\x1b 0\x1b-1\"\n", output->def->falseOutput, buf,
+						output->input->falseInput);
 			}
 		}
 		fprintf(file, "  }");

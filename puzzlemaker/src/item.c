@@ -1,11 +1,11 @@
 #include "item.h"
 #include "cglm/mat4.h"
 #include "cglm/vec3.h"
+#include "jsonUtils.h"
+#include "renderer/debug.h"
 #include "renderer/mesh.h"
 #include "renderer/renderer.h"
 #include "renderer/texture.h"
-#include "renderer/debug.h"
-#include "jsonUtils.h"
 
 #include <cjson.h>
 #include <dynList.h>
@@ -50,7 +50,16 @@ void initItems()
 		printf("name: %s\n", def->name);
 		def->modelName = jsonGetStr(item, "model");
 		def->textureName = jsonGetStr(item, "mat");
-		def->instanceName = jsonGetStr(item, "instance");
+		if (cJSON_HasObjectItem(item, "instance"))
+		{
+			def->type = ENTITY_TYPE_INSTANCE;
+			def->instanceName = jsonGetStr(item, "instance");
+		}
+		else
+		{
+			def->type = ENTITY_TYPE_ENTITY;
+			def->instanceName = jsonGetStr(item, "entity");
+		}
 
 		cJSON* keyValues = cJSON_GetObjectItem(item, "keyvalues");
 		len = cJSON_GetArraySize(keyValues);
@@ -64,10 +73,15 @@ void initItems()
 			kvDef->name = jsonGetStr(kv, "name");
 
 			cJSON* type = cJSON_GetObjectItem(kv, "type");
-			if (strcmp(type->valuestring, "boolean") == 0)
+			if (strcmp(type->valuestring, "bool") == 0)
 			{
-				kvDef->type = TYPE_BOOLEAN;
+				kvDef->type = TYPE_BOOL;
 				kvDef->defaultValue.b = jsonGetBool(kv, "defaultValue");
+			}
+			if (strcmp(type->valuestring, "int") == 0)
+			{
+				kvDef->type = TYPE_INT;
+				kvDef->defaultValue.i = jsonGetInt(kv, "defaultValue");
 			}
 		}
 
@@ -111,6 +125,20 @@ void initItems()
 
 		def->mesh = loadMesh(def->modelName);
 		def->texture = loadTexture(def->textureName);
+
+    cJSON* staticKvs = cJSON_GetObjectItem(item, "statickvs");
+    len = cJSON_GetArraySize(staticKvs);
+    def->staticKvs = dynList_new(len, sizeof(char*));
+    for(int i = 0; i < len; i++)
+    {
+      char* s = (char*)jsonArrGetStr(staticKvs, i);
+      for(int j = 0; j < strlen(s); j++)
+      {
+        if(s[j] == '\'')
+          s[j] = '\"';
+      }
+      def->staticKvs[i] = s;
+    }
 	}
 
 	err = cJSON_GetErrorPtr();
@@ -127,8 +155,10 @@ void drawItems()
 	for (int i = 0; i < len; i++)
 	{
 		Item* item = &items[i];
+		if (item->index == -1)
+			continue;
 		drawMesh(&item->def->mesh, item->def->texture, item->transform);
-    //drawDebugRect(item->def->bound1, item->def->bound2);
+		// drawDebugRect(item->def->bound1, item->def->bound2);
 	}
 }
 
@@ -207,7 +237,7 @@ Item* getSelectedItem()
 
 void setSelectedItem(Item* item)
 {
-  selectedItem = item;
+	selectedItem = item;
 }
 
 void updateItemTransform(Item* item)
@@ -267,7 +297,14 @@ Item* addItem(int id)
 	ItemDefinition* def = &definitions[id];
 	item->def = def;
 
-  item->outputs = dynList_new(0, sizeof(ItemOutput));
+	item->outputs = dynList_new(0, sizeof(ItemOutput));
+  int l = dynList_size(def->kvs);
+	item->kv = dynList_new(l, sizeof(ItemKv));
+  for(int i = 0; i < l; i++)
+  {
+    item->kv[i].def = &def->kvs[i];
+    item->kv[i].value = def->kvs[i].defaultValue;
+  }
 
 	selectedItem = item;
 	return item;
@@ -275,6 +312,8 @@ Item* addItem(int id)
 
 void removeItem(Item* item)
 {
+	if (item == selectedItem)
+		selectedItem = 0;
 	dynList_free(item->kv);
 	dynList_free(item->outputs);
 

@@ -93,6 +93,8 @@ void save(const char* name)
         item = cJSON_CreateNumber(kv->value.i);
       if(kv->def->type == TYPE_BOOL)
         item = cJSON_CreateBool(kv->value.b);
+      if(kv->def->type & TYPE_DROPDOWN)
+        item = cJSON_CreateNumber(kv->value.i);
       cJSON_AddItemToObject(kvList, kv->def->name, item);
     }
 	}

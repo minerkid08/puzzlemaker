@@ -1,3 +1,4 @@
+#include "cglm/vec3.h"
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 
 #include "cglm/mat4.h"
@@ -184,6 +185,7 @@ void mouseCallback(GLFWwindow* window, int button, int action, int mods)
 
 			dir[1] = (fovy / 2) - (my / WINDOW_HEIGHT) * fovy;
 			dir[0] = (-fovx / 2) + (mx / WINDOW_WIDTH) * fovx;
+			glm_vec3_norm(dir);
 
 			glm_mat4_mulv(rotMat, dir, mouseDir);
 

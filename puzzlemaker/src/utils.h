@@ -19,3 +19,5 @@
 #define DIR_NEG_Z 5
 
 extern ivec3 dirs[6];
+
+char* copyString(const char* str);

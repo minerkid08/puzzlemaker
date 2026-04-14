@@ -8,7 +8,7 @@
     "bound2": [0.5, 2, 1],
 		"keyvalues": [
 			{
-				"name": "startOpen",
+				"name": "open",
 				"type": "bool",
 				"defaultValue": false
 			}
@@ -35,18 +35,44 @@
     "bound1": [-0.5, 0, -0.5],
     "bound2": [0.5, 1, 0.5],
 		"keyvalues": [
-    {
-      "name": "CubeBehavior",
-      "type": "int",
-      "defaultValue": 0
-    },
-    {
-      "name": "CubeShape",
-      "type": "int",
-      "defaultValue": 0
-    }
+			{
+    	  "name": "CubeBehavior",
+    	  "type": "drop-int",
+    	  "defaultValue": 0,
+				"options": {
+					"Auto": 0,
+					"Standard Cube": 1,
+					"Reflection Cube": 2,
+					"Schrodinger's Cube": 3
+				}
+    	},
+    	{
+    	  "name": "CubeShape",
+    	  "type": "drop-int",
+    	  "defaultValue": 0,
+				"options": {
+					"Auto": 0,
+					"Cubic": 1,
+					"Spherical": 2
+				}
+    	},
+    	{
+    	  "name": "model",
+    	  "type": "drop-string",
+    	  "defaultValue": 0,
+				"options": {
+					"Weighted Storage Cube": "models/props/cubes/standard_cube.mdl",
+					"Weighted Storage Cube (rusty)": "models/props/cubes/standard_cube_rusty.mdl",
+					"Weighted Companion Cube": "models/props/cubes/companion_cube.mdl",
+					"Discouragement Redirection Cube": "models/props/cubes/reflection_cube.mdl",
+					"Discouragement Redirection Cube (rusty)": "models/props/cubes/reflection_cube_rusty.mdl",
+					"Edgeless Safety Cube": "models/props/cubes/sphere.mdl",
+					"Antique Cube": "models/props/cubes/antique_cube.mdl",
+					"Schrodinger's Cube": "models/props/cubes/schrodinger_cube.mdl",
+					"Schrodinger's Cube (rusty)": "models/props/cubes/schrodinger_cube_rusty.mdl"
+				}
+    	}
     ],
-    "statickvs": [],
 		"inputs": [],
 		"outputs": []
 	},

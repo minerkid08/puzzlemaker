@@ -29,6 +29,8 @@ static const char* bin;
 static char curPath[512];
 static char buf[512];
 
+static char failed = 0;
+
 void processString(const char* str)
 {
 	int len = strlen(str);
@@ -133,9 +135,7 @@ int runCmd(char* cmd)
 		for (int i = 0; i < strlen(p2ce); i++)
 		{
 			if (p2ce[i] == '%')
-			{
 				continue;
-			}
 			b2[j] = p2ce[i];
 			j++;
 		}
@@ -151,8 +151,10 @@ int runCmd(char* cmd)
 	else
 	{
 		// Parent process
-
-		wait(0);
+		int status = 0;
+		waitpid(pid, &status, 0);
+		if (status)
+			failed = 1;
 	}
 	return 0;
 }
@@ -163,14 +165,12 @@ void* compileThread(void* e)
 	{
 		char c;
 		read(pipeRead, &c, 1);
-		printf("compiling");
-		fflush(stdout);
 		currentStep = 0;
 		for (int i = 0; i < stepCount; i++)
 		{
 			CompileStep* step = &compileSteps[i];
 			runCmd((char*)step->cmd);
-			if (currentStep == -1)
+			if (failed || currentStep == -1)
 				break;
 			currentStep++;
 		}
@@ -185,10 +185,9 @@ void cancelCompile()
 
 void startCompile(const char* filename)
 {
-	printf("compileStarted");
-	fflush(stdout);
 	getcwd(curPath, 512);
 	strncpy(name, filename, sizeof(name));
+	failed = 0;
 	char c = 1;
 	write(pipeWrite, &c, 1);
 }
@@ -196,6 +195,11 @@ void startCompile(const char* filename)
 int getCompileStep()
 {
 	return currentStep;
+}
+
+char compileFailed()
+{
+	return failed;
 }
 
 int getCompileStepCount()

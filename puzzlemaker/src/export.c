@@ -185,6 +185,25 @@ entity
 	for (int i = 0; i < l; i++)
 		fprintf(file, "\n %s", item->def->staticKvs[i]);
 
+	l = dynList_size(item->def->kvs);
+	for (int i = 0; i < l; i++)
+	{
+		ItemKvDef* def = &item->def->kvs[i];
+		ItemKv* kv = &item->kv[i];
+		if (def->type == TYPE_INT)
+			fprintf(file, "\n  \"%s\" \"%d\"", def->name, kv->value.i);
+		if (def->type == TYPE_BOOL)
+			fprintf(file, "\n  \"%s\" \"%d\"", def->name, (int)kv->value.b);
+		if (def->type & TYPE_DROPDOWN)
+		{
+			int type = (def->type & (~TYPE_DROPDOWN));
+			if (type == TYPE_STRING)
+				fprintf(file, "\n  \"%s\" \"%s\"", def->name, kv->def->dropValues[kv->value.i].s);
+			if (type == TYPE_INT)
+				fprintf(file, "\n  \"%s\" \"%d\"", def->name, kv->def->dropValues[kv->value.i].i);
+		}
+	}
+
 	int outputLen = dynList_size(item->outputs);
 	if (outputLen > 0)
 	{

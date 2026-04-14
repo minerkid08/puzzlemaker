@@ -6,6 +6,7 @@
 #include "renderer/mesh.h"
 #include "renderer/renderer.h"
 #include "renderer/texture.h"
+#include "utils.h"
 
 #include <cjson.h>
 #include <dynList.h>
@@ -83,6 +84,48 @@ void initItems()
 				kvDef->type = TYPE_INT;
 				kvDef->defaultValue.i = jsonGetInt(kv, "defaultValue");
 			}
+			if (strcmp(type->valuestring, "drop-string") == 0)
+			{
+				kvDef->type = TYPE_STRING | TYPE_DROPDOWN;
+				kvDef->defaultValue.i = jsonGetInt(kv, "defaultValue");
+				cJSON* options = cJSON_GetObjectItem(kv, "options");
+				cJSON* opt = options->child;
+				int len = cJSON_GetArraySize(options);
+
+				kvDef->dropNames = dynList_new(len, sizeof(char*));
+				kvDef->dropValues = dynList_new(len, sizeof(V));
+				int i = 0;
+				while(1)
+				{
+					if(opt == 0)
+						break;
+					kvDef->dropNames[i] = copyString(opt->string);
+					kvDef->dropValues[i].s = copyString(opt->valuestring);
+					opt = opt->next;
+					i++;
+				}
+			}
+			if (strcmp(type->valuestring, "drop-int") == 0)
+			{
+				kvDef->type = TYPE_INT | TYPE_DROPDOWN;
+				kvDef->defaultValue.i = jsonGetInt(kv, "defaultValue");
+				cJSON* options = cJSON_GetObjectItem(kv, "options");
+				cJSON* opt = options->child;
+				int len = cJSON_GetArraySize(options);
+
+				kvDef->dropNames = dynList_new(len, sizeof(char*));
+				kvDef->dropValues = dynList_new(len, sizeof(V));
+				int i = 0;
+				while(1)
+				{
+					if(opt == 0)
+						break;
+					kvDef->dropNames[i] = copyString(opt->string);
+					kvDef->dropValues[i].i = opt->valuedouble;
+					opt = opt->next;
+					i++;
+				}
+			}
 		}
 
 		cJSON* inputs = cJSON_GetObjectItem(item, "inputs");
@@ -126,19 +169,19 @@ void initItems()
 		def->mesh = loadMesh(def->modelName);
 		def->texture = loadTexture(def->textureName);
 
-    cJSON* staticKvs = cJSON_GetObjectItem(item, "statickvs");
-    len = cJSON_GetArraySize(staticKvs);
-    def->staticKvs = dynList_new(len, sizeof(char*));
-    for(int i = 0; i < len; i++)
-    {
-      char* s = (char*)jsonArrGetStr(staticKvs, i);
-      for(int j = 0; j < strlen(s); j++)
-      {
-        if(s[j] == '\'')
-          s[j] = '\"';
-      }
-      def->staticKvs[i] = s;
-    }
+		cJSON* staticKvs = cJSON_GetObjectItem(item, "statickvs");
+		len = cJSON_GetArraySize(staticKvs);
+		def->staticKvs = dynList_new(len, sizeof(char*));
+		for (int i = 0; i < len; i++)
+		{
+			char* s = (char*)jsonArrGetStr(staticKvs, i);
+			for (int j = 0; j < strlen(s); j++)
+			{
+				if (s[j] == '\'')
+					s[j] = '\"';
+			}
+			def->staticKvs[i] = s;
+		}
 	}
 
 	err = cJSON_GetErrorPtr();
@@ -298,13 +341,13 @@ Item* addItem(int id)
 	item->def = def;
 
 	item->outputs = dynList_new(0, sizeof(ItemOutput));
-  int l = dynList_size(def->kvs);
+	int l = dynList_size(def->kvs);
 	item->kv = dynList_new(l, sizeof(ItemKv));
-  for(int i = 0; i < l; i++)
-  {
-    item->kv[i].def = &def->kvs[i];
-    item->kv[i].value = def->kvs[i].defaultValue;
-  }
+	for (int i = 0; i < l; i++)
+	{
+		item->kv[i].def = &def->kvs[i];
+		item->kv[i].value = def->kvs[i].defaultValue;
+	}
 
 	selectedItem = item;
 	return item;

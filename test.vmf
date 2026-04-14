@@ -30,7 +30,7 @@ world
 	"maxprojectedtextures" "8"
   solid
   {
-    "id" "69"
+    "id" "1"
     side
     {
       "id" "2"
@@ -154,7 +154,7 @@ world
   }
   solid
   {
-    "id" "70"
+    "id" "2"
     side
     {
       "id" "2"
@@ -278,7 +278,7 @@ world
   }
   solid
   {
-    "id" "71"
+    "id" "3"
     side
     {
       "id" "2"
@@ -402,7 +402,7 @@ world
   }
   solid
   {
-    "id" "72"
+    "id" "4"
     side
     {
       "id" "2"
@@ -526,7 +526,7 @@ world
   }
   solid
   {
-    "id" "73"
+    "id" "5"
     side
     {
       "id" "2"
@@ -650,7 +650,7 @@ world
   }
   solid
   {
-    "id" "74"
+    "id" "6"
     side
     {
       "id" "2"
@@ -774,7 +774,7 @@ world
   }
   solid
   {
-    "id" "75"
+    "id" "7"
     side
     {
       "id" "2"
@@ -898,7 +898,7 @@ world
   }
   solid
   {
-    "id" "76"
+    "id" "8"
     side
     {
       "id" "2"
@@ -1022,7 +1022,7 @@ world
   }
   solid
   {
-    "id" "77"
+    "id" "9"
     side
     {
       "id" "2"
@@ -1146,7 +1146,7 @@ world
   }
   solid
   {
-    "id" "78"
+    "id" "10"
     side
     {
       "id" "2"
@@ -1270,7 +1270,7 @@ world
   }
   solid
   {
-    "id" "79"
+    "id" "11"
     side
     {
       "id" "2"
@@ -1394,7 +1394,7 @@ world
   }
   solid
   {
-    "id" "80"
+    "id" "12"
     side
     {
       "id" "2"
@@ -1518,7 +1518,7 @@ world
   }
   solid
   {
-    "id" "81"
+    "id" "13"
     side
     {
       "id" "2"
@@ -1642,7 +1642,7 @@ world
   }
   solid
   {
-    "id" "82"
+    "id" "14"
     side
     {
       "id" "2"
@@ -1766,7 +1766,7 @@ world
   }
   solid
   {
-    "id" "83"
+    "id" "15"
     side
     {
       "id" "2"
@@ -1890,7 +1890,7 @@ world
   }
   solid
   {
-    "id" "84"
+    "id" "16"
     side
     {
       "id" "2"
@@ -2014,7 +2014,7 @@ world
   }
   solid
   {
-    "id" "85"
+    "id" "17"
     side
     {
       "id" "2"
@@ -2138,7 +2138,7 @@ world
   }
   solid
   {
-    "id" "86"
+    "id" "18"
     side
     {
       "id" "2"
@@ -2262,7 +2262,7 @@ world
   }
   solid
   {
-    "id" "87"
+    "id" "19"
     side
     {
       "id" "2"
@@ -2386,7 +2386,7 @@ world
   }
   solid
   {
-    "id" "88"
+    "id" "20"
     side
     {
       "id" "2"
@@ -2510,7 +2510,7 @@ world
   }
   solid
   {
-    "id" "89"
+    "id" "21"
     side
     {
       "id" "2"
@@ -2634,7 +2634,7 @@ world
   }
   solid
   {
-    "id" "90"
+    "id" "22"
     side
     {
       "id" "2"
@@ -2758,7 +2758,7 @@ world
   }
   solid
   {
-    "id" "91"
+    "id" "23"
     side
     {
       "id" "2"
@@ -2882,7 +2882,7 @@ world
   }
   solid
   {
-    "id" "92"
+    "id" "24"
     side
     {
       "id" "2"
@@ -3006,7 +3006,7 @@ world
   }
   solid
   {
-    "id" "93"
+    "id" "25"
     side
     {
       "id" "2"
@@ -3130,7 +3130,7 @@ world
   }
   solid
   {
-    "id" "94"
+    "id" "26"
     side
     {
       "id" "2"
@@ -3254,7 +3254,7 @@ world
   }
   solid
   {
-    "id" "95"
+    "id" "27"
     side
     {
       "id" "2"
@@ -3378,7 +3378,7 @@ world
   }
   solid
   {
-    "id" "96"
+    "id" "28"
     side
     {
       "id" "2"
@@ -3502,7 +3502,7 @@ world
   }
   solid
   {
-    "id" "97"
+    "id" "29"
     side
     {
       "id" "2"
@@ -3626,7 +3626,7 @@ world
   }
   solid
   {
-    "id" "98"
+    "id" "30"
     side
     {
       "id" "2"
@@ -3750,7 +3750,7 @@ world
   }
   solid
   {
-    "id" "99"
+    "id" "31"
     side
     {
       "id" "2"
@@ -3874,7 +3874,7 @@ world
   }
   solid
   {
-    "id" "100"
+    "id" "32"
     side
     {
       "id" "2"
@@ -3998,7 +3998,7 @@ world
   }
   solid
   {
-    "id" "101"
+    "id" "33"
     side
     {
       "id" "2"
@@ -4122,7 +4122,7 @@ world
   }
   solid
   {
-    "id" "102"
+    "id" "34"
     side
     {
       "id" "2"
@@ -4246,7 +4246,7 @@ world
   }
   solid
   {
-    "id" "103"
+    "id" "35"
     side
     {
       "id" "2"
@@ -4370,7 +4370,7 @@ world
   }
   solid
   {
-    "id" "104"
+    "id" "36"
     side
     {
       "id" "2"
@@ -4494,7 +4494,7 @@ world
   }
   solid
   {
-    "id" "105"
+    "id" "37"
     side
     {
       "id" "2"
@@ -4618,7 +4618,7 @@ world
   }
   solid
   {
-    "id" "106"
+    "id" "38"
     side
     {
       "id" "2"
@@ -4742,7 +4742,7 @@ world
   }
   solid
   {
-    "id" "107"
+    "id" "39"
     side
     {
       "id" "2"
@@ -4866,7 +4866,7 @@ world
   }
   solid
   {
-    "id" "108"
+    "id" "40"
     side
     {
       "id" "2"
@@ -4990,7 +4990,7 @@ world
   }
   solid
   {
-    "id" "109"
+    "id" "41"
     side
     {
       "id" "2"
@@ -5114,7 +5114,7 @@ world
   }
   solid
   {
-    "id" "110"
+    "id" "42"
     side
     {
       "id" "2"
@@ -5238,7 +5238,7 @@ world
   }
   solid
   {
-    "id" "111"
+    "id" "43"
     side
     {
       "id" "2"
@@ -5362,7 +5362,7 @@ world
   }
   solid
   {
-    "id" "112"
+    "id" "44"
     side
     {
       "id" "2"
@@ -5486,7 +5486,7 @@ world
   }
   solid
   {
-    "id" "113"
+    "id" "45"
     side
     {
       "id" "2"
@@ -5610,7 +5610,7 @@ world
   }
   solid
   {
-    "id" "114"
+    "id" "46"
     side
     {
       "id" "2"
@@ -5734,7 +5734,7 @@ world
   }
   solid
   {
-    "id" "115"
+    "id" "47"
     side
     {
       "id" "2"
@@ -5858,7 +5858,7 @@ world
   }
   solid
   {
-    "id" "116"
+    "id" "48"
     side
     {
       "id" "2"
@@ -5982,7 +5982,7 @@ world
   }
   solid
   {
-    "id" "117"
+    "id" "49"
     side
     {
       "id" "2"
@@ -6106,7 +6106,7 @@ world
   }
   solid
   {
-    "id" "118"
+    "id" "50"
     side
     {
       "id" "2"
@@ -6230,7 +6230,7 @@ world
   }
   solid
   {
-    "id" "119"
+    "id" "51"
     side
     {
       "id" "2"
@@ -6354,7 +6354,7 @@ world
   }
   solid
   {
-    "id" "120"
+    "id" "52"
     side
     {
       "id" "2"
@@ -6478,7 +6478,7 @@ world
   }
   solid
   {
-    "id" "121"
+    "id" "53"
     side
     {
       "id" "2"
@@ -6602,7 +6602,7 @@ world
   }
   solid
   {
-    "id" "122"
+    "id" "54"
     side
     {
       "id" "2"
@@ -6726,7 +6726,7 @@ world
   }
   solid
   {
-    "id" "123"
+    "id" "55"
     side
     {
       "id" "2"
@@ -6850,7 +6850,7 @@ world
   }
   solid
   {
-    "id" "124"
+    "id" "56"
     side
     {
       "id" "2"
@@ -6974,7 +6974,7 @@ world
   }
   solid
   {
-    "id" "125"
+    "id" "57"
     side
     {
       "id" "2"
@@ -7098,7 +7098,7 @@ world
   }
   solid
   {
-    "id" "126"
+    "id" "58"
     side
     {
       "id" "2"
@@ -7222,7 +7222,7 @@ world
   }
   solid
   {
-    "id" "127"
+    "id" "59"
     side
     {
       "id" "2"
@@ -7346,7 +7346,7 @@ world
   }
   solid
   {
-    "id" "128"
+    "id" "60"
     side
     {
       "id" "2"
@@ -7470,7 +7470,7 @@ world
   }
   solid
   {
-    "id" "129"
+    "id" "61"
     side
     {
       "id" "2"
@@ -7594,7 +7594,7 @@ world
   }
   solid
   {
-    "id" "130"
+    "id" "62"
     side
     {
       "id" "2"
@@ -7718,7 +7718,7 @@ world
   }
   solid
   {
-    "id" "131"
+    "id" "63"
     side
     {
       "id" "2"
@@ -7842,7 +7842,7 @@ world
   }
   solid
   {
-    "id" "132"
+    "id" "64"
     side
     {
       "id" "2"
@@ -7966,7 +7966,7 @@ world
   }
   solid
   {
-    "id" "133"
+    "id" "65"
     side
     {
       "id" "2"
@@ -8090,7 +8090,7 @@ world
   }
   solid
   {
-    "id" "134"
+    "id" "66"
     side
     {
       "id" "2"
@@ -8214,7 +8214,7 @@ world
   }
   solid
   {
-    "id" "135"
+    "id" "67"
     side
     {
       "id" "2"
@@ -8338,7 +8338,7 @@ world
   }
   solid
   {
-    "id" "136"
+    "id" "68"
     side
     {
       "id" "2"
@@ -8469,6 +8469,7 @@ entity
   "angles" "0.000000 -90.000000 0.000000"
   "targetname" "door0"
   "file" "puzzlemaker/door"
+ "startOpen" "0"
 }
 entity
 {
@@ -8491,6 +8492,8 @@ entity
   "origin" "-341.119995 291.839996 166.399994"
   "angles" "0.000000 0.000000 0.000000"
   "targetname" "cube2"
+ "CubeBehavior" "0"
+ "CubeShape" "0"
 }
 entity
 {

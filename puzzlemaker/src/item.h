@@ -5,6 +5,8 @@
 
 #define TYPE_BOOL 1
 #define TYPE_INT 2
+#define TYPE_STRING 3
+#define TYPE_DROPDOWN 128
 
 #define ENTITY_TYPE_INSTANCE 1
 #define ENTITY_TYPE_ENTITY 2
@@ -21,6 +23,8 @@ typedef struct
 	const char* name;
 	int type;
 	V defaultValue;
+	const char** dropNames;
+	V* dropValues;
 } ItemKvDef;
 
 typedef struct

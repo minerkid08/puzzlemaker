@@ -1,13 +1,12 @@
 #include <stdbool.h>
-#include <stdio.h>
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 
 #include "item.h"
 
-#include "ui/itemPanel.h"
 #include "cimgui.h"
 #include "dynList.h"
 #include "save.h"
+#include "ui/itemPanel.h"
 
 const char** itemNames;
 
@@ -50,11 +49,7 @@ void itemPanelRender()
 		load(filename);
 	if (igButton("compile", zero))
 	{
-		printf("exporting");
-		fflush(stdout);
 		exportMap(filename);
-		printf("exported");
-		fflush(stdout);
 		openCompilePopup(filename);
 	}
 
@@ -79,10 +74,10 @@ void itemPanelRender()
 	{
 		igText("%s, %d", currentItem->def->name, currentItem->index);
 		if (igButton("remove", zero))
-    {
+		{
 			removeItem(currentItem);
-      goto end;
-    }
+			goto end;
+		}
 
 		if (igDragFloat3("position", currentItem->pos, 0.01f, 0.0f, 0.0f, "%.3f", 0))
 			updateItemTransform(currentItem);
@@ -91,15 +86,32 @@ void itemPanelRender()
 
 		igSeparatorText("kvs");
 
-    int l = dynList_size(currentItem->def->kvs);
-    for(int i = 0; i < l; i++)
-    {
-      ItemKv* kv = &currentItem->kv[i];
-      if(kv->def->type == TYPE_INT)
-        igInputInt(kv->def->name, &kv->value.i, 1, 0, 0);
-      if(kv->def->type == TYPE_BOOL)
-        igCheckbox(kv->def->name, (bool*)&kv->value.b);
-    }
+		int l = dynList_size(currentItem->def->kvs);
+		for (int i = 0; i < l; i++)
+		{
+			ItemKv* kv = &currentItem->kv[i];
+			if (kv->def->type == TYPE_INT)
+				igInputInt(kv->def->name, &kv->value.i, 1, 0, 0);
+			if (kv->def->type == TYPE_BOOL)
+				igCheckbox(kv->def->name, (bool*)&kv->value.b);
+
+			if (kv->def->type & TYPE_DROPDOWN)
+			{
+				if (igBeginCombo(kv->def->name, kv->def->dropNames[kv->value.i], 0))
+				{
+					int len = dynList_size(kv->def->dropNames);
+					for (int i = 0; i < len; i++)
+					{
+						char selected = (kv->value.i == i);
+						if (igSelectable_Bool(kv->def->dropNames[i], selected, 0, zero))
+							kv->value.i = i;
+						if (selected)
+							igSetItemDefaultFocus();
+					}
+					igEndCombo();
+				}
+			}
+		}
 
 		igSeparatorText("outputs");
 

@@ -9,3 +9,4 @@ int getCompileStep();
 int getCompileStepCount();
 CompileStep* getCompileSteps();
 void cancelCompile();
+char compileFailed();

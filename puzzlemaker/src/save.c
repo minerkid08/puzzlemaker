@@ -228,6 +228,8 @@ void load(const char* name)
         kv->value.i = jsonGetInt(kvJson, def->name);
       if(def->type == TYPE_BOOL)
         kv->value.b = jsonGetBool(kvJson, def->name);
+      if(def->type & TYPE_DROPDOWN)
+        kv->value.i = jsonGetInt(kvJson, def->name);
     }
 	}
   cJSON_free(json);

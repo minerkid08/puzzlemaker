@@ -153,6 +153,10 @@ void generateItem(FILE* file, Item* item)
 	char buf[100];
 	snprintf(buf, 100, "%s%d", item->def->name, item->index);
 
+	float x = item->pos[0] + item->def->offset[0];
+	float y = item->pos[1] + item->def->offset[1];
+	float z = item->pos[2] + item->def->offset[2];
+
 	if (item->def->type == ENTITY_TYPE_INSTANCE)
 	{
 		fprintf(file, R"(
@@ -164,8 +168,8 @@ entity
   "angles" "%f %f %f"
   "targetname" "%s"
   "file" "%s")",
-				item->index, -item->pos[0] * 64, item->pos[2] * 64, item->pos[1] * 64, item->dir[0], item->dir[1],
-				item->dir[2], buf, item->def->instanceName);
+				item->index, -x * 64, z * 64, y * 64, item->dir[0], item->dir[1], item->dir[2], buf,
+				item->def->instanceName);
 	}
 	else
 	{
@@ -177,8 +181,8 @@ entity
   "origin" "%f %f %f"
   "angles" "%f %f %f"
   "targetname" "%s")",
-				item->index, item->def->instanceName, -item->pos[0] * 64, item->pos[2] * 64, item->pos[1] * 64,
-				item->dir[0], item->dir[1], item->dir[2], buf);
+				item->index, item->def->instanceName, -x * 64, z * 64, y * 64, item->dir[0], item->dir[1], item->dir[2],
+				buf);
 	}
 
 	int l = dynList_size(item->def->staticKvs);

@@ -24,14 +24,14 @@
 				"trueInput": "instance:door;Lock",
 				"falseInput": "instance:door;Unlock"
 			}
-		],
-		"outputs": []
+		]
 	},
 	{
 		"name": "cube",
 		"model": "cube.obj",
 		"mat": "cube.png",
     "entity": "prop_weighted_cube",
+    "offset": [0, 0.5, 0],
     "bound1": [-0.5, 0, -0.5],
     "bound2": [0.5, 1, 0.5],
 		"keyvalues": [
@@ -73,8 +73,9 @@
 				}
     	}
     ],
-		"inputs": [],
-		"outputs": []
+    "statickvs": [
+      "'newskins' '2'"
+    ]
 	},
   {
     "name": "button",
@@ -99,9 +100,6 @@
 		"mat": "door.png",
     "entity": "info_player_start",
     "bound1": [-0.5, 0, -0.5],
-    "bound2": [0.5, 1, 0.5],
-		"keyvalues": [],
-		"inputs": [],
-		"outputs": []
+    "bound2": [0.5, 1, 0.5]
 	}
 ]

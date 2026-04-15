@@ -95,9 +95,9 @@ void initItems()
 				kvDef->dropNames = dynList_new(len, sizeof(char*));
 				kvDef->dropValues = dynList_new(len, sizeof(V));
 				int i = 0;
-				while(1)
+				while (1)
 				{
-					if(opt == 0)
+					if (opt == 0)
 						break;
 					kvDef->dropNames[i] = copyString(opt->string);
 					kvDef->dropValues[i].s = copyString(opt->valuestring);
@@ -116,9 +116,9 @@ void initItems()
 				kvDef->dropNames = dynList_new(len, sizeof(char*));
 				kvDef->dropValues = dynList_new(len, sizeof(V));
 				int i = 0;
-				while(1)
+				while (1)
 				{
-					if(opt == 0)
+					if (opt == 0)
 						break;
 					kvDef->dropNames[i] = copyString(opt->string);
 					kvDef->dropValues[i].i = opt->valuedouble;
@@ -181,6 +181,19 @@ void initItems()
 					s[j] = '\"';
 			}
 			def->staticKvs[i] = s;
+		}
+		cJSON* offset = cJSON_GetObjectItem(item, "bound2");
+		if (offset)
+		{
+			def->offset[0] = jsonArrGetFloat(offset, 0);
+			def->offset[1] = jsonArrGetFloat(offset, 1);
+			def->offset[2] = jsonArrGetFloat(offset, 2);
+		}
+		else
+		{
+			def->offset[0] = 0;
+			def->offset[1] = 0;
+			def->offset[2] = 0;
 		}
 	}
 

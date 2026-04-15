@@ -60,6 +60,7 @@ typedef struct
 
 	vec4 bound1;
 	vec4 bound2;
+	vec3 offset;
 } ItemDefinition;
 
 typedef struct

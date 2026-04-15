@@ -215,7 +215,8 @@ entity
 		for (int i = 0; i < outputLen; i++)
 		{
 			ItemOutput* output = &item->outputs[i];
-			snprintf(buf, 100, "%s%d", output->entity->def->name, output->entity->index);
+      Item* item = getItem(output->entity);
+			snprintf(buf, 100, "%s%d", item->def->name, output->entity);
 			if (output->inverted)
 			{
 				fprintf(file, "    \"%s\" \"%s\x1b%s\x1b\x1b 0\x1b-1\"\n", output->def->trueOutput, buf,

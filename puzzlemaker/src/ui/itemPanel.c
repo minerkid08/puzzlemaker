@@ -14,6 +14,8 @@ int defCount;
 
 extern Item** pickPtr;
 
+static Item* pickEntity;
+
 static char buf[50];
 static char filename[50];
 
@@ -165,14 +167,18 @@ void itemPanelRender()
 						pressed = igButton("entity: none", zero);
 
 					if (pressed)
-						pickPtr = &output->entity;
+          {
+						pickPtr = &pickEntity;
+            output->entity = -1;
+          }
 
-					if (output->entity)
+					if (output->entity != -1)
 					{
+            Item* entity = getItem(output->entity); 
 						const char* inputName = (output->input == 0 ? "none" : output->input->name);
 						if (igBeginCombo("input", inputName, 0))
 						{
-							InputDef* inputs = output->entity->def->inputs;
+							InputDef* inputs = entity->def->inputs;
 							int len = dynList_size(inputs);
 							for (int i = 0; i < len; i++)
 							{

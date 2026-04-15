@@ -74,7 +74,7 @@ typedef struct Item Item;
 typedef struct
 {
 	OutputDef* def;
-	Item* entity;
+	int entity;
 	InputDef* input;
 	char inverted;
 } ItemOutput;
@@ -101,6 +101,7 @@ void updateItemTransform(Item* item);
 void updateSelectedItem();
 Item* findSelectedItem(vec3 pos, vec3 dir, float len);
 Item* getSelectedItem();
+Item* getItem(int i);
 void setSelectedItem(Item* item);
 void startMove();
 void endMove();

@@ -76,7 +76,7 @@ void save(const char* name)
 			cJSON* outputJson = cJSON_CreateObject();
 			cJSON_AddItemToArray(output, outputJson);
 
-			cJSON_AddNumberToObject(outputJson, "ent", outputItem->entity->index);
+			cJSON_AddNumberToObject(outputJson, "ent", outputItem->entity);
 			cJSON_AddBoolToObject(outputJson, "inverted", outputItem->inverted);
 			cJSON_AddStringToObject(outputJson, "input", outputItem->input->name);
 			cJSON_AddStringToObject(outputJson, "output", outputItem->def->name);
@@ -193,7 +193,7 @@ void load(const char* name)
       cJSON* outputJson = cJSON_GetArrayItem(outputList, i);
 
       int itemIndex = jsonGetInt(outputJson, "ent");
-      output->entity = &(*itemList)[itemIndex];
+      output->entity = itemIndex;
       output->inverted = jsonGetBool(outputJson, "inverted");
 
       const char* inputName = jsonGetStr(outputJson, "output");
@@ -206,7 +206,8 @@ void load(const char* name)
       free((void*)inputName);
 
       const char* outputName = jsonGetStr(outputJson, "input");
-      InputDef* inputs = output->entity->def->inputs;
+      Item* item = getItem(output->entity);
+      InputDef* inputs = item->def->inputs;
       for(int j = 0; j < dynList_size(inputs); j++)
       {
         if(strcmp(inputName, inputs[j].name) == 0)

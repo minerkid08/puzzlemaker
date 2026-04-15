@@ -7,6 +7,7 @@ extern float fovy;
 extern float aspect;
 
 extern mat4 projMat;
+extern mat4 projMatInv;
 
 extern vec4 cameraPos;
 extern vec4 cameraRot;

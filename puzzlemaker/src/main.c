@@ -5,8 +5,8 @@
 #include "cglm/mat4.h"
 #include "cglm/types.h"
 #include "cimgui.h"
-#include "renderer/renderer.h"
 #include "renderer/debug.h"
+#include "renderer/renderer.h"
 #include <assert.h>
 #include <cglm/cglm.h>
 #include <glad/glad.h>
@@ -37,8 +37,6 @@ double my;
 
 vec3 tempPos;
 vec3 tempRot;
-vec3 startPos = {0, 0, 0};
-vec3 endPos = {0, 0, 0};
 vec4 mouseDir;
 
 char windowHovered = 0;
@@ -116,13 +114,13 @@ int main()
 
 		updateCamera();
 
-    cameraPos[0] += forward[0] * moveForward * dt * 2;
-    cameraPos[1] += forward[1] * moveForward * dt * 2;
-    cameraPos[2] += forward[2] * moveForward * dt * 2;
+		cameraPos[0] += forward[0] * moveForward * dt * 2;
+		cameraPos[1] += forward[1] * moveForward * dt * 2;
+		cameraPos[2] += forward[2] * moveForward * dt * 2;
 
-    cameraPos[0] += right[0] * moveRight * dt * 2;
-    cameraPos[1] += right[1] * moveRight * dt * 2;
-    cameraPos[2] += right[2] * moveRight * dt * 2;
+		cameraPos[0] += right[0] * moveRight * dt * 2;
+		cameraPos[1] += right[1] * moveRight * dt * 2;
+		cameraPos[2] += right[2] * moveRight * dt * 2;
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -136,8 +134,6 @@ int main()
 		itemPanelRender();
 
 		uiEndFrame();
-
-		drawDebugLine(startPos, endPos);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -185,24 +181,28 @@ void mouseCallback(GLFWwindow* window, int button, int action, int mods)
 		}
 		if (button == GLFW_MOUSE_BUTTON_1)
 		{
+			vec4 dir;
+			dir[0] = mx / width - 0.5f;
+			dir[1] = -my / height + 0.5f;
+
+			float vertAngle = 0.5f * fovy;
+
+			float worldHeight = 2.0f * tanf(vertAngle);
+
+			dir[0] *= worldHeight;
+			dir[1] *= worldHeight;
+			dir[2] = -1;
+			dir[3] = 1;
+
+			dir[0] *= aspect;
+
 			mat4 rotMat;
-
-			float x = (2 * (float)mx) / (float)width - 1;
-			float y = (2 * (float)my) / (float)height - 1;
-			
-			printf("x: %f, y: %f\n", x, y);
-
-			x = asinf(x);
-			y = asinf(y);
-			
-			x *= fovx / 2;
-			y *= fovy / 2;
-
 			glm_mat4_identity(rotMat);
-			glm_rotate_y(rotMat, -x, rotMat);
-			glm_rotate_x(rotMat, y, rotMat);
+			glm_rotate_z(rotMat, cameraRot[2], rotMat);
+			glm_rotate_y(rotMat, cameraRot[1], rotMat);
+			glm_rotate_x(rotMat, cameraRot[0], rotMat);
 
-			glm_mat4_mulv(rotMat, forward, mouseDir);
+			glm_mat4_mulv(rotMat, dir, mouseDir);
 
 			currentVoxel = 0;
 			Item* item = findSelectedItem(cameraPos, mouseDir, 10);
@@ -274,7 +274,4 @@ void windowResizeCallback(GLFWwindow* window, int w, int h)
 	height = h;
 	aspect = (float)w / (float)h;
 	initCamera();
-
-	printf("width: %d, height: %d, aspect %f\n", w, h, aspect);
-	printf("fovx: %f, fovy: %f\n", glm_deg(fovx), glm_deg(fovy));
 }

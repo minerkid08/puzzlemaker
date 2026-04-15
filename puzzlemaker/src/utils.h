@@ -2,11 +2,6 @@
 
 #include "cglm/types.h"
 
-#define WINDOW_WIDTH 1920
-#define WINDOW_HEIGHT 1080
-
-#define ASPECT ((float)WINDOW_WIDTH / (float)WINDOW_HEIGHT)
-
 #define min(x, y) ((x) > (y) ? (y) : (x))
 #define max(x, y) ((x) < (y) ? (y) : (x))
 #define absf(x) ((x) < 0.0f ? -(x) : (x))

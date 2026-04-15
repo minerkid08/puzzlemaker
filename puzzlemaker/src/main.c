@@ -1,10 +1,12 @@
 #include "cglm/vec3.h"
+#include <math.h>
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 
 #include "cglm/mat4.h"
 #include "cglm/types.h"
 #include "cimgui.h"
 #include "renderer/renderer.h"
+#include "renderer/debug.h"
 #include <assert.h>
 #include <cglm/cglm.h>
 #include <glad/glad.h>
@@ -17,13 +19,15 @@
 #include "item.h"
 #include "ui.h"
 #include "ui/itemPanel.h"
-#include "utils.h"
 #include "voxel.h"
 #include "voxelModification.h"
 
 #define MODE_NONE 0
 #define MODE_ORBIT 1
 #define MODE_PAN 2
+
+int width = 1920;
+int height = 1080;
 
 double tx;
 double ty;
@@ -33,6 +37,8 @@ double my;
 
 vec3 tempPos;
 vec3 tempRot;
+vec3 startPos = {0, 0, 0};
+vec3 endPos = {0, 0, 0};
 vec4 mouseDir;
 
 char windowHovered = 0;
@@ -57,12 +63,13 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 void mouseCallback(GLFWwindow* window, int button, int action, int mods);
 void mouseMoveCallback(GLFWwindow* window, double x, double y);
 void mouseZoomCallback(GLFWwindow* window, double x, double y);
+void windowResizeCallback(GLFWwindow* window, int w, int h);
 
 int main()
 {
 	startCompileThread();
 	glfwInit();
-	GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "puzzlemaker", 0, 0);
+	GLFWwindow* window = glfwCreateWindow(1920, 1080, "puzzlemaker", 0, 0);
 	glfwMakeContextCurrent(window);
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
@@ -71,12 +78,14 @@ int main()
 	initVoxels();
 
 	initRenderer();
+	aspect = (float)width / (float)height;
 	initCamera();
 
 	glfwSetKeyCallback(window, keyCallback);
 	glfwSetMouseButtonCallback(window, mouseCallback);
 	glfwSetCursorPosCallback(window, mouseMoveCallback);
 	glfwSetScrollCallback(window, mouseZoomCallback);
+	glfwSetWindowSizeCallback(window, windowResizeCallback);
 
 	glfwSwapInterval(1);
 
@@ -128,6 +137,8 @@ int main()
 
 		uiEndFrame();
 
+		drawDebugLine(startPos, endPos);
+
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
@@ -176,18 +187,22 @@ void mouseCallback(GLFWwindow* window, int button, int action, int mods)
 		{
 			mat4 rotMat;
 
+			float x = (2 * (float)mx) / (float)width - 1;
+			float y = (2 * (float)my) / (float)height - 1;
+			
+			printf("x: %f, y: %f\n", x, y);
+
+			x = asinf(x);
+			y = asinf(y);
+			
+			x *= fovx / 2;
+			y *= fovy / 2;
+
 			glm_mat4_identity(rotMat);
-			glm_rotate_z(rotMat, cameraRot[2], rotMat);
-			glm_rotate_y(rotMat, cameraRot[1], rotMat);
-			glm_rotate_x(rotMat, cameraRot[0], rotMat);
+			glm_rotate_y(rotMat, -x, rotMat);
+			glm_rotate_x(rotMat, y, rotMat);
 
-			vec4 dir = {0, 0, -1, 1};
-
-			dir[1] = (fovy / 2) - (my / WINDOW_HEIGHT) * fovy;
-			dir[0] = (-fovx / 2) + (mx / WINDOW_WIDTH) * fovx;
-			glm_vec3_norm(dir);
-
-			glm_mat4_mulv(rotMat, dir, mouseDir);
+			glm_mat4_mulv(rotMat, forward, mouseDir);
 
 			currentVoxel = 0;
 			Item* item = findSelectedItem(cameraPos, mouseDir, 10);
@@ -250,4 +265,16 @@ void mouseZoomCallback(GLFWwindow* window, double x, double y)
 	cameraPos[0] += forward[0] * y * 0.1;
 	cameraPos[1] += forward[1] * y * 0.1;
 	cameraPos[2] += forward[2] * y * 0.1;
+}
+
+void windowResizeCallback(GLFWwindow* window, int w, int h)
+{
+	glViewport(0, 0, w, h);
+	width = w;
+	height = h;
+	aspect = (float)w / (float)h;
+	initCamera();
+
+	printf("width: %d, height: %d, aspect %f\n", w, h, aspect);
+	printf("fovx: %f, fovy: %f\n", glm_deg(fovx), glm_deg(fovy));
 }

@@ -45,8 +45,10 @@ void itemPanelRender()
 
 	if (igButton("save", zero))
 		save(filename);
+	igSameLine(0, -1);
 	if (igButton("load", zero))
 		load(filename);
+	igSameLine(0, -1);
 	if (igButton("compile", zero))
 	{
 		exportMap(filename);
@@ -54,6 +56,8 @@ void itemPanelRender()
 	}
 
 	updateCompilePopup();
+
+	igSeparatorText("items");
 
 	if (igButton("add", zero))
 		igOpenPopup_Str("pick", 0);

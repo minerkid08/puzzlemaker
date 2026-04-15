@@ -4,6 +4,7 @@
 
 extern float fovx;
 extern float fovy;
+extern float aspect;
 
 extern mat4 projMat;
 

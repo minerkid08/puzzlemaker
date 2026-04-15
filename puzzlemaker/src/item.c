@@ -219,11 +219,17 @@ void drawItems()
 }
 
 void updateSelectedItem();
+
+extern vec3 startPos;
+extern vec3 endPos;
+
 Item* findSelectedItem(vec3 start, vec3 dir, float len)
 {
+	memcpy(startPos, start, sizeof(vec3));
 	// vec3 dir;
 	// glm_normalize_to(dir2, dir);
 	vec3 end = {start[0] + dir[0] * len, start[1] + dir[1] * len, start[2] + dir[2] * len};
+	memcpy(endPos, end, sizeof(vec3));
 
 	int count = dynList_size(items);
 

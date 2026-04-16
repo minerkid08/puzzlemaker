@@ -101,5 +101,42 @@
     "entity": "info_player_start",
     "bound1": [-0.5, 0, -0.5],
     "bound2": [0.5, 1, 0.5]
+	},
+	{
+		"name": "laser",
+		"model": "laser.obj",
+		"mat": "laser.png",
+    "entity": "env_portal_laser",
+    "bound1": [-0.5, -0.5, -0.5],
+    "bound2": [0.5, 0.5, 0.5],
+    "keyvalues": [
+      {
+        "name": "startstate",
+        "type": "bool",
+        "defaultValue": 0
+      }
+    ],
+    "inputs": [
+      {
+        "name": "enable",
+        "trueInput": "TurnOn",
+        "falseInput": "TurnOff"
+      }
+    ]
+	},
+	{
+		"name": "laser-catcher",
+		"model": "laser-catcher.obj",
+		"mat": "laser-catcher.png",
+    "entity": "prop_laser_catcher",
+    "bound1": [-0.5, -0.5, -0.5],
+    "bound2": [0.5, 0.5, 0.5],
+    "outputs": [
+      {
+        "name": "on powered",
+        "trueOutput": "OnPowered",
+        "falseOutput": "OnUnpowered"
+      }
+    ]
 	}
 ]

@@ -71,13 +71,14 @@ int main()
 	glfwMakeContextCurrent(window);
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
-	initItems();
 
 	initVoxels();
 
 	initRenderer();
 	aspect = (float)width / (float)height;
 	initCamera();
+
+	initItems();
 
 	glfwSetKeyCallback(window, keyCallback);
 	glfwSetMouseButtonCallback(window, mouseCallback);

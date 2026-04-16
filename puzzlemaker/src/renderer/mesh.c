@@ -29,7 +29,7 @@ Mesh loadMesh(const char* filename)
 	int l = strlen(filename) + 14;
 	char* buf = malloc(l + 1);
 
-	sprintf(buf, "assets/models/%s\n", filename);
+	sprintf(buf, "assets/models/%s", filename);
 	buf[l] = 0;
 
 	fastObjMesh* m = fast_obj_read(buf);

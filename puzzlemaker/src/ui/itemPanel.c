@@ -159,7 +159,7 @@ void itemPanelRender()
 					}
 
 					char pressed;
-					if (output->entity != 0)
+					if (output->entity != -1)
 						pressed = igButton("entity: something", zero);
 					else if (pickPtr)
 						pressed = igButton("entity: picking", zero);
@@ -169,7 +169,13 @@ void itemPanelRender()
 					if (pressed)
           {
 						pickPtr = &pickEntity;
+            pickEntity = 0;
             output->entity = -1;
+          }
+
+					if (pickPtr == 0 && pickEntity)
+          {
+            output->entity = pickEntity->index;
           }
 
 					if (output->entity != -1)

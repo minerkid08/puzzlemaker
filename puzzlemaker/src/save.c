@@ -12,21 +12,71 @@ void save(const char* name)
 	snprintf(filename, 64, "%s.chamb", name);
 	cJSON* json = cJSON_CreateObject();
 
-	cJSON* zArr = cJSON_CreateArray();
-	cJSON_AddItemToObject(json, "voxels", zArr);
+	cJSON* voxelArr = cJSON_CreateArray();
+	cJSON_AddItemToObject(json, "voxels", voxelArr);
 	for (int z = 0; z < MAP_SIZE; z++)
 	{
-		cJSON* yArr = cJSON_CreateArray();
-		cJSON_AddItemToArray(zArr, yArr);
 		for (int y = 0; y < MAP_SIZE; y++)
 		{
-			cJSON* xArr = cJSON_CreateArray();
-			cJSON_AddItemToArray(yArr, xArr);
 			for (int x = 0; x < MAP_SIZE; x++)
 			{
-				cJSON* voxel = cJSON_CreateObject();
-				cJSON_AddItemToArray(xArr, voxel);
+				char shouldSave = 0;
 				Voxel* v = getVoxel(x, y, z);
+				if (v->solid)
+				{
+					if (z + 1 < MAP_SIZE)
+					{
+						Voxel* v2 = getVoxel(x, y, z + 1);
+						if (!v2->solid)
+							shouldSave = 1;
+					}
+
+					if (z - 1 >= 0)
+					{
+						Voxel* v2 = getVoxel(x, y, z - 1);
+						if (!v2->solid)
+							shouldSave = 1;
+					}
+
+					if (x + 1 < MAP_SIZE)
+					{
+						Voxel* v2 = getVoxel(x + 1, y, z);
+						if (!v2->solid)
+							shouldSave = 1;
+					}
+
+					if (x - 1 >= 0)
+					{
+						Voxel* v2 = getVoxel(x - 1, y, z);
+						if (!v2->solid)
+							shouldSave = 1;
+					}
+
+					if (y + 1 < MAP_SIZE)
+					{
+						Voxel* v2 = getVoxel(x, y + 1, z);
+						if (!v2->solid)
+							shouldSave = 1;
+					}
+
+					if (y - 1 >= 0)
+					{
+						Voxel* v2 = getVoxel(x, y - 1, z);
+						if (!v2->solid)
+							shouldSave = 1;
+					}
+				}
+				else
+					shouldSave = 1;
+
+				if (shouldSave == 0)
+					continue;
+
+				cJSON* voxel = cJSON_CreateObject();
+				cJSON_AddItemToArray(voxelArr, voxel);
+				cJSON_AddNumberToObject(voxel, "x", x);
+				cJSON_AddNumberToObject(voxel, "y", y);
+				cJSON_AddNumberToObject(voxel, "z", z);
 				cJSON_AddBoolToObject(voxel, "solid", v->solid);
 
 				cJSON_AddBoolToObject(voxel, "portal0", v->portalability[0]);
@@ -84,19 +134,19 @@ void save(const char* name)
 
 		cJSON* kvList = cJSON_CreateObject();
 		cJSON_AddItemToObject(itemJson, "kv", kvList);
-    int l = dynList_size(item->kv);
-    for(int i = 0; i < l; i++)
-    {
-      ItemKv* kv = &item->kv[i];
-      cJSON* item;
-      if(kv->def->type == TYPE_INT)
-        item = cJSON_CreateNumber(kv->value.i);
-      if(kv->def->type == TYPE_BOOL)
-        item = cJSON_CreateBool(kv->value.b);
-      if(kv->def->type & TYPE_DROPDOWN)
-        item = cJSON_CreateNumber(kv->value.i);
-      cJSON_AddItemToObject(kvList, kv->def->name, item);
-    }
+		int l = dynList_size(item->kv);
+		for (int i = 0; i < l; i++)
+		{
+			ItemKv* kv = &item->kv[i];
+			cJSON* item;
+			if (kv->def->type == TYPE_INT)
+				item = cJSON_CreateNumber(kv->value.i);
+			if (kv->def->type == TYPE_BOOL)
+				item = cJSON_CreateBool(kv->value.b);
+			if (kv->def->type & TYPE_DROPDOWN)
+				item = cJSON_CreateNumber(kv->value.i);
+			cJSON_AddItemToObject(kvList, kv->def->name, item);
+		}
 	}
 
 	char* str = cJSON_PrintUnformatted(json);
@@ -126,40 +176,31 @@ void load(const char* name)
 	const char* err = cJSON_GetErrorPtr();
 	free(data);
 
-	cJSON* voxelz = cJSON_GetObjectItem(json, "voxels");
-	cJSON* voxely;
-	int z = 0;
-	cJSON_ArrayForEach(voxely, voxelz)
+	cJSON* voxelArr = cJSON_GetObjectItem(json, "voxels");
+	cJSON* voxel;
+	cJSON_ArrayForEach(voxel, voxelArr)
 	{
-		int y = 0;
-		cJSON* voxelx;
-		cJSON_ArrayForEach(voxelx, voxely)
-		{
-			int x = 0;
-			cJSON* voxel;
-			cJSON_ArrayForEach(voxel, voxelx)
-			{
-				Voxel* v = getVoxel(x, y, z);
+		int x = jsonGetInt(voxel, "x");
+		int y = jsonGetInt(voxel, "y");
+		int z = jsonGetInt(voxel, "z");
+		Voxel* v = getVoxel(x, y, z);
 
-				v->solid = jsonGetBool(voxel, "solid");
+		v->solid = jsonGetBool(voxel, "solid");
 
-				v->portalability[0] = jsonGetBool(voxel, "portal0");
-				v->portalability[1] = jsonGetBool(voxel, "portal1");
-				v->portalability[2] = jsonGetBool(voxel, "portal2");
-				v->portalability[3] = jsonGetBool(voxel, "portal3");
-				v->portalability[4] = jsonGetBool(voxel, "portal4");
-				v->portalability[5] = jsonGetBool(voxel, "portal5");
-				x++;
-			}
-			y++;
-		}
-		z++;
+		v->portalability[0] = jsonGetBool(voxel, "portal0");
+		v->portalability[1] = jsonGetBool(voxel, "portal1");
+		v->portalability[2] = jsonGetBool(voxel, "portal2");
+		v->portalability[3] = jsonGetBool(voxel, "portal3");
+		v->portalability[4] = jsonGetBool(voxel, "portal4");
+		v->portalability[5] = jsonGetBool(voxel, "portal5");
 	}
 
 	int itemCount = jsonGetInt(json, "itemCount");
 	Item** itemList = getItems();
 
 	dynList_resize((void**)itemList, itemCount);
+	for (int i = 0; i < itemCount; i++)
+		(*itemList)[i].index = -1;
 
 	cJSON* items = cJSON_GetObjectItem(json, "items");
 	cJSON* itemJson;
@@ -181,57 +222,75 @@ void load(const char* name)
 		item->dir[1] = jsonArrGetFloat(rot, 1);
 		item->dir[2] = jsonArrGetFloat(rot, 2);
 
-    item->def = &getItemDefinitions()[item->id];
-    updateItemTransform(item);
+		item->def = &getItemDefinitions()[item->id];
+		updateItemTransform(item);
 
-    cJSON* outputList = cJSON_GetObjectItem(itemJson, "outputs");
-    int outputCount = cJSON_GetArraySize(outputList);
+		cJSON* outputList = cJSON_GetObjectItem(itemJson, "outputs");
+		int outputCount = cJSON_GetArraySize(outputList);
 		item->outputs = dynList_new(outputCount, sizeof(OutputDef));
-    for(int i = 0; i < outputCount; i++)
-    {
-      ItemOutput* output = &item->outputs[i];
-      cJSON* outputJson = cJSON_GetArrayItem(outputList, i);
+		for (int i = 0; i < outputCount; i++)
+		{
+			ItemOutput* output = &item->outputs[i];
+			cJSON* outputJson = cJSON_GetArrayItem(outputList, i);
 
-      int itemIndex = jsonGetInt(outputJson, "ent");
-      output->entity = itemIndex;
-      output->inverted = jsonGetBool(outputJson, "inverted");
+			int itemIndex = jsonGetInt(outputJson, "ent");
+			output->entity = itemIndex;
+			output->inverted = jsonGetBool(outputJson, "inverted");
 
-      const char* inputName = jsonGetStr(outputJson, "output");
-      OutputDef* outputs = item->def->outputs;
-      for(int j = 0; j < dynList_size(outputs); j++)
-      {
-        if(strcmp(inputName, outputs[j].name) == 0)
-          output->def = &outputs[j];
-      }
-      free((void*)inputName);
+			const char* inputName = jsonGetStr(outputJson, "output");
+			OutputDef* outputs = item->def->outputs;
+			for (int j = 0; j < dynList_size(outputs); j++)
+			{
+				if (strcmp(inputName, outputs[j].name) == 0)
+					output->def = &outputs[j];
+			}
+			free((void*)inputName);
 
-      const char* outputName = jsonGetStr(outputJson, "input");
-      Item* item = getItem(output->entity);
-      InputDef* inputs = item->def->inputs;
-      for(int j = 0; j < dynList_size(inputs); j++)
-      {
-        if(strcmp(inputName, inputs[j].name) == 0)
-          output->input = &inputs[j];
-      }
-      free((void*)inputName);
-    }
+			const char* outputName = jsonGetStr(outputJson, "input");
+			output->input = (InputDef*)outputName;
+		}
 
-    cJSON* kvJson = cJSON_GetObjectItem(itemJson, "kv");
-    int len = dynList_size(item->def->kvs);
+		cJSON* kvJson = cJSON_GetObjectItem(itemJson, "kv");
+		int len = dynList_size(item->def->kvs);
 		item->kv = dynList_new(len, sizeof(ItemKv));
-    for(int i = 0; i < len; i++)
-    {
-      ItemKvDef* def = &item->def->kvs[i];
-      ItemKv* kv = &item->kv[i];
-      kv->def = def;
+		for (int i = 0; i < len; i++)
+		{
+			ItemKvDef* def = &item->def->kvs[i];
+			ItemKv* kv = &item->kv[i];
+			kv->def = def;
 
-      if(def->type == TYPE_INT)
-        kv->value.i = jsonGetInt(kvJson, def->name);
-      if(def->type == TYPE_BOOL)
-        kv->value.b = jsonGetBool(kvJson, def->name);
-      if(def->type & TYPE_DROPDOWN)
-        kv->value.i = jsonGetInt(kvJson, def->name);
-    }
+			if (cJSON_GetObjectItem(kvJson, def->name))
+			{
+				if (def->type == TYPE_INT)
+					kv->value.i = jsonGetInt(kvJson, def->name);
+				if (def->type == TYPE_BOOL)
+					kv->value.b = jsonGetBool(kvJson, def->name);
+				if (def->type & TYPE_DROPDOWN)
+					kv->value.i = jsonGetInt(kvJson, def->name);
+			}
+			else
+				kv->value = kv->def->defaultValue;
+		}
 	}
-  cJSON_free(json);
+	for (int i = 0; i < itemCount; i++)
+	{
+		Item* item = getItem(i);
+		if (item->index == -1)
+			continue;
+		for (int j = 0; j < dynList_size(item->outputs); j++)
+		{
+      ItemOutput* output = &item->outputs[j];
+      char* inputName = (char*)output->input;
+
+			Item* item2 = getItem(output->entity);
+			InputDef* inputs = item2->def->inputs;
+			for (int k = 0; k < dynList_size(inputs); k++)
+			{
+				if (strcmp(inputName, inputs[k].name) == 0)
+					output->input = &inputs[k];
+			}
+			free((void*)inputName);
+		}
+	}
+	cJSON_free(json);
 }

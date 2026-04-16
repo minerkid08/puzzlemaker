@@ -22,7 +22,6 @@ char moving = 0;
 
 void initItems()
 {
-	definitions = dynList_new(0, sizeof(ItemDefinition));
 	items = dynList_new(0, sizeof(Item));
 
 	FILE* file = fopen("items.json", "rb");
@@ -40,15 +39,16 @@ void initItems()
 	const char* err = cJSON_GetErrorPtr();
 	free(data);
 
+  int l = cJSON_GetArraySize(json);
+	definitions = dynList_new(l, sizeof(ItemDefinition));
+
+  int i = 0;
 	cJSON* item;
 	cJSON_ArrayForEach(item, json)
 	{
-		int len = dynList_size(definitions);
-		dynList_resize((void**)&definitions, len + 1);
-		ItemDefinition* def = &definitions[len];
+		ItemDefinition* def = &definitions[i++];
 
 		def->name = jsonGetStr(item, "name");
-		printf("name: %s\n", def->name);
 		def->modelName = jsonGetStr(item, "model");
 		def->textureName = jsonGetStr(item, "mat");
 		if (cJSON_HasObjectItem(item, "instance"))
@@ -182,7 +182,7 @@ void initItems()
 			}
 			def->staticKvs[i] = s;
 		}
-		cJSON* offset = cJSON_GetObjectItem(item, "bound2");
+		cJSON* offset = cJSON_GetObjectItem(item, "offset");
 		if (offset)
 		{
 			def->offset[0] = jsonArrGetFloat(offset, 0);
@@ -201,6 +201,7 @@ void initItems()
 	if (err)
 	{
 		printf("json error\n%s\n", err);
+    exit(1);
 	}
 	cJSON_free(json);
 }

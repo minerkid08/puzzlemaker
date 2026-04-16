@@ -1,9 +1,11 @@
 #include "texture.h"
 #include "glad/glad.h"
+
 #include "stb/stbimage.h"
 
 unsigned int loadTexture(const char* filename)
 {
+  stbi_set_flip_vertically_on_load(1);
 	int l = strlen(filename) + 17;
 	char* buf = malloc(l + 1);
 

@@ -9,6 +9,6 @@ char* copyString(const char* str)
 	int len = strlen(str);
 
 	char* buf = malloc(len + 1);
-	strcpy(buf, str);
+	strncpy(buf, str, len + 1);
 	return buf;
 }

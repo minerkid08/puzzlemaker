@@ -233,17 +233,35 @@ entity
 			snprintf(buf, 100, "%s%d", item->def->name, output->entity);
 			if (output->inverted)
 			{
-				fprintf(file, "    \"%s\" \"%s\x1b%s\x1b\x1b 0\x1b-1\"\n", output->def->trueOutput, buf,
-						output->input->falseInput);
-				fprintf(file, "    \"%s\" \"%s\x1b%s\x1b\x1b 0\x1b-1\"\n", output->def->falseOutput, buf,
-						output->input->trueInput);
+				if (output->input->falseArg)
+					fprintf(file, "    \"%s\" \"%s\x1b%s\x1b%s\x1b 0\x1b-1\"\n", output->def->trueOutput, buf,
+							output->input->falseInput, output->input->falseArg);
+				else
+					fprintf(file, "    \"%s\" \"%s\x1b%s\x1b\x1b 0\x1b-1\"\n", output->def->trueOutput, buf,
+							output->input->falseInput);
+
+				if (output->input->trueArg)
+					fprintf(file, "    \"%s\" \"%s\x1b%s\x1b%s\x1b 0\x1b-1\"\n", output->def->falseOutput, buf,
+							output->input->trueInput, output->input->trueArg);
+				else
+					fprintf(file, "    \"%s\" \"%s\x1b%s\x1b\x1b 0\x1b-1\"\n", output->def->falseOutput, buf,
+							output->input->trueInput);
 			}
 			else
 			{
-				fprintf(file, "    \"%s\" \"%s\x1b%s\x1b\x1b 0\x1b-1\"\n", output->def->trueOutput, buf,
-						output->input->trueInput);
-				fprintf(file, "    \"%s\" \"%s\x1b%s\x1b\x1b 0\x1b-1\"\n", output->def->falseOutput, buf,
-						output->input->falseInput);
+				if (output->input->trueArg)
+					fprintf(file, "    \"%s\" \"%s\x1b%s\x1b%s\x1b 0\x1b-1\"\n", output->def->trueOutput, buf,
+							output->input->trueInput, output->input->trueArg);
+				else
+					fprintf(file, "    \"%s\" \"%s\x1b%s\x1b\x1b 0\x1b-1\"\n", output->def->trueOutput, buf,
+							output->input->trueInput);
+
+				if (output->input->falseArg)
+					fprintf(file, "    \"%s\" \"%s\x1b%s\x1b%s\x1b 0\x1b-1\"\n", output->def->falseOutput, buf,
+							output->input->falseInput, output->input->falseArg);
+				else
+					fprintf(file, "    \"%s\" \"%s\x1b%s\x1b\x1b 0\x1b-1\"\n", output->def->falseOutput, buf,
+							output->input->falseInput);
 			}
 		}
 		fprintf(file, "  }");

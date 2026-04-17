@@ -9,7 +9,7 @@
 char filename[64];
 void save(const char* name)
 {
-	snprintf(filename, 64, "%s.chamb", name);
+	snprintf(filename, 64, "maps/%s.chamb", name);
 	cJSON* json = cJSON_CreateObject();
 
 	cJSON* voxelArr = cJSON_CreateArray();
@@ -160,7 +160,7 @@ void save(const char* name)
 
 void load(const char* name)
 {
-	snprintf(filename, 64, "%s.chamb", name);
+	snprintf(filename, 64, "maps/%s.chamb", name);
 	FILE* file = fopen(filename, "rb");
 
 	fseek(file, 0, SEEK_END);

@@ -6,7 +6,7 @@
 		},
 		{
 			"name": "vbsp",
-			"cmd": "%b/vbsp -game p2ce sdk_content/maps/puzzlemakerMaps/%f.vmf"
+			"cmd": "%b/vbsp -game p2ce -leaktest sdk_content/maps/puzzlemakerMaps/%f.vmf"
 		},
 		{
 			"name": "vvis",

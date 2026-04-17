@@ -138,5 +138,46 @@
         "falseOutput": "OnUnpowered"
       }
     ]
+	},
+	{
+		"name": "counter",
+		"model": "laser-catcher.obj",
+		"mat": "laser-catcher.png",
+    "entity": "math_counter",
+    "bound1": [-0.5, -0.5, -0.5],
+    "bound2": [0.5, 0.5, 0.5],
+		"keyvalues": [
+			{
+				"name": "max",
+				"type": "int",
+				"defaultValue": 2
+			}
+		],
+		"statickvs":
+		[
+      "'min' '0'",
+      "'startvalue' '0'"
+		],
+		"inputs": [
+			{
+				"name": "input",
+				"trueInput": "Add",
+				"trueArg": "1",
+				"falseInput": "Subtract",
+				"falseArg": "1"
+			}
+		],
+    "outputs": [
+      {
+        "name": "and",
+        "trueOutput": "OnHitMax",
+        "falseOutput": "OnChangedFromMax"
+      },
+      {
+        "name": "or",
+        "trueOutput": "OnChangedFromMin",
+        "falseOutput": "OnHitMin"
+      }
+    ]
 	}
 ]

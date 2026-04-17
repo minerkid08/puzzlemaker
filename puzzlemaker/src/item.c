@@ -39,10 +39,10 @@ void initItems()
 	const char* err = cJSON_GetErrorPtr();
 	free(data);
 
-  int l = cJSON_GetArraySize(json);
+	int l = cJSON_GetArraySize(json);
 	definitions = dynList_new(l, sizeof(ItemDefinition));
 
-  int i = 0;
+	int i = 0;
 	cJSON* item;
 	cJSON_ArrayForEach(item, json)
 	{
@@ -139,6 +139,12 @@ void initItems()
 			inputDef->name = jsonGetStr(input, "name");
 			inputDef->trueInput = jsonGetStr(input, "trueInput");
 			inputDef->falseInput = jsonGetStr(input, "falseInput");
+			inputDef->trueArg = 0;
+			inputDef->falseArg = 0;
+			if (cJSON_GetObjectItem(input, "trueArg"))
+				inputDef->trueArg = jsonGetStr(input, "trueArg");
+			if (cJSON_GetObjectItem(input, "falseArg"))
+				inputDef->falseArg = jsonGetStr(input, "falseArg");
 		}
 
 		cJSON* outputs = cJSON_GetObjectItem(item, "outputs");
@@ -201,7 +207,7 @@ void initItems()
 	if (err)
 	{
 		printf("json error\n%s\n", err);
-    exit(1);
+		exit(1);
 	}
 	cJSON_free(json);
 }
@@ -381,5 +387,5 @@ void removeItem(Item* item)
 
 Item* getItem(int i)
 {
-  return &items[i];
+	return &items[i];
 }

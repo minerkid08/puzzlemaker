@@ -32,6 +32,8 @@ typedef struct
 	const char* name;
 	const char* trueInput;
 	const char* falseInput;
+	const char* trueArg;
+	const char* falseArg;
 } InputDef;
 
 typedef struct

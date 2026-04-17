@@ -11,6 +11,7 @@
 Voxel voxels[MAP_SIZE * MAP_SIZE * MAP_SIZE];
 
 ivec3 currentVoxelPos;
+ivec3 currentVoxel2Pos;
 Voxel* currentVoxel;
 char currentDir;
 

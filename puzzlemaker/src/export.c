@@ -13,19 +13,25 @@ static const char* uaxis[] = {"[0 1 0 0] 0.25",	 "[0 -1 0 0] 0.25", "[1 0 0 0] 0
 static const char* vaxis[] = {"[0 0 -1 0] 0.25", "[0 0 -1 0] 0.25", "[0 -1 0 0] 0.25",
 							  "[0 -1 0 0] 0.25", "[0 0 -1 0] 0.25", "[0 0 -1 0] 0.25"};
 
-#define MAT_NODRAW "TOOLS/TOOLSNODRAW"
+const char* matNodraw = "TOOLS/TOOLSNODRAW";
+const char* matBlackFloor = "METAL/BLACK_FLOOR_METAL_001C";
+const char* matBlackWall = "METAL/BLACK_WALL_METAL_002A";
+const char* matBlackCeiling = "METAL/BLACK_CEILING_METAL_001A";
+const char* matWhiteFloor = "TILE/WHITE_FLOOR_TILE002A";
+const char* matWhiteWall = "TILE/WHITE_WALL_STATE";
+const char* matWhiteCeiling = "TILE/WHITE_CEILING_TILE002A";
 
-#define MAT_BLACK_FLOOR "METAL/BLACK_FLOOR_METAL_001C"
-#define MAT_BLACK_WALL "METAL/BLACK_WALL_METAL_002A"
-#define MAT_BLACK_CEILING "METAL/BLACK_CEILING_METAL_001A"
+const char* getMat(Voxel* voxel, int dir)
+{
+	char portal = voxel->portalability[dir];
+	if (dir == DIR_POS_Y)
+		return (portal ? matWhiteFloor : matBlackFloor);
 
-#define MAT_WHITE_FLOOR "TILE/WHITE_FLOOR_TILE002A"
-#define MAT_WHITE_WALL "TILE/WHITE_WALL_STATE"
-#define MAT_WHITE_CEILING "TILE/WHITE_CEILING_TILE002A"
+	if (dir == DIR_NEG_Y)
+		return (portal ? matWhiteCeiling : matBlackCeiling);
 
-#define MAT_WALL(portal) ((portal) == 1 ? MAT_WHITE_WALL : MAT_BLACK_WALL)
-#define MAT_FLOOR(portal) ((portal) == 1 ? MAT_WHITE_FLOOR : MAT_BLACK_FLOOR)
-#define MAT_CEILING(portal) ((portal) == 1 ? MAT_WHITE_CEILING : MAT_BLACK_CEILING)
+	return (portal ? matWhiteWall : matBlackWall);
+}
 
 #define SIDEINDENT "      "
 
@@ -74,72 +80,72 @@ void generateSolid(FILE* file, Voxel* voxel, ivec3 pos)
 	int y = pos[1];
 	int z = pos[2];
 
-	char* mat = MAT_NODRAW;
+	const char* mat = matNodraw;
 	if (z + 1 < MAP_SIZE)
 	{
 		Voxel* v2 = getVoxel(x, y, z + 1);
 		if (!v2->solid)
-			mat = MAT_WALL(v2->portalability[DIR_POS_Z]);
+			mat = getMat(voxel, DIR_POS_Z);
 	}
 	{
 		ivec3 verts[4] = {{x, y, z + 1}, {x + 1, y, z + 1}, {x, y + 1, z + 1}, {x + 1, y + 1, z + 1}};
 		addSide(file, verts, 1, DIR_POS_Z, mat);
 	}
 
-	mat = MAT_NODRAW;
+	mat = matNodraw;
 	if (z - 1 >= 0)
 	{
 		Voxel* v2 = getVoxel(x, y, z - 1);
 		if (!v2->solid)
-			mat = MAT_WALL(v2->portalability[DIR_NEG_Z]);
+			mat = getMat(voxel, DIR_NEG_Z);
 	}
 	{
 		ivec3 verts[4] = {{x, y, z}, {x, y + 1, z}, {x + 1, y, z}, {x + 1, y + 1, z}};
 		addSide(file, verts, 2, DIR_NEG_Z, mat);
 	}
 
-	mat = MAT_NODRAW;
+	mat = matNodraw;
 	if (x + 1 < MAP_SIZE)
 	{
 		Voxel* v2 = getVoxel(x + 1, y, z);
 		if (!v2->solid)
-			mat = MAT_WALL(v2->portalability[DIR_POS_X]);
+			mat = getMat(voxel, DIR_POS_X);
 	}
 	{
 		ivec3 verts[4] = {{x + 1, y, z}, {x + 1, y + 1, z}, {x + 1, y, z + 1}, {x + 1, y + 1, z + 1}};
 		addSide(file, verts, 3, DIR_POS_X, mat);
 	}
 
-	mat = MAT_NODRAW;
+	mat = matNodraw;
 	if (x - 1 >= 0)
 	{
 		Voxel* v2 = getVoxel(x - 1, y, z);
 		if (!v2->solid)
-			mat = MAT_WALL(v2->portalability[DIR_NEG_X]);
+			mat = getMat(voxel, DIR_NEG_X);
 	}
 	{
 		ivec3 verts[4] = {{x, y, z}, {x, y, z + 1}, {x, y + 1, z}, {x, y + 1, z + 1}};
 		addSide(file, verts, 4, DIR_NEG_X, mat);
 	}
 
-	mat = MAT_NODRAW;
+	mat = matNodraw;
 	if (y + 1 < MAP_SIZE)
 	{
 		Voxel* v2 = getVoxel(x, y + 1, z);
 		if (!v2->solid)
-			mat = MAT_FLOOR(v2->portalability[DIR_POS_Y]);
+			mat = getMat(voxel, DIR_POS_Y);
 	}
 	{
 		ivec3 verts[4] = {{x, y + 1, z}, {x, y + 1, z + 1}, {x + 1, y + 1, z}, {x + 1, y + 1, z + 1}};
 		addSide(file, verts, 5, DIR_POS_Y, mat);
 	}
 
-	mat = MAT_NODRAW;
+	mat = matNodraw;
 	if (y - 1 >= 0)
 	{
 		Voxel* v2 = getVoxel(x, y - 1, z);
 		if (!v2->solid)
-			mat = MAT_CEILING(v2->portalability[DIR_NEG_Y]);
+			mat = getMat(voxel, DIR_NEG_Y);
 	}
 	{
 		ivec3 verts[4] = {{x, y, z}, {x + 1, y, z}, {x, y, z + 1}, {x + 1, y, z + 1}};
@@ -223,7 +229,7 @@ entity
 		for (int i = 0; i < outputLen; i++)
 		{
 			ItemOutput* output = &item->outputs[i];
-      Item* item = getItem(output->entity);
+			Item* item = getItem(output->entity);
 			snprintf(buf, 100, "%s%d", item->def->name, output->entity);
 			if (output->inverted)
 			{

@@ -9,6 +9,32 @@ void voxelPush()
 	if (currentVoxel == 0)
 		return;
 
+	if (currentVoxel2Pos[0] >= 0)
+	{
+		int zmin = min(currentVoxelPos[2], currentVoxel2Pos[2]);
+		int zmax = max(currentVoxelPos[2], currentVoxel2Pos[2]);
+		int ymin = min(currentVoxelPos[1], currentVoxel2Pos[1]);
+		int ymax = max(currentVoxelPos[1], currentVoxel2Pos[1]);
+		int xmin = min(currentVoxelPos[0], currentVoxel2Pos[0]);
+		int xmax = max(currentVoxelPos[0], currentVoxel2Pos[0]);
+
+		for (int z = zmin; z <= zmax; z++)
+		{
+			for (int y = ymin; y <= ymax; y++)
+			{
+				for (int x = xmin; x <= xmax; x++)
+				{
+          getVoxel(x, y, z)->solid = 0;
+				}
+			}
+		}
+    currentVoxel2Pos[0] = -1;
+    currentVoxel2Pos[1] = -1;
+    currentVoxel2Pos[2] = -1;
+    currentVoxel = 0;
+    return;
+	}
+
 	if (currentVoxelPos[0] == 0 || currentVoxelPos[0] == MAP_SIZE - 1)
 		return;
 	if (currentVoxelPos[1] == 0 || currentVoxelPos[1] == MAP_SIZE - 1)

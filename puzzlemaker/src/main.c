@@ -45,16 +45,27 @@ Item** pickPtr = 0;
 
 ImGuiIO* io;
 
-void findSelected()
+void findSelected(char shiftDown)
 {
-	currentVoxel = 0;
 	RaycastHit hit;
 	if (voxelRaycast(cameraPos, mouseDir, 10, &hit))
 	{
-		currentVoxel = hit.voxel;
-		currentDir = hit.dir;
-		memcpy(currentVoxelPos, hit.pos, sizeof(int) * 3);
+		if (shiftDown)
+		{
+			memcpy(currentVoxel2Pos, hit.pos, sizeof(int) * 3);
+		}
+		else
+		{
+			currentVoxel = hit.voxel;
+			currentDir = hit.dir;
+			memcpy(currentVoxelPos, hit.pos, sizeof(int) * 3);
+			currentVoxel2Pos[0] = -1;
+			currentVoxel2Pos[1] = -1;
+			currentVoxel2Pos[2] = -1;
+		}
 	}
+	else
+		currentVoxel = 0;
 }
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -70,7 +81,6 @@ int main()
 	GLFWwindow* window = glfwCreateWindow(1920, 1080, "puzzlemaker", 0, 0);
 	glfwMakeContextCurrent(window);
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-
 
 	initVoxels();
 
@@ -109,6 +119,14 @@ int main()
 
 		float lookUp = glfwGetKey(window, GLFW_KEY_UP) - glfwGetKey(window, GLFW_KEY_DOWN);
 		float lookRight = glfwGetKey(window, GLFW_KEY_RIGHT) - glfwGetKey(window, GLFW_KEY_LEFT);
+
+		if (io->WantCaptureMouse)
+		{
+			moveForward = 0;
+			moveRight = 0;
+			lookUp = 0;
+			lookRight = 0;
+		}
 
 		cameraRot[0] += lookUp * dt;
 		cameraRot[1] -= lookRight * dt;
@@ -205,10 +223,10 @@ void mouseCallback(GLFWwindow* window, int button, int action, int mods)
 
 			glm_mat4_mulv(rotMat, dir, mouseDir);
 
-			currentVoxel = 0;
 			Item* item = findSelectedItem(cameraPos, mouseDir, 10);
 			if (pickPtr)
 			{
+			  currentVoxel = 0;
 				*pickPtr = item;
 				pickPtr = 0;
 			}
@@ -217,7 +235,7 @@ void mouseCallback(GLFWwindow* window, int button, int action, int mods)
 			else
 			{
 				setSelectedItem(0);
-				findSelected();
+				findSelected(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT));
 			}
 		}
 	}

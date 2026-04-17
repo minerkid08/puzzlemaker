@@ -19902,7 +19902,7 @@ world
         "point" "2 -192 448 192"
         "point" "3 -128 448 192"
       }
-      "material" "METAL/BLACK_WALL_METAL_002A"
+      "material" "TILE/WHITE_WALL_STATE"
       "uaxis" "[1 0 0 0] 0.25"
       "vaxis" "[0 0 -1 0] 0.25"
       "rotation" "0"
@@ -20026,7 +20026,7 @@ world
         "point" "2 -256 448 192"
         "point" "3 -192 448 192"
       }
-      "material" "METAL/BLACK_WALL_METAL_002A"
+      "material" "TILE/WHITE_WALL_STATE"
       "uaxis" "[1 0 0 0] 0.25"
       "vaxis" "[0 0 -1 0] 0.25"
       "rotation" "0"
@@ -20150,7 +20150,7 @@ world
         "point" "2 -384 448 192"
         "point" "3 -320 448 192"
       }
-      "material" "METAL/BLACK_WALL_METAL_002A"
+      "material" "TILE/WHITE_WALL_STATE"
       "uaxis" "[1 0 0 0] 0.25"
       "vaxis" "[0 0 -1 0] 0.25"
       "rotation" "0"
@@ -20274,7 +20274,7 @@ world
         "point" "2 -576 448 192"
         "point" "3 -512 448 192"
       }
-      "material" "METAL/BLACK_WALL_METAL_002A"
+      "material" "TILE/WHITE_WALL_STATE"
       "uaxis" "[1 0 0 0] 0.25"
       "vaxis" "[0 0 -1 0] 0.25"
       "rotation" "0"
@@ -20398,7 +20398,7 @@ world
         "point" "2 -640 448 192"
         "point" "3 -576 448 192"
       }
-      "material" "METAL/BLACK_WALL_METAL_002A"
+      "material" "TILE/WHITE_WALL_STATE"
       "uaxis" "[1 0 0 0] 0.25"
       "vaxis" "[0 0 -1 0] 0.25"
       "rotation" "0"
@@ -20522,7 +20522,7 @@ world
         "point" "2 -192 448 256"
         "point" "3 -128 448 256"
       }
-      "material" "METAL/BLACK_WALL_METAL_002A"
+      "material" "TILE/WHITE_WALL_STATE"
       "uaxis" "[1 0 0 0] 0.25"
       "vaxis" "[0 0 -1 0] 0.25"
       "rotation" "0"
@@ -20646,7 +20646,7 @@ world
         "point" "2 -256 448 256"
         "point" "3 -192 448 256"
       }
-      "material" "METAL/BLACK_WALL_METAL_002A"
+      "material" "TILE/WHITE_WALL_STATE"
       "uaxis" "[1 0 0 0] 0.25"
       "vaxis" "[0 0 -1 0] 0.25"
       "rotation" "0"
@@ -20770,7 +20770,7 @@ world
         "point" "2 -320 448 256"
         "point" "3 -256 448 256"
       }
-      "material" "METAL/BLACK_WALL_METAL_002A"
+      "material" "TILE/WHITE_WALL_STATE"
       "uaxis" "[1 0 0 0] 0.25"
       "vaxis" "[0 0 -1 0] 0.25"
       "rotation" "0"
@@ -20894,7 +20894,7 @@ world
         "point" "2 -384 448 256"
         "point" "3 -320 448 256"
       }
-      "material" "METAL/BLACK_WALL_METAL_002A"
+      "material" "TILE/WHITE_WALL_STATE"
       "uaxis" "[1 0 0 0] 0.25"
       "vaxis" "[0 0 -1 0] 0.25"
       "rotation" "0"
@@ -21018,7 +21018,7 @@ world
         "point" "2 -576 448 256"
         "point" "3 -512 448 256"
       }
-      "material" "METAL/BLACK_WALL_METAL_002A"
+      "material" "TILE/WHITE_WALL_STATE"
       "uaxis" "[1 0 0 0] 0.25"
       "vaxis" "[0 0 -1 0] 0.25"
       "rotation" "0"
@@ -21142,7 +21142,7 @@ world
         "point" "2 -640 448 256"
         "point" "3 -576 448 256"
       }
-      "material" "METAL/BLACK_WALL_METAL_002A"
+      "material" "TILE/WHITE_WALL_STATE"
       "uaxis" "[1 0 0 0] 0.25"
       "vaxis" "[0 0 -1 0] 0.25"
       "rotation" "0"
@@ -21266,7 +21266,7 @@ world
         "point" "2 -192 448 320"
         "point" "3 -128 448 320"
       }
-      "material" "METAL/BLACK_WALL_METAL_002A"
+      "material" "TILE/WHITE_WALL_STATE"
       "uaxis" "[1 0 0 0] 0.25"
       "vaxis" "[0 0 -1 0] 0.25"
       "rotation" "0"
@@ -21390,7 +21390,7 @@ world
         "point" "2 -256 448 320"
         "point" "3 -192 448 320"
       }
-      "material" "METAL/BLACK_WALL_METAL_002A"
+      "material" "TILE/WHITE_WALL_STATE"
       "uaxis" "[1 0 0 0] 0.25"
       "vaxis" "[0 0 -1 0] 0.25"
       "rotation" "0"
@@ -21514,7 +21514,7 @@ world
         "point" "2 -320 448 320"
         "point" "3 -256 448 320"
       }
-      "material" "METAL/BLACK_WALL_METAL_002A"
+      "material" "TILE/WHITE_WALL_STATE"
       "uaxis" "[1 0 0 0] 0.25"
       "vaxis" "[0 0 -1 0] 0.25"
       "rotation" "0"
@@ -21638,7 +21638,7 @@ world
         "point" "2 -384 448 320"
         "point" "3 -320 448 320"
       }
-      "material" "METAL/BLACK_WALL_METAL_002A"
+      "material" "TILE/WHITE_WALL_STATE"
       "uaxis" "[1 0 0 0] 0.25"
       "vaxis" "[0 0 -1 0] 0.25"
       "rotation" "0"
@@ -21762,7 +21762,7 @@ world
         "point" "2 -448 448 320"
         "point" "3 -384 448 320"
       }
-      "material" "METAL/BLACK_WALL_METAL_002A"
+      "material" "TILE/WHITE_WALL_STATE"
       "uaxis" "[1 0 0 0] 0.25"
       "vaxis" "[0 0 -1 0] 0.25"
       "rotation" "0"
@@ -21886,7 +21886,7 @@ world
         "point" "2 -512 448 320"
         "point" "3 -448 448 320"
       }
-      "material" "METAL/BLACK_WALL_METAL_002A"
+      "material" "TILE/WHITE_WALL_STATE"
       "uaxis" "[1 0 0 0] 0.25"
       "vaxis" "[0 0 -1 0] 0.25"
       "rotation" "0"
@@ -22010,7 +22010,7 @@ world
         "point" "2 -576 448 320"
         "point" "3 -512 448 320"
       }
-      "material" "METAL/BLACK_WALL_METAL_002A"
+      "material" "TILE/WHITE_WALL_STATE"
       "uaxis" "[1 0 0 0] 0.25"
       "vaxis" "[0 0 -1 0] 0.25"
       "rotation" "0"
@@ -22134,7 +22134,7 @@ world
         "point" "2 -640 448 320"
         "point" "3 -576 448 320"
       }
-      "material" "METAL/BLACK_WALL_METAL_002A"
+      "material" "TILE/WHITE_WALL_STATE"
       "uaxis" "[1 0 0 0] 0.25"
       "vaxis" "[0 0 -1 0] 0.25"
       "rotation" "0"

@@ -25,6 +25,7 @@ typedef struct
 } RaycastHit;
 
 extern ivec3 currentVoxelPos;
+extern ivec3 currentVoxel2Pos;
 extern Voxel* currentVoxel;
 extern char currentDir;
 

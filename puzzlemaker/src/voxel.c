@@ -6,7 +6,8 @@
 #include "utils.h"
 #include <string.h>
 
-#define col(dir) (voxel == currentVoxel && dir == currentDir ? selectCol : (voxel->portalability[dir] ? portalCol : normalCol))
+#define col(dir)                                                                                                       \
+	(voxel == currentVoxel && dir == currentDir ? selectCol : (voxel->portalability[dir] ? portalCol : normalCol))
 
 Voxel voxels[MAP_SIZE * MAP_SIZE * MAP_SIZE];
 
@@ -17,9 +18,24 @@ char currentDir;
 
 static unsigned int texture;
 
+char isSelection2d()
+{
+	return currentVoxelPos[0] == currentVoxel2Pos[0] || currentVoxelPos[1] == currentVoxel2Pos[1] ||
+		   currentVoxelPos[2] == currentVoxel2Pos[2];
+}
+
+char pointInRange(ivec4 point, ivec4 boundA, ivec4 boundB)
+{
+  char x = (boundA[0] < point[0] && point[0] < boundB[0]);
+  char y = (boundA[1] < point[1] && point[1] < boundB[1]);
+  char z = (boundA[2] < point[2] && point[2] < boundB[2]);
+
+  return x && y && z;
+}
+
 void initVoxels()
 {
-  texture = loadTexture("wall.png");
+	texture = loadTexture("wall.png");
 
 	memset(voxels, 0, sizeof(voxels));
 	for (int i = 0; i < VOXEL_COUNT; i++)
@@ -53,7 +69,7 @@ Voxel* getVoxelv(ivec3 pos)
 
 void drawVoxels(vec3 cameraPos, vec3 cameraRot)
 {
-  bindTexture(texture);
+	bindTexture(texture);
 
 	mat4 camMat;
 	glm_mat4_identity(camMat);
@@ -75,6 +91,8 @@ void drawVoxels(vec3 cameraPos, vec3 cameraRot)
 				Voxel* voxel = getVoxel(x, y, z);
 				if (voxel->solid)
 				{
+          ivec3 pos = {x, y, z};
+          char selected = pointInRange(pos, currentVoxelPos, currentVoxel2Pos);
 					if (z + 1 < MAP_SIZE)
 					{
 						Voxel* v2 = getVoxel(x, y, z + 1);

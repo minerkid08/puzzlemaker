@@ -1,4 +1,5 @@
 #include "cglm/vec3.h"
+#include "utils.h"
 #include <math.h>
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 
@@ -53,6 +54,20 @@ void findSelected(char shiftDown)
 		if (shiftDown)
 		{
 			memcpy(currentVoxel2Pos, hit.pos, sizeof(int) * 3);
+			int zmin = min(currentVoxelPos[2], currentVoxel2Pos[2]);
+			int zmax = max(currentVoxelPos[2], currentVoxel2Pos[2]);
+			int ymin = min(currentVoxelPos[1], currentVoxel2Pos[1]);
+			int ymax = max(currentVoxelPos[1], currentVoxel2Pos[1]);
+			int xmin = min(currentVoxelPos[0], currentVoxel2Pos[0]);
+			int xmax = max(currentVoxelPos[0], currentVoxel2Pos[0]);
+
+      currentVoxelPos[0] = xmin;
+      currentVoxelPos[1] = ymin;
+      currentVoxelPos[2] = zmin;
+
+      currentVoxel2Pos[0] = xmax;
+      currentVoxel2Pos[1] = ymax;
+      currentVoxel2Pos[2] = zmax;
 		}
 		else
 		{
@@ -226,7 +241,7 @@ void mouseCallback(GLFWwindow* window, int button, int action, int mods)
 			Item* item = findSelectedItem(cameraPos, mouseDir, 10);
 			if (pickPtr)
 			{
-			  currentVoxel = 0;
+				currentVoxel = 0;
 				*pickPtr = item;
 				pickPtr = 0;
 			}

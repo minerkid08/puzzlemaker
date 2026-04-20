@@ -73,9 +73,9 @@
 				}
     	}
     ],
-    "statickvs": [
-      "'newskins' '2'"
-    ]
+    "statickvs": {
+      "newskins": "2"
+    }
 	},
   {
     "name": "button",
@@ -114,6 +114,15 @@
         "name": "startstate",
         "type": "bool",
         "defaultValue": 0
+      },
+      {
+        "name": "model",
+        "type": "drop-string",
+        "defaultValue": 0,
+        "options": {
+		      "centered": "models/props/laser_emitter_center.mdl",
+		      "offset": "models/props/laser_emitter.mdl"
+        }
       }
     ],
     "inputs": [
@@ -131,6 +140,17 @@
     "entity": "prop_laser_catcher",
     "bound1": [-0.5, -0.5, -0.5],
     "bound2": [0.5, 0.5, 0.5],
+    "keyvalues": [
+      {
+        "name": "model",
+        "type": "drop-string",
+        "defaultValue": 0,
+        "options": {
+		      "centered": "models/props/laser_catcher_center.mdl",
+		      "offset": "models/props/laser_catcher.mdl"
+        }
+      }
+    ],
     "outputs": [
       {
         "name": "on powered",
@@ -153,11 +173,10 @@
 				"defaultValue": 2
 			}
 		],
-		"statickvs":
-		[
-      "'min' '0'",
-      "'startvalue' '0'"
-		],
+		"statickvs": {
+      "min": "0",
+      "startvalue": "0"
+		},
 		"inputs": [
 			{
 				"name": "input",

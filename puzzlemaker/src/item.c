@@ -176,18 +176,25 @@ void initItems()
 		def->texture = loadTexture(def->textureName);
 
 		cJSON* staticKvs = cJSON_GetObjectItem(item, "statickvs");
-		len = cJSON_GetArraySize(staticKvs);
-		def->staticKvs = dynList_new(len, sizeof(char*));
-		for (int i = 0; i < len; i++)
+		if (staticKvs)
 		{
-			char* s = (char*)jsonArrGetStr(staticKvs, i);
-			for (int j = 0; j < strlen(s); j++)
+			cJSON* kv = staticKvs->child;
+			int len = cJSON_GetArraySize(staticKvs);
+
+			def->staticKvs = dynList_new(len, sizeof(char*));
+			int i = 0;
+			while (1)
 			{
-				if (s[j] == '\'')
-					s[j] = '\"';
+				if (kv == 0)
+					break;
+				int l = strlen(kv->string) + strlen(kv->valuestring) + 7;
+				def->staticKvs[i] = malloc(l);
+				snprintf(def->staticKvs[i], l, "\"%s\" \"%s\"", kv->string, kv->valuestring);
+				kv = kv->next;
+				i++;
 			}
-			def->staticKvs[i] = s;
 		}
+
 		cJSON* offset = cJSON_GetObjectItem(item, "offset");
 		if (offset)
 		{

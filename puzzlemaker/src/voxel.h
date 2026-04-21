@@ -31,6 +31,8 @@ extern char currentDir;
 
 void initVoxels();
 void drawVoxels(vec3 pos, vec3 rot);
+char pointInRange(ivec3 point, ivec3 boundA, ivec3 boundB);
+char isSelection2d();
 
 Voxel* getVoxel(int x, int y, int z);
 Voxel* getVoxelv(ivec3 pos);

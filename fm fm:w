@@ -7,7 +7,7 @@
 #include <string.h>
 
 #define col(dir)                                                                                                       \
-	(selected && (dir == currentDir || not2d) ? selectCol : (voxel->portalability[dir] ? portalCol : normalCol))
+	(selected && dir == currentDir ? selectCol : (voxel->portalability[dir] ? portalCol : normalCol))
 
 Voxel voxels[MAP_SIZE * MAP_SIZE * MAP_SIZE];
 
@@ -26,11 +26,11 @@ char isSelection2d()
 
 char pointInRange(ivec3 point, ivec3 boundA, ivec3 boundB)
 {
-	char x = (boundA[0] <= point[0] && point[0] <= boundB[0]);
-	char y = (boundA[1] <= point[1] && point[1] <= boundB[1]);
-	char z = (boundA[2] <= point[2] && point[2] <= boundB[2]);
+  char x = (boundA[0] <= point[0] && point[0] <= boundB[0]);
+  char y = (boundA[1] <= point[1] && point[1] <= boundB[1]);
+  char z = (boundA[2] <= point[2] && point[2] <= boundB[2]);
 
-	return x && y && z;
+  return x && y && z;
 }
 
 void initVoxels()
@@ -81,12 +81,7 @@ void drawVoxels(vec3 cameraPos, vec3 cameraRot)
 
 	setCamMat(camMat);
 
-	char multiselect = (currentVoxel2Pos[0] != -1 && currentVoxel2Pos[1] != -1 && currentVoxel2Pos[2] != -1);
-	char not2d = 0;
-	if (multiselect)
-	{
-		not2d = !isSelection2d();
-	}
+  char isSelection2D = (currentVoxel2Pos[0] == -1 && currentVoxel2Pos[1] == -1 && currentVoxel2Pos[2] == -1);
 
 	for (int z = 0; z < MAP_SIZE; z++)
 	{
@@ -97,14 +92,8 @@ void drawVoxels(vec3 cameraPos, vec3 cameraRot)
 				Voxel* voxel = getVoxel(x, y, z);
 				if (voxel->solid)
 				{
-					ivec3 pos = {x, y, z};
-
-					char selected;
-					if (multiselect)
-						selected = pointInRange(pos, currentVoxelPos, currentVoxel2Pos);
-					else
-						selected = (voxel == currentVoxel);
-
+          ivec3 pos = {x, y, z};
+          char selected = pointInRange(pos, currentVoxelPos, currentVoxel2Pos);
 					if (z + 1 < MAP_SIZE)
 					{
 						Voxel* v2 = getVoxel(x, y, z + 1);

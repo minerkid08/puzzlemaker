@@ -26,6 +26,9 @@
 #define MODE_NONE 0
 #define MODE_ORBIT 1
 #define MODE_PAN 2
+#define MODE_SELECT 3
+
+#define RAY_LEN 20
 
 int width = 1920;
 int height = 1080;
@@ -49,25 +52,24 @@ ImGuiIO* io;
 void findSelected(char shiftDown)
 {
 	RaycastHit hit;
-	if (voxelRaycast(cameraPos, mouseDir, 10, &hit))
+	if (voxelRaycast(cameraPos, mouseDir, RAY_LEN, &hit))
 	{
 		if (shiftDown)
 		{
-			memcpy(currentVoxel2Pos, hit.pos, sizeof(int) * 3);
-			int zmin = min(currentVoxelPos[2], currentVoxel2Pos[2]);
-			int zmax = max(currentVoxelPos[2], currentVoxel2Pos[2]);
-			int ymin = min(currentVoxelPos[1], currentVoxel2Pos[1]);
-			int ymax = max(currentVoxelPos[1], currentVoxel2Pos[1]);
-			int xmin = min(currentVoxelPos[0], currentVoxel2Pos[0]);
-			int xmax = max(currentVoxelPos[0], currentVoxel2Pos[0]);
+			int zmin = min(currentVoxelPos[2], hit.pos[2]);
+			int zmax = max(hit.pos[2], currentVoxel2Pos[2]);
+			int ymin = min(currentVoxelPos[1], hit.pos[1]);
+			int ymax = max(hit.pos[1], currentVoxel2Pos[1]);
+			int xmin = min(currentVoxelPos[0], hit.pos[0]);
+			int xmax = max(hit.pos[0], currentVoxel2Pos[0]);
 
-      currentVoxelPos[0] = xmin;
-      currentVoxelPos[1] = ymin;
-      currentVoxelPos[2] = zmin;
+			currentVoxelPos[0] = xmin;
+			currentVoxelPos[1] = ymin;
+			currentVoxelPos[2] = zmin;
 
-      currentVoxel2Pos[0] = xmax;
-      currentVoxel2Pos[1] = ymax;
-      currentVoxel2Pos[2] = zmax;
+			currentVoxel2Pos[0] = xmax;
+			currentVoxel2Pos[1] = ymax;
+			currentVoxel2Pos[2] = zmax;
 		}
 		else
 		{
@@ -193,6 +195,32 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 int mouseMode = 0;
 
+void calcSelectAxis()
+{
+	vec4 dir;
+	dir[0] = mx / width - 0.5f;
+	dir[1] = -my / height + 0.5f;
+
+	float vertAngle = 0.5f * fovy;
+
+	float worldHeight = 2.0f * tanf(vertAngle);
+
+	dir[0] *= worldHeight;
+	dir[1] *= worldHeight;
+	dir[2] = -1;
+	dir[3] = 1;
+
+	dir[0] *= aspect;
+
+	mat4 rotMat;
+	glm_mat4_identity(rotMat);
+	glm_rotate_z(rotMat, cameraRot[2], rotMat);
+	glm_rotate_y(rotMat, cameraRot[1], rotMat);
+	glm_rotate_x(rotMat, cameraRot[0], rotMat);
+
+	glm_mat4_mulv(rotMat, dir, mouseDir);
+}
+
 void mouseCallback(GLFWwindow* window, int button, int action, int mods)
 {
 	if (io->WantCaptureMouse)
@@ -215,30 +243,8 @@ void mouseCallback(GLFWwindow* window, int button, int action, int mods)
 		}
 		if (button == GLFW_MOUSE_BUTTON_1)
 		{
-			vec4 dir;
-			dir[0] = mx / width - 0.5f;
-			dir[1] = -my / height + 0.5f;
-
-			float vertAngle = 0.5f * fovy;
-
-			float worldHeight = 2.0f * tanf(vertAngle);
-
-			dir[0] *= worldHeight;
-			dir[1] *= worldHeight;
-			dir[2] = -1;
-			dir[3] = 1;
-
-			dir[0] *= aspect;
-
-			mat4 rotMat;
-			glm_mat4_identity(rotMat);
-			glm_rotate_z(rotMat, cameraRot[2], rotMat);
-			glm_rotate_y(rotMat, cameraRot[1], rotMat);
-			glm_rotate_x(rotMat, cameraRot[0], rotMat);
-
-			glm_mat4_mulv(rotMat, dir, mouseDir);
-
-			Item* item = findSelectedItem(cameraPos, mouseDir, 10);
+			calcSelectAxis();
+			Item* item = findSelectedItem(cameraPos, mouseDir, RAY_LEN);
 			if (pickPtr)
 			{
 				currentVoxel = 0;
@@ -250,17 +256,14 @@ void mouseCallback(GLFWwindow* window, int button, int action, int mods)
 			else
 			{
 				setSelectedItem(0);
-				findSelected(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT));
+				findSelected(0);
+				mouseMode = MODE_SELECT;
 			}
 		}
 	}
 	if (action == GLFW_RELEASE)
 	{
-		if (button == GLFW_MOUSE_BUTTON_2)
-			mouseMode = 0;
-
-		if (button == GLFW_MOUSE_BUTTON_3)
-			mouseMode = 0;
+		mouseMode = 0;
 	}
 }
 
@@ -289,6 +292,12 @@ void mouseMoveCallback(GLFWwindow* window, double x, double y)
 		cameraPos[0] -= up[0] * dy * 0.005;
 		cameraPos[1] -= up[1] * dy * 0.005;
 		cameraPos[2] -= up[2] * dy * 0.005;
+	}
+
+	if (mouseMode == MODE_SELECT)
+	{
+		calcSelectAxis();
+		findSelected(1);
 	}
 }
 

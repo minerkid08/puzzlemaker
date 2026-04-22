@@ -1,8 +1,8 @@
 #include "cglm/types.h"
 #include "dynList.h"
-#include "item.h"
+#include "item/item.h"
 #include "utils.h"
-#include "voxel.h"
+#include "voxel/voxel.h"
 #include <stdio.h>
 
 int id = 1;
@@ -271,7 +271,7 @@ entity
 
 void exportMap(const char* name)
 {
-	snprintf(filename, 64, "%s.vmf", name);
+	snprintf(filename, 64, "maps/%s.vmf", name);
 	FILE* file = fopen(filename, "wb");
 
 	fprintf(file, R"(versioninfo

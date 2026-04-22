@@ -1,7 +1,7 @@
 #include <stdbool.h>
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 
-#include "item.h"
+#include "item/item.h"
 
 #include "cimgui.h"
 #include "dynList.h"

@@ -17,11 +17,11 @@
 
 #include "camera.h"
 #include "compileThread.h"
-#include "item.h"
+#include "item/item.h"
 #include "ui.h"
 #include "ui/itemPanel.h"
-#include "voxel.h"
-#include "voxelModification.h"
+#include "voxel/voxel.h"
+#include "voxel/voxelModification.h"
 
 #define MODE_NONE 0
 #define MODE_ORBIT 1

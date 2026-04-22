@@ -1,8 +1,8 @@
 #include "cjson.h"
 #include "dynList.h"
-#include "item.h"
+#include "item/item.h"
 #include "jsonUtils.h"
-#include "voxel.h"
+#include "voxel/voxel.h"
 #include <stdio.h>
 #include <string.h>
 

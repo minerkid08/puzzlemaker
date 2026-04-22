@@ -48,7 +48,10 @@ void modify2dSelection(int action)
 			pos[axis3] = currentVoxelPos[axis3];
 
 			if (action == ACTION_PUSH)
-				getVoxelv(pos)->solid = 0;
+			{
+				if (canPush(x, y, currentVoxelPos[axis3]))
+					getVoxelv(pos)->solid = 0;
+			}
 			else if (action == ACTION_PULL)
 			{
 				pos[axis3] += dir;
@@ -78,7 +81,10 @@ void modify3dSelection(int action)
 			for (int x = currentVoxelPos[0]; x <= currentVoxel2Pos[0]; x++)
 			{
 				if (action == ACTION_PUSH)
-					getVoxel(x, y, z)->solid = 0;
+				{
+					if (canPush(x, y, z))
+						getVoxel(x, y, z)->solid = 0;
+				}
 				else if (action == ACTION_PULL)
 					getVoxel(x, y, z)->solid = 1;
 				else if (action == ACTION_PORT)

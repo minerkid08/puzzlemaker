@@ -6,6 +6,7 @@
 #define VOXEL_COUNT (MAP_SIZE * MAP_SIZE * MAP_SIZE)
 
 #define inRange(x, y, z) (x >= 0 && x < MAP_SIZE && y >= 0 && y < MAP_SIZE && z >= 0 && z < MAP_SIZE)
+#define canPush(x, y, z) (x > 0 && x < MAP_SIZE - 1 && y > 0 && y < MAP_SIZE - 1 && z > 0 && z < MAP_SIZE - 1)
 
 #define normalCol (vec4){1, 1, 1, 1}
 #define portalCol (vec4){1.5, 1.5, 1.5, 1}
@@ -30,6 +31,7 @@ extern Voxel* currentVoxel;
 extern char currentDir;
 
 void initVoxels();
+void initVoxelRenderer();
 void drawVoxels(vec3 pos, vec3 rot);
 char pointInRange(ivec3 point, ivec3 boundA, ivec3 boundB);
 char isSelection2d();

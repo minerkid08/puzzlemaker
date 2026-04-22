@@ -2,7 +2,7 @@
 	"steps": [
 		{
 			"name": "cp1",
-			"cmd": "cp %c/%f.vmf sdk_content/maps/puzzlemakerMaps"
+			"cmd": "cp %c/maps/%f.vmf sdk_content/maps/puzzlemakerMaps"
 		},
 		{
 			"name": "vbsp",

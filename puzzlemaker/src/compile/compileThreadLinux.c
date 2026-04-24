@@ -1,3 +1,5 @@
+#ifdef linux
+
 #include "compileThread.h"
 #include "dynList.h"
 #include "jsonUtils.h"
@@ -249,3 +251,5 @@ void startCompileThread()
 
 	cJSON_free(json);
 }
+
+#endif

@@ -18,13 +18,6 @@ typedef struct
 	char portalability[6];
 } Voxel;
 
-typedef struct
-{
-	ivec3 pos;
-	Voxel* voxel;
-	char dir;
-} RaycastHit;
-
 extern ivec3 currentVoxelPos;
 extern ivec3 currentVoxel2Pos;
 extern Voxel* currentVoxel;
@@ -39,4 +32,4 @@ char isSelection2d();
 Voxel* getVoxel(int x, int y, int z);
 Voxel* getVoxelv(ivec3 pos);
 
-char voxelRaycast(vec3 startPos, vec3 dir, float len, RaycastHit* out);
+int getVoxelSide(vec3 start, ivec3 pos, vec3 dir);

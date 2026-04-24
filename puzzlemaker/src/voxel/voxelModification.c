@@ -17,6 +17,9 @@ void modify2dSelection(int action)
 	if (dir == 0)
 		dir = -1;
 
+	if (action == ACTION_PULL)
+		dir *= -1;
+
 	if (currentDir == DIR_POS_X || currentDir == DIR_NEG_X)
 	{
 		axis1 = 1;
@@ -38,6 +41,18 @@ void modify2dSelection(int action)
 		axis3 = 2;
 	}
 
+	int x = currentVoxelPos[axis3] - dir;
+	if (action == ACTION_PUSH)
+	{
+		if (x < 0 || x >= MAP_SIZE)
+			return;
+	}
+	if (action == ACTION_PULL)
+	{
+		if (x < 1 || x >= MAP_SIZE - 1)
+			return;
+	}
+
 	for (int y = currentVoxelPos[axis2]; y <= currentVoxel2Pos[axis2]; y++)
 	{
 		for (int x = currentVoxelPos[axis1]; x <= currentVoxel2Pos[axis1]; x++)
@@ -54,7 +69,7 @@ void modify2dSelection(int action)
 			}
 			else if (action == ACTION_PULL)
 			{
-				pos[axis3] += dir;
+				pos[axis3] -= dir;
 				getVoxelv(pos)->solid = 1;
 			}
 			else if (action == ACTION_PORT)
@@ -64,10 +79,8 @@ void modify2dSelection(int action)
 			}
 		}
 	}
-	if (action == ACTION_PULL)
-		dir *= -1;
 	if (action == ACTION_PORT)
-		dir = 0;
+		return;
 	currentVoxelPos[axis3] -= dir;
 	currentVoxel2Pos[axis3] -= dir;
 }

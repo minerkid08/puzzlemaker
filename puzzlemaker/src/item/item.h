@@ -101,7 +101,7 @@ void drawItems();
 
 void updateItemTransform(Item* item);
 void updateSelectedItem();
-Item* findSelectedItem(vec3 pos, vec3 dir, float len);
+Item* getIntersectingItem(vec3 pos);
 Item* getSelectedItem();
 Item* getItem(int i);
 void setSelectedItem(Item* item);

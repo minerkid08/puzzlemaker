@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 
-#include "compileThread.h"
+#include "compile/compileThread.h"
 #include <cimgui.h>
 
 float frac = 0;

@@ -16,8 +16,9 @@
 #include <string.h>
 
 #include "camera.h"
-#include "compileThread.h"
+#include "compile/compileThread.h"
 #include "item/item.h"
+#include "raycast.h"
 #include "ui.h"
 #include "ui/itemPanel.h"
 #include "voxel/voxel.h"
@@ -27,6 +28,8 @@
 #define MODE_ORBIT 1
 #define MODE_PAN 2
 #define MODE_SELECT 3
+
+int mouseMode = 0;
 
 #define RAY_LEN 20
 
@@ -51,8 +54,13 @@ ImGuiIO* io;
 
 void findSelected(char shiftDown)
 {
+	int flags;
+	if (shiftDown)
+		flags = RAYCAST_VOXEL;
+	else
+		flags = RAYCAST_VOXEL | RAYCAST_ITEM;
 	RaycastHit hit;
-	if (voxelRaycast(cameraPos, mouseDir, RAY_LEN, &hit))
+	if (raycast(cameraPos, mouseDir, RAY_LEN, flags, &hit))
 	{
 		if (shiftDown)
 		{
@@ -73,12 +81,32 @@ void findSelected(char shiftDown)
 		}
 		else
 		{
-			currentVoxel = hit.voxel;
-			currentDir = hit.dir;
-			memcpy(currentVoxelPos, hit.pos, sizeof(int) * 3);
-			currentVoxel2Pos[0] = -1;
-			currentVoxel2Pos[1] = -1;
-			currentVoxel2Pos[2] = -1;
+			if (hit.type == RAYCAST_VOXEL)
+			{
+				setSelectedItem(0);
+				currentVoxel = hit.voxel;
+				currentDir = hit.dir;
+				currentVoxelPos[0] = hit.pos[0];
+				currentVoxelPos[1] = hit.pos[1];
+				currentVoxelPos[2] = hit.pos[2];
+				currentVoxel2Pos[0] = -1;
+				currentVoxel2Pos[1] = -1;
+				currentVoxel2Pos[2] = -1;
+
+				setSelectedItem(0);
+				mouseMode = MODE_SELECT;
+			}
+			else
+			{
+				if (pickPtr)
+				{
+					currentVoxel = 0;
+					*pickPtr = hit.item;
+					pickPtr = 0;
+				}
+				else
+					setSelectedItem(hit.item);
+			}
 		}
 	}
 	else
@@ -193,8 +221,6 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 	}
 }
 
-int mouseMode = 0;
-
 void calcSelectAxis()
 {
 	vec4 dir;
@@ -244,21 +270,7 @@ void mouseCallback(GLFWwindow* window, int button, int action, int mods)
 		if (button == GLFW_MOUSE_BUTTON_1)
 		{
 			calcSelectAxis();
-			Item* item = findSelectedItem(cameraPos, mouseDir, RAY_LEN);
-			if (pickPtr)
-			{
-				currentVoxel = 0;
-				*pickPtr = item;
-				pickPtr = 0;
-			}
-			else if (item)
-				setSelectedItem(item);
-			else
-			{
-				setSelectedItem(0);
-				findSelected(0);
-				mouseMode = MODE_SELECT;
-			}
+			findSelected(0);
 		}
 	}
 	if (action == GLFW_RELEASE)

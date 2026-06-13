@@ -13,6 +13,8 @@
 #define DIR_POS_Z 4
 #define DIR_NEG_Z 5
 
+#define errorf(...) { printf(__VA_ARGS__); exit(1); }
+
 extern ivec3 dirs[6];
 
 char* copyString(const char* str);

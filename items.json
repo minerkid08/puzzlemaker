@@ -1,5 +1,39 @@
 [
+  {
+    "type": "panel",
+    "name": "fizzler",
+    "editorCenterTexture": "fizzler-center.png",
+    "centerTexture": "EFFECTS/FIZZLER_CENTER",
+    "zTexture": "TOOLS/TOOLSTRIGGER",
+    "entity": "trigger_portal_cleanser",
+    "texSize": 1024,
+    "thickness": 2,
+    "bound1": [0, 0, -1],
+    "bound2": [0.5, 2, 1],
+    "minSize": {"x": 0, "y": 2},
+    "maxSize": {"x": 99999, "y": 2},
+    "defaultSize": {"x": 4, "y": 2},
+    "boarders": [
+      {
+        "id": "left",
+        "editorTexture": "fizzler-left.png",
+        "texture": "EFFECTS/FIZZLER_L",
+        "texSize": 1024,
+        "minSize": 0.5,
+        "maxSize": 0.5
+      },
+      {
+        "id": "right",
+        "editorTexture": "fizzler-right.png",
+        "texture": "EFFECTS/FIZZLER_R",
+        "texSize": 1024,
+        "minSize": 0.5,
+        "maxSize": 0.5
+      }
+    ]
+  },
 	{
+    "type": "entity",
 		"name": "door",
 		"model": "door.obj",
 		"mat": "door.png",
@@ -27,6 +61,7 @@
 		]
 	},
 	{
+    "type": "entity",
 		"name": "cube",
 		"model": "cube.obj",
 		"mat": "cube.png",
@@ -78,6 +113,7 @@
     }
 	},
   {
+    "type": "entity",
     "name": "button",
     "model": "button.obj",
     "mat": "button.png",
@@ -95,6 +131,7 @@
     ]
   },
 	{
+    "type": "entity",
 		"name": "start",
 		"model": "cube.obj",
 		"mat": "door.png",
@@ -103,6 +140,7 @@
     "bound2": [0.5, 1, 0.5]
 	},
 	{
+    "type": "entity",
 		"name": "laser",
 		"model": "laser.obj",
 		"mat": "laser.png",
@@ -134,6 +172,7 @@
     ]
 	},
 	{
+    "type": "entity",
 		"name": "laser-catcher",
 		"model": "laser-catcher.obj",
 		"mat": "laser-catcher.png",
@@ -160,6 +199,7 @@
     ]
 	},
 	{
+    "type": "entity",
 		"name": "counter",
 		"model": "laser-catcher.obj",
 		"mat": "laser-catcher.png",

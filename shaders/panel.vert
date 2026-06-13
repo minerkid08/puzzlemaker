@@ -7,13 +7,14 @@ layout(location = 3) in int matId;
 
 uniform mat4 mat;
 uniform mat4 cam;
+uniform mat4 transform;
 
 out vec2 iuv;
-out vec4 itint;
+flat out int imat;
 
 void main()
 {
+  imat = matId;
   iuv = uv;
-  itint = tint;
-  gl_Position = mat * cam * pos;
+  gl_Position = mat * cam * transform * pos;
 }

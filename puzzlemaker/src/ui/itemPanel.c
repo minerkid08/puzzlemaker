@@ -1,10 +1,13 @@
+#include "item/panel.h"
 #include <stdbool.h>
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 
 #include "item/item.h"
 
+#include "camera.h"
 #include "cimgui.h"
 #include "dynList.h"
+#include "picker.h"
 #include "save.h"
 #include "ui/itemPanel.h"
 
@@ -12,12 +15,24 @@ const char** itemNames;
 
 int defCount;
 
-extern Item** pickPtr;
+extern Picker picker;
 
 static Item* pickEntity;
 
 static char buf[50];
 static char filename[50];
+
+Item* selectedItem;
+
+void clearSelectedItem()
+{
+	selectedItem = 0;
+}
+
+void setSelectedItem(Item* item)
+{
+	selectedItem = item;
+}
 
 void openCompilePopup(const char* filename);
 
@@ -36,6 +51,7 @@ void initItemPanel()
 
 char* outputNames = 0;
 
+void export2(const char* name);
 void itemPanelRender()
 {
 	igBegin("items", 0, 0);
@@ -51,9 +67,12 @@ void itemPanelRender()
 	if (igButton("load", zero))
 		load(filename);
 	igSameLine(0, -1);
+	if (igButton("export vmf", zero))
+		export2(filename);
+	igSameLine(0, -1);
 	if (igButton("compile", zero))
 	{
-		exportMap(filename);
+		export2(filename);
 		openCompilePopup(filename);
 	}
 
@@ -69,33 +88,66 @@ void itemPanelRender()
 		for (int i = 0; i < defCount; i++)
 		{
 			if (igSelectable_Bool(itemNames[i], 0, 0, zero))
-				addItem(i);
+			{
+				vec3 offset;
+				vec3 pos;
+				ivec3 ipos;
+
+				glm_vec3_scale(forward, 5, offset);
+
+				pos[0] = offset[0] + cameraPos[0];
+				pos[1] = offset[1] + cameraPos[1];
+				pos[2] = offset[2] + cameraPos[2];
+
+				ipos[0] = floorf(pos[0]);
+				ipos[1] = floorf(pos[1]);
+				ipos[2] = floorf(pos[2]);
+
+				addItem(i, ipos);
+			}
 		}
 		igEndPopup();
 	}
 
-	Item* currentItem = getSelectedItem();
-
-	if (currentItem)
+	if (selectedItem)
 	{
-		igText("%s, %d", currentItem->def->name, currentItem->index);
+		igText("%s, %d", selectedItem->def->name, selectedItem->index);
 		if (igButton("remove", zero))
 		{
-			removeItem(currentItem);
+			removeItem(selectedItem);
+			selectedItem = 0;
 			goto end;
 		}
 
-		if (igDragFloat3("position", currentItem->pos, 0.01f, 0.0f, 0.0f, "%.3f", 0))
-			updateItemTransform(currentItem);
-		if (igDragFloat3("rotation", currentItem->dir, 0.01f, 0.0f, 0.0f, "%.3f", 0))
-			updateItemTransform(currentItem);
+		if (igDragFloat3("position", selectedItem->pos, 0.01f, 0.0f, 0.0f, "%.3f", 0))
+			updateItemTransform(selectedItem);
+		if (igDragFloat3("rotation", selectedItem->dir, 0.01f, 0.0f, 0.0f, "%.3f", 0))
+			updateItemTransform(selectedItem);
+
+		if (selectedItem->def->type == ITEM_TYPE_PANEL)
+		{
+			PanelData* data = selectedItem->data;
+			PanelDefData* def = selectedItem->def->data;
+      if(igDragFloat2("size", data->size, 0.01f, 0.0f, 9999.0f, "%.3f", 0))
+      {
+        if(data->size[0] > def->maxSize[0])
+          data->size[0] = def->maxSize[0];
+        if(data->size[0] < def->minSize[0])
+          data->size[0] = def->minSize[0];
+
+        if(data->size[1] > def->maxSize[1])
+          data->size[1] = def->maxSize[1];
+        if(data->size[1] < def->minSize[1])
+          data->size[1] = def->minSize[1];
+      }
+		}
 
 		igSeparatorText("kvs");
 
-		int l = dynList_size(currentItem->def->kvs);
+		int l = dynList_size(selectedItem->def->kvs);
 		for (int i = 0; i < l; i++)
 		{
-			ItemKv* kv = &currentItem->kv[i];
+			ItemKv* kv = &selectedItem->kv[i];
 			if (kv->def->type == TYPE_INT)
 				igInputInt(kv->def->name, &kv->value.i, 1, 0, 0);
 			if (kv->def->type == TYPE_BOOL)
@@ -121,34 +173,34 @@ void itemPanelRender()
 
 		igSeparatorText("outputs");
 
-		l = dynList_size(currentItem->outputs);
+		l = dynList_size(selectedItem->outputs);
 
-		int defCount = dynList_size(currentItem->def->outputs);
+		int defCount = dynList_size(selectedItem->def->outputs);
 		if (defCount == 0)
 			igText("no outputs for this item");
 		else
 		{
 			if (igButton("add output", zero))
 			{
-				dynList_resize((void**)&currentItem->outputs, l + 1);
-				ItemOutput* output = &currentItem->outputs[l];
-				output->entity = 0;
-				output->def = currentItem->def->outputs;
+				dynList_resize((void**)&selectedItem->outputs, l + 1);
+				ItemOutput* output = &selectedItem->outputs[l];
+				output->entity = -1;
+				output->def = selectedItem->def->outputs;
 				output->input = 0;
 				output->inverted = 0;
 			}
 
 			for (long long i = 0; i < l; i++)
 			{
-				ItemOutput* output = &currentItem->outputs[i];
+				ItemOutput* output = &selectedItem->outputs[i];
 				if (igTreeNode_Ptr((void*)i, output->def->name))
 				{
 					if (igBeginCombo("output", output->def->name, 0))
 					{
-						int len = dynList_size(currentItem->def->outputs);
+						int len = dynList_size(selectedItem->def->outputs);
 						for (int i = 0; i < len; i++)
 						{
-							OutputDef* def = &currentItem->def->outputs[i];
+							OutputDef* def = &selectedItem->def->outputs[i];
 							char selected = (output->def == def);
 							if (igSelectable_Bool(def->name, selected, 0, zero))
 								output->def = def;
@@ -160,27 +212,33 @@ void itemPanelRender()
 
 					char pressed;
 					if (output->entity != -1)
-						pressed = igButton("entity: something", zero);
-					else if (pickPtr)
+					{
+						char msg[32];
+						Item* item = getItem(output->entity);
+						snprintf(msg, sizeof(msg), "entity: %s %d", item->def->name, output->entity);
+						pressed = igButton(msg, zero);
+					}
+					else if (picker.active)
 						pressed = igButton("entity: picking", zero);
 					else
 						pressed = igButton("entity: none", zero);
 
 					if (pressed)
-          {
-						pickPtr = &pickEntity;
-            pickEntity = 0;
-            output->entity = -1;
-          }
+					{
+            picker.active = 1;
+						picker.ptr = &pickEntity;
+						pickEntity = 0;
+						output->entity = -1;
+					}
 
-					if (pickPtr == 0 && pickEntity)
-          {
-            output->entity = pickEntity->index;
-          }
+					if (picker.active == 0 && pickEntity)
+					{
+						output->entity = pickEntity->index;
+					}
 
 					if (output->entity != -1)
 					{
-            Item* entity = getItem(output->entity); 
+						Item* entity = getItem(output->entity);
 						const char* inputName = (output->input == 0 ? "none" : output->input->name);
 						if (igBeginCombo("input", inputName, 0))
 						{

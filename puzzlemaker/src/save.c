@@ -1,10 +1,13 @@
 #include "cjson.h"
 #include "dynList.h"
 #include "item/item.h"
+#include "item/panel.h"
 #include "jsonUtils.h"
 #include "voxel/voxel.h"
 #include <stdio.h>
 #include <string.h>
+
+extern Item* itemList;
 
 char filename[64];
 void save(const char* name)
@@ -92,7 +95,7 @@ void save(const char* name)
 	cJSON* items = cJSON_CreateArray();
 	cJSON_AddItemToObject(json, "items", items);
 
-	Item* itemList = *getItems();
+	Item* itemList = getItemList();
 	int len = dynList_size(itemList);
 	cJSON_AddNumberToObject(json, "itemCount", len);
 	for (int i = 0; i < len; i++)
@@ -116,6 +119,9 @@ void save(const char* name)
 		jsonArrSetFloat(rot, item->dir[0]);
 		jsonArrSetFloat(rot, item->dir[1]);
 		jsonArrSetFloat(rot, item->dir[2]);
+
+    if(item->def->type == ITEM_TYPE_PANEL)
+      panelItemSave(item, itemJson);
 
 		cJSON* output = cJSON_CreateArray();
 		cJSON_AddItemToObject(itemJson, "outputs", output);
@@ -176,6 +182,17 @@ void load(const char* name)
 	const char* err = cJSON_GetErrorPtr();
 	free(data);
 
+	for (int z = 0; z < MAP_SIZE; z++)
+	{
+		for (int y = 0; y < MAP_SIZE; y++)
+		{
+			for (int x = 0; x < MAP_SIZE; x++)
+			{
+        getVoxel(x, y, z)->solid = 1;
+			}
+		}
+	}
+
 	cJSON* voxelArr = cJSON_GetObjectItem(json, "voxels");
 	cJSON* voxel;
 	cJSON_ArrayForEach(voxel, voxelArr)
@@ -196,18 +213,17 @@ void load(const char* name)
 	}
 
 	int itemCount = jsonGetInt(json, "itemCount");
-	Item** itemList = getItems();
 
-	dynList_resize((void**)itemList, itemCount);
+	dynList_resize((void**)&itemList, itemCount);
 	for (int i = 0; i < itemCount; i++)
-		(*itemList)[i].index = -1;
+		itemList[i].index = -1;
 
 	cJSON* items = cJSON_GetObjectItem(json, "items");
 	cJSON* itemJson;
 	cJSON_ArrayForEach(itemJson, items)
 	{
 		int index = jsonGetInt(itemJson, "index");
-		Item* item = &(*itemList)[index];
+		Item* item = &itemList[index];
 
 		item->index = index;
 		item->id = jsonGetInt(itemJson, "id");
@@ -223,6 +239,13 @@ void load(const char* name)
 		item->dir[2] = jsonArrGetFloat(rot, 2);
 
 		item->def = &getItemDefinitions()[item->id];
+
+    if(item->def->type == ITEM_TYPE_PANEL)
+    {
+      panelItemInit(item);
+      panelItemLoad(item, itemJson);
+    }
+
 		updateItemTransform(item);
 
 		cJSON* outputList = cJSON_GetObjectItem(itemJson, "outputs");
@@ -279,8 +302,8 @@ void load(const char* name)
 			continue;
 		for (int j = 0; j < dynList_size(item->outputs); j++)
 		{
-      ItemOutput* output = &item->outputs[j];
-      char* inputName = (char*)output->input;
+			ItemOutput* output = &item->outputs[j];
+			char* inputName = (char*)output->input;
 
 			Item* item2 = getItem(output->entity);
 			InputDef* inputs = item2->def->inputs;

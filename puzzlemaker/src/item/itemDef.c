@@ -1,20 +1,22 @@
+#include "cjson.h"
+#include "dynList.h"
+#include "item/entityItem.h"
 #include "item/item.h"
-#include "renderer/mesh.h"
-#include "renderer/texture.h"
+#include "item/panel.h"
+#include "jsonUtils.h"
 #include "utils.h"
 #include <stdio.h>
-#include <dynList.h>
-#include "cjson.h"
-#include "jsonUtils.h"
 #include <string.h>
 
-extern ItemDefinition* definitions;
-extern Item* items;
+ItemDefinition* definitions;
 
-void initItems()
+ItemDefinition* getItemDefinitions()
 {
-	items = dynList_new(0, sizeof(Item));
+  return definitions;
+}
 
+void loadItemDefinitions()
+{
 	FILE* file = fopen("items.json", "rb");
 
 	fseek(file, 0, SEEK_END);
@@ -39,19 +41,30 @@ void initItems()
 	{
 		ItemDefinition* def = &definitions[i++];
 
+	  if (cJSON_GetObjectItem(item, "name") == 0)
+      errorf("item %d is missing name field\n", i);
+
 		def->name = jsonGetStr(item, "name");
-		def->modelName = jsonGetStr(item, "model");
-		def->textureName = jsonGetStr(item, "mat");
-		if (cJSON_HasObjectItem(item, "instance"))
-		{
-			def->type = ENTITY_TYPE_INSTANCE;
-			def->instanceName = jsonGetStr(item, "instance");
-		}
-		else
-		{
-			def->type = ENTITY_TYPE_ENTITY;
-			def->instanceName = jsonGetStr(item, "entity");
-		}
+    
+    printf("[item loader] loading item '%s'\n", def->name);
+
+	  if (cJSON_GetObjectItem(item, "type") == 0)
+      errorf("item %s is missing type field\n", def->name);
+
+    const char* type = jsonGetStr(item, "type");
+    if(strcmp(type, "entity") == 0)
+    {
+      def->type = ITEM_TYPE_ENTITY;
+      def->data = loadEntityItemDef(item);
+    }
+    else if(strcmp(type, "panel") == 0)
+    {
+      def->type = ITEM_TYPE_PANEL;
+      def->data = loadPanelItemDef(item);
+    }
+    else
+      errorf("unknown type for entity %s\n", def->name);
+
 
 		cJSON* keyValues = cJSON_GetObjectItem(item, "keyvalues");
 		len = cJSON_GetArraySize(keyValues);
@@ -162,9 +175,6 @@ void initItems()
 		def->bound2[1] = jsonArrGetFloat(bound, 1);
 		def->bound2[2] = jsonArrGetFloat(bound, 2);
 		def->bound2[3] = 1;
-
-		def->mesh = loadMesh(def->modelName);
-		def->texture = loadTexture(def->textureName);
 
 		cJSON* staticKvs = cJSON_GetObjectItem(item, "statickvs");
 		int len = cJSON_GetArraySize(staticKvs);

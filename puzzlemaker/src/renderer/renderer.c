@@ -1,11 +1,14 @@
 #include "renderer.h"
 #include "cglm/types.h"
+#include "debug.h"
 #include "glad/glad.h"
 #include "renderer/shader.h"
-#include "debug.h"
+#include "utils.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+static unsigned int panelShader;
 static unsigned int prgmId;
 static unsigned int va;
 static unsigned int vb;
@@ -17,6 +20,7 @@ typedef struct
 	vec4 pos;
 	vec2 uv;
 	vec4 tint;
+	int mat;
 } Vertex;
 
 static Vertex* verts;
@@ -32,22 +36,22 @@ static mat4 projMat;
 
 mat4* getProjMat()
 {
-  return &projMat;
+	return &projMat;
 }
 
 mat4* getCamMat()
 {
-  return &camMat;
+	return &camMat;
 }
 
 void setProjMat(mat4 mat)
 {
-  memcpy(projMat, mat, sizeof(mat4));
+	memcpy(projMat, mat, sizeof(mat4));
 }
 
 void setCamMat(mat4 mat)
 {
-  memcpy(camMat, mat, sizeof(mat4));
+	memcpy(camMat, mat, sizeof(mat4));
 }
 
 #define glErrCheck()                                                                                                   \
@@ -62,9 +66,10 @@ void setCamMat(mat4 mat)
 
 void initRenderer()
 {
-  initDebug();
+	initDebug();
 
 	prgmId = makeShader("voxel");
+	panelShader = makeShader("panel");
 
 	glCreateVertexArrays(1, &va);
 	glBindVertexArray(va);
@@ -74,11 +79,13 @@ void initRenderer()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * NUM_VERTS, 0, GL_DYNAMIC_DRAW);
 
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(float), 0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 11 * sizeof(float), 0);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)(4 * sizeof(float)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(4 * sizeof(float)));
 	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)(6 * sizeof(float)));
+	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
+	glEnableVertexAttribArray(3);
+	glVertexAttribIPointer(3, 1, GL_INT, 11 * sizeof(float), (void*)(10 * sizeof(float)));
 
 	int indsSize = sizeof(unsigned int) * 6 * NUM_QUADS;
 	unsigned int* inds = malloc(indsSize);
@@ -105,6 +112,20 @@ void initRenderer()
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	glUseProgram(panelShader);
+	int texSlots[10];
+	for (int i = 0; i < 10; i++)
+		texSlots[i] = i;
+	int loc = glGetUniformLocation(panelShader, "textures");
+	glUniform1iv(loc, 10, texSlots);
+  for(int i = 0; i < NUM_VERTS; i++)
+  {
+    verts[i].mat = 0;
+  }
 }
 
 void bindTexture(unsigned int texture)
@@ -115,7 +136,7 @@ void bindTexture(unsigned int texture)
 
 void endFrame()
 {
-  glBindVertexArray(va);
+	glBindVertexArray(va);
 	glBindBuffer(GL_ARRAY_BUFFER, vb);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * vertCount, vertBase);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib);
@@ -127,7 +148,7 @@ void endFrame()
 
 	glDrawElements(GL_TRIANGLES, quadCount * 6, GL_UNSIGNED_INT, 0);
 
-  glBindVertexArray(0);
+	glBindVertexArray(0);
 	verts = vertBase;
 	vertCount = 0;
 	quadCount = 0;
@@ -159,10 +180,74 @@ void drawVerts(vec3* positions, vec4 tint)
 		endFrame();
 }
 
-void drawMesh(Mesh *mesh, unsigned int texture, mat4 transform)
+void panelDrawRect(vec2 start, vec2 end, unsigned int texture)
 {
-  bindTexture(texture);
-  glBindVertexArray(mesh->vertexArray);
+	for (int i = 0; i < 4; i++)
+	{
+		verts[i].pos[3] = 1.0f;
+    verts[i].mat = quadCount;
+	}
+
+	verts[0].pos[0] = start[0];
+	verts[0].pos[1] = start[1];
+	verts[0].pos[2] = 0;
+
+	verts[1].pos[0] = end[0];
+	verts[1].pos[1] = start[1];
+	verts[1].pos[2] = 0;
+
+	verts[2].pos[0] = start[0];
+	verts[2].pos[1] = end[1];
+	verts[2].pos[2] = 0;
+
+	verts[3].pos[0] = end[0];
+	verts[3].pos[1] = end[1];
+	verts[3].pos[2] = 0;
+
+	verts[0].uv[0] = 0;
+	verts[0].uv[1] = 0;
+	verts[1].uv[0] = 1;
+	verts[1].uv[1] = 0;
+	verts[2].uv[0] = 0;
+	verts[2].uv[1] = 1;
+	verts[3].uv[0] = 1;
+	verts[3].uv[1] = 1;
+
+	glUseProgram(panelShader);
+  glActiveTexture(GL_TEXTURE0 + quadCount);
+  glBindTexture(GL_TEXTURE_2D, texture);
+
+	verts += 4;
+
+	vertCount += 4;
+	quadCount++;
+}
+
+void panelEndFrame(mat4 transform)
+{
+	glBindVertexArray(va);
+	glBindBuffer(GL_ARRAY_BUFFER, vb);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * vertCount, vertBase);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib);
+	glUseProgram(panelShader);
+  glDisable(GL_CULL_FACE);
+
+	setUniformMat4(panelShader, "cam", camMat);
+	setUniformMat4(panelShader, "mat", projMat);
+	setUniformMat4(panelShader, "transform", transform);
+
+	glDrawElements(GL_TRIANGLES, quadCount * 6, GL_UNSIGNED_INT, 0);
+  glEnable(GL_CULL_FACE);
+
+	verts = vertBase;
+	vertCount = 0;
+	quadCount = 0;
+}
+
+void drawMesh(Mesh* mesh, unsigned int texture, mat4 transform)
+{
+	bindTexture(texture);
+	glBindVertexArray(mesh->vertexArray);
 	glBindBuffer(GL_ARRAY_BUFFER, mesh->vertBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->indexBuffer);
 	glUseProgram(mesh->shader);
@@ -173,5 +258,5 @@ void drawMesh(Mesh *mesh, unsigned int texture, mat4 transform)
 	setUniformMat4(mesh->shader, "trans", transform);
 
 	glDrawElements(GL_TRIANGLES, mesh->vertCount, GL_UNSIGNED_INT, 0);
-  glBindVertexArray(0);
+	glBindVertexArray(0);
 }

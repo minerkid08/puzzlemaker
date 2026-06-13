@@ -1,5 +1,3 @@
-#include "cglm/vec3.h"
-#include "utils.h"
 #include <math.h>
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 
@@ -18,11 +16,15 @@
 #include "camera.h"
 #include "compile/compileThread.h"
 #include "item/item.h"
+#include "picker.h"
 #include "raycast.h"
 #include "ui.h"
 #include "ui/itemPanel.h"
 #include "voxel/voxel.h"
 #include "voxel/voxelModification.h"
+#include "selection.h"
+
+Picker picker;
 
 #define MODE_NONE 0
 #define MODE_ORBIT 1
@@ -52,67 +54,6 @@ Item** pickPtr = 0;
 
 ImGuiIO* io;
 
-void findSelected(char shiftDown)
-{
-	int flags;
-	if (shiftDown)
-		flags = RAYCAST_VOXEL;
-	else
-		flags = RAYCAST_VOXEL | RAYCAST_ITEM;
-	RaycastHit hit;
-	if (raycast(cameraPos, mouseDir, RAY_LEN, flags, &hit))
-	{
-		if (shiftDown)
-		{
-			int zmin = min(currentVoxelPos[2], hit.pos[2]);
-			int zmax = max(hit.pos[2], currentVoxel2Pos[2]);
-			int ymin = min(currentVoxelPos[1], hit.pos[1]);
-			int ymax = max(hit.pos[1], currentVoxel2Pos[1]);
-			int xmin = min(currentVoxelPos[0], hit.pos[0]);
-			int xmax = max(hit.pos[0], currentVoxel2Pos[0]);
-
-			currentVoxelPos[0] = xmin;
-			currentVoxelPos[1] = ymin;
-			currentVoxelPos[2] = zmin;
-
-			currentVoxel2Pos[0] = xmax;
-			currentVoxel2Pos[1] = ymax;
-			currentVoxel2Pos[2] = zmax;
-		}
-		else
-		{
-			if (hit.type == RAYCAST_VOXEL)
-			{
-				setSelectedItem(0);
-				currentVoxel = hit.voxel;
-				currentDir = hit.dir;
-				currentVoxelPos[0] = hit.pos[0];
-				currentVoxelPos[1] = hit.pos[1];
-				currentVoxelPos[2] = hit.pos[2];
-				currentVoxel2Pos[0] = -1;
-				currentVoxel2Pos[1] = -1;
-				currentVoxel2Pos[2] = -1;
-
-				setSelectedItem(0);
-				mouseMode = MODE_SELECT;
-			}
-			else
-			{
-				if (pickPtr)
-				{
-					currentVoxel = 0;
-					*pickPtr = hit.item;
-					pickPtr = 0;
-				}
-				else
-					setSelectedItem(hit.item);
-			}
-		}
-	}
-	else
-		currentVoxel = 0;
-}
-
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void mouseCallback(GLFWwindow* window, int button, int action, int mods);
 void mouseMoveCallback(GLFWwindow* window, double x, double y);
@@ -133,7 +74,7 @@ int main()
 	aspect = (float)width / (float)height;
 	initCamera();
 
-	initItems();
+	loadItemDefinitions();
 
 	glfwSetKeyCallback(window, keyCallback);
 	glfwSetMouseButtonCallback(window, mouseCallback);
@@ -270,11 +211,12 @@ void mouseCallback(GLFWwindow* window, int button, int action, int mods)
 		if (button == GLFW_MOUSE_BUTTON_1)
 		{
 			calcSelectAxis();
-			findSelected(0);
+      beginSelection(mouseDir);
 		}
 	}
 	if (action == GLFW_RELEASE)
 	{
+    endSelection();
 		mouseMode = 0;
 	}
 }
@@ -306,10 +248,10 @@ void mouseMoveCallback(GLFWwindow* window, double x, double y)
 		cameraPos[2] -= up[2] * dy * 0.005;
 	}
 
-	if (mouseMode == MODE_SELECT)
+	if (isSelecting())
 	{
 		calcSelectAxis();
-		findSelected(1);
+    updateSelection(mouseDir);
 	}
 }
 

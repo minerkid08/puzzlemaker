@@ -1,14 +1,14 @@
+#include "assetManager.h"
 #include "renderer/renderer.h"
 #include <cglm/cglm.h>
 #include "voxel/voxel.h"
 #include "utils.h"
-#include "renderer/texture.h"
 
 static unsigned int texture;
 
 void initVoxelRenderer()
 {
-	texture = loadTexture("wall.png");
+	texture = assetManagerLoadTexture("wall.png");
 }
 
 #define col(dir)                                                                                                       \

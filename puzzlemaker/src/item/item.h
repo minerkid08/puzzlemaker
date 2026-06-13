@@ -8,8 +8,8 @@
 #define TYPE_STRING 3
 #define TYPE_DROPDOWN 128
 
-#define ENTITY_TYPE_INSTANCE 1
-#define ENTITY_TYPE_ENTITY 2
+#define ITEM_TYPE_ENTITY 1
+#define ITEM_TYPE_PANEL 2
 
 typedef union {
 	int i;
@@ -47,18 +47,15 @@ typedef struct
 {
 	char type;
 
+  void* data;
+
 	const char* name;
-	const char* modelName;
-	const char* textureName;
-	const char* instanceName;
-	ItemKvDef* kvs;
-  char** staticKvs;
 
 	InputDef* inputs;
 	OutputDef* outputs;
 
-	Mesh mesh;
-	unsigned int texture;
+  ItemKvDef* kvs;
+  char** staticKvs;
 
 	vec4 bound1;
 	vec4 bound2;
@@ -93,24 +90,20 @@ struct Item
 	ItemOutput* outputs;
 
 	ItemDefinition* def;
+
+  void* data;
 };
 
-void initItems();
+void loadItemDefinitions();
 
 void drawItems();
 
 void updateItemTransform(Item* item);
-void updateSelectedItem();
 Item* getIntersectingItem(vec3 pos);
-Item* getSelectedItem();
 Item* getItem(int i);
-void setSelectedItem(Item* item);
-void startMove();
-void endMove();
 
-void addItemDef(ItemDefinition* def);
 ItemDefinition* getItemDefinitions();
-Item** getItems();
 
-Item* addItem(int id);
+Item* getItemList();
+Item* addItem(int id, ivec3 position);
 void removeItem(Item* item);

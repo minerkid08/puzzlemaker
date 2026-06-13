@@ -9,17 +9,17 @@ int makeShaderInt(int type, const char* src);
 
 unsigned int makeShader(const char* name)
 {
-  int len = strlen(name) + 14;
+	int len = strlen(name) + 14;
 
-  char* buf = malloc(len + 1);
+	char* buf = malloc(len + 1);
 
-  sprintf(buf, "shaders/%s.vert", name);
+	sprintf(buf, "shaders/%s.vert", name);
 	int vert = makeShaderInt(GL_VERTEX_SHADER, buf);
 
-  sprintf(buf, "shaders/%s.frag", name);
+	sprintf(buf, "shaders/%s.frag", name);
 	int frag = makeShaderInt(GL_FRAGMENT_SHADER, buf);
 
-  free(buf);
+	free(buf);
 
 	int prgmId = glCreateProgram();
 	glAttachShader(prgmId, vert);
@@ -31,6 +31,14 @@ unsigned int makeShader(const char* name)
 	if (status == GL_FALSE)
 	{
 		printf("shader linking failed\n");
+
+		int len;
+		glGetProgramiv(prgmId, GL_INFO_LOG_LENGTH, &len);
+		char* err = malloc(len);
+		glGetProgramInfoLog(prgmId, len, &len, err);
+		printf("linking err: %s\n", err);
+		free(err);
+
 		glDeleteShader(vert);
 		glDeleteShader(frag);
 		exit(1);
@@ -62,20 +70,20 @@ void setUndformi(unsigned int id, const char* name, int value)
 
 int makeShaderInt(int type, const char* filename)
 {
-  FILE* file = fopen(filename, "rb");
+	FILE* file = fopen(filename, "rb");
 
-  fseek(file, 0, SEEK_END);
-  int l = ftell(file);
-  fseek(file, 0, SEEK_SET);
-  
-  char* buf = malloc(l + 1);
-  fread(buf, 1, l, file);
-  fclose(file);
-  buf[l] = 0;
+	fseek(file, 0, SEEK_END);
+	int l = ftell(file);
+	fseek(file, 0, SEEK_SET);
+
+	char* buf = malloc(l + 1);
+	fread(buf, 1, l, file);
+	fclose(file);
+	buf[l] = 0;
 
 	int id = glCreateShader(type);
 	glShaderSource(id, 1, (const char**)&buf, 0);
-  free(buf);
+	free(buf);
 	glCompileShader(id);
 	int state;
 	glGetShaderiv(id, GL_COMPILE_STATUS, &state);
@@ -84,11 +92,12 @@ int makeShaderInt(int type, const char* filename)
 		int len;
 		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &len);
 		char* err = malloc(len);
-		glGetShaderInfoLog(id, len, &len, err);
+    int len2;
+		glGetShaderInfoLog(id, len, &len2, err);
 		printf("shader err: %s\n", err);
 		free(err);
 		glDeleteShader(id);
-		return -1;
+    exit(1);
 	}
 	return id;
 }

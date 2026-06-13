@@ -1,45 +1,42 @@
 #include "item.h"
-#include "camera.h"
 #include "cglm/mat4.h"
 #include "cglm/vec3.h"
+#include "item/entityItem.h"
+#include "item/panel.h"
 #include "jsonUtils.h"
 #include "renderer/debug.h"
-#include "renderer/renderer.h"
 
 #include <cjson.h>
 #include <dynList.h>
-#include <math.h>
 #include <string.h>
 
-ItemDefinition* definitions;
-Item* items;
-
-Item* selectedItem;
+extern Item* itemList;
 
 char moving = 0;
 
 void drawItems()
 {
-	int len = dynList_size(items);
+	int len = dynList_size(itemList);
 	for (int i = 0; i < len; i++)
 	{
-		Item* item = &items[i];
+		Item* item = &itemList[i];
 		if (item->index == -1)
 			continue;
-		drawMesh(&item->def->mesh, item->def->texture, item->transform);
+    if(item->def->type == ITEM_TYPE_ENTITY)
+      entityItemRender(item);
+    if(item->def->type == ITEM_TYPE_PANEL)
+      panelItemRender(item);
 		// drawDebugRect(item->def->bound1, item->def->bound2);
 	}
 }
 
-void updateSelectedItem();
-
 Item* getIntersectingItem(vec3 pos)
 {
-	int count = dynList_size(items);
+	int count = dynList_size(itemList);
 
 	for (int j = 0; j < count; j++)
 	{
-		Item* item = &items[j];
+		Item* item = &itemList[j];
 		vec4 bound1;
 		vec4 bound2;
 
@@ -88,16 +85,6 @@ Item* getIntersectingItem(vec3 pos)
 	return 0;
 }
 
-Item* getSelectedItem()
-{
-	return selectedItem;
-}
-
-void setSelectedItem(Item* item)
-{
-	selectedItem = item;
-}
-
 void updateItemTransform(Item* item)
 {
 	mat4 transform;
@@ -108,85 +95,4 @@ void updateItemTransform(Item* item)
 	glm_rotate_y(transform, glm_rad(item->dir[1]), transform);
 	glm_rotate_x(transform, glm_rad(item->dir[0]), transform);
 	memcpy(item->transform, transform, sizeof(mat4));
-}
-
-ItemDefinition* getItemDefinitions()
-{
-	return definitions;
-}
-
-Item** getItems()
-{
-	return &items;
-}
-
-Item* addItem(int id)
-{
-	int len = dynList_size(items);
-	int index = -1;
-	for (int i = 0; i < len; i++)
-	{
-		Item* item = &items[i];
-		if (item->index == -1)
-		{
-			index = i;
-			break;
-		}
-	}
-	if (index == -1)
-	{
-		dynList_resize((void**)&items, len + 1);
-		index = len;
-	}
-	Item* item = &items[index];
-	item->index = index;
-	item->id = id;
-
-	vec3 offset;
-	glm_vec3_scale(forward, 5, offset);
-
-	item->dir[0] = 0;
-	item->dir[1] = 0;
-	item->dir[2] = 0;
-
-	item->pos[0] = offset[0] + cameraPos[0];
-	item->pos[1] = offset[1] + cameraPos[1];
-	item->pos[2] = offset[2] + cameraPos[2];
-
-	item->pos[0] = floorf(item->pos[0]);
-	item->pos[1] = floorf(item->pos[1]);
-	item->pos[2] = floorf(item->pos[2]);
-
-	updateItemTransform(item);
-
-	ItemDefinition* def = &definitions[id];
-	item->def = def;
-
-	item->outputs = dynList_new(0, sizeof(ItemOutput));
-	int l = dynList_size(def->kvs);
-	item->kv = dynList_new(l, sizeof(ItemKv));
-	for (int i = 0; i < l; i++)
-	{
-		item->kv[i].def = &def->kvs[i];
-		item->kv[i].value = def->kvs[i].defaultValue;
-	}
-
-	selectedItem = item;
-	return item;
-}
-
-void removeItem(Item* item)
-{
-	if (item == selectedItem)
-		selectedItem = 0;
-	dynList_free(item->kv);
-	dynList_free(item->outputs);
-
-	item->id = -1;
-	item->index = -1;
-}
-
-Item* getItem(int i)
-{
-	return &items[i];
 }

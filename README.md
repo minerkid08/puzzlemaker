@@ -4,6 +4,8 @@ This project is very work in progress, it is probably less stable then the stagi
 
 Currently there is a limited selection of built in items but new ones can be added by modifying the items.json file.
 
+Note that there is currently only an x86 linux build right now. Windows will be added later and arm maybe.
+
 # Installation
 1. Download the latest release
 2. Copy the puzzlemakerInstances directory to your sdk_content/maps directory

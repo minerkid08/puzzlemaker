@@ -3,8 +3,6 @@
 #include "debug.h"
 #include "glad/glad.h"
 #include "renderer/shader.h"
-#include "utils.h"
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -112,9 +110,9 @@ void initRenderer()
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	glUseProgram(panelShader);
 	int texSlots[10];
@@ -122,10 +120,10 @@ void initRenderer()
 		texSlots[i] = i;
 	int loc = glGetUniformLocation(panelShader, "textures");
 	glUniform1iv(loc, 10, texSlots);
-  for(int i = 0; i < NUM_VERTS; i++)
-  {
-    verts[i].mat = 0;
-  }
+	for (int i = 0; i < NUM_VERTS; i++)
+	{
+		verts[i].mat = 0;
+	}
 }
 
 void bindTexture(unsigned int texture)
@@ -185,7 +183,7 @@ void panelDrawRect(vec2 start, vec2 end, unsigned int texture)
 	for (int i = 0; i < 4; i++)
 	{
 		verts[i].pos[3] = 1.0f;
-    verts[i].mat = quadCount;
+		verts[i].mat = quadCount;
 	}
 
 	verts[0].pos[0] = start[0];
@@ -214,8 +212,8 @@ void panelDrawRect(vec2 start, vec2 end, unsigned int texture)
 	verts[3].uv[1] = 1;
 
 	glUseProgram(panelShader);
-  glActiveTexture(GL_TEXTURE0 + quadCount);
-  glBindTexture(GL_TEXTURE_2D, texture);
+	glActiveTexture(GL_TEXTURE0 + quadCount);
+	glBindTexture(GL_TEXTURE_2D, texture);
 
 	verts += 4;
 
@@ -223,21 +221,53 @@ void panelDrawRect(vec2 start, vec2 end, unsigned int texture)
 	quadCount++;
 }
 
-void panelEndFrame(mat4 transform)
+void drawRect(vec3 v1, vec3 v2, vec3 v3, vec3 v4, unsigned int texture)
+{
+	for (int i = 0; i < 4; i++)
+	{
+		verts[i].pos[3] = 1.0f;
+		verts[i].mat = quadCount;
+	}
+	memcpy(verts[0].pos, v1, sizeof(vec3));
+	memcpy(verts[1].pos, v2, sizeof(vec3));
+	memcpy(verts[2].pos, v3, sizeof(vec3));
+	memcpy(verts[3].pos, v4, sizeof(vec3));
+
+	verts[0].uv[0] = 0;
+	verts[0].uv[1] = 0;
+	verts[1].uv[0] = 1;
+	verts[1].uv[1] = 0;
+	verts[2].uv[0] = 0;
+	verts[2].uv[1] = 1;
+	verts[3].uv[0] = 1;
+	verts[3].uv[1] = 1;
+
+	glUseProgram(panelShader);
+	glActiveTexture(GL_TEXTURE0 + quadCount);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	verts += 4;
+
+	vertCount += 4;
+	quadCount++;
+}
+
+void panelEndFrame(mat4 transform, char backfaceCull)
 {
 	glBindVertexArray(va);
 	glBindBuffer(GL_ARRAY_BUFFER, vb);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * vertCount, vertBase);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib);
 	glUseProgram(panelShader);
-  glDisable(GL_CULL_FACE);
+	if (backfaceCull == 0)
+		glDisable(GL_CULL_FACE);
 
 	setUniformMat4(panelShader, "cam", camMat);
 	setUniformMat4(panelShader, "mat", projMat);
 	setUniformMat4(panelShader, "transform", transform);
 
 	glDrawElements(GL_TRIANGLES, quadCount * 6, GL_UNSIGNED_INT, 0);
-  glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 
 	verts = vertBase;
 	vertCount = 0;

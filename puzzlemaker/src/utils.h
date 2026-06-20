@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdio.h>
 #include "cglm/types.h"
 
 #define min(x, y) ((x) > (y) ? (y) : (x))

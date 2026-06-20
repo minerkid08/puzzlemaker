@@ -10,6 +10,7 @@
 
 #define ITEM_TYPE_ENTITY 1
 #define ITEM_TYPE_PANEL 2
+#define ITEM_TYPE_VOLUME 3
 
 typedef union {
 	int i;

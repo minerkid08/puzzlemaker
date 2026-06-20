@@ -58,25 +58,27 @@ void entityItemExport(Item* item)
 	entity->rotation[0] = item->dir[0];
 	entity->rotation[1] = item->dir[1];
 	entity->rotation[2] = item->dir[2];
-  entity->name = strdup(buf);
+	entity->name = strdup(buf);
 	if (defData->instanceName)
 	{
 		entity->className = "func_instance";
-		exportEntityAddKvss(entity, "file", defData->instanceName);
+    snprintf(buf, sizeof(buf), "puzzlemakerInstances/%s", defData->instanceName);
+		exportEntityAddKvss(entity, "file", buf);
 	}
 	else
 		entity->className = defData->entityName;
 
 	int l = dynList_size(item->def->staticKvs);
 	for (int i = 0; i < l; i++)
-    exportEntityAddKvs(entity, item->def->staticKvs[i]);
+		exportEntityAddKvs(entity, item->def->staticKvs[i]);
 
 	l = dynList_size(item->def->kvs);
 	for (int i = 0; i < l; i++)
 	{
 		ItemKv* kv = &item->kv[i];
-    exportEntityAddKv(entity, kv);
+		exportEntityAddKv(entity, kv);
 	}
 
-  entity->outputs = item->outputs;
+	if (dynList_size(item->outputs))
+		entity->outputs = item->outputs;
 }

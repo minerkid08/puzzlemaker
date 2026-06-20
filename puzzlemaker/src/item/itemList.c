@@ -1,6 +1,7 @@
 #include "dynList.h"
 #include "item/item.h"
 #include "entityItem.h"
+#include "volumeItem.h"
 #include "item/panel.h"
 
 Item* itemList;
@@ -77,6 +78,8 @@ Item* addItem(int defId, ivec3 position)
     entityItemInit(item);
   if(item->def->type == ITEM_TYPE_PANEL)
     panelItemInit(item);
+  if(item->def->type == ITEM_TYPE_VOLUME)
+    volumeItemInit(item);
 
 	return item;
 }

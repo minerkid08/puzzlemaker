@@ -3,11 +3,12 @@
 #include "export/brush.h"
 #include "export/entity.h"
 #include "item/entityItem.h"
+#include "item/volumeItem.h"
 #include "item/item.h"
 #include "item/panel.h"
 #include <stdio.h>
 
-static char filename[64];
+static char filename[256];
 
 void export2(const char* name)
 {
@@ -23,11 +24,14 @@ void export2(const char* name)
 			entityItemExport(item);
 		if (item->def->type == ITEM_TYPE_PANEL)
 			panelItemExport(item);
+		if (item->def->type == ITEM_TYPE_VOLUME)
+			volumeItemExport(item);
 	}
 
 	exportVoxels();
 
-	snprintf(filename, 64, "maps/%s.vmf", name);
+	snprintf(filename, 256, "%s.vmf", name);
+  printf("exporting '%s'\n", filename);
 	FILE* file = fopen(filename, "wb");
 	fprintf(file, R"(versioninfo
 {

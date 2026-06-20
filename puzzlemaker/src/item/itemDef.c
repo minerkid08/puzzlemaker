@@ -1,6 +1,7 @@
 #include "cjson.h"
 #include "dynList.h"
 #include "item/entityItem.h"
+#include "item/volumeItem.h"
 #include "item/item.h"
 #include "item/panel.h"
 #include "jsonUtils.h"
@@ -61,6 +62,11 @@ void loadItemDefinitions()
     {
       def->type = ITEM_TYPE_PANEL;
       def->data = loadPanelItemDef(item);
+    }
+    else if(strcmp(type, "volume") == 0)
+    {
+      def->type = ITEM_TYPE_VOLUME;
+      def->data = loadVolumeItemDef(item);
     }
     else
       errorf("unknown type for entity %s\n", def->name);

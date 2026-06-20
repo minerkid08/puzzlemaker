@@ -2,6 +2,7 @@
 #include "cglm/mat4.h"
 #include "cglm/vec3.h"
 #include "item/entityItem.h"
+#include "item/volumeItem.h"
 #include "item/panel.h"
 #include "jsonUtils.h"
 #include "renderer/debug.h"
@@ -26,6 +27,8 @@ void drawItems()
       entityItemRender(item);
     if(item->def->type == ITEM_TYPE_PANEL)
       panelItemRender(item);
+    if(item->def->type == ITEM_TYPE_VOLUME)
+      volumeItemRender(item);
 		// drawDebugRect(item->def->bound1, item->def->bound2);
 	}
 }

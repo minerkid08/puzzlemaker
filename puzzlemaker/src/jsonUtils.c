@@ -2,7 +2,6 @@
 #include "cjson.h"
 #include "utils.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -47,10 +46,18 @@ void jsonGetVec2(const cJSON* json, const char* name, vec2 out)
 	cJSON* j = cJSON_GetObjectItem(json, name);
   if(j == 0)
     errorf("unknown key '%s'\n", name);
-	cJSON* value = cJSON_GetObjectItem(j, "x");
-  out[0] = value->valuedouble;
-	value = cJSON_GetObjectItem(j, "y");
-  out[1] = value->valuedouble;
+	out[0] = jsonArrGetFloat(j, 0);
+	out[1] = jsonArrGetFloat(j, 1);
+}
+
+void jsonGetVec3(const cJSON* json, const char* name, vec3 out)
+{
+	cJSON* j = cJSON_GetObjectItem(json, name);
+  if(j == 0)
+    errorf("unknown key '%s'\n", name);
+	out[0] = jsonArrGetFloat(j, 0);
+	out[1] = jsonArrGetFloat(j, 1);
+	out[2] = jsonArrGetFloat(j, 2);
 }
 
 const char* jsonArrGetStr(const cJSON* json, int i)

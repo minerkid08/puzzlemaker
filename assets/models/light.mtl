@@ -1,4 +1,4 @@
-# Blender 5.1.0 MTL File: 'button.blend'
+# Blender 5.1.2 MTL File: 'None'
 # www.blender.org
 
 newmtl Material.001
@@ -9,4 +9,4 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Kd /home/minerkid08/cppgames/puzzlemaker/assets/materials/button.png
+map_Kd /home/minerkid08/Downloads/New Piskel-1.png(2).png

@@ -1,4 +1,5 @@
 #include "item/panel.h"
+#include "item/volumeItem.h"
 #include <stdbool.h>
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 
@@ -20,7 +21,6 @@ extern Picker picker;
 static Item* pickEntity;
 
 static char buf[50];
-static char filename[50];
 
 Item* selectedItem;
 
@@ -34,11 +34,8 @@ void setSelectedItem(Item* item)
 	selectedItem = item;
 }
 
-void openCompilePopup(const char* filename);
-
 void initItemPanel()
 {
-	filename[0] = 0;
 	ItemDefinition* defs = getItemDefinitions();
 
 	defCount = dynList_size(defs);
@@ -51,32 +48,12 @@ void initItemPanel()
 
 char* outputNames = 0;
 
-void export2(const char* name);
 void itemPanelRender()
 {
 	igBegin("items", 0, 0);
 	ImVec2 zero;
 	zero.x = 0;
 	zero.y = 0;
-
-	igInputText("filename", filename, 50, 0, 0, 0);
-
-	if (igButton("save", zero))
-		save(filename);
-	igSameLine(0, -1);
-	if (igButton("load", zero))
-		load(filename);
-	igSameLine(0, -1);
-	if (igButton("export vmf", zero))
-		export2(filename);
-	igSameLine(0, -1);
-	if (igButton("compile", zero))
-	{
-		export2(filename);
-		openCompilePopup(filename);
-	}
-
-	updateCompilePopup();
 
 	igSeparatorText("items");
 
@@ -139,6 +116,29 @@ void itemPanelRender()
           data->size[1] = def->maxSize[1];
         if(data->size[1] < def->minSize[1])
           data->size[1] = def->minSize[1];
+      }
+		}
+
+		if (selectedItem->def->type == ITEM_TYPE_VOLUME)
+		{
+			VolumeItemData* data = selectedItem->data;
+			VolumeItemDef* def = selectedItem->def->data;
+      if(igDragFloat3("size", data->size, 0.01f, 0.0f, 9999.0f, "%.3f", 0))
+      {
+        if(data->size[0] > def->maxSize[0])
+          data->size[0] = def->maxSize[0];
+        if(data->size[0] < def->minSize[0])
+          data->size[0] = def->minSize[0];
+
+        if(data->size[1] > def->maxSize[1])
+          data->size[1] = def->maxSize[1];
+        if(data->size[1] < def->minSize[1])
+          data->size[1] = def->minSize[1];
+
+        if(data->size[2] > def->maxSize[2])
+          data->size[2] = def->maxSize[2];
+        if(data->size[2] < def->minSize[2])
+          data->size[2] = def->minSize[2];
       }
 		}
 

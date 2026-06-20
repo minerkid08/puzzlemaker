@@ -2,6 +2,7 @@
 #include "assetManager.h"
 #include "cglm/mat4.h"
 #include "cjson.h"
+#include "dynList.h"
 #include "export/brush.h"
 #include "export/entity.h"
 #include "jsonUtils.h"
@@ -32,8 +33,8 @@ void* loadPanelItemDef(cJSON* item)
 		jsonGetVec2(item, "defaultSize", data->defaultSize);
 	else
 	{
-		data->maxSize[0] = 4;
-		data->maxSize[1] = 4;
+		data->defaultSize[0] = 4;
+		data->defaultSize[1] = 4;
 	}
 
 	if (cJSON_GetObjectItem(item, "horizTile"))
@@ -50,6 +51,7 @@ void* loadPanelItemDef(cJSON* item)
 	{
 		data->items[i].material = 0;
 		data->items[i].maxSize = 0;
+		data->items[i].minSize = 0;
 	}
 
 	const char* filename = cJSON_GetObjectItem(item, "editorCenterTexture")->valuestring;
@@ -302,7 +304,7 @@ void panelItemRender(Item* item)
 		panelDrawRect(start, end, boarder[PANEL_ITEM_ID_TOP_RIGHT].material);
 	}
 
-	panelEndFrame(item->transform);
+	panelEndFrame(item->transform, 0);
 }
 
 static void addBrush(Entity* entity, vec3 start, vec3 end, const char* mat, const char* zTex, mat4 transform,
@@ -320,7 +322,7 @@ static void addBrush(Entity* entity, vec3 start, vec3 end, const char* mat, cons
 			vec3 res;
 			vec3 vert;
 			memcpy(vert, side->verts[j], sizeof(vec3));
-			glm_mat4_mulv3(transform, side->verts[j], 1, res);
+			glm_mat4_mulv3(transform, vert, 1, res);
 			memcpy(side->verts[j], res, sizeof(vec3));
 		}
 		if (side->id == DIR_POS_Z || (side->id == DIR_NEG_Z && altTex == 0))
@@ -345,18 +347,18 @@ static void addBrush(Entity* entity, vec3 start, vec3 end, const char* mat, cons
 void panelItemSave(Item* item, cJSON* json)
 {
 	PanelData* data = item->data;
-  cJSON* obj = cJSON_CreateObject();
-  cJSON_AddNumberToObject(obj, "x", data->size[0]);
-  cJSON_AddNumberToObject(obj, "y", data->size[1]);
-  cJSON_AddItemToObject(json, "size", obj);
+	cJSON* obj = cJSON_CreateObject();
+	cJSON_AddNumberToObject(obj, "x", data->size[0]);
+	cJSON_AddNumberToObject(obj, "y", data->size[1]);
+	cJSON_AddItemToObject(json, "size", obj);
 }
 
 void panelItemLoad(Item* item, cJSON* json)
 {
 	PanelData* data = item->data;
-  cJSON* obj = cJSON_GetObjectItem(json, "size");
-  data->size[0] = jsonGetFloat(obj, "x");
-  data->size[1] = jsonGetFloat(obj, "y");
+	cJSON* obj = cJSON_GetObjectItem(json, "size");
+	data->size[0] = jsonGetFloat(obj, "x");
+	data->size[1] = jsonGetFloat(obj, "y");
 }
 
 void panelItemExport(Item* item)
@@ -368,12 +370,26 @@ void panelItemExport(Item* item)
 	Entity* entity = exportCreateEntity();
 
 	char buf[20];
-	snprintf(buf, 20, "%s%d", item->def->name, item->id);
+	snprintf(buf, 20, "%s%d", item->def->name, item->index);
 	entity->name = strdup(buf);
 	entity->className = defData->classname;
 
 	memcpy(entity->pos, item->pos, sizeof(vec3));
 	memcpy(entity->rotation, item->dir, sizeof(vec3));
+
+	int l = dynList_size(item->def->staticKvs);
+	for (int i = 0; i < l; i++)
+		exportEntityAddKvs(entity, item->def->staticKvs[i]);
+
+	l = dynList_size(item->def->kvs);
+	for (int i = 0; i < l; i++)
+	{
+		ItemKv* kv = &item->kv[i];
+		exportEntityAddKv(entity, kv);
+	}
+
+	if (dynList_size(item->outputs))
+		entity->outputs = item->outputs;
 
 	vec3 start;
 	vec3 end;

@@ -21,6 +21,7 @@ Entity* exportCreateEntity()
 
 	ent->brushes = 0;
 	ent->kvs = 0;
+  ent->outputs = 0;
 
 	return ent;
 }
@@ -95,11 +96,12 @@ void exportEndEntities(FILE* file)
 		Entity* entity = &entities[i];
 
 		fprintf(file, "entity\n{\n");
-		fprintf(file, "\"id\" \"%d\"\n", i + 1);
-		fprintf(file, "\"classname\" \"%s\"\n", entity->className);
-		fprintf(file, "\"origin\" \"%f %f %f\"\n", -entity->pos[0] * 64, entity->pos[2] * 64, entity->pos[1] * 64);
-		fprintf(file, "\"angles\" \"%f %f %f\"\n", entity->rotation[2], entities->rotation[1], entities->rotation[0]);
-		fprintf(file, "\"targetname\" \"%s\"\n", entity->name);
+
+		fprintf(file, "  \"id\" \"%d\"\n", i + 1);
+		fprintf(file, "  \"classname\" \"%s\"\n", entity->className);
+		fprintf(file, "  \"origin\" \"%f %f %f\"\n", -entity->pos[0] * 64, entity->pos[2] * 64, entity->pos[1] * 64);
+		fprintf(file, "  \"angles\" \"%f %f %f\"\n", entity->rotation[2], entity->rotation[1], entity->rotation[0]);
+		fprintf(file, "  \"targetname\" \"%s\"\n", entity->name);
 
     free((char*)entity->name);
 
@@ -110,7 +112,7 @@ void exportEndEntities(FILE* file)
 			int len = dynList_size(entity->kvs);
 			for (int i = 0; i < len; i++)
 			{
-				fprintf(file, "%s", entity->kvs[i]);
+				fprintf(file, "  %s\n", entity->kvs[i]);
 				free((char*)entity->kvs[i]);
 			}
 			dynList_free(entity->kvs);
@@ -160,7 +162,7 @@ void exportEndEntities(FILE* file)
 									output->input->falseInput);
 					}
 				}
-				fprintf(file, "  }");
+				fprintf(file, "  }\n");
 			}
 		}
 

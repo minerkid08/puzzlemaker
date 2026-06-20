@@ -1,9 +1,12 @@
+#include "renderer/framebuffer.h"
+#include "ui/fileBrowser.h"
+#include <dirent.h>
 #include <math.h>
+#include <sys/stat.h>
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 
 #include "cglm/mat4.h"
 #include "cglm/types.h"
-#include "cimgui.h"
 #include "renderer/debug.h"
 #include "renderer/renderer.h"
 #include <assert.h>
@@ -18,11 +21,11 @@
 #include "item/item.h"
 #include "picker.h"
 #include "raycast.h"
+#include "selection.h"
 #include "ui.h"
 #include "ui/itemPanel.h"
 #include "voxel/voxel.h"
 #include "voxel/voxelModification.h"
-#include "selection.h"
 
 Picker picker;
 
@@ -48,24 +51,36 @@ vec3 tempPos;
 vec3 tempRot;
 vec4 mouseDir;
 
-char windowHovered = 0;
+char viewportHovered = 0;
+char mouseOffsetX = 0;
+char mouseOffsetY = 0;
 
 Item** pickPtr = 0;
-
-ImGuiIO* io;
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void mouseCallback(GLFWwindow* window, int button, int action, int mods);
 void mouseMoveCallback(GLFWwindow* window, double x, double y);
 void mouseZoomCallback(GLFWwindow* window, double x, double y);
-void windowResizeCallback(GLFWwindow* window, int w, int h);
+
+extern float uiScale;
 
 int main()
 {
+  DIR* dir = opendir("maps");
+  if(dir)
+    closedir(dir);
+  else
+   mkdir("maps", 0777);
+
 	startCompileThread();
 	glfwInit();
 	GLFWwindow* window = glfwCreateWindow(1920, 1080, "puzzlemaker", 0, 0);
 	glfwMakeContextCurrent(window);
+
+  GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+  glfwGetMonitorContentScale(monitor, &uiScale, 0);
+  uiScale *= 1.4;
+
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
 	initVoxels();
@@ -80,22 +95,26 @@ int main()
 	glfwSetMouseButtonCallback(window, mouseCallback);
 	glfwSetCursorPosCallback(window, mouseMoveCallback);
 	glfwSetScrollCallback(window, mouseZoomCallback);
-	glfwSetWindowSizeCallback(window, windowResizeCallback);
 
 	glfwSwapInterval(1);
 
 	initUi(window);
 	initItemPanel();
 
-	io = igGetIO_Nil();
-
 	glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
+
+	FrameBuffer framebuffer;
+	framebuffer.width = 1920;
+	framebuffer.height = 1080;
+	framebufferInit(&framebuffer);
 
 	double now = glfwGetTime();
 	double dt;
 	double lastTime = now;
 	while (!glfwWindowShouldClose(window))
 	{
+		framebufferBind(&framebuffer);
+
 		now = glfwGetTime();
 		dt = now - lastTime;
 		lastTime = now;
@@ -106,7 +125,7 @@ int main()
 		float lookUp = glfwGetKey(window, GLFW_KEY_UP) - glfwGetKey(window, GLFW_KEY_DOWN);
 		float lookRight = glfwGetKey(window, GLFW_KEY_RIGHT) - glfwGetKey(window, GLFW_KEY_LEFT);
 
-		if (io->WantCaptureMouse)
+		if (!viewportHovered)
 		{
 			moveForward = 0;
 			moveRight = 0;
@@ -133,8 +152,13 @@ int main()
 		endFrame();
 
 		drawItems();
+		framebufferUnbind(&framebuffer);
 
 		uiNewFrame();
+
+    uiMenuBar();
+		uiViewport(&framebuffer);
+    fileBrowserRender();
 
 		itemPanelRender();
 
@@ -149,15 +173,15 @@ int main()
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	if (io->WantCaptureMouse)
+	if (!viewportHovered)
 		return;
 	if (action == GLFW_PRESS)
 	{
-		if (key == GLFW_KEY_1)
+		if (key == GLFW_KEY_Q)
 			voxelPush();
-		if (key == GLFW_KEY_2)
+		if (key == GLFW_KEY_E)
 			voxelPull();
-		if (key == GLFW_KEY_3)
+		if (key == GLFW_KEY_R)
 			voxelTogglePortal();
 	}
 }
@@ -190,7 +214,7 @@ void calcSelectAxis()
 
 void mouseCallback(GLFWwindow* window, int button, int action, int mods)
 {
-	if (io->WantCaptureMouse)
+	if (!viewportHovered)
 		return;
 	if (action == GLFW_PRESS)
 	{
@@ -211,25 +235,27 @@ void mouseCallback(GLFWwindow* window, int button, int action, int mods)
 		if (button == GLFW_MOUSE_BUTTON_1)
 		{
 			calcSelectAxis();
-      beginSelection(mouseDir);
+			beginSelection(mouseDir);
 		}
 	}
 	if (action == GLFW_RELEASE)
 	{
-    endSelection();
+		endSelection();
 		mouseMode = 0;
 	}
 }
 
 void mouseMoveCallback(GLFWwindow* window, double x, double y)
 {
-	if (io->WantCaptureMouse)
+	if (!viewportHovered)
 		return;
-	mx = x;
-	my = y;
+	double x2 = floor(x) - mouseOffsetX;
+	double y2 = floor(y) - mouseOffsetY;
+	mx = x2;
+	my = y2;
 
-	double dx = tx - x;
-	double dy = ty - y;
+	double dx = tx - x2;
+	double dy = ty - y2;
 
 	if (mouseMode == MODE_ORBIT)
 	{
@@ -251,24 +277,15 @@ void mouseMoveCallback(GLFWwindow* window, double x, double y)
 	if (isSelecting())
 	{
 		calcSelectAxis();
-    updateSelection(mouseDir);
+		updateSelection(mouseDir);
 	}
 }
 
 void mouseZoomCallback(GLFWwindow* window, double x, double y)
 {
-	if (io->WantCaptureMouse)
+	if (!viewportHovered)
 		return;
 	cameraPos[0] += forward[0] * y * 0.1;
 	cameraPos[1] += forward[1] * y * 0.1;
 	cameraPos[2] += forward[2] * y * 0.1;
-}
-
-void windowResizeCallback(GLFWwindow* window, int w, int h)
-{
-	glViewport(0, 0, w, h);
-	width = w;
-	height = h;
-	aspect = (float)w / (float)h;
-	initCamera();
 }

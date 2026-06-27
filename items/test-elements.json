@@ -1,0 +1,218 @@
+[
+  {
+    "type": "panel",
+    "name": "fizzler",
+    "editorCenterTexture": "fizzler-center.png",
+    "centerTexture": "EFFECTS/FIZZLER_CENTER",
+    "zTexture": "TOOLS/TOOLSTRIGGER",
+    "entity": "trigger_portal_cleanser",
+    "texSize": 1024,
+    "thickness": 2,
+    "bound1": [0, 0, -1],
+    "bound2": [0.5, 2, 1],
+    "minSize": [0, 2],
+    "maxSize": [99999, 2],
+    "defaultSize": [4, 2],
+    "boarders": [
+      {
+        "id": "left",
+        "editorTexture": "fizzler-left.png",
+        "texture": "EFFECTS/FIZZLER_L",
+        "texSize": 1024,
+        "minSize": 1,
+        "maxSize": 1
+      },
+      {
+        "id": "right",
+        "editorTexture": "fizzler-right.png",
+        "texture": "EFFECTS/FIZZLER_R",
+        "texSize": 1024,
+        "minSize": 1,
+        "maxSize": 1
+      }
+    ],
+		"inputs": [
+			{
+				"name": "disable",
+				"trueInput": "Disable",
+				"falseInput": "Enable"
+			}
+    ],
+		"keyvalues": [
+			{
+				"name": "startdisabled",
+				"type": "bool",
+				"defaultValue": false 
+			}
+		],
+    "statickvs": {
+      "visible": "1",
+      "usescanline": "1",
+      "spawnflags": "9",
+      "rendercolor": "255 255 255",
+      "viewhideflags": "0",
+      "rendermode": "0",
+      "renderfx": "0",
+      "solid": "6",
+      "disablereceiveshadows": "0",
+      "drawinfastreflection": "0"
+    }
+  },
+	{
+    "type": "entity",
+		"name": "door",
+		"model": "door.obj",
+		"mat": "door.png",
+    "instance": "door",
+    "bound1": [0, 0, -1],
+    "bound2": [0.5, 2, 1],
+		"keyvalues": [
+			{
+				"name": "open",
+				"type": "bool",
+				"defaultValue": false
+			}
+		],
+		"inputs": [
+			{
+				"name": "open",
+				"trueInput": "instance:door;Open",
+				"falseInput": "instance:door;Close"
+			},
+			{
+				"name": "lock",
+				"trueInput": "instance:door;Lock",
+				"falseInput": "instance:door;Unlock"
+			}
+		]
+	},
+	{
+    "type": "entity",
+		"name": "cube",
+		"model": "weighted-cube.obj",
+		"mat": "cube.png",
+    "entity": "prop_weighted_cube",
+    "offset": [0, 0.5, 0],
+    "bound1": [-0.5, 0, -0.5],
+    "bound2": [0.5, 1, 0.5],
+		"keyvalues": [
+			{
+    	  "name": "CubeBehavior",
+    	  "type": "drop-int",
+    	  "defaultValue": 0,
+				"options": {
+					"Auto": 0,
+					"Standard Cube": 1,
+					"Reflection Cube": 2,
+					"Schrodinger's Cube": 3
+				}
+    	},
+    	{
+    	  "name": "CubeShape",
+    	  "type": "drop-int",
+    	  "defaultValue": 0,
+				"options": {
+					"Auto": 0,
+					"Cubic": 1,
+					"Spherical": 2
+				}
+    	},
+    	{
+    	  "name": "model",
+    	  "type": "drop-string",
+    	  "defaultValue": 0,
+				"options": {
+					"Weighted Storage Cube": "models/props/cubes/standard_cube.mdl",
+					"Weighted Storage Cube (rusty)": "models/props/cubes/standard_cube_rusty.mdl",
+					"Weighted Companion Cube": "models/props/cubes/companion_cube.mdl",
+					"Discouragement Redirection Cube": "models/props/cubes/reflection_cube.mdl",
+					"Discouragement Redirection Cube (rusty)": "models/props/cubes/reflection_cube_rusty.mdl",
+					"Edgeless Safety Cube": "models/props/cubes/sphere.mdl",
+					"Antique Cube": "models/props/cubes/antique_cube.mdl",
+					"Schrodinger's Cube": "models/props/cubes/schrodinger_cube.mdl",
+					"Schrodinger's Cube (rusty)": "models/props/cubes/schrodinger_cube_rusty.mdl"
+				}
+    	}
+    ],
+    "statickvs": {
+      "newskins": "2"
+    }
+	},
+  {
+    "type": "entity",
+    "name": "button",
+    "model": "button.obj",
+    "mat": "button.png",
+    "instance": "button",
+    "bound1": [-1, 0, -1],
+    "bound2": [1, 0.3, 1],
+    "keyvalues": [],
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "press",
+        "trueOutput": "instance:button;OnPressed",
+        "falseOutput": "instance:button;OnUnPressed"
+      }
+    ]
+  },
+	{
+    "type": "entity",
+		"name": "laser",
+		"model": "laser.obj",
+		"mat": "laser.png",
+    "entity": "env_portal_laser",
+    "bound1": [-0.5, -0.5, -0.5],
+    "bound2": [0.5, 0.5, 0.5],
+    "keyvalues": [
+      {
+        "name": "startstate",
+        "type": "bool",
+        "defaultValue": 0
+      },
+      {
+        "name": "model",
+        "type": "drop-string",
+        "defaultValue": 0,
+        "options": {
+		      "centered": "models/props/laser_emitter_center.mdl",
+		      "offset": "models/props/laser_emitter.mdl"
+        }
+      }
+    ],
+    "inputs": [
+      {
+        "name": "enable",
+        "trueInput": "TurnOn",
+        "falseInput": "TurnOff"
+      }
+    ]
+	},
+	{
+    "type": "entity",
+		"name": "laser-catcher",
+		"model": "laser-catcher.obj",
+		"mat": "laser-catcher.png",
+    "entity": "prop_laser_catcher",
+    "bound1": [-0.5, -0.5, -0.5],
+    "bound2": [0.5, 0.5, 0.5],
+    "keyvalues": [
+      {
+        "name": "model",
+        "type": "drop-string",
+        "defaultValue": 0,
+        "options": {
+		      "centered": "models/props/laser_catcher_center.mdl",
+		      "offset": "models/props/laser_catcher.mdl"
+        }
+      }
+    ],
+    "outputs": [
+      {
+        "name": "on powered",
+        "trueOutput": "OnPowered",
+        "falseOutput": "OnUnpowered"
+      }
+    ]
+	}
+]

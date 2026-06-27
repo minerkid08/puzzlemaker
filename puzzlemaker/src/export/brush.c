@@ -8,10 +8,15 @@
 
 static Brush* brushes;
 
-void exportStartBrushes()
+static __attribute__((constructor)) void init()
 {
 	brushes = dynList_new(0, sizeof(Brush));
 	dynList_reserve((void**)&brushes, 128);
+}
+
+void exportStartBrushes()
+{
+  dynList_resize((void**)&brushes, 0);
 }
 
 Brush* exportCreateBrush(vec3 start, vec3 end)

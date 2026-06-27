@@ -19855,28 +19855,33 @@ solid
 }entity
 {
   "id" "1"
-  "classname" "info_player_start"
-  "origin" "-384.000000 128.000000 64.000000"
+  "classname" "func_instance"
+  "origin" "-192.000000 192.000000 64.000000"
   "angles" "0.000000 0.000000 -0.000000"
-  "targetname" "start0"
+  "targetname" "button0"
+  "file" "puzzlemakerInstances/button"
+
+  connections
+  {
+    "instance:button;OnPressed" "end2Commanddisconnect 0-1"
+    "instance:button;OnUnPressed" "end2nuh uh 0-1"
+  }
 }
 entity
 {
   "id" "2"
-  "classname" "func_instance"
-  "origin" "-256.000000 448.000000 192.000000"
-  "angles" "90.000000 0.000000 90.000000"
-  "targetname" "light1"
-  "file" "puzzlemakerInstances/light"
+  "classname" "info_player_start"
+  "origin" "-378.880005 128.000000 64.000000"
+  "angles" "0.000000 0.000000 -0.000000"
+  "targetname" "start1"
 }
 entity
 {
   "id" "3"
-  "classname" "func_instance"
-  "origin" "-448.000000 128.000000 192.000000"
-  "angles" "90.000000 0.000000 -0.000000"
-  "targetname" "light2"
-  "file" "puzzlemakerInstances/light"
+  "classname" "point_clientcommand"
+  "origin" "-362.880005 300.160004 127.360001"
+  "angles" "0.000000 0.000000 -0.000000"
+  "targetname" "end2"
 }
 
 cameras

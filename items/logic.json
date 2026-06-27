@@ -1,0 +1,150 @@
+[
+  {
+    "type": "volume",
+    "name": "trigger-once",
+    "editorTexture": "trigger.png",
+    "entity": "trigger_once",
+    "texture": "TOOLS/TOOLSTRIGGER",
+    "bound1": [0, 0, 0],
+    "bound2": [0.5, 0.5, 0.5],
+    "minSize": [0.5, 0.5, 0.5],
+    "defaultSize": [0.5, 0.5, 0.5],
+    "outputs": [
+      {
+        "name": "onTrigger",
+        "trueOutput": "OnTrigger",
+        "falseOutput": "heh"
+      }
+    ],
+    "statickvs": {
+      "startdisabled": "0",
+      "spawnflags": "1"
+    }
+  },
+	{
+    "type": "entity",
+		"name": "settings",
+		"model": "cube.obj",
+		"mat": "settings.png",
+    "entity": "info_portal_gamerules",
+    "bound1": [-0.5, 0, -0.5],
+    "bound2": [0.5, 1, 0.5],
+		"keyvalues": [
+			{
+    	  "name": "enableregen",
+    	  "type": "bool",
+    	  "defaultValue": 0
+    	},
+			{
+    	  "name": "equipboots",
+    	  "type": "bool",
+    	  "defaultValue": 0
+    	},
+			{
+    	  "name": "equipportalgun",
+    	  "type": "drop-int",
+    	  "defaultValue": 0,
+				"options": {
+					"None": 0,
+					"Orange": 1,
+					"Blue": 2,
+					"Dual portal device": 3,
+					"Potato gun": 4
+				}
+    	},
+			{
+    	  "name": "equippaintgun",
+    	  "type": "drop-int",
+    	  "defaultValue": 0,
+				"options": {
+					"None": 0,
+					"Basic paint gun": 1,
+					"Fully upgraded paint gun": 2
+				}
+    	},
+			{
+    	  "name": "maxhealth",
+    	  "type": "int",
+    	  "defaultValue": 100
+    	},
+			{
+    	  "name": "gametype",
+    	  "type": "drop-int",
+    	  "defaultValue": 0,
+				"options": {
+					"Default": 0,
+					"Coop 2 guns": 1,
+					"Coop versus mode": 2,
+					"Coop versus mode and 2 guns": 3
+				}
+    	}
+    ]
+	},
+	{
+    "type": "entity",
+		"name": "end",
+		"model": "cube.obj",
+		"mat": "end.png",
+    "entity": "point_clientcommand",
+    "bound1": [-0.5, 0, -0.5],
+    "bound2": [0.5, 1, 0.5],
+		"inputs": [
+			{
+				"name": "trigger",
+				"trueInput": "Command",
+        "trueArg": "disconnect",
+				"falseInput": "nuh uh"
+			}
+		]
+	},
+	{
+    "type": "entity",
+		"name": "start",
+		"model": "cube.obj",
+		"mat": "start.png",
+    "entity": "info_player_start",
+    "bound1": [-0.5, 0, -0.5],
+    "bound2": [0.5, 1, 0.5]
+	},
+	{
+    "type": "entity",
+		"name": "logic-gate",
+		"model": "cube.obj",
+		"mat": "counter.png",
+    "entity": "math_counter",
+    "bound1": [-0.5, -0.5, -0.5],
+    "bound2": [0.5, 0.5, 0.5],
+		"keyvalues": [
+			{
+				"name": "max",
+				"type": "int",
+				"defaultValue": 2
+			}
+		],
+		"statickvs": {
+      "min": "0",
+      "startvalue": "0"
+		},
+		"inputs": [
+			{
+				"name": "input",
+				"trueInput": "Add",
+				"trueArg": "1",
+				"falseInput": "Subtract",
+				"falseArg": "1"
+			}
+		],
+    "outputs": [
+      {
+        "name": "and",
+        "trueOutput": "OnHitMax",
+        "falseOutput": "OnChangedFromMax"
+      },
+      {
+        "name": "or",
+        "trueOutput": "OnChangedFromMin",
+        "falseOutput": "OnHitMin"
+      }
+    ]
+	}
+]

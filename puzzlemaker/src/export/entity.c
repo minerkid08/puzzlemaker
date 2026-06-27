@@ -7,10 +7,15 @@
 
 static Entity* entities;
 
-void exportStartEntities()
+static __attribute__((constructor)) void init()
 {
 	entities = dynList_new(0, sizeof(Entity));
 	dynList_reserve((void**)&entities, 32);
+}
+
+void exportStartEntities()
+{
+	dynList_resize((void**)&entities, 0);
 }
 
 Entity* exportCreateEntity()
@@ -100,7 +105,7 @@ void exportEndEntities(FILE* file)
 		fprintf(file, "  \"id\" \"%d\"\n", i + 1);
 		fprintf(file, "  \"classname\" \"%s\"\n", entity->className);
 		fprintf(file, "  \"origin\" \"%f %f %f\"\n", -entity->pos[0] * 64, entity->pos[2] * 64, entity->pos[1] * 64);
-		fprintf(file, "  \"angles\" \"%f %f %f\"\n", entity->rotation[2], entity->rotation[1], entity->rotation[0]);
+		fprintf(file, "  \"angles\" \"%f %f %f\"\n", entity->rotation[2], entity->rotation[1], -entity->rotation[0]);
 		fprintf(file, "  \"targetname\" \"%s\"\n", entity->name);
 
     free((char*)entity->name);

@@ -12,9 +12,8 @@
 #include "save.h"
 #include "ui/itemPanel.h"
 
-const char** itemNames;
-
-int defCount;
+int groupCount;
+extern ItemGroup* groups;
 
 extern Picker picker;
 
@@ -36,14 +35,7 @@ void setSelectedItem(Item* item)
 
 void initItemPanel()
 {
-	ItemDefinition* defs = getItemDefinitions();
-
-	defCount = dynList_size(defs);
-
-	itemNames = dynList_new(defCount, sizeof(const char*));
-
-	for (int i = 0; i < defCount; i++)
-		itemNames[i] = defs[i].name;
+	groupCount = dynList_size(groups);
 }
 
 char* outputNames = 0;
@@ -62,26 +54,34 @@ void itemPanelRender()
 
 	if (igBeginPopup("pick", 0))
 	{
-		for (int i = 0; i < defCount; i++)
+		for (int i = 0; i < groupCount; i++)
 		{
-			if (igSelectable_Bool(itemNames[i], 0, 0, zero))
+      ItemGroup* group = &groups[i];
+			if (!igBeginMenu(group->name, 1))
+				continue;
+			for (int j = 0; j < group->size; j++)
 			{
-				vec3 offset;
-				vec3 pos;
-				ivec3 ipos;
+        ItemDefinition* def = &getItemDefinitions()[j + group->startInd];
+				if (igSelectable_Bool(def->name, 0, 0, zero))
+				{
+					vec3 offset;
+					vec3 pos;
+					ivec3 ipos;
 
-				glm_vec3_scale(forward, 5, offset);
+					glm_vec3_scale(forward, 5, offset);
 
-				pos[0] = offset[0] + cameraPos[0];
-				pos[1] = offset[1] + cameraPos[1];
-				pos[2] = offset[2] + cameraPos[2];
+					pos[0] = offset[0] + cameraPos[0];
+					pos[1] = offset[1] + cameraPos[1];
+					pos[2] = offset[2] + cameraPos[2];
 
-				ipos[0] = floorf(pos[0]);
-				ipos[1] = floorf(pos[1]);
-				ipos[2] = floorf(pos[2]);
+					ipos[0] = floorf(pos[0]);
+					ipos[1] = floorf(pos[1]);
+					ipos[2] = floorf(pos[2]);
 
-				addItem(i, ipos);
+					addItemFromDef(def, ipos);
+				}
 			}
+      igEndMenu();
 		}
 		igEndPopup();
 	}
@@ -105,41 +105,41 @@ void itemPanelRender()
 		{
 			PanelData* data = selectedItem->data;
 			PanelDefData* def = selectedItem->def->data;
-      if(igDragFloat2("size", data->size, 0.01f, 0.0f, 9999.0f, "%.3f", 0))
-      {
-        if(data->size[0] > def->maxSize[0])
-          data->size[0] = def->maxSize[0];
-        if(data->size[0] < def->minSize[0])
-          data->size[0] = def->minSize[0];
+			if (igDragFloat2("size", data->size, 0.01f, 0.0f, 9999.0f, "%.3f", 0))
+			{
+				if (data->size[0] > def->maxSize[0])
+					data->size[0] = def->maxSize[0];
+				if (data->size[0] < def->minSize[0])
+					data->size[0] = def->minSize[0];
 
-        if(data->size[1] > def->maxSize[1])
-          data->size[1] = def->maxSize[1];
-        if(data->size[1] < def->minSize[1])
-          data->size[1] = def->minSize[1];
-      }
+				if (data->size[1] > def->maxSize[1])
+					data->size[1] = def->maxSize[1];
+				if (data->size[1] < def->minSize[1])
+					data->size[1] = def->minSize[1];
+			}
 		}
 
 		if (selectedItem->def->type == ITEM_TYPE_VOLUME)
 		{
 			VolumeItemData* data = selectedItem->data;
 			VolumeItemDef* def = selectedItem->def->data;
-      if(igDragFloat3("size", data->size, 0.01f, 0.0f, 9999.0f, "%.3f", 0))
-      {
-        if(data->size[0] > def->maxSize[0])
-          data->size[0] = def->maxSize[0];
-        if(data->size[0] < def->minSize[0])
-          data->size[0] = def->minSize[0];
+			if (igDragFloat3("size", data->size, 0.01f, 0.0f, 9999.0f, "%.3f", 0))
+			{
+				if (data->size[0] > def->maxSize[0])
+					data->size[0] = def->maxSize[0];
+				if (data->size[0] < def->minSize[0])
+					data->size[0] = def->minSize[0];
 
-        if(data->size[1] > def->maxSize[1])
-          data->size[1] = def->maxSize[1];
-        if(data->size[1] < def->minSize[1])
-          data->size[1] = def->minSize[1];
+				if (data->size[1] > def->maxSize[1])
+					data->size[1] = def->maxSize[1];
+				if (data->size[1] < def->minSize[1])
+					data->size[1] = def->minSize[1];
 
-        if(data->size[2] > def->maxSize[2])
-          data->size[2] = def->maxSize[2];
-        if(data->size[2] < def->minSize[2])
-          data->size[2] = def->minSize[2];
-      }
+				if (data->size[2] > def->maxSize[2])
+					data->size[2] = def->maxSize[2];
+				if (data->size[2] < def->minSize[2])
+					data->size[2] = def->minSize[2];
+			}
 		}
 
 		igSeparatorText("kvs");
@@ -225,7 +225,7 @@ void itemPanelRender()
 
 					if (pressed)
 					{
-            picker.active = 1;
+						picker.active = 1;
 						picker.ptr = &pickEntity;
 						pickEntity = 0;
 						output->entity = -1;

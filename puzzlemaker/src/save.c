@@ -4,6 +4,7 @@
 #include "item/panel.h"
 #include "item/volumeItem.h"
 #include "jsonUtils.h"
+#include "utils.h"
 #include "voxel/voxel.h"
 #include <stdio.h>
 #include <string.h>
@@ -14,7 +15,7 @@ char filename[256];
 void save(const char* name)
 {
 	snprintf(filename, 256, "%s.chamb", name);
-  printf("saving '%s'\n", filename);
+	printf("saving '%s'\n", filename);
 	cJSON* json = cJSON_CreateObject();
 
 	cJSON* voxelArr = cJSON_CreateArray();
@@ -171,7 +172,13 @@ void save(const char* name)
 void load(const char* name)
 {
 	snprintf(filename, 256, "%s.chamb", name);
-  printf("loading '%s'\n", filename);
+	printf("loading '%s'\n", filename);
+
+	for (int i = 0; i < dynList_size(itemList); i++)
+	{
+		removeItem(&itemList[i]);
+	}
+
 	FILE* file = fopen(filename, "rb");
 
 	fseek(file, 0, SEEK_END);
@@ -228,47 +235,34 @@ void load(const char* name)
 	cJSON_ArrayForEach(itemJson, items)
 	{
 		int index = jsonGetInt(itemJson, "index");
-		Item* item = &itemList[index];
 
-		item->index = index;
-		const char* id = jsonGetStr(itemJson, "id");
+		Item* item = 0;
+		const char* id = cJSON_GetObjectItem(itemJson, "id")->valuestring;
 		ItemDefinition* defs = getItemDefinitions();
+    printf("loading item %s\n", id);
+
 		for (int i = 0; i < dynList_size(defs); i++)
 		{
-      if(strcmp(defs[i].name, id) == 0)
-			  item->id = i;
+			if (strcmp(defs[i].name, id) == 0)
+				item = addItem(i, 0);
 		}
-    free((char*)id);
+    if(item == 0)
+      errorf("failed to load item, item definition not found %s\n", id);
 
-		cJSON* pos = cJSON_GetObjectItem(itemJson, "pos");
-		item->pos[0] = jsonArrGetFloat(pos, 0);
-		item->pos[1] = jsonArrGetFloat(pos, 1);
-		item->pos[2] = jsonArrGetFloat(pos, 2);
-
-		cJSON* rot = cJSON_GetObjectItem(itemJson, "rot");
-		item->dir[0] = jsonArrGetFloat(rot, 0);
-		item->dir[1] = jsonArrGetFloat(rot, 1);
-		item->dir[2] = jsonArrGetFloat(rot, 2);
-
-		item->def = &getItemDefinitions()[item->id];
+    jsonGetVec3(itemJson, "pos", item->pos);
+    jsonGetVec3(itemJson, "rot", item->dir);
 
 		if (item->def->type == ITEM_TYPE_PANEL)
-		{
-			panelItemInit(item);
 			panelItemLoad(item, itemJson);
-		}
 
 		if (item->def->type == ITEM_TYPE_VOLUME)
-		{
-			volumeItemInit(item);
 			volumeItemLoad(item, itemJson);
-		}
 
 		updateItemTransform(item);
 
 		cJSON* outputList = cJSON_GetObjectItem(itemJson, "outputs");
 		int outputCount = cJSON_GetArraySize(outputList);
-		item->outputs = dynList_new(outputCount, sizeof(OutputDef));
+    dynList_resize((void**)&item->outputs, outputCount);
 		for (int i = 0; i < outputCount; i++)
 		{
 			ItemOutput* output = &item->outputs[i];
@@ -277,28 +271,28 @@ void load(const char* name)
 			int itemIndex = jsonGetInt(outputJson, "ent");
 			output->entity = itemIndex;
 			output->inverted = jsonGetBool(outputJson, "inverted");
+      output->def = 0;
 
-			const char* inputName = jsonGetStr(outputJson, "output");
+			const char* outputName = cJSON_GetObjectItem(outputJson, "output")->valuestring;
 			OutputDef* outputs = item->def->outputs;
 			for (int j = 0; j < dynList_size(outputs); j++)
 			{
-				if (strcmp(inputName, outputs[j].name) == 0)
+				if (strcmp(outputName, outputs[j].name) == 0)
 					output->def = &outputs[j];
 			}
-			free((void*)inputName);
+      if(output->def == 0)
+        errorf("failed to load item def %s, %d\n",item->def->name, i);
 
-			const char* outputName = jsonGetStr(outputJson, "input");
-			output->input = (InputDef*)outputName;
+			const char* inputName = jsonGetStr(outputJson, "input");
+			output->input = (InputDef*)inputName;
 		}
 
 		cJSON* kvJson = cJSON_GetObjectItem(itemJson, "kv");
 		int len = dynList_size(item->def->kvs);
-		item->kv = dynList_new(len, sizeof(ItemKv));
 		for (int i = 0; i < len; i++)
 		{
 			ItemKvDef* def = &item->def->kvs[i];
 			ItemKv* kv = &item->kv[i];
-			kv->def = def;
 
 			if (cJSON_GetObjectItem(kvJson, def->name))
 			{
@@ -310,7 +304,7 @@ void load(const char* name)
 					kv->value.i = jsonGetInt(kvJson, def->name);
 			}
 			else
-				kv->value = kv->def->defaultValue;
+				kv->value = def->defaultValue;
 		}
 	}
 	for (int i = 0; i < itemCount; i++)
@@ -318,7 +312,9 @@ void load(const char* name)
 		Item* item = getItem(i);
 		if (item->index == -1)
 			continue;
-		for (int j = 0; j < dynList_size(item->outputs); j++)
+    printf("loading outputs for %s\n", item->def->name);
+    int len = dynList_size(item->outputs);
+		for (int j = 0; j < len; j++)
 		{
 			ItemOutput* output = &item->outputs[j];
 			char* inputName = (char*)output->input;
@@ -330,8 +326,9 @@ void load(const char* name)
 				if (strcmp(inputName, inputs[k].name) == 0)
 					output->input = &inputs[k];
 			}
-			free((void*)inputName);
+			free(inputName);
 		}
 	}
+  printf("done\n");
 	cJSON_free(json);
 }

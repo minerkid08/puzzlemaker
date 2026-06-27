@@ -1,24 +1,67 @@
 #include "cjson.h"
 #include "dynList.h"
 #include "item/entityItem.h"
-#include "item/volumeItem.h"
 #include "item/item.h"
 #include "item/panel.h"
+#include "item/volumeItem.h"
 #include "jsonUtils.h"
 #include "utils.h"
+#include <dirent.h>
 #include <stdio.h>
 #include <string.h>
 
 ItemDefinition* definitions;
+ItemGroup* groups;
 
 ItemDefinition* getItemDefinitions()
 {
-  return definitions;
+	return definitions;
 }
+
+ItemGroup* getItemGroups()
+{
+	return groups;
+}
+
+void loadItemDefinitionFile(const char* filename);
 
 void loadItemDefinitions()
 {
-	FILE* file = fopen("items.json", "rb");
+	definitions = dynList_new(0, sizeof(ItemDefinition));
+	groups = dynList_new(0, sizeof(ItemGroup));
+	struct dirent* en;
+
+	DIR* dir = opendir("items");
+	if (dir == 0)
+		errorf("failed to open items dir\n");
+	while ((en = readdir(dir)) != 0)
+	{
+		if (en->d_type == DT_REG)
+			loadItemDefinitionFile(en->d_name);
+	}
+	closedir(dir);
+
+	dynList_trim((void**)&definitions);
+}
+
+void loadItemDefinitionFile(const char* filename)
+{
+	char filenameBuf[64];
+	snprintf(filenameBuf, 64, "items/%s", filename);
+  printf("[item loader] loading file %s\n", filenameBuf);
+
+	FILE* file = fopen(filenameBuf, "rb");
+
+  strncpy(filenameBuf, filename, 64);
+  for(int i = 0; i < strlen(filenameBuf); i++)
+  {
+    if(filenameBuf[i] == '.')
+    {
+      filenameBuf[i] = 0;
+      break;
+    }
+  }
+  const char* group = strdup(filenameBuf);
 
 	fseek(file, 0, SEEK_END);
 	unsigned long long len = ftell(file);
@@ -34,43 +77,52 @@ void loadItemDefinitions()
 	free(data);
 
 	int l = cJSON_GetArraySize(json);
-	definitions = dynList_new(l, sizeof(ItemDefinition));
+  int listLen = dynList_size(definitions);
+	dynList_resize((void**)&definitions, l + listLen);
 
-	int i = 0;
+  int groupCount = dynList_size(groups);
+	dynList_resize((void**)&groups, groupCount + 1);
+
+  ItemGroup* itemGroup = &groups[groupCount];
+  itemGroup->name = group;
+  itemGroup->size = l;
+  itemGroup->startInd = listLen;
+
+	int i = listLen;
 	cJSON* item;
 	cJSON_ArrayForEach(item, json)
 	{
 		ItemDefinition* def = &definitions[i++];
+    def->group = group;
 
-	  if (cJSON_GetObjectItem(item, "name") == 0)
-      errorf("item %d is missing name field\n", i);
+		if (cJSON_GetObjectItem(item, "name") == 0)
+			errorf("item %d is missing name field\n", i);
 
 		def->name = jsonGetStr(item, "name");
-    
-    printf("[item loader] loading item '%s'\n", def->name);
 
-	  if (cJSON_GetObjectItem(item, "type") == 0)
-      errorf("item %s is missing type field\n", def->name);
+		printf("[item loader] loading item '%s'\n", def->name);
 
-    const char* type = jsonGetStr(item, "type");
-    if(strcmp(type, "entity") == 0)
-    {
-      def->type = ITEM_TYPE_ENTITY;
-      def->data = loadEntityItemDef(item);
-    }
-    else if(strcmp(type, "panel") == 0)
-    {
-      def->type = ITEM_TYPE_PANEL;
-      def->data = loadPanelItemDef(item);
-    }
-    else if(strcmp(type, "volume") == 0)
-    {
-      def->type = ITEM_TYPE_VOLUME;
-      def->data = loadVolumeItemDef(item);
-    }
-    else
-      errorf("unknown type for entity %s\n", def->name);
+		if (cJSON_GetObjectItem(item, "type") == 0)
+			errorf("item %s is missing type field\n", def->name);
 
+		const char* type = jsonGetStr(item, "type");
+		if (strcmp(type, "entity") == 0)
+		{
+			def->type = ITEM_TYPE_ENTITY;
+			def->data = loadEntityItemDef(item);
+		}
+		else if (strcmp(type, "panel") == 0)
+		{
+			def->type = ITEM_TYPE_PANEL;
+			def->data = loadPanelItemDef(item);
+		}
+		else if (strcmp(type, "volume") == 0)
+		{
+			def->type = ITEM_TYPE_VOLUME;
+			def->data = loadVolumeItemDef(item);
+		}
+		else
+			errorf("unknown type for entity %s\n", def->name);
 
 		cJSON* keyValues = cJSON_GetObjectItem(item, "keyvalues");
 		len = cJSON_GetArraySize(keyValues);
@@ -139,35 +191,45 @@ void loadItemDefinitions()
 		}
 
 		cJSON* inputs = cJSON_GetObjectItem(item, "inputs");
-		len = cJSON_GetArraySize(inputs);
-		def->inputs = dynList_new(len, sizeof(InputDef));
-		for (int i = 0; i < len; i++)
+		if (inputs == 0)
+			def->inputs = dynList_new(0, sizeof(InputDef));
+		else
 		{
-			cJSON* input = cJSON_GetArrayItem(inputs, i);
-			InputDef* inputDef = &def->inputs[i];
+			len = cJSON_GetArraySize(inputs);
+			def->inputs = dynList_new(len, sizeof(InputDef));
+			for (int i = 0; i < len; i++)
+			{
+				cJSON* input = cJSON_GetArrayItem(inputs, i);
+				InputDef* inputDef = &def->inputs[i];
 
-			inputDef->name = jsonGetStr(input, "name");
-			inputDef->trueInput = jsonGetStr(input, "trueInput");
-			inputDef->falseInput = jsonGetStr(input, "falseInput");
-			inputDef->trueArg = 0;
-			inputDef->falseArg = 0;
-			if (cJSON_GetObjectItem(input, "trueArg"))
-				inputDef->trueArg = jsonGetStr(input, "trueArg");
-			if (cJSON_GetObjectItem(input, "falseArg"))
-				inputDef->falseArg = jsonGetStr(input, "falseArg");
+				inputDef->name = jsonGetStr(input, "name");
+				inputDef->trueInput = jsonGetStr(input, "trueInput");
+				inputDef->falseInput = jsonGetStr(input, "falseInput");
+				inputDef->trueArg = 0;
+				inputDef->falseArg = 0;
+				if (cJSON_GetObjectItem(input, "trueArg"))
+					inputDef->trueArg = jsonGetStr(input, "trueArg");
+				if (cJSON_GetObjectItem(input, "falseArg"))
+					inputDef->falseArg = jsonGetStr(input, "falseArg");
+			}
 		}
 
 		cJSON* outputs = cJSON_GetObjectItem(item, "outputs");
-		len = cJSON_GetArraySize(outputs);
-		def->outputs = dynList_new(len, sizeof(OutputDef));
-		for (int i = 0; i < len; i++)
+		if (outputs == 0)
+			def->outputs = dynList_new(0, sizeof(OutputDef));
+		else
 		{
-			cJSON* output = cJSON_GetArrayItem(outputs, i);
-			OutputDef* outputDef = &def->outputs[i];
+			len = cJSON_GetArraySize(outputs);
+			def->outputs = dynList_new(len, sizeof(OutputDef));
+			for (int i = 0; i < len; i++)
+			{
+				cJSON* output = cJSON_GetArrayItem(outputs, i);
+				OutputDef* outputDef = &def->outputs[i];
 
-			outputDef->name = jsonGetStr(output, "name");
-			outputDef->trueOutput = jsonGetStr(output, "trueOutput");
-			outputDef->falseOutput = jsonGetStr(output, "falseOutput");
+				outputDef->name = jsonGetStr(output, "name");
+				outputDef->trueOutput = jsonGetStr(output, "trueOutput");
+				outputDef->falseOutput = jsonGetStr(output, "falseOutput");
+			}
 		}
 
 		cJSON* bound = cJSON_GetObjectItem(item, "bound1");

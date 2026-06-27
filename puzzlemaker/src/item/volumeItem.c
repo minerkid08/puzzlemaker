@@ -1,11 +1,13 @@
 #include "item/volumeItem.h"
 #include "assetManager.h"
 #include "cglm/types.h"
+#include "cjson.h"
 #include "dynList.h"
 #include "export/brush.h"
 #include "export/entity.h"
 #include "jsonUtils.h"
 #include "renderer/renderer.h"
+#include "utils.h"
 #include <string.h>
 
 void* loadVolumeItemDef(cJSON* item)
@@ -39,7 +41,24 @@ void* loadVolumeItemDef(cJSON* item)
 
 	const char* filename = cJSON_GetObjectItem(item, "editorTexture")->valuestring;
 	data->material = assetManagerLoadTexture(filename);
-	data->exportMaterial = jsonGetStr(item, "texture");
+
+	cJSON* textureJson = cJSON_GetObjectItem(item, "texture");
+	if (cJSON_IsString(textureJson))
+	{
+		const char* exportMaterial = cJSON_GetStringValue(textureJson);
+		for (int i = 0; i < 6; i++)
+			data->exportMaterial[i] = exportMaterial;
+	}
+	else
+	{
+		data->exportMaterial[DIR_POS_X] = jsonGetStr(textureJson, "right");
+		data->exportMaterial[DIR_NEG_X] = jsonGetStr(textureJson, "left");
+		data->exportMaterial[DIR_POS_Y] = jsonGetStr(textureJson, "top");
+		data->exportMaterial[DIR_NEG_Y] = jsonGetStr(textureJson, "bottom");
+		data->exportMaterial[DIR_POS_Z] = jsonGetStr(textureJson, "back");
+		data->exportMaterial[DIR_NEG_Z] = jsonGetStr(textureJson, "front");
+	}
+
 	if (cJSON_GetObjectItem(item, "entity"))
 		data->entity = jsonGetStr(item, "entity");
 	else
@@ -114,7 +133,7 @@ void volumeItemExport(Item* item)
 	{
 		Side* side = &brush->sides[i];
 
-		side->material = def->exportMaterial;
+		side->material = def->exportMaterial[i];
 		for (int j = 0; j < 4; j++)
 		{
 			vec3 res;

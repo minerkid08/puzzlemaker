@@ -5,11 +5,13 @@
 typedef struct
 {
 	unsigned int material;
-	const char* exportMaterial;
+	const char* exportMaterial[6];
 	const char* entity;
 	vec3 minSize;
 	vec3 maxSize;
 	vec3 defaultSize;
+  char editorFit;
+  char fit;
 } VolumeItemDef;
 
 typedef struct

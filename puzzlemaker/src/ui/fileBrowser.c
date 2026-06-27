@@ -133,7 +133,7 @@ void fileBrowserRender()
 	int i = 0;
 	if (igBeginListBox("##list", size))
 	{
-		ImVec4 color = {0.0f, 0.0f, 1.0f, 1.0f};
+		ImVec4 color = {0.5f, 0.5f, 1.0f, 1.0f};
 		igPushStyleColor_Vec4(ImGuiCol_Text, color);
 		int l = dynList_size(dirs);
 		for (int j = 0; j < l; j++)

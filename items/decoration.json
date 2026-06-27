@@ -1,0 +1,29 @@
+[
+	{
+    "type": "entity",
+		"name": "light",
+		"model": "light.obj",
+		"mat": "light.png",
+    "instance": "light",
+    "bound1": [-0.25, 0, -1],
+    "bound2": [0.25, 0.1, 1]
+	},
+  {
+    "type": "volume",
+    "name": "small-blocks",
+    "editorTexture": "wall.png",
+    "texture": {
+      "top": "METAL/BLACK_FLOOR_METAL_001C",
+      "bottom": "METAL/BLACK_CEILING_METAL_001A",
+      "left": "METAL/BLACK_WALL_METAL_002B",
+      "right": "METAL/BLACK_WALL_METAL_002B",
+      "front": "METAL/BLACK_WALL_METAL_002B",
+      "back": "METAL/BLACK_WALL_METAL_002B"
+    },
+    "editorFit": false,
+    "bound1": [0, 0, 0],
+    "bound2": [0.5, 0.5, 0.5],
+    "minSize": [0.5, 0.5, 0.5],
+    "defaultSize": [0.5, 0.5, 0.5]
+  }
+]

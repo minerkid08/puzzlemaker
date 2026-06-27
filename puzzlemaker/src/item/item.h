@@ -48,15 +48,16 @@ typedef struct
 {
 	char type;
 
-  void* data;
+	void* data;
 
 	const char* name;
+	const char* group;
 
 	InputDef* inputs;
 	OutputDef* outputs;
 
-  ItemKvDef* kvs;
-  char** staticKvs;
+	ItemKvDef* kvs;
+	char** staticKvs;
 
 	vec4 bound1;
 	vec4 bound2;
@@ -92,8 +93,15 @@ struct Item
 
 	ItemDefinition* def;
 
-  void* data;
+	void* data;
 };
+
+typedef struct
+{
+	const char* name;
+	int size;
+  int startInd;
+} ItemGroup;
 
 void loadItemDefinitions();
 
@@ -107,4 +115,5 @@ ItemDefinition* getItemDefinitions();
 
 Item* getItemList();
 Item* addItem(int id, ivec3 position);
+Item* addItemFromDef(ItemDefinition* def, ivec3 position);
 void removeItem(Item* item);

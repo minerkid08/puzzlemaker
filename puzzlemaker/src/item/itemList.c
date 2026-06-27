@@ -1,8 +1,9 @@
 #include "dynList.h"
-#include "item/item.h"
 #include "entityItem.h"
-#include "volumeItem.h"
+#include "item/item.h"
 #include "item/panel.h"
+#include "volumeItem.h"
+#include <string.h>
 
 Item* itemList;
 
@@ -28,6 +29,17 @@ void removeItem(Item* item)
 Item* getItem(int i)
 {
 	return &itemList[i];
+}
+
+Item* addItemFromDef(ItemDefinition* def, ivec3 position)
+{
+  ItemDefinition* definitions = getItemDefinitions();
+  for(int i = 0; i < dynList_size(definitions); i++)
+  {
+    if(strcmp(definitions[i].name, def->name) == 0)
+      return addItem(i, position);
+  }
+  return 0;
 }
 
 Item* addItem(int defId, ivec3 position)
@@ -56,9 +68,18 @@ Item* addItem(int defId, ivec3 position)
 	item->dir[1] = 0;
 	item->dir[2] = 0;
 
-	item->pos[0] = position[0];
-	item->pos[1] = position[1];
-	item->pos[2] = position[2];
+	if (position == 0)
+	{
+		item->pos[0] = 0;
+		item->pos[1] = 0;
+		item->pos[2] = 0;
+	}
+	else
+	{
+		item->pos[0] = position[0];
+		item->pos[1] = position[1];
+		item->pos[2] = position[2];
+	}
 
 	updateItemTransform(item);
 
@@ -74,12 +95,12 @@ Item* addItem(int defId, ivec3 position)
 		item->kv[i].value = def->kvs[i].defaultValue;
 	}
 
-  if(item->def->type == ITEM_TYPE_ENTITY)
-    entityItemInit(item);
-  if(item->def->type == ITEM_TYPE_PANEL)
-    panelItemInit(item);
-  if(item->def->type == ITEM_TYPE_VOLUME)
-    volumeItemInit(item);
+	if (item->def->type == ITEM_TYPE_ENTITY)
+		entityItemInit(item);
+	if (item->def->type == ITEM_TYPE_PANEL)
+		panelItemInit(item);
+	if (item->def->type == ITEM_TYPE_VOLUME)
+		volumeItemInit(item);
 
 	return item;
 }

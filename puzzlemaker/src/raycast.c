@@ -7,7 +7,7 @@ char raycast(vec3 start, vec3 dir, float len, int flags, RaycastHit* hit)
 {
 	vec3 end = {start[0] + dir[0] * len, start[1] + dir[1] * len, start[2] + dir[2] * len};
 	char hitAir = 0;
-	for (float i = 0; i < 1.0f; i += 0.01f)
+	for (float i = 0; i < 1.0f; i += 0.001f)
 	{
 		vec3 out;
 		glm_vec3_lerp(start, end, i, out);

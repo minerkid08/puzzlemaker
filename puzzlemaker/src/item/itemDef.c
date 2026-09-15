@@ -277,19 +277,19 @@ void loadItemDefinitionFile(const char* filename)
 		}
 
 		cJSON* snapMode = cJSON_GetObjectItem(item, "snapMode");
-    if(snapMode)
-    {
-      def->snapMode = SNAP_CORNER;
-      const char* value = cJSON_GetStringValue(snapMode);
-      if(strcmp(value, "corner") == 0)
-        def->snapMode = SNAP_CORNER;
-      if(strcmp(value, "center") == 0)
-        def->snapMode = SNAP_CENTER;
-      if(strcmp(value, "mini-corner") == 0)
-        def->snapMode = SNAP_MINI_CORNER;
-      if(strcmp(value, "mini-center") == 0)
-        def->snapMode = SNAP_MINI_CENTER;
-    }
+		def->snapMode = SNAP_CORNER;
+		if (snapMode)
+		{
+			const char* value = cJSON_GetStringValue(snapMode);
+			if (strcmp(value, "corner") == 0)
+				def->snapMode = SNAP_CORNER;
+			if (strcmp(value, "center") == 0)
+				def->snapMode = SNAP_CENTER;
+			if (strcmp(value, "mini-corner") == 0)
+				def->snapMode = SNAP_MINI_CORNER;
+			if (strcmp(value, "mini-center") == 0)
+				def->snapMode = SNAP_MINI_CENTER;
+		}
 		cJSON* offset = cJSON_GetObjectItem(item, "offset");
 		if (offset)
 		{

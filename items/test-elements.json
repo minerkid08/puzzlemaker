@@ -230,6 +230,7 @@
     "bound2": [1, 0.3, 1],
     "keyvalues": [],
     "inputs": [],
+    "snapMode": "corner",
     "outputs": [
       {
         "name": "press",

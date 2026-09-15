@@ -9,6 +9,7 @@
 typedef struct
 {
 	vec3 pos;
+	ivec3 ipos;
 	int type;
 	Item* item;
 	Voxel* voxel;

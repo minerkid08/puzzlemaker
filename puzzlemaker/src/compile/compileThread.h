@@ -1,12 +1,20 @@
-typedef struct {
-	const char* name;
-	const char* cmd;
-} CompileStep;
+#pragma once
+#include "compile/compile.h"
 
-void startCompile(const char* filename);
+typedef struct
+{
+	int stepCount;
+	int currentStep;
+	CompileStep* compileSteps;
+	const char* p2ce;
+	const char* bin;
+	char curPath[512];
+	char buf[256];
+  char workingDir[512];
+	char failed;
+} CompileStatus;
+
 void startCompileThread();
-int getCompileStep();
-int getCompileStepCount();
-CompileStep* getCompileSteps();
-void cancelCompile();
-char compileFailed();
+void loadTaskList();
+
+void resumeCompileThread();

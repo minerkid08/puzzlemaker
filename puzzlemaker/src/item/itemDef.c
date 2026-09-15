@@ -48,20 +48,20 @@ void loadItemDefinitionFile(const char* filename)
 {
 	char filenameBuf[64];
 	snprintf(filenameBuf, 64, "items/%s", filename);
-  printf("[item loader] loading file %s\n", filenameBuf);
+	printf("[item loader] loading file %s\n", filenameBuf);
 
 	FILE* file = fopen(filenameBuf, "rb");
 
-  strncpy(filenameBuf, filename, 64);
-  for(int i = 0; i < strlen(filenameBuf); i++)
-  {
-    if(filenameBuf[i] == '.')
-    {
-      filenameBuf[i] = 0;
-      break;
-    }
-  }
-  const char* group = strdup(filenameBuf);
+	strncpy(filenameBuf, filename, 64);
+	for (int i = 0; i < strlen(filenameBuf); i++)
+	{
+		if (filenameBuf[i] == '.')
+		{
+			filenameBuf[i] = 0;
+			break;
+		}
+	}
+	const char* group = strdup(filenameBuf);
 
 	fseek(file, 0, SEEK_END);
 	unsigned long long len = ftell(file);
@@ -77,23 +77,23 @@ void loadItemDefinitionFile(const char* filename)
 	free(data);
 
 	int l = cJSON_GetArraySize(json);
-  int listLen = dynList_size(definitions);
+	int listLen = dynList_size(definitions);
 	dynList_resize((void**)&definitions, l + listLen);
 
-  int groupCount = dynList_size(groups);
+	int groupCount = dynList_size(groups);
 	dynList_resize((void**)&groups, groupCount + 1);
 
-  ItemGroup* itemGroup = &groups[groupCount];
-  itemGroup->name = group;
-  itemGroup->size = l;
-  itemGroup->startInd = listLen;
+	ItemGroup* itemGroup = &groups[groupCount];
+	itemGroup->name = group;
+	itemGroup->size = l;
+	itemGroup->startInd = listLen;
 
 	int i = listLen;
 	cJSON* item;
 	cJSON_ArrayForEach(item, json)
 	{
 		ItemDefinition* def = &definitions[i++];
-    def->group = group;
+		def->group = group;
 
 		if (cJSON_GetObjectItem(item, "name") == 0)
 			errorf("item %d is missing name field\n", i);
@@ -141,6 +141,11 @@ void loadItemDefinitionFile(const char* filename)
 				kvDef->type = TYPE_BOOL;
 				kvDef->defaultValue.b = jsonGetBool(kv, "defaultValue");
 			}
+			if (strcmp(type->valuestring, "float") == 0)
+			{
+				kvDef->type = TYPE_FLOAT;
+				kvDef->defaultValue.f = jsonGetFloat(kv, "defaultValue");
+			}
 			if (strcmp(type->valuestring, "int") == 0)
 			{
 				kvDef->type = TYPE_INT;
@@ -187,6 +192,13 @@ void loadItemDefinitionFile(const char* filename)
 					opt = opt->next;
 					i++;
 				}
+			}
+
+			if (def->type == ITEM_TYPE_ENTITY)
+			{
+				EntityItemDef* entDef = def->data;
+				if (entDef->instanceName)
+					kvDef->type |= TYPE_INSTANCE;
 			}
 		}
 
@@ -264,6 +276,20 @@ void loadItemDefinitionFile(const char* filename)
 			}
 		}
 
+		cJSON* snapMode = cJSON_GetObjectItem(item, "snapMode");
+    if(snapMode)
+    {
+      def->snapMode = SNAP_CORNER;
+      const char* value = cJSON_GetStringValue(snapMode);
+      if(strcmp(value, "corner") == 0)
+        def->snapMode = SNAP_CORNER;
+      if(strcmp(value, "center") == 0)
+        def->snapMode = SNAP_CENTER;
+      if(strcmp(value, "mini-corner") == 0)
+        def->snapMode = SNAP_MINI_CORNER;
+      if(strcmp(value, "mini-center") == 0)
+        def->snapMode = SNAP_MINI_CENTER;
+    }
 		cJSON* offset = cJSON_GetObjectItem(item, "offset");
 		if (offset)
 		{

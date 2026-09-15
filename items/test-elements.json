@@ -11,7 +11,8 @@
     "bound1": [0, 0, -1],
     "bound2": [0.5, 2, 1],
     "minSize": [0, 2],
-    "maxSize": [99999, 2],
+    "maxSize": [99999, 99999],
+    "snapMode": "mini-center",
     "defaultSize": [4, 2],
     "boarders": [
       {
@@ -58,6 +59,42 @@
       "drawinfastreflection": "0"
     }
   },
+  {
+    "type": "panel",
+    "name": "laser-panel",
+    "editorCenterTexture": "laserfield.png",
+    "centerTexture": "TOOLS/TOOLSTRIGGER",
+    "zTexture": "TOOLS/TOOLSTRIGGER",
+    "entity": "trigger_hurt",
+    "texSize": 1024,
+    "thickness": 2,
+    "bound1": [0, 0, -1],
+    "bound2": [0.5, 2, 1],
+    "minSize": [2, 2],
+    "maxSize": [99999, 99999],
+    "snapMode": "mini-center",
+    "defaultSize": [4, 2],
+		"inputs": [
+			{
+				"name": "disable",
+				"trueInput": "Disable",
+				"falseInput": "Enable"
+			}
+    ],
+		"keyvalues": [
+			{
+				"name": "startdisabled",
+				"type": "bool",
+				"defaultValue": false 
+			}
+		],
+    "statickvs": {
+      "spawnflags": "4097",
+      "rendercolor": "255 255 255",
+      "solid": "6",
+      "damage": "100000"
+    }
+  },
 	{
     "type": "entity",
 		"name": "door",
@@ -66,6 +103,7 @@
     "instance": "door",
     "bound1": [0, 0, -1],
     "bound2": [0.5, 2, 1],
+    "snapMode": "mini-corner",
 		"keyvalues": [
 			{
 				"name": "open",
@@ -83,6 +121,50 @@
 				"name": "lock",
 				"trueInput": "instance:door;Lock",
 				"falseInput": "instance:door;Unlock"
+			}
+		]
+	},
+	{
+    "type": "entity",
+		"name": "dropper",
+		"model": "dropper.obj",
+		"mat": "dropper.png",
+    "instance": "dropper",
+    "bound1": [0, 0, -1],
+    "bound2": [0.5, 2, 1],
+		"keyvalues": [
+			{
+				"name": "dontautorespawn",
+				"type": "bool",
+				"defaultValue": true
+			},
+			{
+				"name": "dontdropinital",
+				"type": "bool",
+				"defaultValue": true
+			},
+      {
+    	  "name": "cubeType",
+    	  "type": "drop-string",
+    	  "defaultValue": 0,
+				"options": {
+					"Weighted Storage Cube": "models/props/cubes/standard_cube.mdl",
+					"Weighted Storage Cube (rusty)": "models/props/cubes/standard_cube_rusty.mdl",
+					"Weighted Companion Cube": "models/props/cubes/companion_cube.mdl",
+					"Discouragement Redirection Cube": "models/props/cubes/reflection_cube.mdl",
+					"Discouragement Redirection Cube (rusty)": "models/props/cubes/reflection_cube_rusty.mdl",
+					"Edgeless Safety Cube": "models/props/cubes/sphere.mdl",
+					"Antique Cube": "models/props/cubes/antique_cube.mdl",
+					"Schrodinger's Cube": "models/props/cubes/schrodinger_cube.mdl",
+					"Schrodinger's Cube (rusty)": "models/props/cubes/schrodinger_cube_rusty.mdl"
+				}
+    	}
+		],
+		"inputs": [
+			{
+				"name": "drop",
+				"trueInput": "instance:drop;Trigger",
+				"falseInput": "nuh"
 			}
 		]
 	},
@@ -156,6 +238,52 @@
       }
     ]
   },
+  {
+    "type": "entity",
+    "name": "ped-button",
+    "model": "pillar-button.obj",
+    "mat": "laser.png",
+    "entity": "prop_button",
+    "bound1": [-0.125, 0, -0.125],
+    "bound2": [0.125, 0.4, 0.125],
+    "keyvalues": [
+    	{
+    	  "name": "skin",
+    	  "type": "drop-int",
+    	  "defaultValue": 0,
+				"options": {
+					"Clean": 0,
+					"Dirty": 1
+				}
+      },
+      {
+        "name": "delay",
+        "type": "float",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "istimer",
+        "type": "bool",
+        "defaultValue": false
+      },
+      {
+        "name": "preventfastreset",
+        "type": "bool",
+        "defaultValue": false
+      }
+    ],
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "press",
+        "trueOutput": "OnPressed",
+        "falseOutput": "OnButtonReset"
+      }
+    ],
+    "statickvs": {
+      "solid": "1"
+    }
+  },
 	{
     "type": "entity",
 		"name": "laser",
@@ -212,6 +340,43 @@
         "name": "on powered",
         "trueOutput": "OnPowered",
         "falseOutput": "OnUnpowered"
+      }
+    ]
+	},
+  {
+    "type": "entity",
+		"name": "funnel",
+		"model": "funnel.obj",
+		"mat": "funnel.png",
+    "instance": "funnel",
+    "bound1": [-1, -1, -1],
+    "bound2": [1, 0, 1],
+    "keyvalues": [
+      {
+        "name": "enabled",
+        "type": "bool",
+        "defaultValue": false
+      },
+      {
+        "name": "speed",
+        "type": "drop-int",
+        "defaultValue": 0,
+        "options": {
+          "forward": 250,
+          "reverse": -250
+        }
+      }
+    ],
+    "inputs": [
+      {
+        "name": "enable",
+        "trueInput": "instance:tractorbeam;Enable",
+        "falseInput": "instance:tractorbeam;Disable"
+      },
+      {
+        "name": "reverse",
+        "trueInput": "instance:reverse;Trigger",
+        "falseInput": "instance:forward;Trigger"
       }
     ]
 	}

@@ -311,8 +311,6 @@ static void addBrush(Entity* entity, vec3 start, vec3 end, const char* mat, cons
 					 int texSize, const char* altTex, int altSize)
 {
 	Brush* brush = exportCreateBrush(start, end);
-	brush->ent = 1;
-	exportEntityAddBrush(entity, brush);
 	for (int i = 0; i < 6; i++)
 	{
 		Side* side = &brush->sides[i];
@@ -342,6 +340,8 @@ static void addBrush(Entity* entity, vec3 start, vec3 end, const char* mat, cons
 		else
 			side->material = zTex;
 	}
+	if (entity)
+		exportEntityAddBrush(entity, brush);
 }
 
 void panelItemSave(Item* item, cJSON* json)
@@ -367,29 +367,33 @@ void panelItemExport(Item* item)
 	PanelDefData* defData = item->def->data;
 	PanelItemDef* boarder = defData->items;
 
-	Entity* entity = exportCreateEntity();
-
-	char buf[20];
-	snprintf(buf, 20, "%s%d", item->def->name, item->index);
-	entity->name = strdup(buf);
-	entity->className = defData->classname;
-
-	memcpy(entity->pos, item->pos, sizeof(vec3));
-	memcpy(entity->rotation, item->dir, sizeof(vec3));
-
-	int l = dynList_size(item->def->staticKvs);
-	for (int i = 0; i < l; i++)
-		exportEntityAddKvs(entity, item->def->staticKvs[i]);
-
-	l = dynList_size(item->def->kvs);
-	for (int i = 0; i < l; i++)
+	Entity* entity = 0;
+	if (defData->classname)
 	{
-		ItemKv* kv = &item->kv[i];
-		exportEntityAddKv(entity, kv);
-	}
+		entity = exportCreateEntity();
 
-	if (dynList_size(item->outputs))
-		entity->outputs = item->outputs;
+		char buf[20];
+		snprintf(buf, 20, "%s%d", item->def->name, item->index);
+		entity->name = strdup(buf);
+		entity->className = defData->classname;
+
+		memcpy(entity->pos, item->pos, sizeof(vec3));
+		memset(entity->rotation, 0, sizeof(vec3));
+
+		int l = dynList_size(item->def->staticKvs);
+		for (int i = 0; i < l; i++)
+			exportEntityAddKvs(entity, item->def->staticKvs[i]);
+
+		l = dynList_size(item->def->kvs);
+		for (int i = 0; i < l; i++)
+		{
+			ItemKv* kv = &item->kv[i];
+			exportEntityAddKv(entity, kv);
+		}
+
+		if (dynList_size(item->outputs))
+			entity->outputs = item->outputs;
+	}
 
 	vec3 start;
 	vec3 end;

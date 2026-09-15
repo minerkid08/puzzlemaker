@@ -7,7 +7,7 @@
 
 extern Picker picker;
 
-#define RAY_LEN 20
+#define RAY_LEN 40
 
 static char mode = 0;
 
@@ -27,9 +27,9 @@ void beginSelection(vec3 mouseDir)
 			clearSelectedItem();
 			currentVoxel = hit.voxel;
 			currentDir = hit.dir;
-			currentVoxelPos[0] = hit.pos[0];
-			currentVoxelPos[1] = hit.pos[1];
-			currentVoxelPos[2] = hit.pos[2];
+			currentVoxelPos[0] = hit.ipos[0];
+			currentVoxelPos[1] = hit.ipos[1];
+			currentVoxelPos[2] = hit.ipos[2];
 			currentVoxel2Pos[0] = -1;
 			currentVoxel2Pos[1] = -1;
 			currentVoxel2Pos[2] = -1;
@@ -57,12 +57,12 @@ void updateSelection(vec3 mouseDir)
 	RaycastHit hit;
 	if (raycast(cameraPos, mouseDir, RAY_LEN, flags, &hit))
 	{
-		int zmin = min(currentVoxelPos[2], hit.pos[2]);
-		int zmax = max(hit.pos[2], currentVoxel2Pos[2]);
-		int ymin = min(currentVoxelPos[1], hit.pos[1]);
-		int ymax = max(hit.pos[1], currentVoxel2Pos[1]);
-		int xmin = min(currentVoxelPos[0], hit.pos[0]);
-		int xmax = max(hit.pos[0], currentVoxel2Pos[0]);
+		int zmin = min(currentVoxelPos[2], hit.ipos[2]);
+		int zmax = max(hit.ipos[2], currentVoxel2Pos[2]);
+		int ymin = min(currentVoxelPos[1], hit.ipos[1]);
+		int ymax = max(hit.ipos[1], currentVoxel2Pos[1]);
+		int xmin = min(currentVoxelPos[0], hit.ipos[0]);
+		int xmax = max(hit.ipos[0], currentVoxel2Pos[0]);
 
 		currentVoxelPos[0] = xmin;
 		currentVoxelPos[1] = ymin;

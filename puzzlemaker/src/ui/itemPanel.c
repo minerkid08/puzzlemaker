@@ -18,6 +18,7 @@ extern ItemGroup* groups;
 extern Picker picker;
 
 static Item* pickEntity;
+static Item* prevItem = 0;
 
 static char buf[50];
 
@@ -85,9 +86,11 @@ void itemPanelRender()
 		}
 		igEndPopup();
 	}
-
+  
 	if (selectedItem)
 	{
+    if(prevItem != selectedItem)
+      goto end;
 		igText("%s, %d", selectedItem->def->name, selectedItem->index);
 		if (igButton("remove", zero))
 		{
@@ -148,12 +151,15 @@ void itemPanelRender()
 		for (int i = 0; i < l; i++)
 		{
 			ItemKv* kv = &selectedItem->kv[i];
-			if (kv->def->type == TYPE_INT)
+      int type = kv->def->type & (~(TYPE_INSTANCE));
+			if (type == TYPE_INT)
 				igInputInt(kv->def->name, &kv->value.i, 1, 0, 0);
-			if (kv->def->type == TYPE_BOOL)
+			if (type == TYPE_FLOAT)
+				igInputFloat(kv->def->name, &kv->value.f, 1, 0, "%.2f", 0);
+			if (type == TYPE_BOOL)
 				igCheckbox(kv->def->name, (bool*)&kv->value.b);
 
-			if (kv->def->type & TYPE_DROPDOWN)
+			if (type & TYPE_DROPDOWN)
 			{
 				if (igBeginCombo(kv->def->name, kv->def->dropNames[kv->value.i], 0))
 				{
@@ -174,7 +180,6 @@ void itemPanelRender()
 		igSeparatorText("outputs");
 
 		l = dynList_size(selectedItem->outputs);
-
 		int defCount = dynList_size(selectedItem->def->outputs);
 		if (defCount == 0)
 			igText("no outputs for this item");
@@ -229,11 +234,13 @@ void itemPanelRender()
 						picker.ptr = &pickEntity;
 						pickEntity = 0;
 						output->entity = -1;
+            output->input = 0;
 					}
 
 					if (picker.active == 0 && pickEntity)
 					{
 						output->entity = pickEntity->index;
+            pickEntity = 0;
 					}
 
 					if (output->entity != -1)
@@ -265,5 +272,6 @@ void itemPanelRender()
 		}
 	}
 end:
+  prevItem = selectedItem;
 	igEnd();
 }

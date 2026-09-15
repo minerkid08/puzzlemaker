@@ -2,18 +2,17 @@
 #include <stdbool.h>
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 
-#include "compile/compileThread.h"
+#include "compile/compile.h"
 #include <cimgui.h>
 
 float frac = 0;
 
 char open;
-void openCompilePopup(const char* filename)
+void openCompilePopup()
 {
 	open = 1;
 	frac = 0;
 	igOpenPopup_Str("compile", 0);
-	startCompile(filename);
 }
 
 void updateCompilePopup()
@@ -23,7 +22,7 @@ void updateCompilePopup()
 
 	if (igBeginPopupModal("compile", (bool*)&open, 0))
 	{
-		char failed = compileFailed();;
+		char failed = compileFailed();
 		int step = getCompileStep();
 		float count = getCompileStepCount();
 		frac = step / (count - 1);

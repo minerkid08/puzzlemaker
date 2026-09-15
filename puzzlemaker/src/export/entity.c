@@ -26,33 +26,56 @@ Entity* exportCreateEntity()
 
 	ent->brushes = 0;
 	ent->kvs = 0;
-  ent->outputs = 0;
+	ent->outputs = 0;
 
 	return ent;
 }
 
 void exportEntityAddKv(Entity* ent, ItemKv* kv)
 {
-	char buf[50];
-
-	ItemKvDef* def = kv->def;
-	if (def->type == TYPE_INT)
-		snprintf(buf, 50, "\"%s\" \"%d\"", def->name, kv->value.i);
-	if (def->type == TYPE_BOOL)
-		snprintf(buf, 50, "\"%s\" \"%d\"", def->name, (int)kv->value.b);
-	if (def->type & TYPE_DROPDOWN)
-	{
-		int type = (def->type & (~TYPE_DROPDOWN));
-		if (type == TYPE_STRING)
-			snprintf(buf, 50, "\"%s\" \"%s\"", def->name, kv->def->dropValues[kv->value.i].s);
-		if (type == TYPE_INT)
-			snprintf(buf, 50, "\"%s\" \"%d\"", def->name, kv->def->dropValues[kv->value.i].i);
-	}
-
 	if (ent->kvs == 0)
 		ent->kvs = dynList_new(0, sizeof(const char*));
 
 	int len = dynList_size(ent->kvs);
+	char buf[128];
+
+	ItemKvDef* def = kv->def;
+	if (def->type & TYPE_INSTANCE)
+	{
+    int type = def->type & ~(TYPE_INSTANCE);
+		if (type == TYPE_INT)
+			snprintf(buf, 128, "\"replace%d\" \"$%s %d\"", len, def->name, kv->value.i);
+		if (type == TYPE_BOOL)
+			snprintf(buf, 128, "\"replace%d\" \"$%s %d\"", len, def->name, (int)kv->value.b);
+		if (type == TYPE_FLOAT)
+			snprintf(buf, 128, "\"replace%d\" \"$%s %.2f\"", len, def->name, kv->value.f);
+		if (type & TYPE_DROPDOWN)
+		{
+			type &= ~(TYPE_DROPDOWN);
+			if (type == TYPE_STRING)
+				snprintf(buf, 128, "\"replace%d\" \"$%s %s\"", len, def->name, kv->def->dropValues[kv->value.i].s);
+			if (type == TYPE_INT)
+				snprintf(buf, 128, "\"replace%d\" \"$%s %d\"", len, def->name, kv->def->dropValues[kv->value.i].i);
+		}
+	}
+	else
+	{
+		if (def->type == TYPE_INT)
+			snprintf(buf, 128, "\"%s\" \"%d\"", def->name, kv->value.i);
+		if (def->type == TYPE_FLOAT)
+			snprintf(buf, 128, "\"%s\" \"%.2f\"", def->name, kv->value.f);
+		if (def->type == TYPE_BOOL)
+			snprintf(buf, 128, "\"%s\" \"%d\"", def->name, (int)kv->value.b);
+		if (def->type & TYPE_DROPDOWN)
+		{
+			int type = (def->type & (~TYPE_DROPDOWN));
+			if (type == TYPE_STRING)
+				snprintf(buf, 128, "\"%s\" \"%s\"", def->name, kv->def->dropValues[kv->value.i].s);
+			if (type == TYPE_INT)
+				snprintf(buf, 128, "\"%s\" \"%d\"", def->name, kv->def->dropValues[kv->value.i].i);
+		}
+	}
+
 	dynList_resize((void**)&ent->kvs, len + 1);
 	ent->kvs[len] = strdup(buf);
 }
@@ -82,15 +105,18 @@ void exportEntityAddKvss(Entity* ent, const char* key, const char* value)
 void exportEntityAddBrush(Entity* ent, Brush* brush)
 {
 	int i = 0;
-	if (ent->brushes == 0)
-		ent->brushes = dynList_new(1, sizeof(Brush*));
+  Brush** arr = ent->brushes;
+	if (arr == 0)
+		arr = dynList_new(1, sizeof(Brush*));
 	else
 	{
-		int len = dynList_size(ent->brushes);
-		dynList_resize((void**)&ent->brushes, len + 1);
+		int len = dynList_size(arr);
+		dynList_resize((void**)&arr, len + 1);
 		i = len;
 	}
-	ent->brushes[i] = brush;
+  brush->ent = 1;
+	arr[i] = brush;
+  ent->brushes = arr;
 }
 
 void exportEndEntities(FILE* file)
@@ -108,7 +134,7 @@ void exportEndEntities(FILE* file)
 		fprintf(file, "  \"angles\" \"%f %f %f\"\n", entity->rotation[2], entity->rotation[1], -entity->rotation[0]);
 		fprintf(file, "  \"targetname\" \"%s\"\n", entity->name);
 
-    free((char*)entity->name);
+		free((char*)entity->name);
 
 		char buf[100];
 

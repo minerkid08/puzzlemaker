@@ -1,6 +1,5 @@
 #include "voxel.h"
 
-#include "cglm/vec3.h"
 #include "utils.h"
 #include <string.h>
 
@@ -61,13 +60,11 @@ Voxel* getVoxelv(ivec3 pos)
 	return getVoxel(pos[0], pos[1], pos[2]);
 }
 
-int getVoxelSide(vec3 start, ivec3 pos2, vec3 dir)
+int getVoxelSide(vec3 start, ivec3 pos2, vec3 dir, vec3* pos)
 {
 	int x = pos2[0];
 	int y = pos2[1];
 	int z = pos2[2];
-
-	vec3 pos;
 
 	vec3 invDir = {1.0f / dir[0], 1.0f / dir[1], 1.0f / dir[2]};
 	vec3 blockMin = {x, y, z};
@@ -88,21 +85,21 @@ int getVoxelSide(vec3 start, ivec3 pos2, vec3 dir)
 	tmin = max(tmin, min(tx1, tx2));
 	tmax = min(tmax, max(tx1, tx2));
 
-	pos[0] = (tmin * dir[0]) + start[0];
-	pos[1] = (tmin * dir[1]) + start[1];
-	pos[2] = (tmin * dir[2]) + start[2];
+	(*pos)[0] = (tmin * dir[0]) + start[0];
+	(*pos)[1] = (tmin * dir[1]) + start[1];
+	(*pos)[2] = (tmin * dir[2]) + start[2];
 
-	if (absf(pos[0] - x) < 0.0001f)
+	if (absf((*pos)[0] - x) < 0.0001f)
 		return DIR_NEG_X;
-	if (absf(pos[0] - x) > 0.9999f)
+	if (absf((*pos)[0] - x) > 0.9999f)
 		return DIR_POS_X;
-	if (absf(pos[1] - y) < 0.0001f)
+	if (absf((*pos)[1] - y) < 0.0001f)
 		return DIR_NEG_Y;
-	if (absf(pos[1] - y) > 0.9999f)
+	if (absf((*pos)[1] - y) > 0.9999f)
 		return DIR_POS_Y;
-	if (absf(pos[2] - z) < 0.0001f)
+	if (absf((*pos)[2] - z) < 0.0001f)
 		return DIR_NEG_Z;
-	if (absf(pos[2] - z) > 0.9999f)
+	if (absf((*pos)[2] - z) > 0.9999f)
 		return DIR_POS_Z;
 	return 0;
 }

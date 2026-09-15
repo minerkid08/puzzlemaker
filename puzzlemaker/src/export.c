@@ -3,20 +3,24 @@
 #include "export/brush.h"
 #include "export/entity.h"
 #include "item/entityItem.h"
-#include "item/volumeItem.h"
 #include "item/item.h"
 #include "item/panel.h"
+#include "item/volumeItem.h"
+#include "ui/fileBrowser.h"
 #include <stdio.h>
 
 static char filename[256];
 
-void export2(const char* name)
+int exportMap()
 {
+	char* name = fileBrowserGetPath();
 	exportStartEntities();
 	exportStartBrushes();
 
 	Item* items = getItemList();
 	int len = dynList_size(items);
+	if (len == 0)
+		return 1;
 	for (int i = 0; i < len; i++)
 	{
 		Item* item = &items[i];
@@ -28,10 +32,11 @@ void export2(const char* name)
 			volumeItemExport(item);
 	}
 
+	exportMapSettings();
 	exportVoxels();
 
 	snprintf(filename, 256, "%s.vmf", name);
-  printf("exporting '%s'\n", filename);
+	printf("exporting '%s'\n", filename);
 	FILE* file = fopen(filename, "wb");
 	fprintf(file, R"(versioninfo
 {
@@ -67,7 +72,7 @@ viewsettings
 	"maxprojectedtextures" "8")");
 
 	exportEndBrushes(file);
-	fprintf(file, "\n}");
+	fprintf(file, "\n}\n");
 	exportEndEntities(file);
 	fprintf(file, R"(
 cameras
@@ -79,4 +84,5 @@ cordons
   "active" "0"
 })");
 	fclose(file);
+	return 0;
 }

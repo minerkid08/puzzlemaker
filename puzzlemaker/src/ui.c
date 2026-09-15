@@ -1,4 +1,5 @@
 #include "camera.h"
+#include "mapsettings.h"
 #include "renderer/framebuffer.h"
 #include "ui/fileBrowser.h"
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
@@ -9,6 +10,7 @@
 #include <cimgui_impl.h>
 #include "save.h"
 #include "ui/itemPanel.h"
+#include "compile/compile.h"
 
 static ImGuiContext* ctx;
 static ImGuiIO* io;
@@ -124,10 +126,6 @@ void uiViewport(FrameBuffer* framebuffer)
 	igEnd();
 }
 
-void export2(const char* name);
-
-void openCompilePopup(const char* filename);
-
 void uiMenuBar()
 {
 	ImVec2 zero;
@@ -141,12 +139,13 @@ void uiMenuBar()
 	if (igMenuItem_Bool("load", 0, 0, 1))
     fileBrowserOpen(MODE_LOAD);
 	if (igMenuItem_Bool("compile", 0, 0, 1))
-	{
-    char* path = fileBrowserGetPath();
-		export2(path);
-		openCompilePopup(path + 5);
-	}
+		startCompile();
+	if (igMenuItem_Bool("map settings", 0, 0, 1))
+    openMapSettingsUi();
+  igText("%s", mapSettings.name);
 
 	updateCompilePopup();
   igEndMenuBar();
+
+  renderMapSettingsUi();
 }

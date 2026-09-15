@@ -2,7 +2,7 @@
 
 #include <cglm/cglm.h>
 
-#define MAP_SIZE 20
+#define MAP_SIZE 40
 #define VOXEL_COUNT (MAP_SIZE * MAP_SIZE * MAP_SIZE)
 
 #define inRange(x, y, z) (x >= 0 && x < MAP_SIZE && y >= 0 && y < MAP_SIZE && z >= 0 && z < MAP_SIZE)
@@ -32,4 +32,4 @@ char isSelection2d();
 Voxel* getVoxel(int x, int y, int z);
 Voxel* getVoxelv(ivec3 pos);
 
-int getVoxelSide(vec3 start, ivec3 pos, vec3 dir);
+int getVoxelSide(vec3 start, ivec3 pos, vec3 dir, vec3* pos2);

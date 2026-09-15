@@ -6,6 +6,7 @@
 #include "item/panel.h"
 #include "jsonUtils.h"
 #include "renderer/debug.h"
+#include "raycast.h"
 
 #include <cjson.h>
 #include <dynList.h>

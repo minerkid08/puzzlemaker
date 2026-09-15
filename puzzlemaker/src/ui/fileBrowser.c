@@ -1,5 +1,6 @@
 #include "ui/fileBrowser.h"
 #include "dynList.h"
+#include "mapsettings.h"
 #include "save.h"
 #include <dirent.h>
 #include <stdlib.h>
@@ -173,10 +174,11 @@ void fileBrowserRender()
 					path[dotPos] = 0;
 				}
 
+				strcpy(mapSettings.name, path + 5);
 				if (mode == MODE_SAVE)
-					save(path);
+					save();
 				if (mode == MODE_LOAD)
-					load(path);
+					load();
 				open = 0;
 			}
 			igPopID();
@@ -203,7 +205,8 @@ void fileBrowserRender()
 		{
 			strncat(path, "/", 255);
 			strncat(path, filename, 255);
-			load(path);
+			strcpy(mapSettings.name, path + 5);
+			load();
 			open = 0;
 		}
 	}
@@ -213,7 +216,8 @@ void fileBrowserRender()
 		{
 			strncat(path, "/", 255);
 			strncat(path, filename, 255);
-			save(path);
+			strcpy(mapSettings.name, path + 5);
+			save();
 			open = 0;
 		}
 	}
@@ -228,7 +232,8 @@ void fileBrowserSave()
 		fileBrowserOpen(MODE_SAVE);
 		return;
 	}
-	save(path);
+	strcpy(mapSettings.name, path + 5);
+	save();
 }
 
 char* fileBrowserGetPath()

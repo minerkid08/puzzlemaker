@@ -6,11 +6,18 @@
 #define TYPE_BOOL 1
 #define TYPE_INT 2
 #define TYPE_STRING 3
+#define TYPE_FLOAT 4
+#define TYPE_INSTANCE 64
 #define TYPE_DROPDOWN 128
 
 #define ITEM_TYPE_ENTITY 1
 #define ITEM_TYPE_PANEL 2
 #define ITEM_TYPE_VOLUME 3
+
+#define SNAP_CORNER 0
+#define SNAP_CENTER 1
+#define SNAP_MINI_CORNER 2
+#define SNAP_MINI_CENTER 3
 
 typedef union {
 	int i;
@@ -62,6 +69,7 @@ typedef struct
 	vec4 bound1;
 	vec4 bound2;
 	vec3 offset;
+  char snapMode;
 } ItemDefinition;
 
 typedef struct

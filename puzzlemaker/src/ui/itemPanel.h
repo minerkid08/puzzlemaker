@@ -6,3 +6,6 @@ void updateCompilePopup();
 
 void clearSelectedItem();
 void setSelectedItem(Item* item);
+
+void openMapSettingsUi();
+void renderMapSettingsUi();

@@ -50,10 +50,14 @@ char raycast(vec3 start, vec3 dir, float len, int flags, RaycastHit* hit)
 			hit->item = 0;
 			hit->voxel = v;
 			ivec3 ipos = {x, y, z};
-			hit->dir = getVoxelSide(start, ipos, dir);
-			hit->pos[0] = x;
-			hit->pos[1] = y;
-			hit->pos[2] = z;
+      vec3 pos2;
+			hit->dir = getVoxelSide(start, ipos, dir, &pos2);
+			hit->pos[0] = pos2[0];
+			hit->pos[1] = pos2[1];
+			hit->pos[2] = pos2[2];
+			hit->ipos[0] = x;
+			hit->ipos[1] = y;
+			hit->ipos[2] = z;
 			return 1;
 		}
 	}

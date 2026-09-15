@@ -23,65 +23,6 @@
   },
 	{
     "type": "entity",
-		"name": "settings",
-		"model": "cube.obj",
-		"mat": "settings.png",
-    "entity": "info_portal_gamerules",
-    "bound1": [-0.5, 0, -0.5],
-    "bound2": [0.5, 1, 0.5],
-		"keyvalues": [
-			{
-    	  "name": "enableregen",
-    	  "type": "bool",
-    	  "defaultValue": 0
-    	},
-			{
-    	  "name": "equipboots",
-    	  "type": "bool",
-    	  "defaultValue": 0
-    	},
-			{
-    	  "name": "equipportalgun",
-    	  "type": "drop-int",
-    	  "defaultValue": 0,
-				"options": {
-					"None": 0,
-					"Orange": 1,
-					"Blue": 2,
-					"Dual portal device": 3,
-					"Potato gun": 4
-				}
-    	},
-			{
-    	  "name": "equippaintgun",
-    	  "type": "drop-int",
-    	  "defaultValue": 0,
-				"options": {
-					"None": 0,
-					"Basic paint gun": 1,
-					"Fully upgraded paint gun": 2
-				}
-    	},
-			{
-    	  "name": "maxhealth",
-    	  "type": "int",
-    	  "defaultValue": 100
-    	},
-			{
-    	  "name": "gametype",
-    	  "type": "drop-int",
-    	  "defaultValue": 0,
-				"options": {
-					"Default": 0,
-					"Coop 2 guns": 1,
-					"Coop versus mode": 2,
-					"Coop versus mode and 2 guns": 3
-				}
-    	}
-    ]
-	},
-	{
-    "type": "entity",
 		"name": "end",
 		"model": "cube.obj",
 		"mat": "end.png",

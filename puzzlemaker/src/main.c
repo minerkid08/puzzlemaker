@@ -1,5 +1,6 @@
 #include "renderer/framebuffer.h"
 #include "ui/fileBrowser.h"
+#include "utils.h"
 #include <dirent.h>
 #include <math.h>
 #include <sys/stat.h>
@@ -33,10 +34,11 @@ Picker picker;
 #define MODE_ORBIT 1
 #define MODE_PAN 2
 #define MODE_SELECT 3
+#define MODE_GRAB 4
 
 int mouseMode = 0;
 
-#define RAY_LEN 20
+#define RAY_LEN 40
 
 int width = 1920;
 int height = 1080;
@@ -66,20 +68,20 @@ extern float uiScale;
 
 int main()
 {
-  DIR* dir = opendir("maps");
-  if(dir)
-    closedir(dir);
-  else
-   mkdir("maps", 0777);
+	DIR* dir = opendir("maps");
+	if (dir)
+		closedir(dir);
+	else
+		mkdir("maps", 0777);
 
 	startCompileThread();
 	glfwInit();
 	GLFWwindow* window = glfwCreateWindow(1920, 1080, "puzzlemaker", 0, 0);
 	glfwMakeContextCurrent(window);
 
-  GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-  glfwGetMonitorContentScale(monitor, &uiScale, 0);
-  uiScale *= 1.4;
+	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	glfwGetMonitorContentScale(monitor, &uiScale, 0);
+	uiScale *= 1.4;
 
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
@@ -156,9 +158,9 @@ int main()
 
 		uiNewFrame();
 
-    uiMenuBar();
+		uiMenuBar();
 		uiViewport(&framebuffer);
-    fileBrowserRender();
+		fileBrowserRender();
 
 		itemPanelRender();
 
@@ -183,6 +185,8 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 			voxelPull();
 		if (key == GLFW_KEY_R)
 			voxelTogglePortal();
+		if (key == GLFW_KEY_G)
+			mouseMode = MODE_GRAB;
 	}
 }
 
@@ -245,6 +249,8 @@ void mouseCallback(GLFWwindow* window, int button, int action, int mods)
 	}
 }
 
+extern Item* selectedItem;
+
 void mouseMoveCallback(GLFWwindow* window, double x, double y)
 {
 	if (!viewportHovered)
@@ -272,6 +278,86 @@ void mouseMoveCallback(GLFWwindow* window, double x, double y)
 		cameraPos[0] -= up[0] * dy * 0.005;
 		cameraPos[1] -= up[1] * dy * 0.005;
 		cameraPos[2] -= up[2] * dy * 0.005;
+	}
+
+	if (mouseMode == MODE_GRAB)
+	{
+		RaycastHit hit;
+		calcSelectAxis();
+		if (raycast(cameraPos, mouseDir, 40, RAYCAST_VOXEL, &hit))
+		{
+			float startX = hit.pos[0];
+			float startY = hit.pos[1];
+			float startZ = hit.pos[2];
+			switch (selectedItem->def->snapMode)
+			{
+			case SNAP_CORNER:
+				selectedItem->pos[0] = round(hit.pos[0]);
+				selectedItem->pos[1] = round(hit.pos[1]);
+				selectedItem->pos[2] = round(hit.pos[2]);
+				break;
+			case SNAP_CENTER:
+				selectedItem->pos[0] = round(hit.pos[0] - 0.5) + 0.5;
+				selectedItem->pos[1] = round(hit.pos[1] - 0.5) + 0.5;
+				selectedItem->pos[2] = round(hit.pos[2] - 0.5) + 0.5;
+				break;
+			case SNAP_MINI_CORNER:
+				selectedItem->pos[0] = round(hit.pos[0] * 2) / 2;
+				selectedItem->pos[1] = round(hit.pos[1] * 2) / 2;
+				selectedItem->pos[2] = round(hit.pos[2] * 2) / 2;
+        break;
+			case SNAP_MINI_CENTER:
+				selectedItem->pos[0] = round(hit.pos[0] * 2 - 0.25) / 2 + 0.25;
+				selectedItem->pos[1] = round(hit.pos[1] * 2 - 0.25) / 2 + 0.25;
+				selectedItem->pos[2] = round(hit.pos[2] * 2 - 0.25) / 2 + 0.25;
+        break;
+			}
+
+			if (hit.dir == DIR_POS_Y)
+			{
+				selectedItem->pos[1] = startY;
+				selectedItem->dir[0] = 0;
+				selectedItem->dir[1] = 0;
+				selectedItem->dir[2] = 0;
+			}
+			else if (hit.dir == DIR_NEG_Y)
+			{
+				selectedItem->pos[1] = startY;
+				selectedItem->dir[0] = 180;
+				selectedItem->dir[1] = 0;
+				selectedItem->dir[2] = 0;
+			}
+			else if (hit.dir == DIR_POS_X)
+			{
+				selectedItem->pos[0] = startX;
+				selectedItem->dir[0] = 0;
+				selectedItem->dir[1] = 0;
+				selectedItem->dir[2] = -90;
+			}
+			else if (hit.dir == DIR_NEG_X)
+			{
+				selectedItem->pos[0] = startX;
+				selectedItem->dir[0] = 0;
+				selectedItem->dir[1] = 0;
+				selectedItem->dir[2] = 90;
+			}
+			else if (hit.dir == DIR_POS_Z)
+			{
+				selectedItem->pos[2] = startZ;
+				selectedItem->dir[0] = 90;
+				selectedItem->dir[1] = 0;
+				selectedItem->dir[2] = 0;
+			}
+			else if (hit.dir == DIR_NEG_Z)
+			{
+				selectedItem->pos[2] = startZ;
+				selectedItem->dir[0] = -90;
+				selectedItem->dir[1] = 0;
+				selectedItem->dir[2] = 0;
+			}
+
+			updateItemTransform(selectedItem);
+		}
 	}
 
 	if (isSelecting())

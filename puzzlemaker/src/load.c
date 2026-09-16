@@ -96,6 +96,9 @@ void load()
 
 		jsonGetVec3(itemJson, "pos", item->pos);
 		jsonGetVec3(itemJson, "rot", item->dir);
+	  cJSON* snapDir = cJSON_GetObjectItem(json, "snapDir");
+    if(snapDir)
+      item->snapDir = cJSON_GetNumberValue(snapDir);
 
 		if (item->def->type == ITEM_TYPE_PANEL)
 			panelItemLoad(item, itemJson);

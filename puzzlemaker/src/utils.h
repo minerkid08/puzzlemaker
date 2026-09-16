@@ -13,6 +13,7 @@
 #define DIR_NEG_Y 3
 #define DIR_POS_Z 4
 #define DIR_NEG_Z 5
+#define DIR_NONE 6
 
 #define errorf(...) { printf(__VA_ARGS__); exit(1); }
 

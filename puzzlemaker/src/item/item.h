@@ -95,6 +95,7 @@ struct Item
 	vec3 pos;
 	vec3 dir;
 	mat4 transform;
+  char snapDir;
 
 	ItemKv* kv;
 	ItemOutput* outputs;

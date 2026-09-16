@@ -35,6 +35,7 @@ Picker picker;
 #define MODE_PAN 2
 #define MODE_SELECT 3
 #define MODE_GRAB 4
+#define MODE_ROTATE 5
 
 int mouseMode = 0;
 
@@ -173,6 +174,10 @@ int main()
 	glfwTerminate();
 }
 
+int mouseX = 0;
+int itemAng = 0;
+extern Item* selectedItem;
+
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if (!viewportHovered)
@@ -187,6 +192,25 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 			voxelTogglePortal();
 		if (key == GLFW_KEY_G)
 			mouseMode = MODE_GRAB;
+		if (key == GLFW_KEY_F)
+		{
+			if (selectedItem->snapDir == DIR_NONE)
+				return;
+			mouseMode = MODE_ROTATE;
+			mouseX = mx;
+			if (selectedItem->snapDir == DIR_POS_Z)
+				itemAng = selectedItem->dir[2];
+			if (selectedItem->snapDir == DIR_NEG_Z)
+				itemAng = selectedItem->dir[2];
+			if (selectedItem->snapDir == DIR_POS_Y)
+				itemAng = selectedItem->dir[1];
+			if (selectedItem->snapDir == DIR_NEG_Y)
+				itemAng = selectedItem->dir[1];
+			if (selectedItem->snapDir == DIR_POS_X)
+				itemAng = selectedItem->dir[1];
+			if (selectedItem->snapDir == DIR_NEG_X)
+				itemAng = selectedItem->dir[1];
+		}
 	}
 }
 
@@ -224,6 +248,11 @@ void mouseCallback(GLFWwindow* window, int button, int action, int mods)
 	{
 		tx = mx;
 		ty = my;
+		if (mouseMode != MODE_NONE)
+		{
+			mouseMode = MODE_NONE;
+			return;
+		}
 
 		if (button == GLFW_MOUSE_BUTTON_2)
 		{
@@ -248,8 +277,6 @@ void mouseCallback(GLFWwindow* window, int button, int action, int mods)
 		mouseMode = 0;
 	}
 }
-
-extern Item* selectedItem;
 
 void mouseMoveCallback(GLFWwindow* window, double x, double y)
 {
@@ -305,59 +332,95 @@ void mouseMoveCallback(GLFWwindow* window, double x, double y)
 				selectedItem->pos[0] = round(hit.pos[0] * 2) / 2;
 				selectedItem->pos[1] = round(hit.pos[1] * 2) / 2;
 				selectedItem->pos[2] = round(hit.pos[2] * 2) / 2;
-        break;
+				break;
 			case SNAP_MINI_CENTER:
 				selectedItem->pos[0] = round(hit.pos[0] * 2 - 0.25) / 2 + 0.25;
 				selectedItem->pos[1] = round(hit.pos[1] * 2 - 0.25) / 2 + 0.25;
 				selectedItem->pos[2] = round(hit.pos[2] * 2 - 0.25) / 2 + 0.25;
-        break;
+				break;
+			}
+			switch (selectedItem->snapDir)
+			{
+			case DIR_POS_Z:
+			case DIR_NEG_Z:
+				selectedItem->pos[2] = startZ;
+				break;
+			case DIR_POS_Y:
+			case DIR_NEG_Y:
+				selectedItem->pos[1] = startY;
+				break;
+			case DIR_POS_X:
+			case DIR_NEG_X:
+				selectedItem->pos[0] = startX;
+				break;
 			}
 
-			if (hit.dir == DIR_POS_Y)
+			if (selectedItem->snapDir != hit.dir)
 			{
-				selectedItem->pos[1] = startY;
-				selectedItem->dir[0] = 0;
-				selectedItem->dir[1] = 0;
-				selectedItem->dir[2] = 0;
-			}
-			else if (hit.dir == DIR_NEG_Y)
-			{
-				selectedItem->pos[1] = startY;
-				selectedItem->dir[0] = 180;
-				selectedItem->dir[1] = 0;
-				selectedItem->dir[2] = 0;
-			}
-			else if (hit.dir == DIR_POS_X)
-			{
-				selectedItem->pos[0] = startX;
-				selectedItem->dir[0] = 0;
-				selectedItem->dir[1] = 0;
-				selectedItem->dir[2] = -90;
-			}
-			else if (hit.dir == DIR_NEG_X)
-			{
-				selectedItem->pos[0] = startX;
-				selectedItem->dir[0] = 0;
-				selectedItem->dir[1] = 0;
-				selectedItem->dir[2] = 90;
-			}
-			else if (hit.dir == DIR_POS_Z)
-			{
-				selectedItem->pos[2] = startZ;
-				selectedItem->dir[0] = 90;
-				selectedItem->dir[1] = 0;
-				selectedItem->dir[2] = 0;
-			}
-			else if (hit.dir == DIR_NEG_Z)
-			{
-				selectedItem->pos[2] = startZ;
-				selectedItem->dir[0] = -90;
-				selectedItem->dir[1] = 0;
-				selectedItem->dir[2] = 0;
+				selectedItem->snapDir = hit.dir;
+
+				if (hit.dir == DIR_POS_Y)
+				{
+					selectedItem->dir[0] = 0;
+					selectedItem->dir[1] = 0;
+					selectedItem->dir[2] = 0;
+				}
+				else if (hit.dir == DIR_NEG_Y)
+				{
+					selectedItem->dir[0] = 180;
+					selectedItem->dir[1] = 0;
+					selectedItem->dir[2] = 0;
+				}
+				else if (hit.dir == DIR_POS_X)
+				{
+					selectedItem->dir[0] = 0;
+					selectedItem->dir[1] = 0;
+					selectedItem->dir[2] = -90;
+				}
+				else if (hit.dir == DIR_NEG_X)
+				{
+					selectedItem->dir[0] = 0;
+					selectedItem->dir[1] = 0;
+					selectedItem->dir[2] = 90;
+				}
+				else if (hit.dir == DIR_POS_Z)
+				{
+					selectedItem->dir[0] = 90;
+					selectedItem->dir[1] = 0;
+					selectedItem->dir[2] = 0;
+				}
+				else if (hit.dir == DIR_NEG_Z)
+				{
+					selectedItem->dir[0] = -90;
+					selectedItem->dir[1] = 0;
+					selectedItem->dir[2] = 0;
+				}
 			}
 
 			updateItemTransform(selectedItem);
 		}
+	}
+	if (mouseMode == MODE_ROTATE)
+	{
+		float rotStep = mx - mouseX;
+		rotStep /= 80.0f;
+		rotStep = floorf(rotStep);
+		rotStep *= 45.0f;
+
+		if (selectedItem->snapDir == DIR_POS_Z)
+			selectedItem->dir[2] = itemAng + rotStep;
+		if (selectedItem->snapDir == DIR_NEG_Z)
+			selectedItem->dir[2] = itemAng - rotStep;
+		if (selectedItem->snapDir == DIR_POS_Y)
+			selectedItem->dir[1] = itemAng + rotStep;
+		if (selectedItem->snapDir == DIR_NEG_Y)
+			selectedItem->dir[1] = itemAng - rotStep;
+		if (selectedItem->snapDir == DIR_POS_X)
+			selectedItem->dir[1] = itemAng + rotStep;
+		if (selectedItem->snapDir == DIR_NEG_X)
+			selectedItem->dir[1] = itemAng - rotStep;
+
+		updateItemTransform(selectedItem);
 	}
 
 	if (isSelecting())

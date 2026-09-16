@@ -121,6 +121,8 @@ void save()
 		jsonArrSetFloat(rot, item->dir[1]);
 		jsonArrSetFloat(rot, item->dir[2]);
 
+    cJSON_AddNumberToObject(itemJson, "snapDir", item->snapDir);
+
 		if (item->def->type == ITEM_TYPE_PANEL)
 			panelItemSave(item, itemJson);
 		if (item->def->type == ITEM_TYPE_VOLUME)

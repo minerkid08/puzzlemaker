@@ -2,6 +2,7 @@
 #include "entityItem.h"
 #include "item/item.h"
 #include "item/panel.h"
+#include "utils.h"
 #include "volumeItem.h"
 #include <string.h>
 
@@ -63,6 +64,8 @@ Item* addItem(int defId, ivec3 position)
 	Item* item = &itemList[index];
 	item->index = index;
 	item->id = defId;
+
+  item->snapDir = DIR_NONE;
 
 	item->dir[0] = 0;
 	item->dir[1] = 0;

@@ -121,7 +121,8 @@ void volumeItemExport(Item* item)
 	VolumeItemData* data = item->data;
 
 	vec3 start = {0, 0, 0};
-	Brush* brush = exportCreateBrush(start, data->size);
+  int brushId;
+	Brush* brush = exportCreateBrush(start, data->size, &brushId);
 
 	if (def->entity)
 		brush->ent = 1;
@@ -153,7 +154,7 @@ void volumeItemExport(Item* item)
 		memcpy(ent->rotation, item->dir, sizeof(vec3));
 		ent->name = strdup(buf);
 		ent->className = def->entity;
-		exportEntityAddBrush(ent, brush);
+		exportEntityAddBrush(ent, brushId);
 		int l = dynList_size(item->def->staticKvs);
 		for (int i = 0; i < l; i++)
 			exportEntityAddKvs(ent, item->def->staticKvs[i]);

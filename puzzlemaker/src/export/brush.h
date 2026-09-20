@@ -23,5 +23,6 @@ typedef struct
 
 void exportStartBrushes();
 void exportEndBrushes(FILE* file);
-Brush* exportCreateBrush(vec3 start, vec3 end);
+Brush* exportCreateBrush(vec3 start, vec3 end, int* id);
 void exportBrush(FILE* file, Brush* brush);
+Brush* getBrushArray();

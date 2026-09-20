@@ -19852,31 +19852,37 @@ solid
   }
 }
 
-}entity
+}
+entity
 {
   "id" "1"
-  "classname" "info_player_start"
-  "origin" "-384.000000 128.000000 64.000000"
-  "angles" "0.000000 0.000000 -0.000000"
-  "targetname" "start0"
+  "classname" "func_instance"
+  "origin" "-448.000000 144.000000 176.000000"
+  "angles" "90.000000 0.000000 -0.000000"
+  "targetname" "light0"
+  "file" "puzzlemakerInstances/light"
 }
 entity
 {
   "id" "2"
-  "classname" "func_instance"
-  "origin" "-256.000000 448.000000 192.000000"
-  "angles" "90.000000 0.000000 90.000000"
-  "targetname" "light1"
-  "file" "puzzlemakerInstances/light"
+  "classname" "info_player_start"
+  "origin" "-320.000000 192.000000 64.000000"
+  "angles" "0.000000 0.000000 -0.000000"
+  "targetname" "start1"
 }
 entity
 {
   "id" "3"
-  "classname" "func_instance"
-  "origin" "-448.000000 128.000000 192.000000"
-  "angles" "90.000000 0.000000 -0.000000"
-  "targetname" "light2"
-  "file" "puzzlemakerInstances/light"
+  "classname" "info_portal_gamerules"
+  "origin" "-448.000000 144.000000 176.000000"
+  "angles" "0.000000 0.000000 -0.000000"
+  "targetname" "settings"
+  "enableregen" "1"
+  "equibboots" "0"
+  "maxhealth" "100"
+  "equipportalgun" "3"
+  "equippaintgun" "0"
+  "gametype" "0"
 }
 
 cameras

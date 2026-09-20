@@ -26,7 +26,7 @@ void exportVoxel(Voxel* voxel, ivec3 pos)
 {
 	vec3 start = {pos[0], pos[1], pos[2]};
 	vec3 end = {pos[0] + 1, pos[1] + 1, pos[2] + 1};
-	Brush* brush = exportCreateBrush(start, end);
+	Brush* brush = exportCreateBrush(start, end, 0);
 
 	for (int i = 0; i < 6; i++)
 	{
@@ -108,6 +108,7 @@ void exportVoxels()
 			for (int x = 0; x < MAP_SIZE; x++)
 			{
 				Voxel* voxel = getVoxel(x, y, z);
+        voxel->faces = 0;
 				if (voxel->solid)
 				{
 					char shouldExport = 0;
@@ -115,42 +116,60 @@ void exportVoxels()
 					{
 						Voxel* v2 = getVoxel(x, y, z + 1);
 						if (!v2->solid)
+            {
 							shouldExport = 1;
+              voxel->faces |= (1 >> DIR_POS_Z);
+            }
 					}
 
 					if (z - 1 >= 0)
 					{
 						Voxel* v2 = getVoxel(x, y, z - 1);
 						if (!v2->solid)
+            {
 							shouldExport = 1;
+              voxel->faces |= (1 >> DIR_NEG_Z);
+            }
 					}
 
 					if (x + 1 < MAP_SIZE)
 					{
 						Voxel* v2 = getVoxel(x + 1, y, z);
 						if (!v2->solid)
+            {
 							shouldExport = 1;
+              voxel->faces |= (1 >> DIR_POS_X);
+            }
 					}
 
 					if (x - 1 >= 0)
 					{
 						Voxel* v2 = getVoxel(x - 1, y, z);
 						if (!v2->solid)
+            {
 							shouldExport = 1;
+              voxel->faces |= (1 >> DIR_NEG_X);
+            }
 					}
 
 					if (y + 1 < MAP_SIZE)
 					{
 						Voxel* v2 = getVoxel(x, y + 1, z);
 						if (!v2->solid)
+            {
 							shouldExport = 1;
+              voxel->faces |= (1 >> DIR_POS_Y);
+            }
 					}
 
 					if (y - 1 >= 0)
 					{
 						Voxel* v2 = getVoxel(x, y - 1, z);
 						if (!v2->solid)
+            {
 							shouldExport = 1;
+              voxel->faces |= (1 >> DIR_NEG_Y);
+            }
 					}
 					if (shouldExport)
 					{

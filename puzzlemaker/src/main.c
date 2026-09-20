@@ -405,7 +405,7 @@ void mouseMoveCallback(GLFWwindow* window, double x, double y)
 		float rotStep = mx - mouseX;
 		rotStep /= 80.0f;
 		rotStep = floorf(rotStep);
-		rotStep *= 45.0f;
+		rotStep *= 90.0f;
 
 		if (selectedItem->snapDir == DIR_POS_Z)
 			selectedItem->dir[2] = itemAng + rotStep;

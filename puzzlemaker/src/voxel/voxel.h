@@ -16,6 +16,7 @@ typedef struct
 {
 	char solid;
 	char portalability[6];
+  char faces;
 } Voxel;
 
 extern ivec3 currentVoxelPos;

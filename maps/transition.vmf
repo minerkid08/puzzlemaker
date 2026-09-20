@@ -183238,6 +183238,123 @@ entity
 entity
 {
   "id" "22"
+  "classname" "func_instance"
+  "origin" "-560.000000 191.999969 368.000000"
+  "angles" "0.000000 0.000000 -90.000000"
+  "targetname" "light27"
+  "file" "puzzlemakerInstances/light"
+}
+entity
+{
+  "id" "23"
+  "classname" "func_instance"
+  "origin" "-720.000000 192.000000 368.000000"
+  "angles" "0.000000 0.000000 -90.000000"
+  "targetname" "light28"
+  "file" "puzzlemakerInstances/light"
+}
+entity
+{
+  "id" "24"
+  "classname" "func_instance"
+  "origin" "-1088.000000 976.000000 304.000000"
+  "angles" "90.000000 0.000000 -0.000000"
+  "targetname" "light29"
+  "file" "puzzlemakerInstances/light"
+}
+entity
+{
+  "id" "25"
+  "classname" "func_instance"
+  "origin" "-1088.000000 848.000000 304.000000"
+  "angles" "90.000000 0.000000 -0.000000"
+  "targetname" "light30"
+  "file" "puzzlemakerInstances/light"
+}
+entity
+{
+  "id" "26"
+  "classname" "func_instance"
+  "origin" "-1088.000000 720.000000 304.000000"
+  "angles" "90.000000 0.000000 -0.000000"
+  "targetname" "light31"
+  "file" "puzzlemakerInstances/light"
+}
+entity
+{
+  "id" "27"
+  "classname" "func_instance"
+  "origin" "-192.000000 848.000000 336.000000"
+  "angles" "-90.000000 0.000000 -0.000000"
+  "targetname" "light32"
+  "file" "puzzlemakerInstances/light"
+}
+entity
+{
+  "id" "28"
+  "classname" "func_instance"
+  "origin" "-240.000000 1664.000000 304.000000"
+  "angles" "90.000000 0.000000 90.000000"
+  "targetname" "light33"
+  "file" "puzzlemakerInstances/light"
+}
+entity
+{
+  "id" "29"
+  "classname" "func_instance"
+  "origin" "-400.000000 1664.000000 304.000000"
+  "angles" "-90.000000 0.000000 90.000000"
+  "targetname" "light34"
+  "file" "puzzlemakerInstances/light"
+}
+entity
+{
+  "id" "30"
+  "classname" "func_instance"
+  "origin" "-528.000000 1664.000000 304.000000"
+  "angles" "-90.000000 0.000000 90.000000"
+  "targetname" "light35"
+  "file" "puzzlemakerInstances/light"
+}
+entity
+{
+  "id" "31"
+  "classname" "func_instance"
+  "origin" "-703.999939 1264.000000 272.000000"
+  "angles" "-90.000000 -90.000000 -0.000000"
+  "targetname" "light36"
+  "file" "puzzlemakerInstances/light"
+}
+entity
+{
+  "id" "32"
+  "classname" "func_instance"
+  "origin" "-704.000000 1264.000000 400.000000"
+  "angles" "-90.000000 -90.000000 -0.000000"
+  "targetname" "light37"
+  "file" "puzzlemakerInstances/light"
+}
+entity
+{
+  "id" "33"
+  "classname" "func_instance"
+  "origin" "-704.000000 1424.000000 272.000000"
+  "angles" "-90.000000 -90.000000 -0.000000"
+  "targetname" "light38"
+  "file" "puzzlemakerInstances/light"
+}
+entity
+{
+  "id" "34"
+  "classname" "func_instance"
+  "origin" "-704.000000 1424.000000 400.000000"
+  "angles" "-90.000000 -90.000000 -0.000000"
+  "targetname" "light39"
+  "file" "puzzlemakerInstances/light"
+}
+entity
+{
+  "id" "35"
   "classname" "info_portal_gamerules"
   "origin" "-448.000000 624.000000 192.000000"
   "angles" "0.000000 0.000000 -0.000000"

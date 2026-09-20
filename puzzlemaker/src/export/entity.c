@@ -102,19 +102,19 @@ void exportEntityAddKvss(Entity* ent, const char* key, const char* value)
 	ent->kvs[len] = strdup(buf);
 }
 
-void exportEntityAddBrush(Entity* ent, Brush* brush)
+void exportEntityAddBrush(Entity* ent, int brush)
 {
 	int i = 0;
-  Brush** arr = ent->brushes;
+  int* arr = ent->brushes;
 	if (arr == 0)
-		arr = dynList_new(1, sizeof(Brush*));
+		arr = dynList_new(1, sizeof(int));
 	else
 	{
 		int len = dynList_size(arr);
 		dynList_resize((void**)&arr, len + 1);
 		i = len;
 	}
-  brush->ent = 1;
+  getBrushArray()[brush].ent = 1;
 	arr[i] = brush;
   ent->brushes = arr;
 }
@@ -199,10 +199,11 @@ void exportEndEntities(FILE* file)
 
 		if (entity->brushes)
 		{
+      Brush* brushes = getBrushArray();
 			int l = dynList_size(entity->brushes);
 			for (int j = 0; j < l; j++)
 			{
-				Brush* b = entity->brushes[j];
+				Brush* b = &brushes[entity->brushes[j]];
 				exportBrush(file, b);
 			}
 			dynList_free(entity->brushes);

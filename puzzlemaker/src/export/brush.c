@@ -14,12 +14,17 @@ static __attribute__((constructor)) void init()
 	dynList_reserve((void**)&brushes, 128);
 }
 
-void exportStartBrushes()
+Brush* getBrushArray()
 {
-  dynList_resize((void**)&brushes, 0);
+	return brushes;
 }
 
-Brush* exportCreateBrush(vec3 start, vec3 end)
+void exportStartBrushes()
+{
+	dynList_resize((void**)&brushes, 0);
+}
+
+Brush* exportCreateBrush(vec3 start, vec3 end, int* id)
 {
 	float minx = min(start[0], end[0]);
 	float miny = min(start[1], end[1]);
@@ -48,6 +53,8 @@ Brush* exportCreateBrush(vec3 start, vec3 end)
 	Brush* brush = &brushes[len];
 	brush->id = len + 1;
 	brush->ent = 0;
+	if (id)
+		*id = len;
 
 	for (int i = 0; i < 6; i++)
 	{
@@ -225,6 +232,7 @@ void exportBrush(FILE* file, Brush* brush)
 void exportEndBrushes(FILE* file)
 {
 	int len = dynList_size(brushes);
+  printf("brush count: %d\n", len);
 	for (int i = 0; i < len; i++)
 	{
 		Brush* brush = &brushes[i];

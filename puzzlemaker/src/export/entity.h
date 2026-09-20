@@ -15,7 +15,7 @@ typedef struct
 	ItemOutput* outputs;
 
   const char** kvs;
-  Brush** brushes;
+  int* brushes;
 } Entity;
 
 void exportStartEntities();
@@ -25,4 +25,4 @@ Entity* exportCreateEntity();
 void exportEntityAddKv(Entity* ent, ItemKv* kv);
 void exportEntityAddKvs(Entity* ent, const char* kv);
 void exportEntityAddKvss(Entity* ent, const char* key, const char* value);
-void exportEntityAddBrush(Entity* ent, Brush* brush);
+void exportEntityAddBrush(Entity* ent, int brush);

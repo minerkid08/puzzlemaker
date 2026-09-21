@@ -84,7 +84,6 @@ void load()
 		Item* item = 0;
 		const char* id = cJSON_GetObjectItem(itemJson, "id")->valuestring;
 		ItemDefinition* defs = getItemDefinitions();
-		printf("loading item '%s'\n", id);
 
 		for (int i = 0; i < dynList_size(defs); i++)
 		{
@@ -106,7 +105,7 @@ void load()
 		if (item->def->type == ITEM_TYPE_VOLUME)
 			volumeItemLoad(item, itemJson);
 
-		updateItemTransform(item);
+		updateItemTransformRot(item);
 
 		cJSON* outputList = cJSON_GetObjectItem(itemJson, "outputs");
 		int outputCount = cJSON_GetArraySize(outputList);
@@ -164,7 +163,6 @@ void load()
 		Item* item = getItem(i);
 		if (item->index == -1)
 			continue;
-		printf("loading outputs for %s\n", item->def->name);
 		int len = dynList_size(item->outputs);
 		for (int j = 0; j < len; j++)
 		{

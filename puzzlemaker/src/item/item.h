@@ -94,6 +94,7 @@ struct Item
 	int id;
 	vec3 pos;
 	vec3 dir;
+	vec4 quat;
 	mat4 transform;
   char snapDir;
 
@@ -117,6 +118,7 @@ void loadItemDefinitions();
 void drawItems();
 
 void updateItemTransform(Item* item);
+void updateItemTransformRot(Item* item);
 Item* getIntersectingItem(vec3 pos);
 Item* getItem(int i);
 

@@ -1,3 +1,5 @@
+#include "cglm/quat.h"
+#include "cglm/util.h"
 #include "renderer/framebuffer.h"
 #include "ui/fileBrowser.h"
 #include "utils.h"
@@ -175,7 +177,7 @@ int main()
 }
 
 int mouseX = 0;
-int itemAng = 0;
+vec4 itemQuat;
 extern Item* selectedItem;
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -198,18 +200,7 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 				return;
 			mouseMode = MODE_ROTATE;
 			mouseX = mx;
-			if (selectedItem->snapDir == DIR_POS_Z)
-				itemAng = selectedItem->dir[2];
-			if (selectedItem->snapDir == DIR_NEG_Z)
-				itemAng = selectedItem->dir[2];
-			if (selectedItem->snapDir == DIR_POS_Y)
-				itemAng = selectedItem->dir[1];
-			if (selectedItem->snapDir == DIR_NEG_Y)
-				itemAng = selectedItem->dir[1];
-			if (selectedItem->snapDir == DIR_POS_X)
-				itemAng = selectedItem->dir[1];
-			if (selectedItem->snapDir == DIR_NEG_X)
-				itemAng = selectedItem->dir[1];
+			memcpy(itemQuat, selectedItem->quat, sizeof(vec4));
 		}
 	}
 }
@@ -397,7 +388,7 @@ void mouseMoveCallback(GLFWwindow* window, double x, double y)
 				}
 			}
 
-			updateItemTransform(selectedItem);
+			updateItemTransformRot(selectedItem);
 		}
 	}
 	if (mouseMode == MODE_ROTATE)
@@ -406,19 +397,17 @@ void mouseMoveCallback(GLFWwindow* window, double x, double y)
 		rotStep /= 80.0f;
 		rotStep = floorf(rotStep);
 		rotStep *= 90.0f;
+		rotStep = glm_rad(rotStep);
 
-		if (selectedItem->snapDir == DIR_POS_Z)
-			selectedItem->dir[2] = itemAng + rotStep;
-		if (selectedItem->snapDir == DIR_NEG_Z)
-			selectedItem->dir[2] = itemAng - rotStep;
-		if (selectedItem->snapDir == DIR_POS_Y)
-			selectedItem->dir[1] = itemAng + rotStep;
-		if (selectedItem->snapDir == DIR_NEG_Y)
-			selectedItem->dir[1] = itemAng - rotStep;
-		if (selectedItem->snapDir == DIR_POS_X)
-			selectedItem->dir[1] = itemAng + rotStep;
-		if (selectedItem->snapDir == DIR_NEG_X)
-			selectedItem->dir[1] = itemAng - rotStep;
+		vec3 axis = {0, 1, 0};
+
+		vec4 newQuat;
+
+		glm_quatv(newQuat, rotStep, axis);
+
+		vec4 newItemQuat;
+		glm_quat_mul(itemQuat, newQuat, newItemQuat);
+		memcpy(selectedItem->quat, newItemQuat, sizeof(vec4));
 
 		updateItemTransform(selectedItem);
 	}

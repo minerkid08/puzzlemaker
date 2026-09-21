@@ -1,5 +1,8 @@
 #include "item.h"
+#include "cglm/euler.h"
 #include "cglm/mat4.h"
+#include "cglm/quat.h"
+#include "cglm/util.h"
 #include "cglm/vec3.h"
 #include "item/entityItem.h"
 #include "item/volumeItem.h"
@@ -95,8 +98,38 @@ void updateItemTransform(Item* item)
 	glm_mat4_identity(transform);
 	glm_translate(transform, item->pos);
 
-	glm_rotate_z(transform, glm_rad(item->dir[2]), transform);
-	glm_rotate_y(transform, glm_rad(item->dir[1]), transform);
-	glm_rotate_x(transform, glm_rad(item->dir[0]), transform);
+	mat4 rotMat;
+	vec4 itemQuat;
+	memcpy(itemQuat, item->quat, sizeof(vec4));
+	glm_quat_mat4(itemQuat, rotMat);
+	vec3 dir;
+	glm_euler_angles(rotMat, dir);
+	item->dir[0] = glm_deg(dir[0]);
+	item->dir[1] = glm_deg(dir[1]);
+	item->dir[2] = glm_deg(dir[2]);
+
+	glm_mat4_mul(transform, rotMat, transform);
+
+	memcpy(item->transform, transform, sizeof(mat4));
+}
+
+void updateItemTransformRot(Item* item)
+{
+	mat4 transform;
+	glm_mat4_identity(transform);
+	glm_translate(transform, item->pos);
+
+	vec3 dir;
+	vec4 itemQuat;
+	dir[0] = glm_rad(item->dir[0]);
+	dir[1] = glm_rad(item->dir[1]);
+	dir[2] = glm_rad(item->dir[2]);
+	glm_euler_xyz_quat(dir, itemQuat);
+	mat4 rotMat;
+	glm_quat_mat4(itemQuat, rotMat);
+
+	glm_mat4_mul(transform, rotMat, transform);
+
+	memcpy(item->quat, itemQuat, sizeof(vec4));
 	memcpy(item->transform, transform, sizeof(mat4));
 }

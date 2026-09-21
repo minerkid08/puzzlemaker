@@ -102,7 +102,7 @@ void itemPanelRender()
 		if (igDragFloat3("position", selectedItem->pos, 0.01f, 0.0f, 0.0f, "%.3f", 0))
 			updateItemTransform(selectedItem);
 		if (igDragFloat3("rotation", selectedItem->dir, 0.01f, 0.0f, 0.0f, "%.3f", 0))
-			updateItemTransform(selectedItem);
+			updateItemTransformRot(selectedItem);
 
 		if (selectedItem->def->type == ITEM_TYPE_PANEL)
 		{

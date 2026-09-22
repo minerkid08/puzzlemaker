@@ -1,3 +1,4 @@
+#include "cglm/quat.h"
 #include "dynList.h"
 #include "entityItem.h"
 #include "item/item.h"
@@ -83,6 +84,10 @@ Item* addItem(int defId, ivec3 position)
 		item->pos[1] = position[1];
 		item->pos[2] = position[2];
 	}
+
+  vec4 quat;
+  glm_quat_identity(quat);
+  memcpy(item->quat, quat, sizeof(vec4));
 
 	updateItemTransform(item);
 

@@ -386,9 +386,10 @@ void mouseMoveCallback(GLFWwindow* window, double x, double y)
 					selectedItem->dir[1] = 0;
 					selectedItem->dir[2] = 0;
 				}
+				updateItemTransformRot(selectedItem);
 			}
-
-			updateItemTransformRot(selectedItem);
+			else
+				updateItemTransform(selectedItem);
 		}
 	}
 	if (mouseMode == MODE_ROTATE)

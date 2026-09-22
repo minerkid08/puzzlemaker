@@ -1,0 +1,151 @@
+versioninfo
+{
+	"editorextension" "strata"
+	"editorversion" "400"
+	"editorbuild" "10767"
+	"mapversion" "5"
+	"formatversion" "100"
+	"prefab" "0"
+}
+visgroups
+{
+}
+viewsettings
+{
+	"bSnapToGrid" "1"
+	"bShowGrid" "1"
+	"bShowLogicalGrid" "1"
+	"nGridSpacing" "16"
+	"bShow3DGrid" "0"
+	"nInstanceVisibility" "2"
+	views
+	{
+		v0
+		{
+			"3d" "1"
+			"position" "(-224.344 -206.493 99.1647)"
+			"angle" "[2.34 46.53 0]"
+		}
+		v1
+		{
+			"3d" "0"
+			"position" "(-33.5765 15.053 0)"
+			"zoom" "4.62211"
+		}
+		v2
+		{
+			"3d" "0"
+			"position" "(0 -64 27)"
+			"zoom" "0.36"
+		}
+		v3
+		{
+			"3d" "0"
+			"position" "(9.24446 0 12.9354)"
+			"zoom" "2.22903"
+		}
+	}
+}
+world
+{
+	"id" "1"
+	"mapversion" "5"
+	"classname" "worldspawn"
+	"detailmaterial" "detail/detailsprites"
+	"detailvbsp" "detail.vbsp"
+	"maxblobcount" "250"
+	"maxprojectedtextures" "8"
+	"maxpropscreenwidth" "-1"
+	"skyname" "sky_black_nofog"
+}
+entity
+{
+	"id" "65"
+	"classname" "func_instance"
+	"angles" "-0 -90 0"
+	"file" "instances/door frame black.vmf"
+	"origin" "-32 0 64"
+	editor
+	{
+		"color" "220 30 220"
+		"visgroupshown" "1"
+		"visgroupautoshown" "1"
+		"logicalpos" "[0 0]"
+	}
+}
+entity
+{
+	"id" "2"
+	"classname" "prop_testchamber_door"
+	"AllowSilentDissolve" "1"
+	"angles" "0 180 0"
+	"areaportalfadeend" "0"
+	"areaportalfadestart" "0"
+	"body" "0"
+	"defaultanim" "idleclose"
+	"disableflashlight" "0"
+	"disablereceiveshadows" "0"
+	"disableshadowdepth" "0"
+	"disableshadows" "0"
+	"drawinfastreflection" "0"
+	"effects" "0"
+	"fadescale" "1"
+	"locked" "0"
+	"model" "models/props/portal_door_combined_new.mdl"
+	"open" "0"
+	"renderamt" "255"
+	"rendercolor" "255 255 255"
+	"renderfx" "0"
+	"rendermode" "0"
+	"setbodygroup" "0"
+	"shadowcastdist" "0"
+	"shadowdepthnocache" "0"
+	"skin" "0"
+	"solid" "6"
+	"targetname" "door"
+	"texframeindex" "0"
+	"useareaportalfade" "0"
+	"viewhideflags" "0"
+	connections
+	{
+		"OnOpen" "!selfSkin10-1"
+		"OnClose" "!selfSkin00-1"
+	}
+	"origin" "-16 0 0"
+	editor
+	{
+		"color" "220 30 220"
+		"visgroupshown" "1"
+		"visgroupautoshown" "1"
+		"logicalpos" "[0 0]"
+	}
+}
+entity
+{
+	"id" "48"
+	"classname" "func_instance_io_proxy"
+	"targetname" "proxy"
+	connections
+	{
+		"OnProxyRelay" "doorOpen0-1"
+		"OnProxyRelay" "doorClose0-1"
+		"OnProxyRelay" "doorLock0-1"
+		"OnProxyRelay" "doorUnlock0-1"
+	}
+	"origin" "0 0 0"
+	editor
+	{
+		"color" "220 30 220"
+		"visgroupshown" "1"
+		"visgroupautoshown" "1"
+		"logicalpos" "[0 500]"
+	}
+}
+cameras
+{
+	"activecamera" "-1"
+}
+cordons
+{
+	"active" "0"
+}

@@ -5,11 +5,11 @@
 #include "cglm/util.h"
 #include "cglm/vec3.h"
 #include "item/entityItem.h"
-#include "item/volumeItem.h"
 #include "item/panel.h"
+#include "item/volumeItem.h"
 #include "jsonUtils.h"
-#include "renderer/debug.h"
 #include "raycast.h"
+#include "renderer/debug.h"
 
 #include <cjson.h>
 #include <dynList.h>
@@ -27,12 +27,12 @@ void drawItems()
 		Item* item = &itemList[i];
 		if (item->index == -1)
 			continue;
-    if(item->def->type == ITEM_TYPE_ENTITY)
-      entityItemRender(item);
-    if(item->def->type == ITEM_TYPE_PANEL)
-      panelItemRender(item);
-    if(item->def->type == ITEM_TYPE_VOLUME)
-      volumeItemRender(item);
+		if (item->def->type == ITEM_TYPE_ENTITY)
+			entityItemRender(item);
+		if (item->def->type == ITEM_TYPE_PANEL)
+			panelItemRender(item);
+		if (item->def->type == ITEM_TYPE_VOLUME)
+			volumeItemRender(item);
 		// drawDebugRect(item->def->bound1, item->def->bound2);
 	}
 }
@@ -92,6 +92,18 @@ Item* getIntersectingItem(vec3 pos)
 	return 0;
 }
 
+void getEulerAngles(vec4 quat, vec3 out)
+{
+	double r11 = 2 * (quat[0] * quat[2] + quat[3] * quat[1]);
+	double r12 = quat[3] * quat[3] - quat[0] * quat[0] - quat[1] * quat[1] + quat[2] * quat[2];
+	double r21 = -2 * (quat[1] * quat[2] - quat[3] * quat[0]);
+	double r31 = 2 * (quat[0] * quat[1] + quat[3] * quat[2]);
+	double r32 = quat[3] * quat[3] - quat[0] * quat[0] + quat[1] * quat[1] - quat[2] * quat[2];
+	out[0] = atan2(r31, r32);
+	out[1] = asin(r21);
+	out[2] = atan2(r11, r12);
+}
+
 void updateItemTransform(Item* item)
 {
 	mat4 transform;
@@ -102,8 +114,37 @@ void updateItemTransform(Item* item)
 	vec4 itemQuat;
 	memcpy(itemQuat, item->quat, sizeof(vec4));
 	glm_quat_mat4(itemQuat, rotMat);
+
 	vec3 dir;
-	glm_euler_angles(rotMat, dir);
+	getEulerAngles(itemQuat, dir);
+	item->dir[0] = glm_deg(dir[0]);
+	item->dir[1] = glm_deg(dir[1]);
+	item->dir[2] = glm_deg(dir[2]);
+
+	glm_mat4_mul(transform, rotMat, transform);
+
+	memcpy(item->transform, transform, sizeof(mat4));
+}
+
+void updateItemTransform2(Item* item)
+{
+	mat4 transform;
+	glm_mat4_identity(transform);
+	glm_translate(transform, item->pos);
+
+	mat4 rotMat;
+	vec4 itemQuat;
+	memcpy(itemQuat, item->quat, sizeof(vec4));
+	glm_quat_mat4(itemQuat, rotMat);
+
+	printf("%.2f, %.2f, %.2f, %.2f\n", rotMat[0][0], rotMat[0][1], rotMat[0][2], rotMat[0][3]);
+	printf("%.2f, %.2f, %.2f, %.2f\n", rotMat[1][0], rotMat[1][1], rotMat[1][2], rotMat[1][3]);
+	printf("%.2f, %.2f, %.2f, %.2f\n", rotMat[2][0], rotMat[2][1], rotMat[2][2], rotMat[2][3]);
+	printf("%.2f, %.2f, %.2f, %.2f\n", rotMat[3][0], rotMat[3][1], rotMat[3][2], rotMat[3][3]);
+	printf("----------------------\n");
+
+	vec3 dir;
+	getEulerAngles(itemQuat, dir);
 	item->dir[0] = glm_deg(dir[0]);
 	item->dir[1] = glm_deg(dir[1]);
 	item->dir[2] = glm_deg(dir[2]);
@@ -124,7 +165,7 @@ void updateItemTransformRot(Item* item)
 	dir[0] = glm_rad(item->dir[0]);
 	dir[1] = glm_rad(item->dir[1]);
 	dir[2] = glm_rad(item->dir[2]);
-	glm_euler_xyz_quat(dir, itemQuat);
+	glm_euler_yxz_quat(dir, itemQuat);
 	mat4 rotMat;
 	glm_quat_mat4(itemQuat, rotMat);
 

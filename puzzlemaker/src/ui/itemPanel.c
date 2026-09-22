@@ -41,6 +41,7 @@ void initItemPanel()
 
 char* outputNames = 0;
 
+void updateItemTransform2(Item* item);
 void itemPanelRender()
 {
 	igBegin("items", 0, 0);
@@ -103,6 +104,8 @@ void itemPanelRender()
 			updateItemTransform(selectedItem);
 		if (igDragFloat3("rotation", selectedItem->dir, 0.01f, 0.0f, 0.0f, "%.3f", 0))
 			updateItemTransformRot(selectedItem);
+    if(igButton("update transform", zero))
+        updateItemTransform2(selectedItem);
 
 		if (selectedItem->def->type == ITEM_TYPE_PANEL)
 		{

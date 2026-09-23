@@ -131,7 +131,7 @@ void exportEndEntities(FILE* file)
 		fprintf(file, "  \"id\" \"%d\"\n", i + 1);
 		fprintf(file, "  \"classname\" \"%s\"\n", entity->className);
 		fprintf(file, "  \"origin\" \"%f %f %f\"\n", -entity->pos[0] * 64, entity->pos[2] * 64, entity->pos[1] * 64);
-		fprintf(file, "  \"angles\" \"%f %f %f\"\n", entity->rotation[0], entity->rotation[1], entity->rotation[2]);
+		fprintf(file, "  \"angles\" \"%f %f %f\"\n", entity->rotation[2], entity->rotation[1], -entity->rotation[0]);
 		fprintf(file, "  \"targetname\" \"%s\"\n", entity->name);
 
 		free((char*)entity->name);

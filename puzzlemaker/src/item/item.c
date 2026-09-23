@@ -94,10 +94,10 @@ Item* getIntersectingItem(vec3 pos)
 
 void getEulerAngles(vec4 quat, vec3 out)
 {
-	double r11 = 2 * (quat[0] * quat[2] + quat[3] * quat[1]);
-	double r12 = quat[3] * quat[3] - quat[0] * quat[0] - quat[1] * quat[1] + quat[2] * quat[2];
-	double r21 = -2 * (quat[1] * quat[2] - quat[3] * quat[0]);
-	double r31 = 2 * (quat[0] * quat[1] + quat[3] * quat[2]);
+	double r11 = -2 * (quat[0] * quat[2] - quat[3] * quat[1]);
+	double r12 = quat[3] * quat[3] + quat[0] * quat[0] - quat[1] * quat[1] - quat[2] * quat[2];
+	double r21 = 2 * (quat[0] * quat[1] + quat[3] * quat[2]);
+	double r31 = -2 * (quat[1] * quat[2] - quat[3] * quat[0]);
 	double r32 = quat[3] * quat[3] - quat[0] * quat[0] + quat[1] * quat[1] - quat[2] * quat[2];
 	out[0] = atan2(r31, r32);
 	out[1] = asin(r21);
@@ -116,6 +116,7 @@ void updateItemTransform(Item* item)
 	glm_quat_mat4(itemQuat, rotMat);
 
 	vec3 dir;
+  //glm_euler_angles(rotMat, dir);
 	getEulerAngles(itemQuat, dir);
 	item->dir[0] = glm_deg(dir[0]);
 	item->dir[1] = glm_deg(dir[1]);
@@ -144,6 +145,7 @@ void updateItemTransform2(Item* item)
 	printf("----------------------\n");
 
 	vec3 dir;
+  //glm_euler_angles(rotMat, dir);
 	getEulerAngles(itemQuat, dir);
 	item->dir[0] = glm_deg(dir[0]);
 	item->dir[1] = glm_deg(dir[1]);
@@ -165,7 +167,7 @@ void updateItemTransformRot(Item* item)
 	dir[0] = glm_rad(item->dir[0]);
 	dir[1] = glm_rad(item->dir[1]);
 	dir[2] = glm_rad(item->dir[2]);
-	glm_euler_yxz_quat(dir, itemQuat);
+	glm_euler_yzx_quat(dir, itemQuat);
 	mat4 rotMat;
 	glm_quat_mat4(itemQuat, rotMat);
 

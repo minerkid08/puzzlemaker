@@ -1,22 +1,12 @@
-#include "assetManager.h"
 #include "renderer/renderer.h"
 #include <cglm/cglm.h>
 #include "voxel/voxel.h"
 #include "utils.h"
-
-static unsigned int texture;
-
-void initVoxelRenderer()
-{
-	texture = assetManagerLoadTexture("wall.png");
-}
-
-#define col(dir)                                                                                                       \
-	(selected && (dir == currentDir || not2d) ? selectCol : (voxel->portalability[dir] ? portalCol : normalCol))
+#include "voxel/voxelConfig.h"
 
 void drawVoxels(vec3 cameraPos, vec3 cameraRot)
 {
-	bindTexture(texture);
+	bindVoxelTextures(voxelConfig.blackEditor, voxelConfig.whiteEditor);
 
 	mat4 camMat;
 	glm_mat4_identity(camMat);
@@ -47,11 +37,18 @@ void drawVoxels(vec3 cameraPos, vec3 cameraRot)
 				{
 					ivec3 pos = {x, y, z};
 
+          vec4 tint = {1, 1, 1, 1};
 					char selected;
 					if (multiselect)
 						selected = pointInRange(pos, currentVoxelPos, currentVoxel2Pos);
 					else
 						selected = (voxel == currentVoxel);
+          if(selected)
+          {
+            tint[0] = 0;
+            tint[1] = 1;
+            tint[2] = 0;
+          }
 
 					if (z + 1 < MAP_SIZE)
 					{
@@ -60,7 +57,7 @@ void drawVoxels(vec3 cameraPos, vec3 cameraRot)
 						{
 							vec3 verts[4] = {
 								{x, y, z + 1}, {x + 1, y, z + 1}, {x, y + 1, z + 1}, {x + 1, y + 1, z + 1}};
-							drawVerts(verts, col(DIR_POS_Z));
+							drawVerts(verts, tint, voxel->portalability[DIR_POS_Z]);
 						}
 					}
 
@@ -70,7 +67,7 @@ void drawVoxels(vec3 cameraPos, vec3 cameraRot)
 						if (!v2->solid)
 						{
 							vec3 verts[4] = {{x, y, z}, {x, y + 1, z}, {x + 1, y, z}, {x + 1, y + 1, z}};
-							drawVerts(verts, col(DIR_NEG_Z));
+							drawVerts(verts, tint, voxel->portalability[DIR_NEG_Z]);
 						}
 					}
 
@@ -81,7 +78,7 @@ void drawVoxels(vec3 cameraPos, vec3 cameraRot)
 						{
 							vec3 verts[4] = {
 								{x + 1, y, z}, {x + 1, y + 1, z}, {x + 1, y, z + 1}, {x + 1, y + 1, z + 1}};
-							drawVerts(verts, col(DIR_POS_X));
+							drawVerts(verts, tint, voxel->portalability[DIR_POS_X]);
 						}
 					}
 
@@ -91,7 +88,7 @@ void drawVoxels(vec3 cameraPos, vec3 cameraRot)
 						if (!v2->solid)
 						{
 							vec3 verts[4] = {{x, y, z}, {x, y, z + 1}, {x, y + 1, z}, {x, y + 1, z + 1}};
-							drawVerts(verts, col(DIR_NEG_X));
+							drawVerts(verts, tint, voxel->portalability[DIR_NEG_X]);
 						}
 					}
 
@@ -102,7 +99,7 @@ void drawVoxels(vec3 cameraPos, vec3 cameraRot)
 						{
 							vec3 verts[4] = {
 								{x, y + 1, z}, {x, y + 1, z + 1}, {x + 1, y + 1, z}, {x + 1, y + 1, z + 1}};
-							drawVerts(verts, col(DIR_POS_Y));
+							drawVerts(verts, tint, voxel->portalability[DIR_POS_Y]);
 						}
 					}
 
@@ -112,7 +109,7 @@ void drawVoxels(vec3 cameraPos, vec3 cameraRot)
 						if (!v2->solid)
 						{
 							vec3 verts[4] = {{x, y, z}, {x + 1, y, z}, {x, y, z + 1}, {x + 1, y, z + 1}};
-							drawVerts(verts, col(DIR_NEG_Y));
+							drawVerts(verts, tint, voxel->portalability[DIR_NEG_Y]);
 						}
 					}
 				}

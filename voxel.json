@@ -1,6 +1,6 @@
 {
-	"blackEditor": "blackWall.png",
-	"whiteEditor": "whiteWall.png",
+	"blackEditor": "blackVoxel.png",
+	"whiteEditor": "whiteVoxel.png",
 	"nodraw": "TOOLS/TOOLSNODRAW",
 	"blackFloor": "METAL/BLACK_FLOOR_METAL_001C",
 	"blackWall": "METAL/BLACK_WALL_METAL_002A",

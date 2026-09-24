@@ -126,6 +126,14 @@ void initRenderer()
 	}
 }
 
+void bindVoxelTextures(unsigned int black, unsigned int white)
+{
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, black);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, white);
+}
+
 void bindTexture(unsigned int texture)
 {
 	glActiveTexture(GL_TEXTURE0);
@@ -140,7 +148,8 @@ void endFrame()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib);
 	glUseProgram(prgmId);
 
-	setUndformi(prgmId, "tex", 0);
+	setUndformi(prgmId, "blackTex", 0);
+	setUndformi(prgmId, "whiteTex", 1);
 	setUniformMat4(prgmId, "cam", camMat);
 	setUniformMat4(prgmId, "mat", projMat);
 
@@ -152,13 +161,14 @@ void endFrame()
 	quadCount = 0;
 }
 
-void drawVerts(vec3* positions, vec4 tint)
+void drawVerts(vec3* positions, vec4 tint, char portalable)
 {
 	for (int i = 0; i < 4; i++)
 	{
 		memcpy(verts[i].pos, positions[i], sizeof(float) * 3);
 		memcpy(verts[i].tint, tint, sizeof(float) * 4);
 		verts[i].pos[3] = 1.0f;
+    verts[i].mat = portalable;
 	}
 
 	verts[0].uv[0] = 0;

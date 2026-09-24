@@ -29528,7 +29528,7 @@
 			"y":	7,
 			"z":	20,
 			"solid":	true,
-			"portal0":	false,
+			"portal0":	true,
 			"portal1":	false,
 			"portal2":	false,
 			"portal3":	false,
@@ -29814,7 +29814,7 @@
 			"y":	8,
 			"z":	20,
 			"solid":	true,
-			"portal0":	false,
+			"portal0":	true,
 			"portal1":	false,
 			"portal2":	false,
 			"portal3":	false,
@@ -31937,7 +31937,7 @@
 			"y":	7,
 			"z":	21,
 			"solid":	true,
-			"portal0":	false,
+			"portal0":	true,
 			"portal1":	false,
 			"portal2":	false,
 			"portal3":	false,
@@ -32223,7 +32223,7 @@
 			"y":	8,
 			"z":	21,
 			"solid":	true,
-			"portal0":	false,
+			"portal0":	true,
 			"portal1":	false,
 			"portal2":	false,
 			"portal3":	false,
@@ -44635,8 +44635,26 @@
 			"outputs":	[],
 			"kv":	{
 			}
+		}, {
+			"index":	40,
+			"id":	"light",
+			"pos":	[11, 8.25, 19.75],
+			"rot":	[-90, -89.999992370605469, 0],
+			"snapDir":	0,
+			"outputs":	[],
+			"kv":	{
+			}
+		}, {
+			"index":	41,
+			"id":	"light",
+			"pos":	[11, 8.25, 22.25],
+			"rot":	[-90, -89.999992370605469, 0],
+			"snapDir":	0,
+			"outputs":	[],
+			"kv":	{
+			}
 		}],
-	"itemCount":	40,
+	"itemCount":	42,
 	"settings":	{
 		"regen":	1,
 		"boots":	0,

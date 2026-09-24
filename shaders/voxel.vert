@@ -10,9 +10,11 @@ uniform mat4 cam;
 
 out vec2 iuv;
 out vec4 itint;
+flat out int imatId;
 
 void main()
 {
+  imatId = matId;
   iuv = uv;
   itint = tint;
   gl_Position = mat * cam * pos;

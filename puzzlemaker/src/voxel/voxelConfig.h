@@ -15,3 +15,7 @@ typedef struct
 	const char* whiteWall;
 	const char* whiteCeiling;
 } VoxelConfig;
+
+extern VoxelConfig voxelConfig;
+
+void loadVoxelConfig();

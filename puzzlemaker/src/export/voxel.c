@@ -1,25 +1,18 @@
 #include "voxel/voxel.h"
 #include "export/brush.h"
 #include "utils.h"
-
-const char* matNodraw = "TOOLS/TOOLSNODRAW";
-const char* matBlackFloor = "METAL/BLACK_FLOOR_METAL_001C";
-const char* matBlackWall = "METAL/BLACK_WALL_METAL_002A";
-const char* matBlackCeiling = "METAL/BLACK_CEILING_METAL_001A";
-const char* matWhiteFloor = "TILE/WHITE_FLOOR_TILE002A";
-const char* matWhiteWall = "TILE/WHITE_WALL_STATE";
-const char* matWhiteCeiling = "TILE/WHITE_CEILING_TILE002A";
+#include "voxel/voxelConfig.h"
 
 const char* getMat(Voxel* voxel, int dir)
 {
 	char portal = voxel->portalability[dir];
 	if (dir == DIR_POS_Y)
-		return (portal ? matWhiteFloor : matBlackFloor);
+		return (portal ? voxelConfig.whiteFloor : voxelConfig.blackFloor);
 
 	if (dir == DIR_NEG_Y)
-		return (portal ? matWhiteCeiling : matBlackCeiling);
+		return (portal ? voxelConfig.whiteCeiling : voxelConfig.blackCeiling);
 
-	return (portal ? matWhiteWall : matBlackWall);
+	return (portal ? voxelConfig.whiteWall : voxelConfig.blackWall);
 }
 
 void exportVoxel(Voxel* voxel, ivec3 pos, ivec3 size)
@@ -37,7 +30,7 @@ void exportVoxel(Voxel* voxel, ivec3 pos, ivec3 size)
 	for (int i = 0; i < 6; i++)
 	{
 		Side* side = &brush->sides[i];
-		side->material = matNodraw;
+		side->material = voxelConfig.nodraw;
 	}
 
 	int x = pos[0];

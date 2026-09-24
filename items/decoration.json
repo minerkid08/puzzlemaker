@@ -12,7 +12,7 @@
   {
     "type": "volume",
     "name": "small-blocks",
-    "editorTexture": "wall.png",
+    "editorTexture": "blackVoxel.png",
     "texture": {
       "top": "METAL/BLACK_FLOOR_METAL_001C",
       "bottom": "METAL/BLACK_CEILING_METAL_001A",

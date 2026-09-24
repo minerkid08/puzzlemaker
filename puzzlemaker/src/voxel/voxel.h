@@ -8,10 +8,6 @@
 #define inRange(x, y, z) (x >= 0 && x < MAP_SIZE && y >= 0 && y < MAP_SIZE && z >= 0 && z < MAP_SIZE)
 #define canPush(x, y, z) (x > 0 && x < MAP_SIZE - 1 && y > 0 && y < MAP_SIZE - 1 && z > 0 && z < MAP_SIZE - 1)
 
-#define normalCol (vec4){1, 1, 1, 1}
-#define portalCol (vec4){1.5, 1.5, 1.5, 1}
-#define selectCol (vec4){0, 1, 0, 1}
-
 typedef struct
 {
 	char solid;

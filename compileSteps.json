@@ -6,15 +6,15 @@
 		},
 		{
 			"name": "vbsp",
-			"cmd": "%b/vbsp -game p2ce -leaktest sdk_content/maps/puzzlemakerMaps/%f.vmf"
+			"cmd": "wine %b/vbsp.exe -game p2ce -leaktest sdk_content/maps/puzzlemakerMaps/%f.vmf"
 		},
 		{
 			"name": "vvis",
-			"cmd": "%b/vvis -game p2ce sdk_content/maps/puzzlemakerMaps/%f.vmf"
+			"cmd": "wine %b/vvis.exe -game p2ce sdk_content/maps/puzzlemakerMaps/%f.vmf"
 		},
 		{
 			"name": "vrad",
-			"cmd": "%b/vrad -game p2ce sdk_content/maps/puzzlemakerMaps/%f.vmf"
+			"cmd": "wine %b/vrad.exe -game p2ce sdk_content/maps/puzzlemakerMaps/%f.vmf"
 		},
 		{
 			"name": "cp2",
@@ -22,5 +22,5 @@
 		}
 	],
 	"p2ce": "/home/minerkid08/.steam/steam/steamapps/common/Portal% 2% Community% Edition",
-	"bin": "bin/linux64"
+	"bin": "bin/win64"
 }

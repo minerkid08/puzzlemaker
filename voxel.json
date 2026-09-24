@@ -1,0 +1,11 @@
+{
+	"blackEditor": "blackWall.png",
+	"whiteEditor": "whiteWall.png",
+	"nodraw": "TOOLS/TOOLSNODRAW",
+	"blackFloor": "METAL/BLACK_FLOOR_METAL_001C",
+	"blackWall": "METAL/BLACK_WALL_METAL_002A",
+	"blackCeiling": "METAL/BLACK_CEILING_METAL_001A",
+	"whiteFloor": "TILE/WHITE_FLOOR_TILE002A",
+	"whiteWall": "TILE/WHITE_WALL_STATE",
+	"whiteCeiling": "TILE/WHITE_CEILING_TILE002A"
+}

@@ -13,6 +13,7 @@
 
 #include <cjson.h>
 #include <dynList.h>
+#include <math.h>
 #include <string.h>
 
 extern Item* itemList;
@@ -92,16 +93,17 @@ Item* getIntersectingItem(vec3 pos)
 	return 0;
 }
 
-void getEulerAngles(vec4 quat, vec3 out)
+void getEulerAngles(mat4 mat, vec3 out)
 {
-	double r11 = -2 * (quat[0] * quat[2] - quat[3] * quat[1]);
-	double r12 = quat[3] * quat[3] + quat[0] * quat[0] - quat[1] * quat[1] - quat[2] * quat[2];
-	double r21 = 2 * (quat[0] * quat[1] + quat[3] * quat[2]);
-	double r31 = -2 * (quat[1] * quat[2] - quat[3] * quat[0]);
-	double r32 = quat[3] * quat[3] - quat[0] * quat[0] + quat[1] * quat[1] - quat[2] * quat[2];
-	out[0] = atan2(r31, r32);
-	out[1] = asin(r21);
-	out[2] = atan2(r11, r12);
+	double t1 = atan2(-mat[0][2], mat[0][0]);
+	double c2 = sqrt(mat[1][1] * mat[1][1] + mat[2][1] * mat[2][1]);
+	double t2 = atan2(mat[0][1], c2);
+	double s1 = sin(t1);
+	double c1 = cos(t1);
+	double t3 = atan2(s1 * mat[1][0] + c1 * mat[1][2], s1 * mat[2][0] + c1 * mat[2][2]);
+	out[1] = t1;
+	out[2] = t2;
+	out[0] = t3;
 }
 
 void updateItemTransform(Item* item)
@@ -116,37 +118,7 @@ void updateItemTransform(Item* item)
 	glm_quat_mat4(itemQuat, rotMat);
 
 	vec3 dir;
-  //glm_euler_angles(rotMat, dir);
-	getEulerAngles(itemQuat, dir);
-	item->dir[0] = glm_deg(dir[0]);
-	item->dir[1] = glm_deg(dir[1]);
-	item->dir[2] = glm_deg(dir[2]);
-
-	glm_mat4_mul(transform, rotMat, transform);
-
-	memcpy(item->transform, transform, sizeof(mat4));
-}
-
-void updateItemTransform2(Item* item)
-{
-	mat4 transform;
-	glm_mat4_identity(transform);
-	glm_translate(transform, item->pos);
-
-	mat4 rotMat;
-	vec4 itemQuat;
-	memcpy(itemQuat, item->quat, sizeof(vec4));
-	glm_quat_mat4(itemQuat, rotMat);
-
-	printf("%.2f, %.2f, %.2f, %.2f\n", rotMat[0][0], rotMat[0][1], rotMat[0][2], rotMat[0][3]);
-	printf("%.2f, %.2f, %.2f, %.2f\n", rotMat[1][0], rotMat[1][1], rotMat[1][2], rotMat[1][3]);
-	printf("%.2f, %.2f, %.2f, %.2f\n", rotMat[2][0], rotMat[2][1], rotMat[2][2], rotMat[2][3]);
-	printf("%.2f, %.2f, %.2f, %.2f\n", rotMat[3][0], rotMat[3][1], rotMat[3][2], rotMat[3][3]);
-	printf("----------------------\n");
-
-	vec3 dir;
-  //glm_euler_angles(rotMat, dir);
-	getEulerAngles(itemQuat, dir);
+	getEulerAngles(rotMat, dir);
 	item->dir[0] = glm_deg(dir[0]);
 	item->dir[1] = glm_deg(dir[1]);
 	item->dir[2] = glm_deg(dir[2]);

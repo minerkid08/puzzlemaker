@@ -102,7 +102,7 @@ void exportEntityAddKvss(Entity* ent, const char* key, const char* value)
 	ent->kvs[len] = strdup(buf);
 }
 
-void exportEntityAddBrush(Entity* ent, int brush)
+void exportEntityAddBrush(Entity* ent, Brush* brush)
 {
 	int i = 0;
   int* arr = ent->brushes;
@@ -114,8 +114,8 @@ void exportEntityAddBrush(Entity* ent, int brush)
 		dynList_resize((void**)&arr, len + 1);
 		i = len;
 	}
-  getBrushArray()[brush].ent = 1;
-	arr[i] = brush;
+	brush->ent = 1;
+	arr[i] = brush->id - 1;
   ent->brushes = arr;
 }
 

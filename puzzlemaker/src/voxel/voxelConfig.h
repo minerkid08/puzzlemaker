@@ -6,6 +6,7 @@ typedef struct
 	int whiteEditor;
 
 	const char* nodraw;
+	const char* backstage;
 
 	const char* blackFloor;
 	const char* blackWall;
@@ -14,6 +15,14 @@ typedef struct
 	const char* whiteFloor;
 	const char* whiteWall;
 	const char* whiteCeiling;
+
+	const char* blackFloorMini;
+	const char* blackWallMini;
+	const char* blackCeilingMini;
+
+	const char* whiteFloorMini;
+	const char* whiteWallMini;
+	const char* whiteCeilingMini;
 } VoxelConfig;
 
 extern VoxelConfig voxelConfig;

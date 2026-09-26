@@ -310,8 +310,7 @@ void panelItemRender(Item* item)
 static void addBrush(Entity* entity, vec3 start, vec3 end, const char* mat, const char* zTex, mat4 transform,
 					 int texSize, const char* altTex, int altSize)
 {
-	int brushId;
-	Brush* brush = exportCreateBrush(start, end, &brushId);
+	Brush* brush = exportCreateBrush(start, end);
 	for (int i = 0; i < 6; i++)
 	{
 		Side* side = &brush->sides[i];
@@ -342,7 +341,7 @@ static void addBrush(Entity* entity, vec3 start, vec3 end, const char* mat, cons
 			side->material = zTex;
 	}
 	if (entity)
-		exportEntityAddBrush(entity, brushId);
+		exportEntityAddBrush(entity, brush);
 }
 
 void panelItemSave(Item* item, cJSON* json)

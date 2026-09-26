@@ -62,7 +62,7 @@ entity
 {
 	"id" "12"
 	"classname" "prop_static"
-	"angles" "-89.9999 270 0"
+	"angles" "-90 270 0"
 	"fademindist" "-1"
 	"fadescale" "1"
 	"model" "models/props_lab/glass_lightcover.mdl"
@@ -70,9 +70,9 @@ entity
 	"rendercolor" "255 255 255"
 	"scale" "1 1 1"
 	"skin" "0"
-	"solid" "6"
+	"solid" "0"
 	"uniformscale" "1"
-	"origin" "0 0 1"
+	"origin" "0 0 0.01"
 	editor
 	{
 		"color" "255 255 0"

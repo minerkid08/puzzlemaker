@@ -60,6 +60,14 @@ void jsonGetVec3(const cJSON* json, const char* name, vec3 out)
 	out[2] = jsonArrGetFloat(j, 2);
 }
 
+char jsonGetBoolC(const cJSON* json, const char* name, char def)
+{
+	cJSON* j = cJSON_GetObjectItem(json, name);
+  if(j == 0)
+		return def;
+	return j->type == cJSON_True;
+}
+
 const char* jsonArrGetStr(const cJSON* json, int i)
 {
 	cJSON* j = cJSON_GetArrayItem(json, i);

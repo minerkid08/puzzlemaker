@@ -972,7 +972,7 @@
 			"y":	5,
 			"z":	3,
 			"solid":	true,
-			"portal0":	false,
+			"portal0":	true,
 			"portal1":	false,
 			"portal2":	false,
 			"portal3":	false,
@@ -1148,7 +1148,7 @@
 			"y":	6,
 			"z":	3,
 			"solid":	true,
-			"portal0":	false,
+			"portal0":	true,
 			"portal1":	false,
 			"portal2":	false,
 			"portal3":	false,
@@ -2094,7 +2094,7 @@
 			"y":	5,
 			"z":	4,
 			"solid":	true,
-			"portal0":	false,
+			"portal0":	true,
 			"portal1":	false,
 			"portal2":	false,
 			"portal3":	false,
@@ -2270,7 +2270,7 @@
 			"y":	6,
 			"z":	4,
 			"solid":	true,
-			"portal0":	false,
+			"portal0":	true,
 			"portal1":	false,
 			"portal2":	false,
 			"portal3":	false,
@@ -3359,7 +3359,7 @@
 			"y":	5,
 			"z":	5,
 			"solid":	true,
-			"portal0":	false,
+			"portal0":	true,
 			"portal1":	false,
 			"portal2":	false,
 			"portal3":	false,
@@ -3535,7 +3535,7 @@
 			"y":	6,
 			"z":	5,
 			"solid":	true,
-			"portal0":	false,
+			"portal0":	true,
 			"portal1":	false,
 			"portal2":	false,
 			"portal3":	false,
@@ -4624,7 +4624,7 @@
 			"y":	5,
 			"z":	6,
 			"solid":	true,
-			"portal0":	false,
+			"portal0":	true,
 			"portal1":	false,
 			"portal2":	false,
 			"portal3":	false,
@@ -4800,7 +4800,7 @@
 			"y":	6,
 			"z":	6,
 			"solid":	true,
-			"portal0":	false,
+			"portal0":	true,
 			"portal1":	false,
 			"portal2":	false,
 			"portal3":	false,
@@ -5889,7 +5889,7 @@
 			"y":	5,
 			"z":	7,
 			"solid":	true,
-			"portal0":	false,
+			"portal0":	true,
 			"portal1":	false,
 			"portal2":	false,
 			"portal3":	false,
@@ -6065,7 +6065,7 @@
 			"y":	6,
 			"z":	7,
 			"solid":	true,
-			"portal0":	false,
+			"portal0":	true,
 			"portal1":	false,
 			"portal2":	false,
 			"portal3":	false,
@@ -7154,7 +7154,7 @@
 			"y":	5,
 			"z":	8,
 			"solid":	true,
-			"portal0":	false,
+			"portal0":	true,
 			"portal1":	false,
 			"portal2":	false,
 			"portal3":	false,
@@ -7330,7 +7330,7 @@
 			"y":	6,
 			"z":	8,
 			"solid":	true,
-			"portal0":	false,
+			"portal0":	true,
 			"portal1":	false,
 			"portal2":	false,
 			"portal3":	false,
@@ -8452,7 +8452,7 @@
 			"y":	5,
 			"z":	9,
 			"solid":	true,
-			"portal0":	false,
+			"portal0":	true,
 			"portal1":	false,
 			"portal2":	false,
 			"portal3":	false,
@@ -8628,7 +8628,7 @@
 			"y":	6,
 			"z":	9,
 			"solid":	true,
-			"portal0":	false,
+			"portal0":	true,
 			"portal1":	false,
 			"portal2":	false,
 			"portal3":	false,
@@ -18411,7 +18411,7 @@
 			"portal1":	false,
 			"portal2":	false,
 			"portal3":	false,
-			"portal4":	false,
+			"portal4":	true,
 			"portal5":	false
 		}, {
 			"x":	18,
@@ -18422,7 +18422,7 @@
 			"portal1":	false,
 			"portal2":	false,
 			"portal3":	false,
-			"portal4":	false,
+			"portal4":	true,
 			"portal5":	false
 		}, {
 			"x":	19,
@@ -18686,7 +18686,7 @@
 			"portal1":	false,
 			"portal2":	false,
 			"portal3":	false,
-			"portal4":	false,
+			"portal4":	true,
 			"portal5":	false
 		}, {
 			"x":	18,
@@ -18697,7 +18697,7 @@
 			"portal1":	false,
 			"portal2":	false,
 			"portal3":	false,
-			"portal4":	false,
+			"portal4":	true,
 			"portal5":	false
 		}, {
 			"x":	19,
@@ -18961,7 +18961,7 @@
 			"portal1":	false,
 			"portal2":	false,
 			"portal3":	false,
-			"portal4":	false,
+			"portal4":	true,
 			"portal5":	false
 		}, {
 			"x":	18,
@@ -18972,7 +18972,7 @@
 			"portal1":	false,
 			"portal2":	false,
 			"portal3":	false,
-			"portal4":	false,
+			"portal4":	true,
 			"portal5":	false
 		}, {
 			"x":	19,
@@ -19236,7 +19236,7 @@
 			"portal1":	false,
 			"portal2":	false,
 			"portal3":	false,
-			"portal4":	false,
+			"portal4":	true,
 			"portal5":	false
 		}, {
 			"x":	18,
@@ -19247,7 +19247,7 @@
 			"portal1":	false,
 			"portal2":	false,
 			"portal3":	false,
-			"portal4":	false,
+			"portal4":	true,
 			"portal5":	false
 		}, {
 			"x":	19,
@@ -19511,7 +19511,7 @@
 			"portal1":	false,
 			"portal2":	false,
 			"portal3":	false,
-			"portal4":	false,
+			"portal4":	true,
 			"portal5":	false
 		}, {
 			"x":	18,
@@ -19522,7 +19522,7 @@
 			"portal1":	false,
 			"portal2":	false,
 			"portal3":	false,
-			"portal4":	false,
+			"portal4":	true,
 			"portal5":	false
 		}, {
 			"x":	19,
@@ -19786,7 +19786,7 @@
 			"portal1":	false,
 			"portal2":	false,
 			"portal3":	false,
-			"portal4":	false,
+			"portal4":	true,
 			"portal5":	false
 		}, {
 			"x":	18,
@@ -19797,7 +19797,7 @@
 			"portal1":	false,
 			"portal2":	false,
 			"portal3":	false,
-			"portal4":	false,
+			"portal4":	true,
 			"portal5":	false
 		}, {
 			"x":	19,
@@ -37565,28 +37565,6 @@
 			"portal4":	false,
 			"portal5":	false
 		}, {
-			"x":	3,
-			"y":	1,
-			"z":	24,
-			"solid":	true,
-			"portal0":	false,
-			"portal1":	false,
-			"portal2":	false,
-			"portal3":	false,
-			"portal4":	false,
-			"portal5":	false
-		}, {
-			"x":	4,
-			"y":	1,
-			"z":	24,
-			"solid":	true,
-			"portal0":	false,
-			"portal1":	false,
-			"portal2":	false,
-			"portal3":	false,
-			"portal4":	false,
-			"portal5":	false
-		}, {
 			"x":	18,
 			"y":	1,
 			"z":	24,
@@ -37697,7 +37675,7 @@
 			"portal4":	false,
 			"portal5":	false
 		}, {
-			"x":	2,
+			"x":	3,
 			"y":	2,
 			"z":	24,
 			"solid":	true,
@@ -37708,21 +37686,10 @@
 			"portal4":	false,
 			"portal5":	false
 		}, {
-			"x":	3,
-			"y":	2,
-			"z":	24,
-			"solid":	false,
-			"portal0":	false,
-			"portal1":	false,
-			"portal2":	false,
-			"portal3":	false,
-			"portal4":	false,
-			"portal5":	false
-		}, {
 			"x":	4,
 			"y":	2,
 			"z":	24,
-			"solid":	false,
+			"solid":	true,
 			"portal0":	false,
 			"portal1":	false,
 			"portal2":	false,
@@ -40029,28 +39996,6 @@
 			"portal4":	false,
 			"portal5":	false
 		}, {
-			"x":	3,
-			"y":	1,
-			"z":	25,
-			"solid":	true,
-			"portal0":	false,
-			"portal1":	false,
-			"portal2":	false,
-			"portal3":	false,
-			"portal4":	false,
-			"portal5":	false
-		}, {
-			"x":	4,
-			"y":	1,
-			"z":	25,
-			"solid":	true,
-			"portal0":	false,
-			"portal1":	false,
-			"portal2":	false,
-			"portal3":	false,
-			"portal4":	false,
-			"portal5":	false
-		}, {
 			"x":	18,
 			"y":	1,
 			"z":	25,
@@ -40161,7 +40106,7 @@
 			"portal4":	false,
 			"portal5":	false
 		}, {
-			"x":	2,
+			"x":	3,
 			"y":	2,
 			"z":	25,
 			"solid":	true,
@@ -40172,21 +40117,10 @@
 			"portal4":	false,
 			"portal5":	false
 		}, {
-			"x":	3,
-			"y":	2,
-			"z":	25,
-			"solid":	false,
-			"portal0":	false,
-			"portal1":	false,
-			"portal2":	false,
-			"portal3":	false,
-			"portal4":	false,
-			"portal5":	false
-		}, {
 			"x":	4,
 			"y":	2,
 			"z":	25,
-			"solid":	false,
+			"solid":	true,
 			"portal0":	false,
 			"portal1":	false,
 			"portal2":	false,
@@ -42484,28 +42418,6 @@
 		}, {
 			"x":	26,
 			"y":	1,
-			"z":	26,
-			"solid":	true,
-			"portal0":	false,
-			"portal1":	false,
-			"portal2":	false,
-			"portal3":	false,
-			"portal4":	false,
-			"portal5":	false
-		}, {
-			"x":	3,
-			"y":	2,
-			"z":	26,
-			"solid":	true,
-			"portal0":	false,
-			"portal1":	false,
-			"portal2":	false,
-			"portal3":	false,
-			"portal4":	false,
-			"portal5":	false
-		}, {
-			"x":	4,
-			"y":	2,
 			"z":	26,
 			"solid":	true,
 			"portal0":	false,
@@ -44230,7 +44142,7 @@
 			"id":	"funnel",
 			"pos":	[4, 3, 25],
 			"rot":	[0, 0, 0],
-			"snapDir":	6,
+			"snapDir":	2,
 			"outputs":	[],
 			"kv":	{
 				"enabled":	true,
@@ -44640,7 +44552,7 @@
 			"id":	"light",
 			"pos":	[11, 8.25, 19.75],
 			"rot":	[-90, -89.999992370605469, 0],
-			"snapDir":	0,
+			"snapDir":	6,
 			"outputs":	[],
 			"kv":	{
 			}
@@ -44649,12 +44561,57 @@
 			"id":	"light",
 			"pos":	[11, 8.25, 22.25],
 			"rot":	[-90, -89.999992370605469, 0],
-			"snapDir":	0,
+			"snapDir":	6,
+			"outputs":	[],
+			"kv":	{
+			}
+		}, {
+			"index":	42,
+			"id":	"light",
+			"pos":	[3, 7.25, 4.25],
+			"rot":	[0, 0, -90],
+			"snapDir":	6,
+			"outputs":	[],
+			"kv":	{
+			}
+		}, {
+			"index":	43,
+			"id":	"light",
+			"pos":	[3, 7.25, 6.25],
+			"rot":	[0, 0, -90],
+			"snapDir":	6,
+			"outputs":	[],
+			"kv":	{
+			}
+		}, {
+			"index":	44,
+			"id":	"light",
+			"pos":	[2.9999980926513672, 7.25, 8.25],
+			"rot":	[0, 0, -90],
+			"snapDir":	6,
+			"outputs":	[],
+			"kv":	{
+			}
+		}, {
+			"index":	45,
+			"id":	"light",
+			"pos":	[3, 5.25, 15.25],
+			"rot":	[0, 0, -90],
+			"snapDir":	6,
+			"outputs":	[],
+			"kv":	{
+			}
+		}, {
+			"index":	46,
+			"id":	"light",
+			"pos":	[3, 5.25, 11.25],
+			"rot":	[0, 0, -90],
+			"snapDir":	6,
 			"outputs":	[],
 			"kv":	{
 			}
 		}],
-	"itemCount":	42,
+	"itemCount":	47,
 	"settings":	{
 		"regen":	1,
 		"boots":	0,

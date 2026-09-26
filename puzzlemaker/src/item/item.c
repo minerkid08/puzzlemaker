@@ -45,50 +45,20 @@ Item* getIntersectingItem(vec3 pos)
 	for (int j = 0; j < count; j++)
 	{
 		Item* item = &itemList[j];
-		vec4 bound1;
-		vec4 bound2;
+		vec4 pos2 = {pos[0], pos[1], pos[2], 1};
 
 		mat4 transform;
-		memcpy(transform, item->transform, sizeof(mat4));
-		memcpy(bound1, item->def->bound1, sizeof(vec4));
-		memcpy(bound2, item->def->bound2, sizeof(vec4));
-		glm_mat4_mulv(transform, bound1, bound1);
-		glm_mat4_mulv(transform, bound2, bound2);
-
-		vec3 p1;
-		memcpy(p1, bound1, 3 * sizeof(float));
-
-		vec3 p2;
-		memcpy(p2, bound1, 3 * sizeof(float));
-		p2[2] = bound2[2];
-
-		vec3 p4;
-		memcpy(p4, bound1, 3 * sizeof(float));
-		p4[0] = bound2[0];
-
-		vec3 p5;
-		memcpy(p5, bound1, 3 * sizeof(float));
-		p5[1] = bound2[1];
-
-		vec3 i;
-		vec3 j;
-		vec3 k;
-		vec3 v;
-
-		glm_vec3_sub(p2, p1, i);
-		glm_vec3_sub(p4, p1, j);
-		glm_vec3_sub(p5, p1, k);
-		glm_vec3_sub(pos, p1, v);
-
-		float a = glm_vec3_dot(v, i);
-		float b = glm_vec3_dot(i, i);
-		float c = glm_vec3_dot(v, j);
-		float d = glm_vec3_dot(j, j);
-		float e = glm_vec3_dot(v, k);
-		float f = glm_vec3_dot(k, k);
-
-		if (0 < a && a < b && 0 < c && c < d && 0 < e && e < f)
-			return item;
+		memcpy(transform, item->invTransform, sizeof(mat4));
+		glm_mat4_mulv(transform, pos2, pos2);
+		vec4* bound1 = &item->def->bound1;
+		vec4* bound2 = &item->def->bound2;
+		if (pos2[0] < (*bound1)[0] || pos2[0] > (*bound2)[0])
+			continue;
+		if (pos2[1] < (*bound1)[1] || pos2[1] > (*bound2)[1])
+			continue;
+		if (pos2[2] < (*bound1)[2] || pos2[2] > (*bound2)[2])
+			continue;
+		return item;
 	}
 	return 0;
 }
@@ -124,8 +94,11 @@ void updateItemTransform(Item* item)
 	item->dir[2] = glm_deg(dir[2]);
 
 	glm_mat4_mul(transform, rotMat, transform);
+	mat4 invTransform;
+	glm_mat4_inv_fast(transform, invTransform);
 
 	memcpy(item->transform, transform, sizeof(mat4));
+	memcpy(item->invTransform, invTransform, sizeof(mat4));
 }
 
 void updateItemTransformRot(Item* item)
@@ -144,7 +117,10 @@ void updateItemTransformRot(Item* item)
 	glm_quat_mat4(itemQuat, rotMat);
 
 	glm_mat4_mul(transform, rotMat, transform);
+	mat4 invTransform;
+	glm_mat4_inv_fast(transform, invTransform);
 
 	memcpy(item->quat, itemQuat, sizeof(vec4));
 	memcpy(item->transform, transform, sizeof(mat4));
+	memcpy(item->invTransform, invTransform, sizeof(mat4));
 }

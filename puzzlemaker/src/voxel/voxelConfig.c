@@ -38,12 +38,21 @@ void loadVoxelConfig()
 		errorf("failed to parse voxel.json\n%s\n", err);
 
 	voxelConfig.nodraw = loadField(json, "nodraw");
+	voxelConfig.backstage= loadField(json, "backstage");
+
 	voxelConfig.blackFloor = loadField(json, "blackFloor");
 	voxelConfig.blackWall = loadField(json, "blackWall");
 	voxelConfig.blackCeiling = loadField(json, "blackCeiling");
-	voxelConfig.whiteFloor = loadField(json, "whiteFLoor");
+	voxelConfig.whiteFloor = loadField(json, "whiteFloor");
 	voxelConfig.whiteWall = loadField(json, "whiteWall");
 	voxelConfig.whiteCeiling = loadField(json, "whiteCeiling");
+
+	voxelConfig.blackFloorMini = loadField(json, "blackFloorMini");
+	voxelConfig.blackWallMini = loadField(json, "blackWallMini");
+	voxelConfig.blackCeilingMini = loadField(json, "blackCeilingMini");
+	voxelConfig.whiteFloorMini = loadField(json, "whiteFloorMini");
+	voxelConfig.whiteWallMini = loadField(json, "whiteWallMini");
+	voxelConfig.whiteCeilingMini = loadField(json, "whiteCeilingMini");
 
 	char* blackEditor = loadField(json, "blackEditor");
 	voxelConfig.blackEditor = assetManagerLoadTexture(blackEditor);

@@ -1,18 +1,33 @@
 #include "voxel/voxel.h"
+#include "dynList.h"
 #include "export/brush.h"
+#include "item/item.h"
 #include "utils.h"
 #include "voxel/voxelConfig.h"
 
 const char* getMat(Voxel* voxel, int dir)
 {
 	char portal = voxel->portalability[dir];
-	if (dir == DIR_POS_Y)
-		return (portal ? voxelConfig.whiteFloor : voxelConfig.blackFloor);
-
-	if (dir == DIR_NEG_Y)
-		return (portal ? voxelConfig.whiteCeiling : voxelConfig.blackCeiling);
-
-	return (portal ? voxelConfig.whiteWall : voxelConfig.blackWall);
+	switch (portal)
+	{
+	case 0: {
+		if (dir == DIR_POS_Y)
+			return voxelConfig.blackFloor;
+		if (dir == DIR_NEG_Y)
+			return voxelConfig.blackCeiling;
+		return voxelConfig.blackWall;
+	}
+	case 1: {
+		if (dir == DIR_POS_Y)
+			return voxelConfig.whiteFloor;
+		if (dir == DIR_NEG_Y)
+			return voxelConfig.whiteCeiling;
+		return voxelConfig.whiteWall;
+	}
+	case 2:
+		return voxelConfig.backstage;
+	}
+	return 0;
 }
 
 void exportVoxel(Voxel* voxel, ivec3 pos, ivec3 size)
@@ -25,7 +40,7 @@ void exportVoxel(Voxel* voxel, ivec3 pos, ivec3 size)
 		end[1] = pos[1] + size[1];
 		end[2] = pos[2] + size[2];
 	}
-	Brush* brush = exportCreateBrush(start, end, 0);
+	Brush* brush = exportCreateBrush(start, end);
 
 	for (int i = 0; i < 6; i++)
 	{
@@ -40,7 +55,7 @@ void exportVoxel(Voxel* voxel, ivec3 pos, ivec3 size)
 	if (z + 1 < MAP_SIZE)
 	{
 		Voxel* v2 = getVoxel(x, y, z + 1);
-		if (!v2->solid)
+		if (!v2->solid || v2->subVoxels)
 		{
 			Side* side = &brush->sides[DIR_POS_Z];
 			side->material = getMat(voxel, DIR_POS_Z);
@@ -50,7 +65,7 @@ void exportVoxel(Voxel* voxel, ivec3 pos, ivec3 size)
 	if (z - 1 >= 0)
 	{
 		Voxel* v2 = getVoxel(x, y, z - 1);
-		if (!v2->solid)
+		if (!v2->solid || v2->subVoxels)
 		{
 			Side* side = &brush->sides[DIR_NEG_Z];
 			side->material = getMat(voxel, DIR_NEG_Z);
@@ -60,7 +75,7 @@ void exportVoxel(Voxel* voxel, ivec3 pos, ivec3 size)
 	if (x + 1 < MAP_SIZE)
 	{
 		Voxel* v2 = getVoxel(x + 1, y, z);
-		if (!v2->solid)
+		if (!v2->solid || v2->subVoxels)
 		{
 			Side* side = &brush->sides[DIR_POS_X];
 			side->material = getMat(voxel, DIR_POS_X);
@@ -70,7 +85,7 @@ void exportVoxel(Voxel* voxel, ivec3 pos, ivec3 size)
 	if (x - 1 >= 0)
 	{
 		Voxel* v2 = getVoxel(x - 1, y, z);
-		if (!v2->solid)
+		if (!v2->solid || v2->subVoxels)
 		{
 			Side* side = &brush->sides[DIR_NEG_X];
 			side->material = getMat(voxel, DIR_NEG_X);
@@ -80,7 +95,7 @@ void exportVoxel(Voxel* voxel, ivec3 pos, ivec3 size)
 	if (y + 1 < MAP_SIZE)
 	{
 		Voxel* v2 = getVoxel(x, y + 1, z);
-		if (!v2->solid)
+		if (!v2->solid || v2->subVoxels)
 		{
 			Side* side = &brush->sides[DIR_POS_Y];
 			side->material = getMat(voxel, DIR_POS_Y);
@@ -90,7 +105,7 @@ void exportVoxel(Voxel* voxel, ivec3 pos, ivec3 size)
 	if (y - 1 >= 0)
 	{
 		Voxel* v2 = getVoxel(x, y - 1, z);
-		if (!v2->solid)
+		if (!v2->solid || v2->subVoxels)
 		{
 			Side* side = &brush->sides[DIR_NEG_Y];
 			side->material = getMat(voxel, DIR_NEG_Y);
@@ -100,6 +115,8 @@ void exportVoxel(Voxel* voxel, ivec3 pos, ivec3 size)
 
 char canMerge(Voxel* a, Voxel* b)
 {
+	if (a->subVoxels || b->subVoxels)
+		return 0;
 	if (a->faces != b->faces)
 		return 0;
 
@@ -212,8 +229,146 @@ void scanZ(Voxel* voxel, int x, int y, int z, int* width, ivec2 tile)
 	}
 }
 
+char itemIntersectsVoxel(Item* item, vec3 pos, float size);
+
+#define SUBVOXEL_xyz 0
+#define SUBVOXEL_Xyz 1
+#define SUBVOXEL_xYz 2
+#define SUBVOXEL_XYz 3
+#define SUBVOXEL_xyZ 4
+#define SUBVOXEL_XyZ 5
+#define SUBVOXEL_xYZ 6
+#define SUBVOXEL_XYZ 7
+
+void checkSubVoxel(Item* item, vec3 pos, float xoff, float yoff, float zoff, Voxel* voxel, char genMissingVoxels)
+{
+	vec3 newPos = {pos[0] + xoff / 2.0f, pos[1] + yoff / 2.0f, pos[2] + zoff / 2.0f};
+	if (itemIntersectsVoxel(item, newPos, 0.5))
+	{
+		if (genMissingVoxels)
+		{
+			if (xoff == 0 && !(voxel->faces & (1 << DIR_NEG_X)))
+				voxel->portalability[DIR_NEG_X] = 1;
+			if (xoff == 1 && !(voxel->faces & (1 << DIR_POS_X)))
+				voxel->portalability[DIR_POS_X] = 1;
+			if (yoff == 0 && !(voxel->faces & (1 << DIR_NEG_Y)))
+				voxel->portalability[DIR_NEG_Y] = 1;
+			if (yoff == 1 && !(voxel->faces & (1 << DIR_POS_Y)))
+				voxel->portalability[DIR_POS_Y] = 1;
+			if (zoff == 0 && !(voxel->faces & (1 << DIR_NEG_Z)))
+				voxel->portalability[DIR_NEG_Z] = 1;
+			if (zoff == 1 && !(voxel->faces & (1 << DIR_POS_Z)))
+				voxel->portalability[DIR_POS_Z] = 1;
+		}
+		if (xoff == 0 && yoff == 0 && zoff == 0)
+			voxel->subVoxels |= (1 << SUBVOXEL_xyz);
+		if (xoff == 1 && yoff == 0 && zoff == 0)
+			voxel->subVoxels |= (1 << SUBVOXEL_Xyz);
+		if (xoff == 0 && yoff == 1 && zoff == 0)
+			voxel->subVoxels |= (1 << SUBVOXEL_xYz);
+		if (xoff == 1 && yoff == 1 && zoff == 0)
+			voxel->subVoxels |= (1 << SUBVOXEL_XYz);
+		if (xoff == 0 && yoff == 0 && zoff == 1)
+			voxel->subVoxels |= (1 << SUBVOXEL_xyZ);
+		if (xoff == 1 && yoff == 0 && zoff == 1)
+			voxel->subVoxels |= (1 << SUBVOXEL_XyZ);
+		if (xoff == 0 && yoff == 1 && zoff == 1)
+			voxel->subVoxels |= (1 << SUBVOXEL_xYZ);
+		if (xoff == 1 && yoff == 1 && zoff == 1)
+			voxel->subVoxels |= (1 << SUBVOXEL_XYZ);
+	}
+}
+void exportSubVoxels(int x, int y, int z, Voxel* voxel)
+{
+	for (int i = 0; i < 8; i++)
+	{
+		if ((voxel->subVoxels & (1 << i)) == 0)
+		{
+			float xoff = (i & 1) ? 0.5f : 0.0f;
+			float yoff = (i & 2) ? 0.5f : 0.0f;
+			float zoff = (i & 4) ? 0.5f : 0.0f;
+			vec3 start = {x + xoff, y + yoff, z + zoff};
+			vec3 end = {x + 0.5f + xoff, y + 0.5f + yoff, z + 0.5f + zoff};
+			Brush* brush = exportCreateBrush(start, end);
+			for (int i = 0; i < 6; i++)
+				brush->sides[i].material = voxelConfig.nodraw;
+
+			if (xoff == 0.0f)
+			{
+				if (voxel->faces & (1 << DIR_NEG_X))
+				{
+					if (voxel->portalability[DIR_NEG_X])
+						brush->sides[DIR_NEG_X].material = voxelConfig.whiteWallMini;
+					else
+						brush->sides[DIR_NEG_X].material = voxelConfig.blackWallMini;
+				}
+				brush->sides[DIR_POS_X].material = voxelConfig.backstage;
+			}
+
+			if (xoff == 0.5f)
+			{
+				if (voxel->faces & (1 << DIR_POS_X))
+				{
+					if (voxel->portalability[DIR_POS_X])
+						brush->sides[DIR_POS_X].material = voxelConfig.whiteWallMini;
+					else
+						brush->sides[DIR_POS_X].material = voxelConfig.blackWallMini;
+				}
+				brush->sides[DIR_NEG_X].material = voxelConfig.backstage;
+			}
+			if (yoff == 0.0f)
+			{
+				if (voxel->faces & (1 << DIR_NEG_Y))
+				{
+					if (voxel->portalability[DIR_NEG_Y])
+						brush->sides[DIR_NEG_Y].material = voxelConfig.whiteCeilingMini;
+					else
+						brush->sides[DIR_NEG_Y].material = voxelConfig.blackCeilingMini;
+				}
+				brush->sides[DIR_POS_Y].material = voxelConfig.backstage;
+			}
+			if (yoff == 0.5f)
+			{
+				if (voxel->faces & (1 << DIR_POS_Y))
+				{
+					if (voxel->portalability[DIR_POS_Y])
+						brush->sides[DIR_POS_Y].material = voxelConfig.whiteFloorMini;
+					else
+						brush->sides[DIR_POS_Y].material = voxelConfig.blackFloorMini;
+				}
+				brush->sides[DIR_NEG_Y].material = voxelConfig.backstage;
+			}
+			if (zoff == 0.0f)
+			{
+				if (voxel->faces & (1 << DIR_NEG_Z))
+				{
+					if (voxel->portalability[DIR_NEG_Z])
+						brush->sides[DIR_NEG_Z].material = voxelConfig.whiteWallMini;
+					else
+						brush->sides[DIR_NEG_Z].material = voxelConfig.blackWallMini;
+				}
+				brush->sides[DIR_POS_Z].material = voxelConfig.backstage;
+			}
+			if (zoff == 0.5f)
+			{
+				if (voxel->faces & (1 << DIR_POS_Z))
+				{
+					if (voxel->portalability[DIR_POS_Z])
+						brush->sides[DIR_POS_Z].material = voxelConfig.whiteWallMini;
+					else
+						brush->sides[DIR_POS_Z].material = voxelConfig.blackWallMini;
+				}
+				brush->sides[DIR_NEG_Z].material = voxelConfig.backstage;
+			}
+		}
+	}
+}
+
 void exportVoxels()
 {
+	Item* items = getItemList();
+	int len = dynList_size(items);
+	printf("item count %d\n", len);
 	for (int z = 0; z < MAP_SIZE; z++)
 	{
 		for (int y = 0; y < MAP_SIZE; y++)
@@ -222,6 +377,7 @@ void exportVoxels()
 			{
 				Voxel* voxel = getVoxel(x, y, z);
 				voxel->faces = 0;
+				voxel->subVoxels = 0;
 				if (!voxel->solid)
 					continue;
 
@@ -266,9 +422,145 @@ void exportVoxels()
 					if (!v2->solid)
 						voxel->faces |= (1 << DIR_NEG_Y);
 				}
+				if (voxel->faces)
+				{
+					vec3 pos = {x, y, z};
+					for (int i = 0; i < len; i++)
+					{
+						Item* item = &items[i];
+						if (item->def->deleteIntersectingVoxels == 0)
+							continue;
+						if (itemIntersectsVoxel(item, pos, 1))
+						{
+							char genMissingVoxels = item->def->genMissingVoxels;
+							checkSubVoxel(item, pos, 0, 0, 0, voxel, genMissingVoxels);
+							checkSubVoxel(item, pos, 1, 0, 0, voxel, genMissingVoxels);
+							checkSubVoxel(item, pos, 0, 1, 0, voxel, genMissingVoxels);
+							checkSubVoxel(item, pos, 1, 1, 0, voxel, genMissingVoxels);
+							checkSubVoxel(item, pos, 0, 0, 1, voxel, genMissingVoxels);
+							checkSubVoxel(item, pos, 1, 0, 1, voxel, genMissingVoxels);
+							checkSubVoxel(item, pos, 0, 1, 1, voxel, genMissingVoxels);
+							checkSubVoxel(item, pos, 1, 1, 1, voxel, genMissingVoxels);
+						}
+					}
+				}
 			}
 		}
 	}
+
+	for (int z = 0; z < MAP_SIZE; z++)
+	{
+		for (int y = 0; y < MAP_SIZE; y++)
+		{
+			for (int x = 0; x < MAP_SIZE; x++)
+			{
+				Voxel* voxel = getVoxel(x, y, z);
+				if (voxel->subVoxels == 0)
+					continue;
+
+				char subVoxels[8];
+				subVoxels[0] = voxel->subVoxels & (1 << 0);
+				subVoxels[1] = voxel->subVoxels & (1 << 1);
+				subVoxels[2] = voxel->subVoxels & (1 << 2);
+				subVoxels[3] = voxel->subVoxels & (1 << 3);
+				subVoxels[4] = voxel->subVoxels & (1 << 4);
+				subVoxels[5] = voxel->subVoxels & (1 << 5);
+				subVoxels[6] = voxel->subVoxels & (1 << 6);
+				subVoxels[7] = voxel->subVoxels & (1 << 7);
+
+				if (z + 1 < MAP_SIZE)
+				{
+					Voxel* v2 = getVoxel(x, y, z + 1);
+					if (v2->solid)
+					{
+						if (subVoxels[SUBVOXEL_xyZ] || subVoxels[SUBVOXEL_XyZ] || subVoxels[SUBVOXEL_xYZ] ||
+							subVoxels[SUBVOXEL_XYZ])
+						{
+							v2->portalability[DIR_NEG_Z] = 2;
+							if (voxel->portalability[DIR_POS_Z])
+								v2->faces |= (1 << DIR_NEG_Z);
+						}
+					}
+				}
+
+				if (z - 1 >= 0)
+				{
+					Voxel* v2 = getVoxel(x, y, z - 1);
+					if (v2->solid)
+					{
+						if (subVoxels[SUBVOXEL_xyz] || subVoxels[SUBVOXEL_Xyz] || subVoxels[SUBVOXEL_xYz] ||
+							subVoxels[SUBVOXEL_XYz])
+						{
+							v2->portalability[DIR_POS_Z] = 2;
+							if (voxel->portalability[DIR_NEG_Z])
+								v2->faces |= (1 << DIR_POS_Z);
+						}
+					}
+				}
+
+				if (x + 1 < MAP_SIZE)
+				{
+					Voxel* v2 = getVoxel(x + 1, y, z);
+					if (v2->solid)
+					{
+						if (subVoxels[SUBVOXEL_Xyz] || subVoxels[SUBVOXEL_XYz] || subVoxels[SUBVOXEL_XyZ] ||
+							subVoxels[SUBVOXEL_XYZ])
+						{
+							v2->portalability[DIR_NEG_X] = 2;
+							if (voxel->portalability[DIR_POS_X])
+								v2->faces |= (1 << DIR_NEG_X);
+						}
+					}
+				}
+
+				if (x - 1 >= 0)
+				{
+					Voxel* v2 = getVoxel(x - 1, y, z);
+					if (v2->solid)
+					{
+						if (subVoxels[SUBVOXEL_xyz] || subVoxels[SUBVOXEL_xYz] || subVoxels[SUBVOXEL_xyZ] ||
+							subVoxels[SUBVOXEL_xYZ])
+						{
+							v2->portalability[DIR_POS_X] = 2;
+							if (voxel->portalability[DIR_NEG_X])
+								v2->faces |= (1 << DIR_POS_X);
+						}
+					}
+				}
+
+				if (y + 1 < MAP_SIZE)
+				{
+					Voxel* v2 = getVoxel(x, y + 1, z);
+					if (v2->solid)
+					{
+						if (subVoxels[SUBVOXEL_xYz] || subVoxels[SUBVOXEL_XYz] || subVoxels[SUBVOXEL_xYZ] ||
+							subVoxels[SUBVOXEL_XYZ])
+						{
+							v2->portalability[DIR_NEG_Y] = 2;
+							if (voxel->portalability[DIR_POS_Y])
+								v2->faces |= (1 << DIR_NEG_Y);
+						}
+					}
+				}
+
+				if (y - 1 >= 0)
+				{
+					Voxel* v2 = getVoxel(x, y - 1, z);
+					if (v2->solid)
+					{
+						if (subVoxels[SUBVOXEL_xyz] || subVoxels[SUBVOXEL_Xyz] || subVoxels[SUBVOXEL_xyZ] ||
+							subVoxels[SUBVOXEL_XyZ])
+						{
+							v2->portalability[DIR_POS_Y] = 2;
+							if (voxel->portalability[DIR_NEG_Y])
+								v2->faces |= (1 << DIR_POS_Y);
+						}
+					}
+				}
+			}
+		}
+	}
+
 	for (int z = 0; z < MAP_SIZE; z++)
 	{
 		for (int y = 0; y < MAP_SIZE; y++)
@@ -278,6 +570,12 @@ void exportVoxels()
 				Voxel* voxel = getVoxel(x, y, z);
 				if (voxel->faces == 0)
 					continue;
+				if (voxel->subVoxels)
+				{
+					exportSubVoxels(x, y, z, voxel);
+					continue;
+				}
+
 				char dir = getVoxelDir(voxel);
 				if (dir == -1)
 				{

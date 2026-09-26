@@ -24,7 +24,7 @@ void exportStartBrushes()
 	dynList_resize((void**)&brushes, 0);
 }
 
-Brush* exportCreateBrush(vec3 start, vec3 end, int* id)
+Brush* exportCreateBrush(vec3 start, vec3 end)
 {
 	float minx = min(start[0], end[0]);
 	float miny = min(start[1], end[1]);
@@ -53,8 +53,6 @@ Brush* exportCreateBrush(vec3 start, vec3 end, int* id)
 	Brush* brush = &brushes[len];
 	brush->id = len + 1;
 	brush->ent = 0;
-	if (id)
-		*id = len;
 
 	for (int i = 0; i < 6; i++)
 	{

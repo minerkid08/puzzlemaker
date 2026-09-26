@@ -124,6 +124,9 @@ void loadItemDefinitionFile(const char* filename)
 		else
 			errorf("unknown type for entity %s\n", def->name);
 
+		def->deleteIntersectingVoxels = jsonGetBoolC(item, "deleteIntersectingVoxels", 0);
+		def->genMissingVoxels = jsonGetBoolC(item, "genMissingVoxels", 1);
+
 		cJSON* keyValues = cJSON_GetObjectItem(item, "keyvalues");
 		len = cJSON_GetArraySize(keyValues);
 		def->kvs = dynList_new(len, sizeof(ItemKvDef));

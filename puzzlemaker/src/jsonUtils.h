@@ -8,6 +8,8 @@ int jsonGetInt(const cJSON* json, const char* name);
 void jsonGetVec2(const cJSON* json, const char* name, vec2 out);
 void jsonGetVec3(const cJSON* json, const char* name, vec3 out);
 
+char jsonGetBoolC(const cJSON* json, const char* name, char def);
+
 const char* jsonArrGetStr(const cJSON* json, int i);
 char jsonArrGetBool(const cJSON* json, int i);
 float jsonArrGetFloat(const cJSON* json, int i);

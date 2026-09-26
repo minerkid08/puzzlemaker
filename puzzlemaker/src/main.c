@@ -424,7 +424,7 @@ void mouseZoomCallback(GLFWwindow* window, double x, double y)
 {
 	if (!viewportHovered)
 		return;
-	cameraPos[0] += forward[0] * y * 0.1;
-	cameraPos[1] += forward[1] * y * 0.1;
-	cameraPos[2] += forward[2] * y * 0.1;
+	cameraPos[0] += forward[0] * y * 0.4;
+	cameraPos[1] += forward[1] * y * 0.4;
+	cameraPos[2] += forward[2] * y * 0.4;
 }

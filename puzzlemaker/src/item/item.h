@@ -70,6 +70,8 @@ typedef struct
 	vec4 bound2;
 	vec3 offset;
   char snapMode;
+	char deleteIntersectingVoxels;
+	char genMissingVoxels;
 } ItemDefinition;
 
 typedef struct
@@ -96,6 +98,7 @@ struct Item
 	vec3 dir;
 	vec4 quat;
 	mat4 transform;
+	mat4 invTransform;
   char snapDir;
 
 	ItemKv* kv;

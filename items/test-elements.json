@@ -293,6 +293,7 @@
     "entity": "env_portal_laser",
     "bound1": [-0.5, -0.5, -0.5],
     "bound2": [0.5, 0.5, 0.5],
+		"deleteIntersectingVoxels": true,
     "keyvalues": [
       {
         "name": "startstate",
@@ -325,6 +326,7 @@
     "entity": "prop_laser_catcher",
     "bound1": [-0.5, -0.5, -0.5],
     "bound2": [0.5, 0.5, 0.5],
+		"deleteIntersectingVoxels": true,
     "keyvalues": [
       {
         "name": "model",
@@ -352,6 +354,7 @@
     "instance": "funnel",
     "bound1": [-1, -1, -1],
     "bound2": [1, 0, 1],
+		"deleteIntersectingVoxels": true,
     "keyvalues": [
       {
         "name": "enabled",

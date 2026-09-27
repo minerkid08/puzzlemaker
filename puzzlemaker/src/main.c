@@ -71,11 +71,7 @@ extern float uiScale;
 
 int main()
 {
-	DIR* dir = opendir("maps");
-	if (dir)
-		closedir(dir);
-	else
-		mkdir("maps", 0777);
+	makeDir("maps");
 
 	startCompileThread();
 	glfwInit();

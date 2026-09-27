@@ -1,13 +1,10 @@
 #include "ui/fileBrowser.h"
+#include "utils.h"
 #include "dynList.h"
 #include "mapsettings.h"
 #include "save.h"
-#include <dirent.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/dir.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 
 #include "cimgui.h"
@@ -18,7 +15,7 @@ static char filename[64];
 static char mode = 0;
 static bool open = 0;
 
-static char** dirs = 0;
+static char** directories = 0;
 static char** files = 0;
 
 static float textboxWidth = 0;
@@ -42,54 +39,24 @@ void scanDir()
 	textboxWidth += style->FramePadding.x * 4;
 	textboxWidth += style->ItemSpacing.x * 2.0f;
 
-	if (dirs == 0)
+	if (directories == 0)
 	{
-		dirs = dynList_new(0, sizeof(char*));
-		dynList_reserve((void**)&dirs, 16);
+		directories = dynList_new(0, sizeof(char*));
+		dynList_reserve((void**)&directories, 16);
 		files = dynList_new(0, sizeof(char*));
 		dynList_reserve((void**)&files, 16);
 	}
 	else
 	{
-		for (int i = 0; i < dynList_size(dirs); i++)
-			free(dirs[i]);
-		dynList_resize((void**)&dirs, 0);
+		for (int i = 0; i < dynList_size(directories); i++)
+			free(directories[i]);
+		dynList_resize((void**)&directories, 0);
 
 		for (int i = 0; i < dynList_size(files); i++)
 			free(files[i]);
 		dynList_resize((void**)&files, 0);
 	}
-
-	struct dirent* en;
-
-	DIR* dir = opendir(path);
-	if (dir)
-	{
-		while ((en = readdir(dir)) != 0)
-		{
-			if (en->d_type == DT_DIR)
-			{
-				if (strcmp(en->d_name, ".") == 0)
-					continue;
-				if (strcmp(en->d_name, "..") == 0)
-					continue;
-				int len = dynList_size(dirs);
-				dynList_resize((void**)&dirs, len + 1);
-				dirs[len] = strdup(en->d_name);
-			}
-
-			int len = strlen(en->d_name);
-			if (strcmp(en->d_name + len - 6, ".chamb") == 0)
-			{
-				int l = dynList_size(files);
-				dynList_resize((void**)&files, l + 1);
-				files[l] = strdup(en->d_name);
-			}
-		}
-		closedir(dir);
-	}
-	else
-		printf("bad directory '%s'\n", path);
+	listFiles(path, (const char***)&directories, (const char***)&files, ".chamb");
 }
 
 void fileBrowserOpen(char mode2)
@@ -136,10 +103,10 @@ void fileBrowserRender()
 	{
 		ImVec4 color = {0.5f, 0.5f, 1.0f, 1.0f};
 		igPushStyleColor_Vec4(ImGuiCol_Text, color);
-		int l = dynList_size(dirs);
+		int l = dynList_size(directories);
 		for (int j = 0; j < l; j++)
 		{
-			const char* dir = dirs[j];
+			const char* dir = directories[j];
 			igPushID_Int(i++);
 			if (igSelectable_Bool(dir, 0, 0, zero))
 			{
@@ -195,7 +162,7 @@ void fileBrowserRender()
 	{
 		strncat(path, "/", 255);
 		strncat(path, filename, 255);
-		mkdir(path, 0777);
+		makeDir(path);
 		scanDir();
 	}
 	igSameLine(0, -1);

@@ -69,7 +69,6 @@ int runCmd(char* cmd)
 		dynList_resize((void**)&data, l + 1);
 		data[l] = 0;
 
-
 		if (chdir(compileStatus.workingDir))
 			perror("chdir");
 
@@ -106,7 +105,10 @@ void* compileThread(void* e)
 					compileStatus.failed = 1;
 			}
 			else
-				runCmd((char*)step->cmd);
+			{
+				if (runCmd((char*)step->cmd))
+					compileStatus.failed = 1;
+			}
 			if (compileStatus.failed || compileStatus.currentStep == -1)
 				break;
 			compileStatus.currentStep++;
@@ -125,7 +127,7 @@ void startCompileThread()
 {
 	pipe(pipefd);
 	pthread_create(&thread, 0, compileThread, 0);
-  loadTaskList();
+	loadTaskList();
 }
 
 #endif

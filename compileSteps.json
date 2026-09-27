@@ -2,25 +2,25 @@
 	"steps": [
 		{
 			"name": "cp1",
-			"cmd": "cp %c/maps/%f.vmf sdk_content/maps/puzzlemakerMaps"
+			"cmd": "%c/cp %c/maps/%f.vmf maps/%f.vmf"
 		},
 		{
 			"name": "vbsp",
-			"cmd": "%b/vbsp -game p2ce -leaktest sdk_content/maps/puzzlemakerMaps/%f.vmf"
+			"cmd": "%c/cp maps/%f.vmf maps/%f2.vmf"
 		},
 		{
 			"name": "vvis",
-			"cmd": "%b/vvis -game p2ce sdk_content/maps/puzzlemakerMaps/%f.vmf"
+			"cmd": "%c/cp maps/%f2.vmf maps/%f3.vmf"
 		},
 		{
 			"name": "vrad",
-			"cmd": "%b/vrad -game p2ce sdk_content/maps/puzzlemakerMaps/%f.vmf"
+			"cmd": "%c/cp maps/%f3.vmf maps/%f4.vmf"
 		},
 		{
 			"name": "cp2",
-			"cmd": "cp sdk_content/maps/puzzlemakerMaps/%f.bsp p2ce/maps"
+			"cmd": "%c/cp maps/%f4.vmf maps/%f5.vmf"
 		}
 	],
-	"p2ce": "/home/minerkid08/.steam/steam/steamapps/common/Portal% 2% Community% Edition",
+	"p2ce": "C:\\p2ce",
 	"bin": "bin/linux64"
 }

@@ -20368,7 +20368,7 @@ entity
   "id" "3"
   "classname" "func_instance"
   "origin" "-256.000000 1600.000000 192.000000"
-  "angles" "0.000000 -0.000000 -0.000000"
+  "angles" "0.000000 0.000000 -0.000000"
   "targetname" "funnel6"
   "file" "puzzlemakerInstances/funnel"
   "replace1" "$enabled 1"

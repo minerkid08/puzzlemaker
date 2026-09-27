@@ -6,7 +6,6 @@
 #include "item/volumeItem.h"
 #include "jsonUtils.h"
 #include "utils.h"
-#include <dirent.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -27,21 +26,23 @@ void loadItemDefinitionFile(const char* filename);
 
 void loadItemDefinitions()
 {
+	const char** files = dynList_new(0, sizeof(const char*));
+
+	listFiles("items", 0, &files, 0);
+
 	definitions = dynList_new(0, sizeof(ItemDefinition));
 	groups = dynList_new(0, sizeof(ItemGroup));
-	struct dirent* en;
 
-	DIR* dir = opendir("items");
-	if (dir == 0)
-		errorf("failed to open items dir\n");
-	while ((en = readdir(dir)) != 0)
+	int len = dynList_size(files);
+	for(int i = 0; i < len; i++)
 	{
-		if (en->d_type == DT_REG)
-			loadItemDefinitionFile(en->d_name);
+			loadItemDefinitionFile(files[i]);
+			free((void*)files[i]);
 	}
-	closedir(dir);
+	dynList_free(files);
 
 	dynList_trim((void**)&definitions);
+	dynList_trim((void**)&groups);
 }
 
 void loadItemDefinitionFile(const char* filename)

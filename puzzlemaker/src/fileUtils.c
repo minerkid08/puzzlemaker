@@ -1,6 +1,6 @@
 #include "dynList.h"
 #include <stdio.h>
-#include <stdlib.h>
+#include <string.h>
 
 #ifdef linux
 #include <dirent.h>
@@ -17,12 +17,12 @@ void listFiles(const char* path, const char*** dirs, const char*** files, const 
 	{
 		while ((en = readdir(dir)) != 0)
 		{
+			if (strcmp(en->d_name, ".") == 0)
+				continue;
+			if (strcmp(en->d_name, "..") == 0)
+				continue;
 			if (en->d_type == DT_DIR && dirs)
 			{
-				if (strcmp(en->d_name, ".") == 0)
-					continue;
-				if (strcmp(en->d_name, "..") == 0)
-					continue;
 				int len = dynList_size(*dirs);
 				dynList_resize((void**)dirs, len + 1);
 				(*dirs)[len] = strdup(en->d_name);
@@ -121,7 +121,7 @@ void listFiles(const char* dirPath, const char*** dirs, const char*** files, con
 
 void makeDir(const char* path)
 {
-	if (!CreateDirectory("C:\\MyNewDirectory", NULL))
+	if (!CreateDirectory(path, NULL))
 	{
 		DWORD error = GetLastError();
 		if (error != ERROR_ALREADY_EXISTS)

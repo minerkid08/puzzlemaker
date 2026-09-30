@@ -1,0 +1,165 @@
+#include "export/brush.h"
+#include "lua/lauxlib.h"
+#include "lua/lua.h"
+#include <string.h>
+#include "api.h"
+
+static int brushNew(lua_State* l);
+static int brushSetTexture(lua_State* l);
+static int brushTransform(lua_State* l);
+
+void addBrushApi(lua_State* l)
+{
+	lua_newtable(l);
+	lua_pushcfunction(l, brushNew);
+	lua_setfield(l, -2, "new");
+	lua_pushcfunction(l, brushSetTexture);
+	lua_setfield(l, -2, "setTexture");
+	lua_pushcfunction(l, brushTransform);
+	lua_setfield(l, -2, "transform");
+	lua_setglobal(l, "Brush");
+}
+
+static int brushNew(lua_State* l)
+{
+	vec3 start;
+	vec3 end;
+
+	getVec3(l, 1, start, "bad arg 1");
+	getVec3(l, 2, end, "bad arg 2");
+
+	Brush* b = exportCreateBrush(start, end);
+	b->script = 1;
+
+	long long id = b->id;
+	lua_newtable(l);
+	lua_pushlightuserdata(l, (void*)id);
+	lua_setfield(l, -2, "id");
+	lua_pushcfunction(l, brushSetTexture);
+	lua_setfield(l, -2, "setTexture");
+	lua_pushcfunction(l, brushTransform);
+	lua_setfield(l, -2, "transform");
+	return 1;
+}
+
+static int brushSetTexture(lua_State* l)
+{
+	if(lua_gettop(l) == 3)
+		lua_pushnil(l);
+	if (lua_type(l, 1) != LUA_TTABLE)
+		luaL_error(l, "bad arg 1, expected Brush");
+	lua_getfield(l, 1, "id");
+	if (lua_type(l, -1) != LUA_TLIGHTUSERDATA)
+		luaL_error(l, "bad arg 1, expected Brush");
+	long long id = (long long)lua_touserdata(l, -1);
+	lua_pop(l, 1);
+
+	if (lua_type(l, 2) != LUA_TNUMBER)
+		luaL_error(l, "bad arg 2, expected number");
+	if (lua_type(l, 3) != LUA_TSTRING)
+		luaL_error(l, "bad arg 3, expected string");
+
+	char type = lua_type(l, 4);
+	if (type != LUA_TNIL && type != LUA_TTABLE)
+		luaL_error(l, "bad arg 4, expected table?");
+
+	char dir = lua_tonumber(l, 2);
+	if (dir < 0 || dir > 5)
+		luaL_error(l, "bad arg 2, dir value is out of range");
+
+	const char* texName = lua_tostring(l, 3);
+
+	Brush* b = &getBrushArray()[id];
+	Side* side = &b->sides[dir];
+
+	if (side->material)
+		free((char*)side->material);
+	side->material = strdup(texName);
+
+	if (type == LUA_TTABLE)
+	{
+		lua_getfield(l, 4, "texSize");
+		type = lua_type(l, -1);
+		if (type != LUA_TNIL)
+		{
+			if (type != LUA_TNUMBER)
+				luaL_error(l, "bad field 'texSize' in arg 4, expected number?");
+			side->texHeight = lua_tonumber(l, -1);
+			side->texWidth = side->texHeight;
+		}
+		lua_pop(l, 1);
+
+		lua_getfield(l, 4, "lightmapScale");
+		type = lua_type(l, -1);
+		if (type != LUA_TNIL)
+		{
+			if (type != LUA_TNUMBER)
+				luaL_error(l, "bad field 'lightmapScale' in arg 4, expected number?");
+			side->lightmapscale = lua_tonumber(l, -1);
+		}
+		lua_pop(l, 1);
+
+		lua_getfield(l, 4, "fit");
+		type = lua_type(l, -1);
+		if (type != LUA_TNIL)
+		{
+			if (type != LUA_TBOOLEAN)
+				luaL_error(l, "bad field 'fit' in arg 4, expected bool?");
+			side->fit = lua_toboolean(l, -1);
+		}
+		lua_pop(l, 1);
+	}
+
+	return 0;
+}
+
+static int brushTransform(lua_State* l)
+{
+	if (lua_type(l, 1) != LUA_TTABLE)
+		luaL_error(l, "bad arg 1, expected Brush");
+	lua_getfield(l, 1, "id");
+	if (lua_type(l, -1) != LUA_TLIGHTUSERDATA)
+		luaL_error(l, "bad arg 1, expected Brush");
+	long long id = (long long)lua_touserdata(l, -1);
+	lua_pop(l, 1);
+
+
+	vec3 pos;
+	vec3 rot;
+
+	getVec3(l, 2, pos, "bad arg 2");
+	getVec3(l, 3, rot, "bad arg 2");
+
+	Brush* brush = &getBrushArray()[id];
+
+	mat4 transform;
+	glm_mat4_identity(transform);
+	glm_translate(transform, pos);
+
+	vec3 dir;
+	vec4 itemQuat;
+	dir[0] = glm_rad(rot[0]);
+	dir[1] = glm_rad(rot[1]);
+	dir[2] = glm_rad(rot[2]);
+	glm_euler_yzx_quat(dir, itemQuat);
+	mat4 rotMat;
+	glm_quat_mat4(itemQuat, rotMat);
+
+	glm_mat4_mul(transform, rotMat, transform);
+
+	for (int i = 0; i < 6; i++)
+	{
+		Side* side = &brush->sides[i];
+
+		for (int j = 0; j < 4; j++)
+		{
+			vec3 res;
+			vec3 vert;
+			memcpy(vert, side->verts[j], sizeof(vec3));
+			glm_mat4_mulv3(transform, vert, 1, res);
+			memcpy(side->verts[j], res, sizeof(vec3));
+		}
+	}
+
+	return 0;
+}

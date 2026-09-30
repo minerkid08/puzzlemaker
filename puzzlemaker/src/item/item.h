@@ -60,6 +60,8 @@ typedef struct
 	const char* name;
 	const char* group;
 
+	const char* exportScript;
+
 	InputDef* inputs;
 	OutputDef* outputs;
 
@@ -100,6 +102,7 @@ struct Item
 	mat4 transform;
 	mat4 invTransform;
   char snapDir;
+  const char* ioEnt;
 
 	ItemKv* kv;
 	ItemOutput* outputs;

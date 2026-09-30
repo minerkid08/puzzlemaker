@@ -13,6 +13,11 @@ static __attribute__((constructor)) void init()
 	dynList_reserve((void**)&entities, 32);
 }
 
+Entity* getEntityList()
+{
+	return entities;
+}
+
 void exportStartEntities()
 {
 	dynList_resize((void**)&entities, 0);
@@ -24,9 +29,13 @@ Entity* exportCreateEntity()
 	dynList_resize((void**)&entities, len + 1);
 	Entity* ent = &entities[len];
 
+	ent->id = len;
+
 	ent->brushes = 0;
 	ent->kvs = 0;
 	ent->outputs = 0;
+	ent->rawOutputs = 0;
+	ent->script = 0;
 
 	return ent;
 }
@@ -42,7 +51,7 @@ void exportEntityAddKv(Entity* ent, ItemKv* kv)
 	ItemKvDef* def = kv->def;
 	if (def->type & TYPE_INSTANCE)
 	{
-    int type = def->type & ~(TYPE_INSTANCE);
+		int type = def->type & ~(TYPE_INSTANCE);
 		if (type == TYPE_INT)
 			snprintf(buf, 128, "\"replace%d\" \"$%s %d\"", len, def->name, kv->value.i);
 		if (type == TYPE_BOOL)
@@ -105,7 +114,7 @@ void exportEntityAddKvss(Entity* ent, const char* key, const char* value)
 void exportEntityAddBrush(Entity* ent, Brush* brush)
 {
 	int i = 0;
-  int* arr = ent->brushes;
+	int* arr = ent->brushes;
 	if (arr == 0)
 		arr = dynList_new(1, sizeof(int));
 	else
@@ -115,8 +124,27 @@ void exportEntityAddBrush(Entity* ent, Brush* brush)
 		i = len;
 	}
 	brush->ent = 1;
-	arr[i] = brush->id - 1;
-  ent->brushes = arr;
+	arr[i] = brush->id;
+	ent->brushes = arr;
+}
+
+void exportEntityAddRawOutput(Entity* ent, const char* output, const char* name, const char* input, const char* arg,
+							  float delay)
+{
+	char buf[256];
+	snprintf(buf, 256, "\"%s\" \"%s\x1b%s\x1b%s\x1b%.2f\x1b-1\"\n", output, name, input, arg, delay);
+	int i = 0;
+	const char** arr = ent->rawOutputs;
+	if (arr == 0)
+		arr = dynList_new(1, sizeof(const char*));
+	else
+	{
+		int len = dynList_size(arr);
+		dynList_resize((void**)&arr, len + 1);
+		i = len;
+	}
+	arr[i] = strdup(buf);
+	ent->rawOutputs = arr;
 }
 
 void exportEndEntities(FILE* file)
@@ -135,6 +163,8 @@ void exportEndEntities(FILE* file)
 		fprintf(file, "  \"targetname\" \"%s\"\n", entity->name);
 
 		free((char*)entity->name);
+		if (entity->script)
+			free((char*)entity->className);
 
 		char buf[100];
 
@@ -159,7 +189,10 @@ void exportEndEntities(FILE* file)
 				{
 					ItemOutput* output = &entity->outputs[i];
 					Item* item = getItem(output->entity);
-					snprintf(buf, 100, "%s%d", item->def->name, output->entity);
+					if (item->ioEnt)
+						strncpy(buf, item->ioEnt, 100);
+					else
+						snprintf(buf, 100, "%s%d", item->def->name, output->entity);
 					if (output->inverted)
 					{
 						if (output->input->falseArg)
@@ -199,7 +232,7 @@ void exportEndEntities(FILE* file)
 
 		if (entity->brushes)
 		{
-      Brush* brushes = getBrushArray();
+			Brush* brushes = getBrushArray();
 			int l = dynList_size(entity->brushes);
 			for (int j = 0; j < l; j++)
 			{

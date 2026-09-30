@@ -51,8 +51,9 @@ Brush* exportCreateBrush(vec3 start, vec3 end)
 	int len = dynList_size(brushes);
 	dynList_resize((void**)&brushes, len + 1);
 	Brush* brush = &brushes[len];
-	brush->id = len + 1;
+	brush->id = len;
 	brush->ent = 0;
+	brush->script = 0;
 
 	for (int i = 0; i < 6; i++)
 	{
@@ -60,6 +61,8 @@ Brush* exportCreateBrush(vec3 start, vec3 end)
 		side->id = i;
 		side->lightmapscale = 16;
 		side->fit = 0;
+		side->texHeight = 512;
+		side->texWidth = 512;
 		memcpy(side->uvs[0], uvxy, sizeof(vec2));
 		memcpy(side->uvs[1], uvXy, sizeof(vec2));
 		memcpy(side->uvs[2], uvxY, sizeof(vec2));
@@ -223,6 +226,8 @@ void exportBrush(FILE* file, Brush* brush)
 		fprintf(file, "    \"lightmapscale\" \"%d\"\n", side->lightmapscale);
 		fprintf(file, "    \"smoothing_groups\" \"0\"\n");
 		fprintf(file, "  }\n");
+		if (brush->script)
+			free((char*)side->material);
 	}
 	fprintf(file, "}\n");
 }
@@ -230,7 +235,6 @@ void exportBrush(FILE* file, Brush* brush)
 void exportEndBrushes(FILE* file)
 {
 	int len = dynList_size(brushes);
-  printf("brush count: %d\n", len);
 	for (int i = 0; i < len; i++)
 	{
 		Brush* brush = &brushes[i];

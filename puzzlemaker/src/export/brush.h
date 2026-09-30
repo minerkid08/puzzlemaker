@@ -18,6 +18,7 @@ typedef struct
 {
   int id;
   char ent;
+	char script;
   Side sides[6];
 } Brush;
 

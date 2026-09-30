@@ -128,6 +128,11 @@ void loadItemDefinitionFile(const char* filename)
 		def->deleteIntersectingVoxels = jsonGetBoolC(item, "deleteIntersectingVoxels", 0);
 		def->genMissingVoxels = jsonGetBoolC(item, "genMissingVoxels", 1);
 
+		cJSON* exportScript = cJSON_GetObjectItem(item, "exportScript");
+		def->exportScript = 0;
+		if (exportScript)
+			def->exportScript = jsonGetStr(item, "exportScript");
+
 		cJSON* keyValues = cJSON_GetObjectItem(item, "keyvalues");
 		len = cJSON_GetArraySize(keyValues);
 		def->kvs = dynList_new(len, sizeof(ItemKvDef));

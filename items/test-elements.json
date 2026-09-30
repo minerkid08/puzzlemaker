@@ -14,6 +14,7 @@
     "maxSize": [99999, 99999],
     "snapMode": "mini-center",
     "defaultSize": [4, 2],
+		"exportScript": "fizzler.lua",
     "boarders": [
       {
         "id": "left",

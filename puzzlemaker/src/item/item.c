@@ -3,13 +3,13 @@
 #include "cglm/mat4.h"
 #include "cglm/quat.h"
 #include "cglm/util.h"
-#include "cglm/vec3.h"
 #include "item/entityItem.h"
 #include "item/panel.h"
 #include "item/volumeItem.h"
 #include "jsonUtils.h"
 #include "raycast.h"
 #include "renderer/debug.h"
+#include "utils.h"
 
 #include <cjson.h>
 #include <dynList.h>
@@ -63,18 +63,6 @@ Item* getIntersectingItem(vec3 pos)
 	return 0;
 }
 
-void getEulerAngles(mat4 mat, vec3 out)
-{
-	double t1 = atan2(-mat[0][2], mat[0][0]);
-	double c2 = sqrt(mat[1][1] * mat[1][1] + mat[2][1] * mat[2][1]);
-	double t2 = atan2(mat[0][1], c2);
-	double s1 = sin(t1);
-	double c1 = cos(t1);
-	double t3 = atan2(s1 * mat[1][0] + c1 * mat[1][2], s1 * mat[2][0] + c1 * mat[2][2]);
-	out[1] = t1;
-	out[2] = t2;
-	out[0] = t3;
-}
 
 void updateItemTransform(Item* item)
 {

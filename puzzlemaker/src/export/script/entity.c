@@ -1,24 +1,30 @@
 #include "export/entity.h"
 #include "api.h"
+#include "cglm/euler.h"
+#include "cglm/mat4.h"
+#include "cglm/vec4.h"
 #include "export/brush.h"
 #include "item/item.h"
 #include "lua/lauxlib.h"
 #include "lua/lua.h"
+#include "utils.h"
 #include <string.h>
 
 // Entity.new(string name, string className, vec3 pos, vec3 rot);
 static int entityNew(lua_State* l);
-// Entity:new(vec3 pos);
+// Entity:setPosition(vec3 pos);
 static int entitySetPosition(lua_State* l);
-// Entity:new(vec3 rot);
+// Entity:setRotation(vec3 rot);
 static int entitySetRotation(lua_State* l);
-// Entity:new(Brush brush);
+// Entity:transform(vec3 pos, vec3 rot);
+static int entityTransform(lua_State* l);
+// Entity:attachBrush(Brush brush);
 static int entityAttachBrush(lua_State* l);
-// Entity:new(string k, (string|number|boolean) v);
+// Entity:setKv(string k, (string|number|boolean) v);
 static int entitySetKv(lua_State* l);
-// Entity:new(string output, string entity, string input, string? arg, number? delay);
+// Entity:addOutput(string output, string entity, string input, string? arg, number? delay);
 static int entityAddOutput(lua_State* l);
-// Entity:new(lua_State* l);
+// Entity:markAsIO(lua_State* l);
 static int entityMarkAsIO(lua_State* l);
 
 static Item* item;
@@ -33,6 +39,8 @@ void addEntityApi(lua_State* l, Item* i)
 	lua_setfield(l, -2, "setPosition");
 	lua_pushcfunction(l, entitySetRotation);
 	lua_setfield(l, -2, "setRotation");
+	lua_pushcfunction(l, entityTransform);
+	lua_setfield(l, -2, "transform");
 	lua_pushcfunction(l, entityAttachBrush);
 	lua_setfield(l, -2, "attachBrush");
 	lua_pushcfunction(l, entitySetKv);
@@ -67,6 +75,8 @@ int entityNew(lua_State* l)
 	lua_setfield(l, -2, "setPosition");
 	lua_pushcfunction(l, entitySetRotation);
 	lua_setfield(l, -2, "setRotation");
+	lua_pushcfunction(l, entityTransform);
+	lua_setfield(l, -2, "transform");
 	lua_pushcfunction(l, entityAttachBrush);
 	lua_setfield(l, -2, "attachBrush");
 	lua_pushcfunction(l, entitySetKv);
@@ -111,6 +121,52 @@ int entitySetRotation(lua_State* l)
 	Entity* entity = &getEntityList()[id];
 	memcpy(entity->rotation, rot, sizeof(vec3));
 	return 0;
+}
+
+int entityTransform(lua_State* l)
+{
+	if (lua_type(l, 1) != LUA_TTABLE)
+		luaL_error(l, "bad arg 1, expected Entity");
+	vec3 pos;
+	vec3 rot;
+	getVec3(l, 2, pos, "bad arg 2");
+	getVec3(l, 2, rot, "bad arg 3");
+  
+	lua_getfield(l, 1, "id");
+	if (lua_type(l, -1) != LUA_TUSERDATA)
+		luaL_error(l, "bad arg 1, invalid Entity");
+	long long entId = (long long)lua_touserdata(l, -1);
+	lua_pop(l, 1);
+
+	Entity* entity = &getEntityList()[entId];
+
+	rot[0] = glm_rad(rot[0]);
+	rot[1] = glm_rad(rot[1]);
+	rot[2] = glm_rad(rot[2]);
+
+  mat4 transform;
+  mat4 rotMat;
+  glm_translate(transform, pos);
+  glm_euler_yzx(rot, rotMat);
+	glm_mat4_mul(transform, rotMat, transform);
+
+  vec3 entPos;
+  memcpy(entPos, entity->pos, sizeof(vec3));
+  glm_mat4_mulv3(transform, entPos, 1, entPos);
+  memcpy(entity->pos, entPos, sizeof(vec3));
+
+  vec3 entRot;
+  memcpy(entRot, entity->rotation, sizeof(vec3));
+  mat4 rotMat2;
+  glm_euler_yzx(entRot, rotMat2);
+
+  glm_mat4_mul(rotMat2, rotMat, rotMat);
+  getEulerAngles(rotMat, rot);
+	rot[0] = glm_deg(rot[0]);
+	rot[1] = glm_deg(rot[1]);
+	rot[2] = glm_deg(rot[2]);
+  memcpy(entity->rotation, rot, sizeof(vec3));
+  return 0;
 }
 
 int entityAttachBrush(lua_State* l)

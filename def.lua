@@ -31,3 +31,39 @@ function Brush:setTexture(dir, texture, opts) end
 ---@param pos vec3
 ---@param rot vec3
 function Brush:transform(pos, rot) end
+
+---@class Entity
+Entity = {}
+
+---@param name string
+---@param className string
+---@param pos vec3
+---@param rot vec3
+---@return Entity
+function Entity.new(name, className, pos, rot) end
+
+---@param pos vec3
+function Entity:setPosition(pos) end
+
+---@param rot vec3
+function Entity:setRotation(rot) end
+
+---@param pos vec3
+---@param rot vec3
+function Entity:transform(pos, rot) end
+
+---@param brush Brush
+function Entity:attachBrush(brush) end
+
+---@param key string
+---@param value (number|string|boolean) 
+function Entity:setKv(key, value) end
+
+---@param output string
+---@param entityName string
+---@param input string
+---@param argument string?
+---@param delay number?
+function Entity:addOutput(output, entityName, input, argument, delay) end
+
+function Entity:markAsIO() end

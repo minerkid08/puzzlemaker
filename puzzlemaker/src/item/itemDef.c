@@ -34,10 +34,10 @@ void loadItemDefinitions()
 	groups = dynList_new(0, sizeof(ItemGroup));
 
 	int len = dynList_size(files);
-	for(int i = 0; i < len; i++)
+	for (int i = 0; i < len; i++)
 	{
-			loadItemDefinitionFile(files[i]);
-			free((void*)files[i]);
+		loadItemDefinitionFile(files[i]);
+		free((void*)files[i]);
 	}
 	dynList_free(files);
 
@@ -225,7 +225,9 @@ void loadItemDefinitionFile(const char* filename)
 
 				inputDef->name = jsonGetStr(input, "name");
 				inputDef->trueInput = jsonGetStr(input, "trueInput");
-				inputDef->falseInput = jsonGetStr(input, "falseInput");
+				inputDef->falseInput = 0;
+				if (cJSON_GetObjectItem(input, "falseInput"))
+					inputDef->falseInput = jsonGetStr(input, "falseInput");
 				inputDef->trueArg = 0;
 				inputDef->falseArg = 0;
 				if (cJSON_GetObjectItem(input, "trueArg"))
@@ -249,7 +251,9 @@ void loadItemDefinitionFile(const char* filename)
 
 				outputDef->name = jsonGetStr(output, "name");
 				outputDef->trueOutput = jsonGetStr(output, "trueOutput");
-				outputDef->falseOutput = jsonGetStr(output, "falseOutput");
+				outputDef->falseOutput = 0;
+				if (cJSON_GetObjectItem(output, "falseOutput"))
+					outputDef->falseOutput = jsonGetStr(output, "falseOutput");
 			}
 		}
 

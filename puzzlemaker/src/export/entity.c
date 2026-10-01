@@ -167,7 +167,7 @@ void exportEntitiesProcessOutputs()
 		for (int j = 0; j < outputCount; j++)
 		{
 			ItemOutput* output = &entity->outputs[j];
-			if(uniqueOutputs == 0)
+			if (uniqueOutputs == 0)
 			{
 				dynList_resize((void*)&outputDefs, uniqueOutputs + 1);
 				outputDefs[uniqueOutputs] = output->def;
@@ -193,7 +193,8 @@ void exportEntitiesProcessOutputs()
 			char name[64];
 			snprintf(name, 64, "%s_%s", entName, output->name);
 			exportEntityAddRawOutput(entity, output->trueOutput, name, "FireUser1", "", 0);
-			exportEntityAddRawOutput(entity, output->falseOutput, name, "FireUser2", "", 0);
+			if (output->falseOutput)
+				exportEntityAddRawOutput(entity, output->falseOutput, name, "FireUser2", "", 0);
 		}
 
 		vec3 entPos;
@@ -228,27 +229,36 @@ void exportEntitiesProcessOutputs()
 				snprintf(ioEntName, 128, "%s%d", item->def->name, output->entity);
 			if (output->inverted)
 			{
-				if (output->input->falseArg)
-					exportEntityAddRawOutput(relay, "OnUser1", ioEntName, input->falseInput, input->falseArg, 0);
-				else
-					exportEntityAddRawOutput(relay, "OnUser1", ioEntName, input->falseInput, "", 0);
+				if (input->falseInput)
+				{
+					if (input->falseArg)
+						exportEntityAddRawOutput(relay, "OnUser1", ioEntName, input->falseInput, input->falseArg, 0);
+					else
+						exportEntityAddRawOutput(relay, "OnUser1", ioEntName, input->falseInput, "", 0);
+				}
 
-				if (output->input->trueArg)
-					exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->trueInput, input->trueArg, 0);
-				else
-					exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->trueInput, "", 0);
+				if (output->def->falseOutput)
+				{
+					if (input->trueArg)
+						exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->trueInput, input->trueArg, 0);
+					else
+						exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->trueInput, "", 0);
+				}
 			}
 			else
 			{
-				if (output->input->trueArg)
+				if (input->trueArg)
 					exportEntityAddRawOutput(relay, "OnUser1", ioEntName, input->trueInput, input->trueArg, 0);
 				else
 					exportEntityAddRawOutput(relay, "OnUser1", ioEntName, input->trueInput, "", 0);
 
-				if (output->input->falseArg)
-					exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->falseInput, input->falseArg, 0);
-				else
-					exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->falseInput, "", 0);
+				if (input->falseInput)
+				{
+					if (input->falseArg && output->def->falseOutput)
+						exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->falseInput, input->falseArg, 0);
+					else
+						exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->falseInput, "", 0);
+				}
 			}
 		}
 	}

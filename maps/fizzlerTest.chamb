@@ -3435,9 +3435,9 @@
 	"items":	[{
 			"index":	0,
 			"id":	"fizzler",
-			"pos":	[1.25, 1, 4.75],
-			"rot":	[0, 0, 0],
-			"snapDir":	2,
+			"pos":	[2, 1, 1],
+			"rot":	[0, -90, 0],
+			"snapDir":	6,
 			"size":	{
 				"x":	4,
 				"y":	2
@@ -3446,8 +3446,31 @@
 			"kv":	{
 				"startdisabled":	false
 			}
+		}, {
+			"index":	1,
+			"id":	"button",
+			"pos":	[6, 1, 6],
+			"rot":	[0, 0, 0],
+			"snapDir":	2,
+			"outputs":	[{
+					"ent":	0,
+					"inverted":	false,
+					"input":	"disable",
+					"output":	"press"
+				}],
+			"kv":	{
+			}
+		}, {
+			"index":	2,
+			"id":	"start",
+			"pos":	[6, 1, 3],
+			"rot":	[0, 0, 0],
+			"snapDir":	2,
+			"outputs":	[],
+			"kv":	{
+			}
 		}],
-	"itemCount":	1,
+	"itemCount":	3,
 	"settings":	{
 		"regen":	1,
 		"boots":	0,

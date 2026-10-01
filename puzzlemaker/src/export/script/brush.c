@@ -8,6 +8,20 @@ static int brushNew(lua_State* l);
 static int brushSetTexture(lua_State* l);
 static int brushTransform(lua_State* l);
 
+Brush* luaGetBrush(lua_State* l, int pos, const char* arg)
+{
+	if (lua_type(l, pos) != LUA_TTABLE)
+		luaL_error(l, "%s, expected Brush", arg);
+
+	lua_getfield(l, pos, "id");
+	if (lua_type(l, -1) != LUA_TLIGHTUSERDATA)
+		luaL_error(l, "%s, invalid Brush", arg);
+
+	long long id = (long long)lua_touserdata(l, -1);
+	lua_pop(l, 1);
+	return &getBrushArray()[id];
+}
+
 void addBrushApi(lua_State* l)
 {
 	lua_newtable(l);
@@ -25,8 +39,8 @@ static int brushNew(lua_State* l)
 	vec3 start;
 	vec3 end;
 
-	getVec3(l, 1, start, "bad arg 1");
-	getVec3(l, 2, end, "bad arg 2");
+	luaGetVec3(l, 1, start, "bad arg 1");
+	luaGetVec3(l, 2, end, "bad arg 2");
 
 	Brush* b = exportCreateBrush(start, end);
 	b->script = 1;
@@ -46,13 +60,8 @@ static int brushSetTexture(lua_State* l)
 {
 	if(lua_gettop(l) == 3)
 		lua_pushnil(l);
-	if (lua_type(l, 1) != LUA_TTABLE)
-		luaL_error(l, "bad arg 1, expected Brush");
-	lua_getfield(l, 1, "id");
-	if (lua_type(l, -1) != LUA_TLIGHTUSERDATA)
-		luaL_error(l, "bad arg 1, expected Brush");
-	long long id = (long long)lua_touserdata(l, -1);
-	lua_pop(l, 1);
+
+	Brush* brush = luaGetBrush(l, 1, "bad arg 1");
 
 	if (lua_type(l, 2) != LUA_TNUMBER)
 		luaL_error(l, "bad arg 2, expected number");
@@ -69,8 +78,7 @@ static int brushSetTexture(lua_State* l)
 
 	const char* texName = lua_tostring(l, 3);
 
-	Brush* b = &getBrushArray()[id];
-	Side* side = &b->sides[dir];
+	Side* side = &brush->sides[dir];
 
 	if (side->material)
 		free((char*)side->material);
@@ -115,35 +123,26 @@ static int brushSetTexture(lua_State* l)
 
 static int brushTransform(lua_State* l)
 {
-	if (lua_type(l, 1) != LUA_TTABLE)
-		luaL_error(l, "bad arg 1, expected Brush");
-	lua_getfield(l, 1, "id");
-	if (lua_type(l, -1) != LUA_TLIGHTUSERDATA)
-		luaL_error(l, "bad arg 1, expected Brush");
-	long long id = (long long)lua_touserdata(l, -1);
-	lua_pop(l, 1);
-
+	Brush* brush = luaGetBrush(l, 1, "bad arg 1");
 
 	vec3 pos;
 	vec3 rot;
 
-	getVec3(l, 2, pos, "bad arg 2");
-	getVec3(l, 3, rot, "bad arg 2");
-
-	Brush* brush = &getBrushArray()[id];
+	luaGetVec3(l, 2, pos, "bad arg 2");
+	luaGetVec3(l, 3, rot, "bad arg 2");
 
 	mat4 transform;
 	glm_mat4_identity(transform);
 	glm_translate(transform, pos);
 
 	vec3 dir;
-	vec4 itemQuat;
+	vec4 quat;
 	dir[0] = glm_rad(rot[0]);
 	dir[1] = glm_rad(rot[1]);
 	dir[2] = glm_rad(rot[2]);
-	glm_euler_yzx_quat(dir, itemQuat);
+	glm_euler_yzx_quat(dir, quat);
 	mat4 rotMat;
-	glm_quat_mat4(itemQuat, rotMat);
+	glm_quat_mat4(quat, rotMat);
 
 	glm_mat4_mul(transform, rotMat, transform);
 

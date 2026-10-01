@@ -29,125 +29,7 @@ world
 	"maxblobcount" "250"
 	"maxprojectedtextures" "8"solid
 {
-  "id" "0"
-  side
-  {
-    "id" "1"
-    "plane" "(-384.00 320.00 320.00) (-384.00 384.00 384.00) (-384.00 320.00 384.00)"
-    point_data
-    {
-      "numpts" "4"
-      "point" "0 -384.00 320.00 320.00"
-      "point" "1 -384.00 384.00 320.00"
-      "point" "2 -384.00 384.00 384.00"
-      "point" "3 -384.00 320.00 384.00"
-    }
-    "uaxis" "[0.0000 -1.0000 0.0000 -0.0000] 0.2500"
-    "vaxis" "[0.0000 0.0000 -1.0000 0.0000] 0.2500"
-    "material" "TOOLS/TOOLSTRIGGER"
-    "rotation" "0"
-    "lightmapscale" "16"
-    "smoothing_groups" "0"
-  }
-  side
-  {
-    "id" "2"
-    "plane" "(-320.00 384.00 320.00) (-320.00 320.00 384.00) (-320.00 384.00 384.00)"
-    point_data
-    {
-      "numpts" "4"
-      "point" "0 -320.00 384.00 320.00"
-      "point" "1 -320.00 320.00 320.00"
-      "point" "2 -320.00 320.00 384.00"
-      "point" "3 -320.00 384.00 384.00"
-    }
-    "uaxis" "[0.0000 1.0000 0.0000 -0.0000] 0.2500"
-    "vaxis" "[0.0000 0.0000 -1.0000 0.0000] 0.2500"
-    "material" "TOOLS/TOOLSTRIGGER"
-    "rotation" "0"
-    "lightmapscale" "16"
-    "smoothing_groups" "0"
-  }
-  side
-  {
-    "id" "3"
-    "plane" "(-320.00 320.00 384.00) (-384.00 384.00 384.00) (-320.00 384.00 384.00)"
-    point_data
-    {
-      "numpts" "4"
-      "point" "0 -320.00 320.00 384.00"
-      "point" "1 -384.00 320.00 384.00"
-      "point" "2 -384.00 384.00 384.00"
-      "point" "3 -320.00 384.00 384.00"
-    }
-    "uaxis" "[1.0000 0.0000 0.0000 -0.0000] 0.2500"
-    "vaxis" "[0.0000 -1.0000 0.0000 0.0000] 0.2500"
-    "material" "TOOLS/TOOLSTRIGGER"
-    "rotation" "0"
-    "lightmapscale" "16"
-    "smoothing_groups" "0"
-  }
-  side
-  {
-    "id" "4"
-    "plane" "(-384.00 320.00 320.00) (-320.00 384.00 320.00) (-384.00 384.00 320.00)"
-    point_data
-    {
-      "numpts" "4"
-      "point" "0 -384.00 320.00 320.00"
-      "point" "1 -320.00 320.00 320.00"
-      "point" "2 -320.00 384.00 320.00"
-      "point" "3 -384.00 384.00 320.00"
-    }
-    "uaxis" "[-1.0000 0.0000 0.0000 -0.0000] 0.2500"
-    "vaxis" "[0.0000 -1.0000 0.0000 0.0000] 0.2500"
-    "material" "TOOLS/TOOLSTRIGGER"
-    "rotation" "0"
-    "lightmapscale" "16"
-    "smoothing_groups" "0"
-  }
-  side
-  {
-    "id" "5"
-    "plane" "(-384.00 384.00 320.00) (-320.00 384.00 384.00) (-384.00 384.00 384.00)"
-    point_data
-    {
-      "numpts" "4"
-      "point" "0 -384.00 384.00 320.00"
-      "point" "1 -320.00 384.00 320.00"
-      "point" "2 -320.00 384.00 384.00"
-      "point" "3 -384.00 384.00 384.00"
-    }
-    "uaxis" "[-1.0000 0.0000 0.0000 -0.0000] 0.2500"
-    "vaxis" "[0.0000 0.0000 -1.0000 0.0000] 0.2500"
-    "material" "TOOLS/TOOLSTRIGGER"
-    "rotation" "0"
-    "lightmapscale" "16"
-    "smoothing_groups" "0"
-  }
-  side
-  {
-    "id" "6"
-    "plane" "(-320.00 320.00 320.00) (-384.00 320.00 384.00) (-320.00 320.00 384.00)"
-    point_data
-    {
-      "numpts" "4"
-      "point" "0 -320.00 320.00 320.00"
-      "point" "1 -384.00 320.00 320.00"
-      "point" "2 -384.00 320.00 384.00"
-      "point" "3 -320.00 320.00 384.00"
-    }
-    "uaxis" "[1.0000 0.0000 0.0000 -0.0000] 0.2500"
-    "vaxis" "[0.0000 0.0000 -1.0000 0.0000] 0.2500"
-    "material" "TOOLS/TOOLSTRIGGER"
-    "rotation" "0"
-    "lightmapscale" "16"
-    "smoothing_groups" "0"
-  }
-}
-solid
-{
-  "id" "1"
+  "id" "3"
   side
   {
     "id" "1"
@@ -265,7 +147,7 @@ solid
 }
 solid
 {
-  "id" "2"
+  "id" "4"
   side
   {
     "id" "1"
@@ -383,7 +265,7 @@ solid
 }
 solid
 {
-  "id" "3"
+  "id" "5"
   side
   {
     "id" "1"
@@ -501,7 +383,7 @@ solid
 }
 solid
 {
-  "id" "4"
+  "id" "6"
   side
   {
     "id" "1"
@@ -619,7 +501,7 @@ solid
 }
 solid
 {
-  "id" "5"
+  "id" "7"
   side
   {
     "id" "1"
@@ -737,7 +619,7 @@ solid
 }
 solid
 {
-  "id" "6"
+  "id" "8"
   side
   {
     "id" "1"
@@ -858,8 +740,434 @@ solid
 entity
 {
   "id" "1"
+  "classname" "trigger_portal_cleanser"
+  "origin" "-128.000000 64.000000 64.000000"
+  "angles" "0.000000 0.000000 -0.000000"
+  "targetname" "fizzler0-trigger"
+  "visible" "1"
+  "usescanline" "1"
+  "spawnflags" "9.00"
+  "rendercolor" "255 255 255"
+  "viewhideflags" "0"
+  "rendermode" "0.00"
+  "renderfx" "0.00"
+  "solid" "6.00"
+  "disablereceiveshadows" "0"
+  "drawinfastreflection" "0"
+  "startdisabled" "0"
+
+  connections
+  {
+    "OnUser1" "fizzler0-triggerDisable0.00-1"
+    "OnUser1" "fizzler0-leftPropSetAinimationopen0.00-1"
+    "OnUser1" "fizzler0-rightPropSetAinimationopen0.00-1"
+    "OnUser2" "fizzler0-triggerEnable0.00-1"
+    "OnUser2" "fizzler0-leftPropSetAinimationclose0.00-1"
+    "OnUser2" "fizzler0-rightPropSetAinimationclose0.00-1"
+  }
+solid
+{
+  "id" "0"
+  side
+  {
+    "id" "1"
+    "plane" "(-129.00 128.00 64.00) (-127.00 128.00 192.00) (-129.00 128.00 192.00)"
+    point_data
+    {
+      "numpts" "4"
+      "point" "0 -129.00 128.00 64.00"
+      "point" "1 -127.00 128.00 64.00"
+      "point" "2 -127.00 128.00 192.00"
+      "point" "3 -129.00 128.00 192.00"
+    }
+    "uaxis" "[-1.0000 0.0000 0.0000 -0.0000] 0.2500"
+    "vaxis" "[0.0000 0.0000 -1.0000 0.0000] 0.2500"
+    "material" "TOOLS/TOOLSTRIGGER"
+    "rotation" "0"
+    "lightmapscale" "16"
+    "smoothing_groups" "0"
+  }
+  side
+  {
+    "id" "2"
+    "plane" "(-127.00 64.00 64.00) (-129.00 64.00 192.00) (-127.00 64.00 192.00)"
+    point_data
+    {
+      "numpts" "4"
+      "point" "0 -127.00 64.00 64.00"
+      "point" "1 -129.00 64.00 64.00"
+      "point" "2 -129.00 64.00 192.00"
+      "point" "3 -127.00 64.00 192.00"
+    }
+    "uaxis" "[1.0000 0.0000 0.0000 -0.0000] 0.2500"
+    "vaxis" "[0.0000 0.0000 -1.0000 0.0000] 0.2500"
+    "material" "TOOLS/TOOLSTRIGGER"
+    "rotation" "0"
+    "lightmapscale" "16"
+    "smoothing_groups" "0"
+  }
+  side
+  {
+    "id" "3"
+    "plane" "(-129.00 64.00 192.00) (-127.00 128.00 192.00) (-127.00 64.00 192.00)"
+    point_data
+    {
+      "numpts" "4"
+      "point" "0 -129.00 64.00 192.00"
+      "point" "1 -129.00 128.00 192.00"
+      "point" "2 -127.00 128.00 192.00"
+      "point" "3 -127.00 64.00 192.00"
+    }
+    "uaxis" "[0.0000 -1.0000 0.0000 -0.0000] 0.2500"
+    "vaxis" "[-1.0000 0.0000 0.0000 0.0000] 0.2500"
+    "material" "TOOLS/TOOLSTRIGGER"
+    "rotation" "0"
+    "lightmapscale" "16"
+    "smoothing_groups" "0"
+  }
+  side
+  {
+    "id" "4"
+    "plane" "(-129.00 128.00 64.00) (-127.00 64.00 64.00) (-127.00 128.00 64.00)"
+    point_data
+    {
+      "numpts" "4"
+      "point" "0 -129.00 128.00 64.00"
+      "point" "1 -129.00 64.00 64.00"
+      "point" "2 -127.00 64.00 64.00"
+      "point" "3 -127.00 128.00 64.00"
+    }
+    "uaxis" "[0.0000 1.0000 0.0000 -0.0000] 0.2500"
+    "vaxis" "[-1.0000 0.0000 0.0000 0.0000] 0.2500"
+    "material" "TOOLS/TOOLSTRIGGER"
+    "rotation" "0"
+    "lightmapscale" "16"
+    "smoothing_groups" "0"
+  }
+  side
+  {
+    "id" "5"
+    "plane" "(-127.00 128.00 64.00) (-127.00 64.00 192.00) (-127.00 128.00 192.00)"
+    point_data
+    {
+      "numpts" "4"
+      "point" "0 -127.00 128.00 64.00"
+      "point" "1 -127.00 64.00 64.00"
+      "point" "2 -127.00 64.00 192.00"
+      "point" "3 -127.00 128.00 192.00"
+    }
+    "uaxis" "[0.0000 1.0000 0.0000 -0.0000] 0.0625"
+    "vaxis" "[0.0000 0.0000 -1.0000 512.0000] 0.1250"
+    "material" "EFFECTS/FIZZLER_L"
+    "rotation" "0"
+    "lightmapscale" "16"
+    "smoothing_groups" "0"
+  }
+  side
+  {
+    "id" "6"
+    "plane" "(-129.00 64.00 64.00) (-129.00 128.00 192.00) (-129.00 64.00 192.00)"
+    point_data
+    {
+      "numpts" "4"
+      "point" "0 -129.00 64.00 64.00"
+      "point" "1 -129.00 128.00 64.00"
+      "point" "2 -129.00 128.00 192.00"
+      "point" "3 -129.00 64.00 192.00"
+    }
+    "uaxis" "[0.0000 -1.0000 0.0000 -0.0000] 0.0625"
+    "vaxis" "[0.0000 0.0000 -1.0000 512.0000] 0.1250"
+    "material" "EFFECTS/FIZZLER_R"
+    "rotation" "0"
+    "lightmapscale" "16"
+    "smoothing_groups" "0"
+  }
+}
+solid
+{
+  "id" "1"
+  side
+  {
+    "id" "1"
+    "plane" "(-129.00 256.00 64.00) (-127.00 256.00 192.00) (-129.00 256.00 192.00)"
+    point_data
+    {
+      "numpts" "4"
+      "point" "0 -129.00 256.00 64.00"
+      "point" "1 -127.00 256.00 64.00"
+      "point" "2 -127.00 256.00 192.00"
+      "point" "3 -129.00 256.00 192.00"
+    }
+    "uaxis" "[-1.0000 0.0000 0.0000 -0.0000] 0.2500"
+    "vaxis" "[0.0000 0.0000 -1.0000 0.0000] 0.2500"
+    "material" "TOOLS/TOOLSTRIGGER"
+    "rotation" "0"
+    "lightmapscale" "16"
+    "smoothing_groups" "0"
+  }
+  side
+  {
+    "id" "2"
+    "plane" "(-127.00 128.00 64.00) (-129.00 128.00 192.00) (-127.00 128.00 192.00)"
+    point_data
+    {
+      "numpts" "4"
+      "point" "0 -127.00 128.00 64.00"
+      "point" "1 -129.00 128.00 64.00"
+      "point" "2 -129.00 128.00 192.00"
+      "point" "3 -127.00 128.00 192.00"
+    }
+    "uaxis" "[1.0000 0.0000 0.0000 -0.0000] 0.2500"
+    "vaxis" "[0.0000 0.0000 -1.0000 0.0000] 0.2500"
+    "material" "TOOLS/TOOLSTRIGGER"
+    "rotation" "0"
+    "lightmapscale" "16"
+    "smoothing_groups" "0"
+  }
+  side
+  {
+    "id" "3"
+    "plane" "(-129.00 128.00 192.00) (-127.00 256.00 192.00) (-127.00 128.00 192.00)"
+    point_data
+    {
+      "numpts" "4"
+      "point" "0 -129.00 128.00 192.00"
+      "point" "1 -129.00 256.00 192.00"
+      "point" "2 -127.00 256.00 192.00"
+      "point" "3 -127.00 128.00 192.00"
+    }
+    "uaxis" "[0.0000 -1.0000 0.0000 -0.0000] 0.2500"
+    "vaxis" "[-1.0000 0.0000 0.0000 0.0000] 0.2500"
+    "material" "TOOLS/TOOLSTRIGGER"
+    "rotation" "0"
+    "lightmapscale" "16"
+    "smoothing_groups" "0"
+  }
+  side
+  {
+    "id" "4"
+    "plane" "(-129.00 256.00 64.00) (-127.00 128.00 64.00) (-127.00 256.00 64.00)"
+    point_data
+    {
+      "numpts" "4"
+      "point" "0 -129.00 256.00 64.00"
+      "point" "1 -129.00 128.00 64.00"
+      "point" "2 -127.00 128.00 64.00"
+      "point" "3 -127.00 256.00 64.00"
+    }
+    "uaxis" "[0.0000 1.0000 0.0000 -0.0000] 0.2500"
+    "vaxis" "[-1.0000 0.0000 0.0000 0.0000] 0.2500"
+    "material" "TOOLS/TOOLSTRIGGER"
+    "rotation" "0"
+    "lightmapscale" "16"
+    "smoothing_groups" "0"
+  }
+  side
+  {
+    "id" "5"
+    "plane" "(-127.00 256.00 64.00) (-127.00 128.00 192.00) (-127.00 256.00 192.00)"
+    point_data
+    {
+      "numpts" "4"
+      "point" "0 -127.00 256.00 64.00"
+      "point" "1 -127.00 128.00 64.00"
+      "point" "2 -127.00 128.00 192.00"
+      "point" "3 -127.00 256.00 192.00"
+    }
+    "uaxis" "[0.0000 1.0000 0.0000 -0.0000] 0.1250"
+    "vaxis" "[0.0000 0.0000 -1.0000 512.0000] 0.1250"
+    "material" "EFFECTS/FIZZLER_CENTER"
+    "rotation" "0"
+    "lightmapscale" "16"
+    "smoothing_groups" "0"
+  }
+  side
+  {
+    "id" "6"
+    "plane" "(-129.00 128.00 64.00) (-129.00 256.00 192.00) (-129.00 128.00 192.00)"
+    point_data
+    {
+      "numpts" "4"
+      "point" "0 -129.00 128.00 64.00"
+      "point" "1 -129.00 256.00 64.00"
+      "point" "2 -129.00 256.00 192.00"
+      "point" "3 -129.00 128.00 192.00"
+    }
+    "uaxis" "[0.0000 -1.0000 0.0000 -0.0000] 0.1250"
+    "vaxis" "[0.0000 0.0000 -1.0000 512.0000] 0.1250"
+    "material" "EFFECTS/FIZZLER_CENTER"
+    "rotation" "0"
+    "lightmapscale" "16"
+    "smoothing_groups" "0"
+  }
+}
+solid
+{
+  "id" "2"
+  side
+  {
+    "id" "1"
+    "plane" "(-129.00 320.00 64.00) (-127.00 320.00 192.00) (-129.00 320.00 192.00)"
+    point_data
+    {
+      "numpts" "4"
+      "point" "0 -129.00 320.00 64.00"
+      "point" "1 -127.00 320.00 64.00"
+      "point" "2 -127.00 320.00 192.00"
+      "point" "3 -129.00 320.00 192.00"
+    }
+    "uaxis" "[-1.0000 0.0000 0.0000 -0.0000] 0.2500"
+    "vaxis" "[0.0000 0.0000 -1.0000 0.0000] 0.2500"
+    "material" "TOOLS/TOOLSTRIGGER"
+    "rotation" "0"
+    "lightmapscale" "16"
+    "smoothing_groups" "0"
+  }
+  side
+  {
+    "id" "2"
+    "plane" "(-127.00 256.00 64.00) (-129.00 256.00 192.00) (-127.00 256.00 192.00)"
+    point_data
+    {
+      "numpts" "4"
+      "point" "0 -127.00 256.00 64.00"
+      "point" "1 -129.00 256.00 64.00"
+      "point" "2 -129.00 256.00 192.00"
+      "point" "3 -127.00 256.00 192.00"
+    }
+    "uaxis" "[1.0000 0.0000 0.0000 -0.0000] 0.2500"
+    "vaxis" "[0.0000 0.0000 -1.0000 0.0000] 0.2500"
+    "material" "TOOLS/TOOLSTRIGGER"
+    "rotation" "0"
+    "lightmapscale" "16"
+    "smoothing_groups" "0"
+  }
+  side
+  {
+    "id" "3"
+    "plane" "(-129.00 256.00 192.00) (-127.00 320.00 192.00) (-127.00 256.00 192.00)"
+    point_data
+    {
+      "numpts" "4"
+      "point" "0 -129.00 256.00 192.00"
+      "point" "1 -129.00 320.00 192.00"
+      "point" "2 -127.00 320.00 192.00"
+      "point" "3 -127.00 256.00 192.00"
+    }
+    "uaxis" "[0.0000 -1.0000 0.0000 -0.0000] 0.2500"
+    "vaxis" "[-1.0000 0.0000 0.0000 0.0000] 0.2500"
+    "material" "TOOLS/TOOLSTRIGGER"
+    "rotation" "0"
+    "lightmapscale" "16"
+    "smoothing_groups" "0"
+  }
+  side
+  {
+    "id" "4"
+    "plane" "(-129.00 320.00 64.00) (-127.00 256.00 64.00) (-127.00 320.00 64.00)"
+    point_data
+    {
+      "numpts" "4"
+      "point" "0 -129.00 320.00 64.00"
+      "point" "1 -129.00 256.00 64.00"
+      "point" "2 -127.00 256.00 64.00"
+      "point" "3 -127.00 320.00 64.00"
+    }
+    "uaxis" "[0.0000 1.0000 0.0000 -0.0000] 0.2500"
+    "vaxis" "[-1.0000 0.0000 0.0000 0.0000] 0.2500"
+    "material" "TOOLS/TOOLSTRIGGER"
+    "rotation" "0"
+    "lightmapscale" "16"
+    "smoothing_groups" "0"
+  }
+  side
+  {
+    "id" "5"
+    "plane" "(-127.00 320.00 64.00) (-127.00 256.00 192.00) (-127.00 320.00 192.00)"
+    point_data
+    {
+      "numpts" "4"
+      "point" "0 -127.00 320.00 64.00"
+      "point" "1 -127.00 256.00 64.00"
+      "point" "2 -127.00 256.00 192.00"
+      "point" "3 -127.00 320.00 192.00"
+    }
+    "uaxis" "[0.0000 1.0000 0.0000 -0.0000] 0.0625"
+    "vaxis" "[0.0000 0.0000 -1.0000 512.0000] 0.1250"
+    "material" "EFFECTS/FIZZLER_R"
+    "rotation" "0"
+    "lightmapscale" "16"
+    "smoothing_groups" "0"
+  }
+  side
+  {
+    "id" "6"
+    "plane" "(-129.00 256.00 64.00) (-129.00 320.00 192.00) (-129.00 256.00 192.00)"
+    point_data
+    {
+      "numpts" "4"
+      "point" "0 -129.00 256.00 64.00"
+      "point" "1 -129.00 320.00 64.00"
+      "point" "2 -129.00 320.00 192.00"
+      "point" "3 -129.00 256.00 192.00"
+    }
+    "uaxis" "[0.0000 -1.0000 0.0000 -0.0000] 0.0625"
+    "vaxis" "[0.0000 0.0000 -1.0000 512.0000] 0.1250"
+    "material" "EFFECTS/FIZZLER_L"
+    "rotation" "0"
+    "lightmapscale" "16"
+    "smoothing_groups" "0"
+  }
+}
+}
+entity
+{
+  "id" "2"
+  "classname" "prop_dynamic"
+  "origin" "-128.000000 64.000000 128.000000"
+  "angles" "0.000000 0.000003 -0.000000"
+  "targetname" "fizzler0-leftProp"
+  "model" "models/props/fizzler_dynamic.mdl"
+  "holdanimation" "1"
+}
+entity
+{
+  "id" "3"
+  "classname" "prop_dynamic"
+  "origin" "-128.000000 320.000000 128.000000"
+  "angles" "0.000000 179.999985 -0.000000"
+  "targetname" "fizzler0-rightProp"
+  "model" "models/props/fizzler_dynamic.mdl"
+  "holdanimation" "1"
+}
+entity
+{
+  "id" "4"
+  "classname" "func_instance"
+  "origin" "-384.000000 384.000000 64.000000"
+  "angles" "0.000000 0.000000 -0.000000"
+  "targetname" "button1"
+  "file" "puzzlemakerInstances/button"
+
+  connections
+  {
+    "instance:button;OnPressed" "fizzler0-triggerFireUser1 0-1"
+    "instance:button;OnUnPressed" "fizzler0-triggerFireUser2 0-1"
+  }
+}
+entity
+{
+  "id" "5"
+  "classname" "info_player_start"
+  "origin" "-384.000000 192.000000 64.000000"
+  "angles" "0.000000 0.000000 -0.000000"
+  "targetname" "start2"
+}
+entity
+{
+  "id" "6"
   "classname" "info_portal_gamerules"
-  "origin" "-80.000000 304.000000 64.000000"
+  "origin" "-128.000000 64.000000 64.000000"
   "angles" "0.000000 0.000000 -0.000000"
   "targetname" "settings"
   "enableregen" "1"

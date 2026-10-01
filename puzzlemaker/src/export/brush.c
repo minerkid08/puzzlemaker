@@ -63,6 +63,7 @@ Brush* exportCreateBrush(vec3 start, vec3 end)
 		side->fit = 0;
 		side->texHeight = 512;
 		side->texWidth = 512;
+		side->material = 0;
 		memcpy(side->uvs[0], uvxy, sizeof(vec2));
 		memcpy(side->uvs[1], uvXy, sizeof(vec2));
 		memcpy(side->uvs[2], uvxY, sizeof(vec2));

@@ -94,5 +94,12 @@ cordons
   "active" "0"
 })");
 	fclose(file);
+
+	for (int i = 0; i < len; i++)
+	{
+		Item* item = &items[i];
+		if(item->ioEnt)
+			free((char*)item->ioEnt);
+	}
 	return 0;
 }

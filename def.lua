@@ -8,6 +8,7 @@ Direction = {
 	NEG_Z = 5
 };
 
+---@alias vec2 number[]
 ---@alias vec3 number[]
 
 ---@class BrushTexOpts
@@ -60,10 +61,26 @@ function Entity:attachBrush(brush) end
 function Entity:setKv(key, value) end
 
 ---@param output string
----@param entityName string
+---@param entity (string|Entity)
 ---@param input string
 ---@param argument string?
 ---@param delay number?
-function Entity:addOutput(output, entityName, input, argument, delay) end
+function Entity:addOutput(output, entity, input, argument, delay) end
 
 function Entity:markAsIO() end
+
+Item = {};
+
+---@return string
+function Item.getName() end
+---@return string
+function Item.getType() end
+---@return vec3 
+function Item.getPosition() end
+---@return vec3 
+function Item.getRotation() end
+---@param key string
+---@return (number|boolean), (number|string)
+function Item.getKv(key) end
+---@return (vec2|vec3)
+function Item.getSize() end

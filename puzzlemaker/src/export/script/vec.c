@@ -1,8 +1,9 @@
+#include "export/script/api.h"
 #include <cglm/cglm.h>
 #include <lua/lua.h>
 #include <lua/lauxlib.h>
 
-void getVec3(lua_State* l, int pos, vec3 out, const char* arg)
+void luaGetVec3(lua_State* l, int pos, vec3 out, const char* arg)
 {
 	if (lua_type(l, pos) != LUA_TTABLE)
 		luaL_error(l, "%s, expected vec3 [number, number, number]", arg);
@@ -20,4 +21,24 @@ void getVec3(lua_State* l, int pos, vec3 out, const char* arg)
 		luaL_error(l, "%s z, expected vec3 [number, number, number]", arg);
 	out[2] = lua_tonumber(l, -1);
 	lua_pop(l, 3);
+}
+
+void luaPushVec3(lua_State *l, vec3 vec)
+{
+	lua_newtable(l);
+	lua_pushnumber(l, vec[0]);
+	lua_seti(l, -2, 1);
+	lua_pushnumber(l, vec[1]);
+	lua_seti(l, -2, 2);
+	lua_pushnumber(l, vec[2]);
+	lua_seti(l, -2, 3);
+}
+
+void luaPushVec2(lua_State *l, vec2 vec)
+{
+	lua_newtable(l);
+	lua_pushnumber(l, vec[0]);
+	lua_seti(l, -2, 1);
+	lua_pushnumber(l, vec[1]);
+	lua_seti(l, -2, 2);
 }

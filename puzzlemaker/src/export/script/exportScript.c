@@ -18,6 +18,7 @@ int runExportScript(Item* item)
 	addBrushApi(l);
 	addUtilsApi(l);
 	addEntityApi(l, item);
+	addItemApi(l, item);
 
 	char buf[256];
 	snprintf(buf, sizeof(buf), "assets/scripts/%s", item->def->exportScript);

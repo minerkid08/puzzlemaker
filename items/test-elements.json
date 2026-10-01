@@ -11,7 +11,7 @@
     "bound1": [0, 0, -1],
     "bound2": [0.5, 2, 1],
     "minSize": [0, 2],
-    "maxSize": [99999, 99999],
+    "maxSize": [99999, 2],
     "snapMode": "mini-center",
     "defaultSize": [4, 2],
 		"exportScript": "fizzler.lua",
@@ -36,8 +36,8 @@
 		"inputs": [
 			{
 				"name": "disable",
-				"trueInput": "Disable",
-				"falseInput": "Enable"
+				"trueInput": "FireUser1",
+				"falseInput": "FireUser2"
 			}
     ],
 		"keyvalues": [
@@ -72,9 +72,10 @@
     "bound1": [0, 0, -1],
     "bound2": [0.5, 2, 1],
     "minSize": [2, 2],
-    "maxSize": [99999, 99999],
+    "maxSize": [99999, 2],
     "snapMode": "mini-center",
     "defaultSize": [4, 2],
+		"exportScript": "laserField.lua",
 		"inputs": [
 			{
 				"name": "disable",

@@ -1,6 +1,7 @@
 #include "export/entity.h"
 #include "dynList.h"
 #include "export/brush.h"
+#include "item/entityItem.h"
 #include "item/item.h"
 #include <stdio.h>
 #include <string.h>
@@ -132,7 +133,7 @@ void exportEntityAddRawOutput(Entity* ent, const char* output, const char* name,
 							  float delay)
 {
 	char buf[256];
-	snprintf(buf, 256, "\"%s\" \"%s\x1b%s\x1b%s\x1b%.2f\x1b-1\"\n", output, name, input, arg, delay);
+	snprintf(buf, 256, "\"%s\" \"%s\x1b%s\x1b%s\x1b%.2f\x1b-1\"", output, name, input, arg, delay);
 	int i = 0;
 	const char** arr = ent->rawOutputs;
 	if (arr == 0)
@@ -227,6 +228,23 @@ void exportEndEntities(FILE* file)
 					}
 				}
 				fprintf(file, "  }\n");
+			}
+		}
+
+		if (entity->rawOutputs)
+		{
+			int outputLen = dynList_size(entity->rawOutputs);
+			if (outputLen > 0)
+			{
+				fprintf(file, "\n  connections\n  {\n");
+				for (int i = 0; i < outputLen; i++)
+				{
+					char* output = (char*)entity->rawOutputs[i];
+					fprintf(file, "    %s\n", output);
+					free(output);
+				}
+				fprintf(file, "  }\n");
+				dynList_free(entity->rawOutputs);
 			}
 		}
 

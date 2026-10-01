@@ -13,7 +13,6 @@
 
 #include <cjson.h>
 #include <dynList.h>
-#include <math.h>
 #include <string.h>
 
 extern Item* itemList;

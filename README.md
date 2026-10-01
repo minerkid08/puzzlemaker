@@ -13,13 +13,13 @@ Docs for the item system are in ItemDoc.md
 5. Configure the p2ce field in compileSteps.json to point to the root of your game installation
 
 # Key binds
-Move with wasd and the arrow keys like hammer or the mouse like the portal 2 puzzlemaker.
-Press 2 to push voxels
-Press 3 to pull voxels
-Press R to toggle portalibility
-Press Z to toggle mini tiles
-
-Press G to grab item to be moved with mouse
-Press F to rotate item with mouse
-Press Q to rotate item 90 deg left
-Press E to rotate item 90 deg right
+Move with wasd and the arrow keys like hammer or the mouse like the portal 2 puzzlemaker.  
+Press 2 to push voxels  
+Press 3 to pull voxels  
+Press R to toggle portalibility  
+Press Z to toggle mini tiles  
+  
+Press G to grab item to be moved with mouse  
+Press F to rotate item with mouse  
+Press Q to rotate item 90 deg left  
+Press E to rotate item 90 deg right  

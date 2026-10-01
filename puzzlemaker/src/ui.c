@@ -5,12 +5,12 @@
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 #define CIMGUI_USE_OPENGL3
 #define CIMGUI_USE_GLFW
+#include "compile/compile.h"
+#include "save.h"
+#include "ui/itemPanel.h"
 #include <GLFW/glfw3.h>
 #include <cimgui.h>
 #include <cimgui_impl.h>
-#include "save.h"
-#include "ui/itemPanel.h"
-#include "compile/compile.h"
 
 static ImGuiContext* ctx;
 static ImGuiIO* io;
@@ -24,9 +24,9 @@ void initUi(GLFWwindow* window)
 	io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-  ImGuiStyle* style = igGetStyle();
-  ImGuiStyle_ScaleAllSizes(style, uiScale);
-  style->FontScaleMain = uiScale;
+	ImGuiStyle* style = igGetStyle();
+	ImGuiStyle_ScaleAllSizes(style, uiScale);
+	style->FontScaleMain = uiScale;
 
 	const char* glslVersion = "#version 330 core";
 	ImGui_ImplGlfw_InitForOpenGL(window, 1);
@@ -101,10 +101,10 @@ void uiViewport(FrameBuffer* framebuffer)
 	if (framebuffer->width != viewportPanelSize.x || framebuffer->height != viewportPanelSize.y)
 	{
 		drawImage = 0;
-    aspect = viewportPanelSize.x / viewportPanelSize.y;
-    width = viewportPanelSize.x;
-    height = viewportPanelSize.y;
-    initCamera();
+		aspect = viewportPanelSize.x / viewportPanelSize.y;
+		width = viewportPanelSize.x;
+		height = viewportPanelSize.y;
+		initCamera();
 		framebufferResize(framebuffer, viewportPanelSize.x, viewportPanelSize.y);
 	}
 
@@ -119,7 +119,7 @@ void uiViewport(FrameBuffer* framebuffer)
 	b.x = 1;
 	b.y = 0;
 
-  ImTextureRef* ref = ImTextureRef_ImTextureRef_TextureID(framebuffer->color);
+	ImTextureRef* ref = ImTextureRef_ImTextureRef_TextureID(framebuffer->color);
 
 	if (drawImage)
 		igImage(*ref, viewportPanelSize, a, b);
@@ -131,21 +131,29 @@ void uiMenuBar()
 	ImVec2 zero;
 	zero.x = 0;
 	zero.y = 0;
-  igBeginMenuBar();
+	igBeginMenuBar();
 	if (igMenuItem_Bool("save", 0, 0, 1))
 		fileBrowserSave();
 	if (igMenuItem_Bool("save as", 0, 0, 1))
-    fileBrowserOpen(MODE_SAVE);
+		fileBrowserOpen(MODE_SAVE);
 	if (igMenuItem_Bool("load", 0, 0, 1))
-    fileBrowserOpen(MODE_LOAD);
+		fileBrowserOpen(MODE_LOAD);
 	if (igMenuItem_Bool("compile", 0, 0, 1))
-		startCompile();
+	{
+		if (mapSettings.name[0] == 0)
+		{
+			fileBrowserCompileAfterSave();
+			fileBrowserOpen(MODE_SAVE);
+		}
+		else
+			startCompile();
+	}
 	if (igMenuItem_Bool("map settings", 0, 0, 1))
-    openMapSettingsUi();
-  igText("%s", mapSettings.name);
+		openMapSettingsUi();
+	igText("%s", mapSettings.name);
 
 	updateCompilePopup();
-  igEndMenuBar();
+	igEndMenuBar();
 
-  renderMapSettingsUi();
+	renderMapSettingsUi();
 }

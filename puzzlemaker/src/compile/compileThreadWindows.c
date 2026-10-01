@@ -3,6 +3,7 @@
 #include "dynList.h"
 #include <stdio.h>
 #include <windows.h>
+#include <io.h>
 
 extern CompileStatus compileStatus;
 
@@ -33,6 +34,25 @@ int runCmd(char* cmd)
 	if (!CreateProcess(0, buf, 0, 0, FALSE, 0, 0, compileStatus.workingDir, &si, &pi))
 	{
 		printf("CreateProcess failed (%d).\n", GetLastError());
+		printf("command line: '%s'\n", buf);
+		printf("working dir: '%s'\n", compileStatus.workingDir);
+
+		int len = strlen(buf);
+		for (int i = 0; i < len; i++)
+		{
+			if (buf[i] == '\\')
+				continue;
+			if (buf[i] == ' ')
+			{
+				buf[i] = 0;
+				break;
+			}
+		}
+		if (_access(buf, 0))
+			printf("bad command line\n");
+
+		if (_access(compileStatus.workingDir, 0))
+			printf("bad working dir\n");
 		return 1;
 	}
 

@@ -1,8 +1,9 @@
 #include "camera.h"
-#include "cglm/cglm.h"
+#include <cglm/cglm.h>
+#include "cglm/cam.h"
 #include "cglm/mat4.h"
 #include "renderer/renderer.h"
-#include "utils.h"
+#include "settings.h"
 
 float fovx;
 float fovy;
@@ -23,7 +24,7 @@ void initCamera()
 	float near = 0.1f;
 	float far = 100.0f;
 
-	fovy = glm_rad(45.0f);
+	fovy = glm_rad(editorSettings.fov / 2);
 	fovx = 2 * atanf(tanf(fovy / 2) * aspect);
 
 	glm_perspective(fovy, aspect, near, far, projMat);

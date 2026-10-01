@@ -3,10 +3,7 @@
 #include "export/brush.h"
 #include "export/entity.h"
 #include "export/script/exportScript.h"
-#include "item/entityItem.h"
 #include "item/item.h"
-#include "item/panel.h"
-#include "item/volumeItem.h"
 #include "ui/fileBrowser.h"
 #include <stdio.h>
 
@@ -28,19 +25,14 @@ int exportMap()
 		item->ioEnt = 0;
 		if (item->def->exportScript)
 		{
-			if(runExportScript(item))
+			if (runExportScript(item))
 				return 1;
 		}
 		else
-		{
-			if (item->def->type == ITEM_TYPE_ENTITY)
-				entityItemExport(item);
-			if (item->def->type == ITEM_TYPE_PANEL)
-				panelItemExport(item);
-			if (item->def->type == ITEM_TYPE_VOLUME)
-				volumeItemExport(item);
-		}
+			item->def->callbacks->exportItem(item);
 	}
+
+	exportEntitiesProcessOutputs();
 
 	exportMapSettings();
 	exportVoxels();
@@ -98,7 +90,7 @@ cordons
 	for (int i = 0; i < len; i++)
 	{
 		Item* item = &items[i];
-		if(item->ioEnt)
+		if (item->ioEnt)
 			free((char*)item->ioEnt);
 	}
 	return 0;

@@ -84,3 +84,5 @@ function Item.getRotation() end
 function Item.getKv(key) end
 ---@return (vec2|vec3)
 function Item.getSize() end
+---@return vec2
+function Item.getTile() end

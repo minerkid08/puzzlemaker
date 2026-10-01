@@ -23,6 +23,7 @@ typedef struct
 } Entity;
 
 void exportStartEntities();
+void exportEntitiesProcessOutputs();
 void exportEndEntities(FILE* file);
 Entity* getEntityList();
 

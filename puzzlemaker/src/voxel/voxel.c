@@ -43,6 +43,12 @@ void initVoxels()
 			for (int x = 1; x < 7; x++)
 			{
 				getVoxel(x, y, z)->solid = 0;
+				getVoxel(x, y, z)->portalability[0]= 0;
+				getVoxel(x, y, z)->portalability[1]= 0;
+				getVoxel(x, y, z)->portalability[2]= 0;
+				getVoxel(x, y, z)->portalability[3]= 0;
+				getVoxel(x, y, z)->portalability[4]= 0;
+				getVoxel(x, y, z)->portalability[5]= 0;
 			}
 		}
 	}

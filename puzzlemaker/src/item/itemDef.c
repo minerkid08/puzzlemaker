@@ -110,17 +110,17 @@ void loadItemDefinitionFile(const char* filename)
 		if (strcmp(type, "entity") == 0)
 		{
 			def->type = ITEM_TYPE_ENTITY;
-			def->data = loadEntityItemDef(item);
+			def->data = loadEntityItemDef(item, def);
 		}
 		else if (strcmp(type, "panel") == 0)
 		{
 			def->type = ITEM_TYPE_PANEL;
-			def->data = loadPanelItemDef(item);
+			def->data = loadPanelItemDef(item, def);
 		}
 		else if (strcmp(type, "volume") == 0)
 		{
 			def->type = ITEM_TYPE_VOLUME;
-			def->data = loadVolumeItemDef(item);
+			def->data = loadVolumeItemDef(item, def);
 		}
 		else
 			errorf("unknown type for entity %s\n", def->name);
@@ -253,18 +253,6 @@ void loadItemDefinitionFile(const char* filename)
 			}
 		}
 
-		cJSON* bound = cJSON_GetObjectItem(item, "bound1");
-		def->bound1[0] = jsonArrGetFloat(bound, 0);
-		def->bound1[1] = jsonArrGetFloat(bound, 1);
-		def->bound1[2] = jsonArrGetFloat(bound, 2);
-		def->bound1[3] = 1;
-
-		bound = cJSON_GetObjectItem(item, "bound2");
-		def->bound2[0] = jsonArrGetFloat(bound, 0);
-		def->bound2[1] = jsonArrGetFloat(bound, 1);
-		def->bound2[2] = jsonArrGetFloat(bound, 2);
-		def->bound2[3] = 1;
-
 		cJSON* staticKvs = cJSON_GetObjectItem(item, "statickvs");
 		int len = cJSON_GetArraySize(staticKvs);
 
@@ -298,19 +286,6 @@ void loadItemDefinitionFile(const char* filename)
 				def->snapMode = SNAP_MINI_CORNER;
 			if (strcmp(value, "mini-center") == 0)
 				def->snapMode = SNAP_MINI_CENTER;
-		}
-		cJSON* offset = cJSON_GetObjectItem(item, "offset");
-		if (offset)
-		{
-			def->offset[0] = jsonArrGetFloat(offset, 0);
-			def->offset[1] = jsonArrGetFloat(offset, 1);
-			def->offset[2] = jsonArrGetFloat(offset, 2);
-		}
-		else
-		{
-			def->offset[0] = 0;
-			def->offset[1] = 0;
-			def->offset[2] = 0;
 		}
 	}
 

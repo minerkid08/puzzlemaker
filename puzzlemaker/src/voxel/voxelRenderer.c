@@ -1,12 +1,32 @@
 #include "renderer/renderer.h"
-#include <cglm/cglm.h>
-#include "voxel/voxel.h"
 #include "utils.h"
+#include "voxel/voxel.h"
 #include "voxel/voxelConfig.h"
+#include <cglm/cglm.h>
+
+void getTint(char isSelected, char is2d, char dir, vec4 tint)
+{
+	tint[0] = 1;
+	tint[1] = 1;
+	tint[2] = 1;
+	tint[3] = 1;
+	if (!isSelected)
+		return;
+	if (!is2d)
+		return;
+	if (currentDir == dir)
+	{
+		tint[0] = 0;
+		tint[1] = 1;
+		tint[2] = 0;
+		tint[3] = 1;
+	}
+}
 
 void drawVoxels(vec3 cameraPos, vec3 cameraRot)
 {
-	bindVoxelTextures(voxelConfig.blackEditor, voxelConfig.whiteEditor);
+	bindVoxelTextures(voxelConfig.blackEditor, voxelConfig.whiteEditor, voxelConfig.blackMiniEditor,
+					  voxelConfig.whiteMiniEditor);
 
 	mat4 camMat;
 	glm_mat4_identity(camMat);
@@ -22,9 +42,7 @@ void drawVoxels(vec3 cameraPos, vec3 cameraRot)
 	char multiselect = (currentVoxel2Pos[0] != -1 && currentVoxel2Pos[1] != -1 && currentVoxel2Pos[2] != -1);
 	char not2d = 0;
 	if (multiselect)
-	{
 		not2d = !isSelection2d();
-	}
 
 	for (int z = 0; z < MAP_SIZE; z++)
 	{
@@ -37,24 +55,25 @@ void drawVoxels(vec3 cameraPos, vec3 cameraRot)
 				{
 					ivec3 pos = {x, y, z};
 
-          vec4 tint = {1, 1, 1, 1};
+					vec4 tint = {1, 1, 1, 1};
 					char selected;
 					if (multiselect)
 						selected = pointInRange(pos, currentVoxelPos, currentVoxel2Pos);
 					else
 						selected = (voxel == currentVoxel);
-          if(selected)
-          {
-            tint[0] = 0;
-            tint[1] = 1;
-            tint[2] = 0;
-          }
+					if (selected)
+					{
+						tint[0] = 0;
+						tint[1] = 1;
+						tint[2] = 0;
+					}
 
 					if (z + 1 < MAP_SIZE)
 					{
 						Voxel* v2 = getVoxel(x, y, z + 1);
 						if (!v2->solid)
 						{
+							getTint(selected, !not2d, DIR_POS_Z, tint);
 							vec3 verts[4] = {
 								{x, y, z + 1}, {x + 1, y, z + 1}, {x, y + 1, z + 1}, {x + 1, y + 1, z + 1}};
 							drawVerts(verts, tint, voxel->portalability[DIR_POS_Z]);
@@ -66,6 +85,7 @@ void drawVoxels(vec3 cameraPos, vec3 cameraRot)
 						Voxel* v2 = getVoxel(x, y, z - 1);
 						if (!v2->solid)
 						{
+							getTint(selected, !not2d, DIR_NEG_Z, tint);
 							vec3 verts[4] = {{x, y, z}, {x, y + 1, z}, {x + 1, y, z}, {x + 1, y + 1, z}};
 							drawVerts(verts, tint, voxel->portalability[DIR_NEG_Z]);
 						}
@@ -76,6 +96,7 @@ void drawVoxels(vec3 cameraPos, vec3 cameraRot)
 						Voxel* v2 = getVoxel(x + 1, y, z);
 						if (!v2->solid)
 						{
+							getTint(selected, !not2d, DIR_POS_X, tint);
 							vec3 verts[4] = {
 								{x + 1, y, z}, {x + 1, y + 1, z}, {x + 1, y, z + 1}, {x + 1, y + 1, z + 1}};
 							drawVerts(verts, tint, voxel->portalability[DIR_POS_X]);
@@ -87,6 +108,7 @@ void drawVoxels(vec3 cameraPos, vec3 cameraRot)
 						Voxel* v2 = getVoxel(x - 1, y, z);
 						if (!v2->solid)
 						{
+							getTint(selected, !not2d, DIR_NEG_X, tint);
 							vec3 verts[4] = {{x, y, z}, {x, y, z + 1}, {x, y + 1, z}, {x, y + 1, z + 1}};
 							drawVerts(verts, tint, voxel->portalability[DIR_NEG_X]);
 						}
@@ -97,6 +119,7 @@ void drawVoxels(vec3 cameraPos, vec3 cameraRot)
 						Voxel* v2 = getVoxel(x, y + 1, z);
 						if (!v2->solid)
 						{
+							getTint(selected, !not2d, DIR_POS_Y, tint);
 							vec3 verts[4] = {
 								{x, y + 1, z}, {x, y + 1, z + 1}, {x + 1, y + 1, z}, {x + 1, y + 1, z + 1}};
 							drawVerts(verts, tint, voxel->portalability[DIR_POS_Y]);
@@ -108,6 +131,7 @@ void drawVoxels(vec3 cameraPos, vec3 cameraRot)
 						Voxel* v2 = getVoxel(x, y - 1, z);
 						if (!v2->solid)
 						{
+							getTint(selected, !not2d, DIR_NEG_Y, tint);
 							vec3 verts[4] = {{x, y, z}, {x + 1, y, z}, {x, y, z + 1}, {x + 1, y, z + 1}};
 							drawVerts(verts, tint, voxel->portalability[DIR_NEG_Y]);
 						}

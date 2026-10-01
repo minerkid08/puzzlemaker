@@ -8,14 +8,13 @@
     "entity": "trigger_portal_cleanser",
     "texSize": 1024,
     "thickness": 2,
-    "bound1": [0, 0, -1],
-    "bound2": [0.5, 2, 1],
     "minSize": [0, 2],
     "maxSize": [99999, 2],
     "snapMode": "mini-center",
     "defaultSize": [4, 2],
+		"vertTile": true,
 		"exportScript": "fizzler.lua",
-    "boarders": [
+    "borders": [
       {
         "id": "left",
         "editorTexture": "fizzler-left.png",
@@ -69,11 +68,10 @@
     "entity": "trigger_hurt",
     "texSize": 1024,
     "thickness": 2,
-    "bound1": [0, 0, -1],
-    "bound2": [0.5, 2, 1],
     "minSize": [2, 2],
     "maxSize": [99999, 2],
     "snapMode": "mini-center",
+		"vertTile": true,
     "defaultSize": [4, 2],
 		"exportScript": "laserField.lua",
 		"inputs": [
@@ -176,7 +174,9 @@
 		"model": "weighted-cube.obj",
 		"mat": "cube.png",
     "entity": "prop_weighted_cube",
-    "offset": [0, 0.5, 0],
+		"transform": {
+			"position": [0, 0.5, 0]
+		},
     "bound1": [-0.5, 0, -0.5],
     "bound2": [0.5, 1, 0.5],
 		"keyvalues": [
@@ -293,8 +293,8 @@
 		"model": "laser.obj",
 		"mat": "laser.png",
     "entity": "env_portal_laser",
-    "bound1": [-0.5, -0.5, -0.5],
-    "bound2": [0.5, 0.5, 0.5],
+    "bound1": [-0.25, -0.5, -0.5],
+    "bound2": [0.25, 0.5, 0.5],
 		"deleteIntersectingVoxels": true,
     "keyvalues": [
       {
@@ -326,8 +326,8 @@
 		"model": "laser-catcher.obj",
 		"mat": "laser-catcher.png",
     "entity": "prop_laser_catcher",
-    "bound1": [-0.5, -0.5, -0.5],
-    "bound2": [0.5, 0.5, 0.5],
+    "bound1": [-0.25, -0.5, -0.5],
+    "bound2": [0.25, 0.5, 0.5],
 		"deleteIntersectingVoxels": true,
     "keyvalues": [
       {

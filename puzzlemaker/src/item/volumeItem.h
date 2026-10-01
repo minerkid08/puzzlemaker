@@ -19,9 +19,10 @@ typedef struct
 	vec3 size;
 } VolumeItemData;
 
-void* loadVolumeItemDef(cJSON* json);
+void* loadVolumeItemDef(cJSON* json, ItemDefinition* itemDef);
 void volumeItemInit(Item* item);
 void volumeItemExport(Item* item);
 void volumeItemRender(Item* item);
 void volumeItemSave(Item* item, cJSON* json);
 void volumeItemLoad(Item* item, cJSON* json);
+void volumeItemGetBoundingBox(Item* item, vec3 min, vec3 max);

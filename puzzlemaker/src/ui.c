@@ -142,10 +142,13 @@ void uiMenuBar()
 		startCompile();
 	if (igMenuItem_Bool("map settings", 0, 0, 1))
     openMapSettingsUi();
+	if (igMenuItem_Bool("editor settings", 0, 0, 1))
+    openEditorSettingsUi();
   igText("%s", mapSettings.name);
 
 	updateCompilePopup();
   igEndMenuBar();
 
   renderMapSettingsUi();
+	renderEditorSettingsUi();
 }

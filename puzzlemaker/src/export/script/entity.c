@@ -162,7 +162,7 @@ int entityTransform(lua_State* l)
 	mat4 rotMat2;
 	glm_euler_yzx(entRot, rotMat2);
 
-	glm_mat4_mul(rotMat2, rotMat, rotMat);
+	glm_mat4_mul(rotMat, rotMat2, rotMat);
 	getEulerAngles(rotMat, rot);
 	rot[0] = glm_deg(rot[0]);
 	rot[1] = glm_deg(rot[1]);

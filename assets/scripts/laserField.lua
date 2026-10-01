@@ -24,15 +24,15 @@ local laser = Brush.new({ 0, 0, -1 / 64 }, { size[1], size[2], 1 / 64 });
 
 local laserEnt = Entity.new("laser", "func_brush", pos, { 0, 0, 0 });
 
-laserEnt:setKv("solidity", 0);
+laserEnt:setKv("solidity", 1);
 laserEnt:setKv("renderfx", 14);
 
 laser:setTexture(Direction.POS_X, "TOOLS/TOOLSNODRAW");
 laser:setTexture(Direction.NEG_X, "TOOLS/TOOLSNODRAW");
 laser:setTexture(Direction.POS_Y, "TOOLS/TOOLSNODRAW");
 laser:setTexture(Direction.NEG_Y, "TOOLS/TOOLSNODRAW");
-laser:setTexture(Direction.POS_Z, "EFFECTS/LASERPLANE");
-laser:setTexture(Direction.NEG_Z, "EFFECTS/LASERPLANE");
+laser:setTexture(Direction.POS_Z, "EFFECTS/LASERPLANE", { texSize = 512, fit = true });
+laser:setTexture(Direction.NEG_Z, "EFFECTS/LASERPLANE", { texSize = 512, fit = true });
 laser:transform(pos, rot);
 laserEnt:attachBrush(laser);
 

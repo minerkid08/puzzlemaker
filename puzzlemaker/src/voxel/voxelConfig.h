@@ -4,6 +4,8 @@ typedef struct
 {
 	int blackEditor;
 	int whiteEditor;
+	int blackMiniEditor;
+	int whiteMiniEditor;
 
 	const char* nodraw;
 	const char* backstage;

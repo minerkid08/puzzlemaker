@@ -42,3 +42,12 @@ void luaPushVec2(lua_State *l, vec2 vec)
 	lua_pushnumber(l, vec[1]);
 	lua_seti(l, -2, 2);
 }
+
+void luaPushiVec2(lua_State *l, ivec2 vec)
+{
+	lua_newtable(l);
+	lua_pushnumber(l, vec[0]);
+	lua_seti(l, -2, 1);
+	lua_pushnumber(l, vec[1]);
+	lua_seti(l, -2, 2);
+}

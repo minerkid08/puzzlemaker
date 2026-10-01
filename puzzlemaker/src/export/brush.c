@@ -8,6 +8,8 @@
 
 static Brush* brushes;
 
+static int sideId = 0;
+
 static __attribute__((constructor)) void init()
 {
 	brushes = dynList_new(0, sizeof(Brush));
@@ -21,6 +23,7 @@ Brush* getBrushArray()
 
 void exportStartBrushes()
 {
+	sideId = 0;
 	dynList_resize((void**)&brushes, 0);
 }
 
@@ -126,6 +129,7 @@ void exportBrush(FILE* file, Brush* brush)
 	fprintf(file, "  \"id\" \"%d\"\n", brush->id);
 	for (int j = 0; j < 6; j++)
 	{
+		sideId++;
 		Side* side = &brush->sides[j];
 		char v1[40];
 		char v2[40];
@@ -137,7 +141,7 @@ void exportBrush(FILE* file, Brush* brush)
 		char planeBuf[140];
 		snprintf(planeBuf, 140, "%s %s %s", v1, v2, v3);
 		fprintf(file, "  side\n  {\n");
-		fprintf(file, "    \"id\" \"%d\"\n", side->id + 1);
+		fprintf(file, "    \"id\" \"%d\"\n", sideId);
 		fprintf(file, "    \"plane\" \"%s\"\n", planeBuf);
 
 		fprintf(file, "    point_data\n    {\n");
@@ -219,7 +223,7 @@ void exportBrush(FILE* file, Brush* brush)
 			yoff = fmodf(yoff, side->texHeight);
 		}
 
-		fprintf(file, "    \"uaxis\" \"[%.4f %.4f %.4f %.4f] %.4f\"\n", uDir[0], uDir[1], uDir[2], -xoff, horizScale);
+		fprintf(file, "    \"uaxis\" \"[%.4f %.4f %.4f %.4f] %.4f\"\n", uDir[0], uDir[1], uDir[2], xoff, horizScale);
 		fprintf(file, "    \"vaxis\" \"[%.4f %.4f %.4f %.4f] %.4f\"\n", vDir[0], vDir[1], vDir[2], yoff, vertScale);
 
 		fprintf(file, "    \"material\" \"%s\"\n", side->material);
@@ -228,10 +232,7 @@ void exportBrush(FILE* file, Brush* brush)
 		fprintf(file, "    \"smoothing_groups\" \"0\"\n");
 		fprintf(file, "  }\n");
 		if (brush->script)
-    {
-      printf("freeing: %s, brush %d, side %d\n", side->material, brush->id, j);
 			free((char*)side->material);
-    }
 	}
 	fprintf(file, "}\n");
 }

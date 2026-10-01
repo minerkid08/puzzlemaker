@@ -1,6 +1,7 @@
 #include "cglm/quat.h"
 #include "cglm/util.h"
 #include "renderer/framebuffer.h"
+#include "settings.h"
 #include "ui/fileBrowser.h"
 #include "utils.h"
 #include <dirent.h>
@@ -66,11 +67,13 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 void mouseCallback(GLFWwindow* window, int button, int action, int mods);
 void mouseMoveCallback(GLFWwindow* window, double x, double y);
 void mouseZoomCallback(GLFWwindow* window, double x, double y);
+void closeCallback(GLFWwindow* window);
 
 extern float uiScale;
 
 int main()
 {
+	loadEditorSettings();
 	makeDir("maps");
 
 	startCompileThread();
@@ -96,6 +99,7 @@ int main()
 	glfwSetMouseButtonCallback(window, mouseCallback);
 	glfwSetCursorPosCallback(window, mouseMoveCallback);
 	glfwSetScrollCallback(window, mouseZoomCallback);
+	glfwSetWindowCloseCallback(window, closeCallback);
 
 	glfwSwapInterval(1);
 
@@ -126,6 +130,10 @@ int main()
 		float lookUp = glfwGetKey(window, GLFW_KEY_UP) - glfwGetKey(window, GLFW_KEY_DOWN);
 		float lookRight = glfwGetKey(window, GLFW_KEY_RIGHT) - glfwGetKey(window, GLFW_KEY_LEFT);
 
+		float moveSpeed = editorSettings.moveSpeed;
+		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT))
+			moveSpeed = editorSettings.boostSpeed;
+
 		if (!viewportHovered)
 		{
 			moveForward = 0;
@@ -139,13 +147,13 @@ int main()
 
 		updateCamera();
 
-		cameraPos[0] += forward[0] * moveForward * dt * 2;
-		cameraPos[1] += forward[1] * moveForward * dt * 2;
-		cameraPos[2] += forward[2] * moveForward * dt * 2;
+		cameraPos[0] += forward[0] * moveForward * dt * moveSpeed;
+		cameraPos[1] += forward[1] * moveForward * dt * moveSpeed;
+		cameraPos[2] += forward[2] * moveForward * dt * moveSpeed;
 
-		cameraPos[0] += right[0] * moveRight * dt * 2;
-		cameraPos[1] += right[1] * moveRight * dt * 2;
-		cameraPos[2] += right[2] * moveRight * dt * 2;
+		cameraPos[0] += right[0] * moveRight * dt * moveSpeed;
+		cameraPos[1] += right[1] * moveRight * dt * moveSpeed;
+		cameraPos[2] += right[2] * moveRight * dt * moveSpeed;
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -172,6 +180,11 @@ int main()
 	glfwTerminate();
 }
 
+void closeCallback(GLFWwindow* window)
+{
+	saveEditorSettings();
+}
+
 int mouseX = 0;
 vec4 itemQuat;
 extern Item* selectedItem;
@@ -180,23 +193,60 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 {
 	if (!viewportHovered)
 		return;
+
 	if (action == GLFW_PRESS)
 	{
-		if (key == GLFW_KEY_Q)
+		if (key == GLFW_KEY_2)
 			voxelPush();
-		if (key == GLFW_KEY_E)
+		if (key == GLFW_KEY_3)
 			voxelPull();
 		if (key == GLFW_KEY_R)
 			voxelTogglePortal();
+		if (key == GLFW_KEY_Z)
+			voxelToggleSize();
 		if (key == GLFW_KEY_G)
 			mouseMode = MODE_GRAB;
 		if (key == GLFW_KEY_F)
 		{
-			if (selectedItem->snapDir == DIR_NONE)
+			if (selectedItem == 0)
 				return;
 			mouseMode = MODE_ROTATE;
 			mouseX = mx;
 			memcpy(itemQuat, selectedItem->quat, sizeof(vec4));
+		}
+		if (key == GLFW_KEY_Q)
+		{
+			if (selectedItem == 0)
+				return;
+			vec4 itemQuat;
+			memcpy(itemQuat, selectedItem->quat, sizeof(vec4));
+			vec4 quat2;
+			vec3 axis = {0, 1, 0};
+
+			glm_quatv(quat2, glm_rad(90), axis);
+
+			vec4 newItemQuat;
+			glm_quat_mul(itemQuat, quat2, newItemQuat);
+			memcpy(selectedItem->quat, newItemQuat, sizeof(vec4));
+
+			updateItemTransform(selectedItem);
+		}
+		if (key == GLFW_KEY_E)
+		{
+			if (selectedItem == 0)
+				return;
+			vec4 itemQuat;
+			memcpy(itemQuat, selectedItem->quat, sizeof(vec4));
+			vec4 quat2;
+			vec3 axis = {0, 1, 0};
+
+			glm_quatv(quat2, glm_rad(-90), axis);
+
+			vec4 newItemQuat;
+			glm_quat_mul(itemQuat, quat2, newItemQuat);
+			memcpy(selectedItem->quat, newItemQuat, sizeof(vec4));
+
+			updateItemTransform(selectedItem);
 		}
 	}
 }

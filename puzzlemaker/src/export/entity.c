@@ -1,7 +1,6 @@
 #include "export/entity.h"
 #include "dynList.h"
 #include "export/brush.h"
-#include "item/entityItem.h"
 #include "item/item.h"
 #include <stdio.h>
 #include <string.h>
@@ -146,6 +145,113 @@ void exportEntityAddRawOutput(Entity* ent, const char* output, const char* name,
 	}
 	arr[i] = strdup(buf);
 	ent->rawOutputs = arr;
+}
+
+void exportEntitiesProcessOutputs()
+{
+	int len = dynList_size(entities);
+	for (int i = 0; i < len; i++)
+	{
+		Entity* entity = &entities[i];
+		if (entity->outputs == 0)
+			continue;
+
+		int outputCount = dynList_size(entity->outputs);
+		if (outputCount == 0)
+			continue;
+
+		const char* entName = entity->name;
+
+		int uniqueOutputs = 0;
+		OutputDef** outputDefs = dynList_new(0, sizeof(OutputDef**));
+		for (int j = 0; j < outputCount; j++)
+		{
+			ItemOutput* output = &entity->outputs[j];
+			if(uniqueOutputs == 0)
+			{
+				dynList_resize((void*)&outputDefs, uniqueOutputs + 1);
+				outputDefs[uniqueOutputs] = output->def;
+				uniqueOutputs++;
+				continue;
+			}
+			for (int k = 0; k < uniqueOutputs; k++)
+			{
+				if (outputDefs[k] == output->def)
+					continue;
+				dynList_resize((void*)&outputDefs, uniqueOutputs + 1);
+				outputDefs[uniqueOutputs] = output->def;
+				uniqueOutputs++;
+			}
+		}
+
+		if (uniqueOutputs == 0)
+			continue;
+
+		for (int j = 0; j < uniqueOutputs; j++)
+		{
+			OutputDef* output = outputDefs[j];
+			char name[64];
+			snprintf(name, 64, "%s_%s", entName, output->name);
+			exportEntityAddRawOutput(entity, output->trueOutput, name, "FireUser1", "", 0);
+			exportEntityAddRawOutput(entity, output->falseOutput, name, "FireUser2", "", 0);
+		}
+
+		vec3 entPos;
+		entPos[0] = entity->pos[0];
+		entPos[1] = entity->pos[1];
+		entPos[2] = entity->pos[2];
+
+		ItemOutput* outputArr = entity->outputs;
+		entity->outputs = 0;
+
+		for (int j = 0; j < outputCount; j++)
+		{
+			ItemOutput* output = &outputArr[j];
+			Entity* relay = exportCreateEntity();
+			char relayName[128];
+			snprintf(relayName, 128, "%s_%s", entName, output->def->name);
+			relay->className = "logic_relay";
+			relay->name = strdup(relayName);
+			relay->rotation[0] = 0;
+			relay->rotation[1] = 0;
+			relay->rotation[2] = 0;
+			relay->pos[0] = entPos[0];
+			relay->pos[1] = entPos[1];
+			relay->pos[2] = entPos[2];
+
+			char ioEntName[128];
+			Item* item = getItem(output->entity);
+			InputDef* input = output->input;
+			if (item->ioEnt)
+				strncpy(ioEntName, item->ioEnt, 128);
+			else
+				snprintf(ioEntName, 128, "%s%d", item->def->name, output->entity);
+			if (output->inverted)
+			{
+				if (output->input->falseArg)
+					exportEntityAddRawOutput(relay, "OnUser1", ioEntName, input->falseInput, input->falseArg, 0);
+				else
+					exportEntityAddRawOutput(relay, "OnUser1", ioEntName, input->falseInput, "", 0);
+
+				if (output->input->trueArg)
+					exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->trueInput, input->trueArg, 0);
+				else
+					exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->trueInput, "", 0);
+			}
+			else
+			{
+				if (output->input->trueArg)
+					exportEntityAddRawOutput(relay, "OnUser1", ioEntName, input->trueInput, input->trueArg, 0);
+				else
+					exportEntityAddRawOutput(relay, "OnUser1", ioEntName, input->trueInput, "", 0);
+
+				if (output->input->falseArg)
+					exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->falseInput, input->falseArg, 0);
+				else
+					exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->falseInput, "", 0);
+			}
+		}
+	}
 }
 
 void exportEndEntities(FILE* file)

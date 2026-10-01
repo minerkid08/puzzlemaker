@@ -81,12 +81,8 @@ static int brushSetTexture(lua_State* l)
 	Side* side = &brush->sides[dir];
 
 	if (side->material)
-  {
-    printf("freeing: %s, brush %d, side %d\n", side->material, brush->id, dir);
 		free((char*)side->material);
-  }
 	side->material = strdup(texName);
-  printf("allocating: %s, brush %d, side %d\n", side->material, brush->id, dir);
 
 	if (type == LUA_TTABLE)
 	{

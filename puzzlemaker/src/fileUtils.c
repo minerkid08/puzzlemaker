@@ -1,6 +1,12 @@
 #include "dynList.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+
+int pstrcmp(const void* a, const void* b)
+{
+	return strcmp(*(const char**)a, *(const char**)b);
+}
 
 #ifdef linux
 #include <dirent.h>
@@ -52,6 +58,16 @@ void listFiles(const char* path, const char*** dirs, const char*** files, const 
 	}
 	else
 		printf("bad directory '%s'\n", path);
+	if (files)
+	{
+		int fileCount = dynList_size(*files);
+		qsort(*files, fileCount, sizeof(const char*), pstrcmp);
+	}
+	else
+	{
+		int dirCount = dynList_size(*dirs);
+		qsort(*dirs, dirCount, sizeof(const char*), pstrcmp);
+	}
 }
 
 void makeDir(const char* path)
@@ -117,6 +133,8 @@ void listFiles(const char* dirPath, const char*** dirs, const char*** files, con
 	} while (FindNextFile(hFind, &en));
 
 	FindClose(hFind);
+	qsort(*files, dynList_size(*files), sizeof(const char*), pstrcmp);
+	qsort(*dirs, dynList_size(*dirs), sizeof(const char*), pstrcmp);
 }
 
 void makeDir(const char* path)

@@ -45,11 +45,13 @@ typedef struct
 typedef struct
 {
 	vec2 size;
+	ivec2 tile;
 } PanelData;
 
-void* loadPanelItemDef(cJSON* json);
+void* loadPanelItemDef(cJSON* json, ItemDefinition* def);
 void panelItemInit(Item* item);
 void panelItemExport(Item* item);
 void panelItemRender(Item* item);
 void panelItemSave(Item* item, cJSON* json);
 void panelItemLoad(Item* item, cJSON* json);
+void panelItemGetBoundingBox(Item* item, vec3 min, vec3 max);

@@ -1,10 +1,7 @@
 #include "cglm/quat.h"
 #include "dynList.h"
-#include "entityItem.h"
 #include "item/item.h"
-#include "item/panel.h"
 #include "utils.h"
-#include "volumeItem.h"
 #include <string.h>
 
 Item* itemList;
@@ -35,13 +32,13 @@ Item* getItem(int i)
 
 Item* addItemFromDef(ItemDefinition* def, ivec3 position)
 {
-  ItemDefinition* definitions = getItemDefinitions();
-  for(int i = 0; i < dynList_size(definitions); i++)
-  {
-    if(strcmp(definitions[i].name, def->name) == 0)
-      return addItem(i, position);
-  }
-  return 0;
+	ItemDefinition* definitions = getItemDefinitions();
+	for (int i = 0; i < dynList_size(definitions); i++)
+	{
+		if (strcmp(definitions[i].name, def->name) == 0)
+			return addItem(i, position);
+	}
+	return 0;
 }
 
 Item* addItem(int defId, ivec3 position)
@@ -66,7 +63,7 @@ Item* addItem(int defId, ivec3 position)
 	item->index = index;
 	item->id = defId;
 
-  item->snapDir = DIR_NONE;
+	item->snapDir = DIR_NONE;
 
 	item->dir[0] = 0;
 	item->dir[1] = 0;
@@ -85,9 +82,9 @@ Item* addItem(int defId, ivec3 position)
 		item->pos[2] = position[2];
 	}
 
-  vec4 quat;
-  glm_quat_identity(quat);
-  memcpy(item->quat, quat, sizeof(vec4));
+	vec4 quat;
+	glm_quat_identity(quat);
+	memcpy(item->quat, quat, sizeof(vec4));
 
 	updateItemTransform(item);
 
@@ -103,12 +100,7 @@ Item* addItem(int defId, ivec3 position)
 		item->kv[i].value = def->kvs[i].defaultValue;
 	}
 
-	if (item->def->type == ITEM_TYPE_ENTITY)
-		entityItemInit(item);
-	if (item->def->type == ITEM_TYPE_PANEL)
-		panelItemInit(item);
-	if (item->def->type == ITEM_TYPE_VOLUME)
-		volumeItemInit(item);
+	item->def->callbacks->init(item);
 
 	return item;
 }

@@ -37,7 +37,7 @@ void load()
 	cJSON* json = cJSON_Parse(data);
 	const char* err = cJSON_GetErrorPtr();
 	free(data);
-  fclose(file);
+	fclose(file);
 
 	for (int z = 0; z < MAP_SIZE; z++)
 	{
@@ -61,12 +61,25 @@ void load()
 
 		v->solid = jsonGetBool(voxel, "solid");
 
-		v->portalability[0] = jsonGetBool(voxel, "portal0");
-		v->portalability[1] = jsonGetBool(voxel, "portal1");
-		v->portalability[2] = jsonGetBool(voxel, "portal2");
-		v->portalability[3] = jsonGetBool(voxel, "portal3");
-		v->portalability[4] = jsonGetBool(voxel, "portal4");
-		v->portalability[5] = jsonGetBool(voxel, "portal5");
+		cJSON* portal = cJSON_GetObjectItem(voxel, "portal0");
+		if (cJSON_IsBool(portal))
+		{
+			v->portalability[0] = jsonGetBool(voxel, "portal0");
+			v->portalability[1] = jsonGetBool(voxel, "portal1");
+			v->portalability[2] = jsonGetBool(voxel, "portal2");
+			v->portalability[3] = jsonGetBool(voxel, "portal3");
+			v->portalability[4] = jsonGetBool(voxel, "portal4");
+			v->portalability[5] = jsonGetBool(voxel, "portal5");
+		}
+		else
+		{
+			v->portalability[0] = jsonGetInt(voxel, "portal0");
+			v->portalability[1] = jsonGetInt(voxel, "portal1");
+			v->portalability[2] = jsonGetInt(voxel, "portal2");
+			v->portalability[3] = jsonGetInt(voxel, "portal3");
+			v->portalability[4] = jsonGetInt(voxel, "portal4");
+			v->portalability[5] = jsonGetInt(voxel, "portal5");
+		}
 	}
 
 	int itemCount = jsonGetInt(json, "itemCount");
@@ -95,15 +108,11 @@ void load()
 
 		jsonGetVec3(itemJson, "pos", item->pos);
 		jsonGetVec3(itemJson, "rot", item->dir);
-	  cJSON* snapDir = cJSON_GetObjectItem(json, "snapDir");
-    if(snapDir)
-      item->snapDir = cJSON_GetNumberValue(snapDir);
+		cJSON* snapDir = cJSON_GetObjectItem(json, "snapDir");
+		if (snapDir)
+			item->snapDir = cJSON_GetNumberValue(snapDir);
 
-		if (item->def->type == ITEM_TYPE_PANEL)
-			panelItemLoad(item, itemJson);
-
-		if (item->def->type == ITEM_TYPE_VOLUME)
-			volumeItemLoad(item, itemJson);
+		item->def->callbacks->load(item, itemJson);
 
 		updateItemTransformRot(item);
 

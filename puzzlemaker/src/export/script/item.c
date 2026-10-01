@@ -17,6 +17,7 @@ static int itemGetType(lua_State* l);
 static int itemGetKv(lua_State* l);
 
 static int itemGetSize(lua_State* l);
+static int itemGetTile(lua_State* l);
 
 void addItemApi(lua_State* l, Item* i)
 {
@@ -37,6 +38,8 @@ void addItemApi(lua_State* l, Item* i)
 	{
 		lua_pushcfunction(l, itemGetSize);
 		lua_setfield(l, -2, "getSize");
+		lua_pushcfunction(l, itemGetTile);
+		lua_setfield(l, -2, "getTile");
 	}
 
 	lua_setglobal(l, "Item");
@@ -126,5 +129,17 @@ int itemGetSize(lua_State* l)
 		return 1;
 	}
 	luaL_error(l, "getSize() must be called on panel or volume item");
+	return 0;
+}
+
+int itemGetTile(lua_State* l)
+{
+	if(item->def->type == ITEM_TYPE_PANEL)
+	{
+		PanelData* data = item->data;
+		luaPushiVec2(l, data->tile);
+		return 1;
+	}
+	luaL_error(l, "getTile() must be called on panel item");
 	return 0;
 }

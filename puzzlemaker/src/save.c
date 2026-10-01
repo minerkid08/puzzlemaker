@@ -1,8 +1,6 @@
 #include "cjson.h"
 #include "dynList.h"
 #include "item/item.h"
-#include "item/panel.h"
-#include "item/volumeItem.h"
 #include "jsonUtils.h"
 #include "mapsettings.h"
 #include "voxel/voxel.h"
@@ -83,12 +81,12 @@ void save()
 				cJSON_AddNumberToObject(voxel, "z", z);
 				cJSON_AddBoolToObject(voxel, "solid", v->solid);
 
-				cJSON_AddBoolToObject(voxel, "portal0", v->portalability[0]);
-				cJSON_AddBoolToObject(voxel, "portal1", v->portalability[1]);
-				cJSON_AddBoolToObject(voxel, "portal2", v->portalability[2]);
-				cJSON_AddBoolToObject(voxel, "portal3", v->portalability[3]);
-				cJSON_AddBoolToObject(voxel, "portal4", v->portalability[4]);
-				cJSON_AddBoolToObject(voxel, "portal5", v->portalability[5]);
+				cJSON_AddNumberToObject(voxel, "portal0", v->portalability[0]);
+				cJSON_AddNumberToObject(voxel, "portal1", v->portalability[1]);
+				cJSON_AddNumberToObject(voxel, "portal2", v->portalability[2]);
+				cJSON_AddNumberToObject(voxel, "portal3", v->portalability[3]);
+				cJSON_AddNumberToObject(voxel, "portal4", v->portalability[4]);
+				cJSON_AddNumberToObject(voxel, "portal5", v->portalability[5]);
 			}
 		}
 	}
@@ -123,10 +121,7 @@ void save()
 
     cJSON_AddNumberToObject(itemJson, "snapDir", item->snapDir);
 
-		if (item->def->type == ITEM_TYPE_PANEL)
-			panelItemSave(item, itemJson);
-		if (item->def->type == ITEM_TYPE_VOLUME)
-			volumeItemSave(item, itemJson);
+		item->def->callbacks->save(item, itemJson);
 
 		cJSON* output = cJSON_CreateArray();
 		cJSON_AddItemToObject(itemJson, "outputs", output);
@@ -183,4 +178,5 @@ void save()
 
 	free(str);
   cJSON_free(json);
+	printf("saved\n");
 }

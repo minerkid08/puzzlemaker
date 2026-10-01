@@ -5,13 +5,27 @@
 #include "dynList.h"
 #include "export/brush.h"
 #include "export/entity.h"
+#include "item/item.h"
 #include "jsonUtils.h"
 #include "renderer/renderer.h"
 #include "utils.h"
 #include <string.h>
 
-void* loadVolumeItemDef(cJSON* item)
+static ItemCallbacks callbacks;
+
+static __attribute__((constructor)) void init()
 {
+	callbacks.init = volumeItemInit;
+	callbacks.exportItem = volumeItemExport;
+	callbacks.render = volumeItemRender;
+	callbacks.getBoundingBox = volumeItemGetBoundingBox;
+	callbacks.save = volumeItemSave;
+	callbacks.load = volumeItemLoad;
+}
+
+void* loadVolumeItemDef(cJSON* item, ItemDefinition* itemDef)
+{
+	itemDef->callbacks = &callbacks;
 	VolumeItemDef* data = malloc(sizeof(VolumeItemDef));
 
 	if (cJSON_GetObjectItem(item, "minSize"))
@@ -186,4 +200,15 @@ void volumeItemLoad(Item* item, cJSON* json)
 	data->size[0] = jsonGetFloat(obj, "x");
 	data->size[1] = jsonGetFloat(obj, "y");
 	data->size[2] = jsonGetFloat(obj, "z");
+}
+
+void volumeItemGetBoundingBox(Item* item, vec3 min, vec3 max)
+{
+	VolumeItemData* data = item->data;
+	min[0] = 0;
+	min[1] = 0;
+	min[2] = 0;
+	max[0] = data->size[0];
+	max[1] = data->size[1];
+	max[2] = data->size[2];
 }

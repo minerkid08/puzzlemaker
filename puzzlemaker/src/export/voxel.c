@@ -24,7 +24,21 @@ const char* getMat(Voxel* voxel, int dir)
 			return voxelConfig.whiteCeiling;
 		return voxelConfig.whiteWall;
 	}
-	case 2:
+	case 2: {
+		if (dir == DIR_POS_Y)
+			return voxelConfig.blackFloorMini;
+		if (dir == DIR_NEG_Y)
+			return voxelConfig.blackCeilingMini;
+		return voxelConfig.blackWallMini;
+	}
+	case 3: {
+		if (dir == DIR_POS_Y)
+			return voxelConfig.whiteFloorMini;
+		if (dir == DIR_NEG_Y)
+			return voxelConfig.whiteCeilingMini;
+		return voxelConfig.whiteWallMini;
+	}
+	case 4:
 		return voxelConfig.backstage;
 	}
 	return 0;
@@ -296,68 +310,38 @@ void exportSubVoxels(int x, int y, int z, Voxel* voxel)
 			if (xoff == 0.0f)
 			{
 				if (voxel->faces & (1 << DIR_NEG_X))
-				{
-					if (voxel->portalability[DIR_NEG_X])
-						brush->sides[DIR_NEG_X].material = voxelConfig.whiteWallMini;
-					else
-						brush->sides[DIR_NEG_X].material = voxelConfig.blackWallMini;
-				}
+					brush->sides[DIR_NEG_X].material = getMat(voxel, DIR_NEG_X);
 				brush->sides[DIR_POS_X].material = voxelConfig.backstage;
 			}
 
 			if (xoff == 0.5f)
 			{
 				if (voxel->faces & (1 << DIR_POS_X))
-				{
-					if (voxel->portalability[DIR_POS_X])
-						brush->sides[DIR_POS_X].material = voxelConfig.whiteWallMini;
-					else
-						brush->sides[DIR_POS_X].material = voxelConfig.blackWallMini;
-				}
+					brush->sides[DIR_POS_X].material = getMat(voxel, DIR_POS_X);
 				brush->sides[DIR_NEG_X].material = voxelConfig.backstage;
 			}
 			if (yoff == 0.0f)
 			{
 				if (voxel->faces & (1 << DIR_NEG_Y))
-				{
-					if (voxel->portalability[DIR_NEG_Y])
-						brush->sides[DIR_NEG_Y].material = voxelConfig.whiteCeilingMini;
-					else
-						brush->sides[DIR_NEG_Y].material = voxelConfig.blackCeilingMini;
-				}
+					brush->sides[DIR_NEG_Y].material = getMat(voxel, DIR_NEG_Y);
 				brush->sides[DIR_POS_Y].material = voxelConfig.backstage;
 			}
 			if (yoff == 0.5f)
 			{
 				if (voxel->faces & (1 << DIR_POS_Y))
-				{
-					if (voxel->portalability[DIR_POS_Y])
-						brush->sides[DIR_POS_Y].material = voxelConfig.whiteFloorMini;
-					else
-						brush->sides[DIR_POS_Y].material = voxelConfig.blackFloorMini;
-				}
+					brush->sides[DIR_POS_Y].material = getMat(voxel, DIR_POS_Y);
 				brush->sides[DIR_NEG_Y].material = voxelConfig.backstage;
 			}
 			if (zoff == 0.0f)
 			{
 				if (voxel->faces & (1 << DIR_NEG_Z))
-				{
-					if (voxel->portalability[DIR_NEG_Z])
-						brush->sides[DIR_NEG_Z].material = voxelConfig.whiteWallMini;
-					else
-						brush->sides[DIR_NEG_Z].material = voxelConfig.blackWallMini;
-				}
+					brush->sides[DIR_NEG_Z].material = getMat(voxel, DIR_NEG_Z);
 				brush->sides[DIR_POS_Z].material = voxelConfig.backstage;
 			}
 			if (zoff == 0.5f)
 			{
 				if (voxel->faces & (1 << DIR_POS_Z))
-				{
-					if (voxel->portalability[DIR_POS_Z])
-						brush->sides[DIR_POS_Z].material = voxelConfig.whiteWallMini;
-					else
-						brush->sides[DIR_POS_Z].material = voxelConfig.blackWallMini;
-				}
+					brush->sides[DIR_POS_Z].material = getMat(voxel, DIR_POS_Z);
 				brush->sides[DIR_NEG_Z].material = voxelConfig.backstage;
 			}
 		}
@@ -368,7 +352,6 @@ void exportVoxels()
 {
 	Item* items = getItemList();
 	int len = dynList_size(items);
-	printf("item count %d\n", len);
 	for (int z = 0; z < MAP_SIZE; z++)
 	{
 		for (int y = 0; y < MAP_SIZE; y++)
@@ -476,7 +459,7 @@ void exportVoxels()
 						if (subVoxels[SUBVOXEL_xyZ] || subVoxels[SUBVOXEL_XyZ] || subVoxels[SUBVOXEL_xYZ] ||
 							subVoxels[SUBVOXEL_XYZ])
 						{
-							v2->portalability[DIR_NEG_Z] = 2;
+							v2->portalability[DIR_NEG_Z] = 4;
 							if (voxel->portalability[DIR_POS_Z])
 								v2->faces |= (1 << DIR_NEG_Z);
 						}
@@ -491,7 +474,7 @@ void exportVoxels()
 						if (subVoxels[SUBVOXEL_xyz] || subVoxels[SUBVOXEL_Xyz] || subVoxels[SUBVOXEL_xYz] ||
 							subVoxels[SUBVOXEL_XYz])
 						{
-							v2->portalability[DIR_POS_Z] = 2;
+							v2->portalability[DIR_POS_Z] = 4;
 							if (voxel->portalability[DIR_NEG_Z])
 								v2->faces |= (1 << DIR_POS_Z);
 						}
@@ -506,7 +489,7 @@ void exportVoxels()
 						if (subVoxels[SUBVOXEL_Xyz] || subVoxels[SUBVOXEL_XYz] || subVoxels[SUBVOXEL_XyZ] ||
 							subVoxels[SUBVOXEL_XYZ])
 						{
-							v2->portalability[DIR_NEG_X] = 2;
+							v2->portalability[DIR_NEG_X] = 4;
 							if (voxel->portalability[DIR_POS_X])
 								v2->faces |= (1 << DIR_NEG_X);
 						}
@@ -521,7 +504,7 @@ void exportVoxels()
 						if (subVoxels[SUBVOXEL_xyz] || subVoxels[SUBVOXEL_xYz] || subVoxels[SUBVOXEL_xyZ] ||
 							subVoxels[SUBVOXEL_xYZ])
 						{
-							v2->portalability[DIR_POS_X] = 2;
+							v2->portalability[DIR_POS_X] = 4;
 							if (voxel->portalability[DIR_NEG_X])
 								v2->faces |= (1 << DIR_POS_X);
 						}
@@ -536,7 +519,7 @@ void exportVoxels()
 						if (subVoxels[SUBVOXEL_xYz] || subVoxels[SUBVOXEL_XYz] || subVoxels[SUBVOXEL_xYZ] ||
 							subVoxels[SUBVOXEL_XYZ])
 						{
-							v2->portalability[DIR_NEG_Y] = 2;
+							v2->portalability[DIR_NEG_Y] = 4;
 							if (voxel->portalability[DIR_POS_Y])
 								v2->faces |= (1 << DIR_NEG_Y);
 						}
@@ -551,7 +534,7 @@ void exportVoxels()
 						if (subVoxels[SUBVOXEL_xyz] || subVoxels[SUBVOXEL_Xyz] || subVoxels[SUBVOXEL_xyZ] ||
 							subVoxels[SUBVOXEL_XyZ])
 						{
-							v2->portalability[DIR_POS_Y] = 2;
+							v2->portalability[DIR_POS_Y] = 4;
 							if (voxel->portalability[DIR_NEG_Y])
 								v2->faces |= (1 << DIR_POS_Y);
 						}

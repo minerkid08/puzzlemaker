@@ -33,8 +33,8 @@ laser:setTexture(Direction.POS_Y, "TOOLS/TOOLSNODRAW");
 laser:setTexture(Direction.NEG_Y, "TOOLS/TOOLSNODRAW");
 laser:setTexture(Direction.POS_Z, "EFFECTS/LASERPLANE");
 laser:setTexture(Direction.NEG_Z, "EFFECTS/LASERPLANE");
-trigger:transform(pos, rot);
-laserEnt:attachBrush(trigger);
+laser:transform(pos, rot);
+laserEnt:attachBrush(laser);
 
 local leftProp = Entity.new("leftProp", "prop_dynamic", { 0, 1, 0 }, { 0, 90, 0 });
 
@@ -52,10 +52,10 @@ rightProp:transform(pos, rot);
 
 ent:addOutput("OnUser1", ent, "Disable");
 ent:addOutput("OnUser1", laserEnt, "Disable");
-ent:addOutput("OnUser1", leftProp, "SetAnimation", "open");
-ent:addOutput("OnUser1", rightProp, "SetAnimation", "open");
+ent:addOutput("OnUser1", leftProp, "SetAnimation", "close");
+ent:addOutput("OnUser1", rightProp, "SetAnimation", "close");
 
 ent:addOutput("OnUser2", ent, "Enable");
 ent:addOutput("OnUser2", laserEnt, "Enable");
-ent:addOutput("OnUser2", leftProp, "SetAnimation", "close");
-ent:addOutput("OnUser2", rightProp, "SetAnimation", "close");
+ent:addOutput("OnUser2", leftProp, "SetAnimation", "open");
+ent:addOutput("OnUser2", rightProp, "SetAnimation", "open");

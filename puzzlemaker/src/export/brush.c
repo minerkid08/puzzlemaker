@@ -228,7 +228,10 @@ void exportBrush(FILE* file, Brush* brush)
 		fprintf(file, "    \"smoothing_groups\" \"0\"\n");
 		fprintf(file, "  }\n");
 		if (brush->script)
+    {
+      printf("freeing: %s, brush %d, side %d\n", side->material, brush->id, j);
 			free((char*)side->material);
+    }
 	}
 	fprintf(file, "}\n");
 }

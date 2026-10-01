@@ -759,11 +759,11 @@ entity
   connections
   {
     "OnUser1" "fizzler0-triggerDisable0.00-1"
-    "OnUser1" "fizzler0-leftPropSetAinimationopen0.00-1"
-    "OnUser1" "fizzler0-rightPropSetAinimationopen0.00-1"
+    "OnUser1" "fizzler0-leftPropsetAnimationclose0.00-1"
+    "OnUser1" "fizzler0-rightPropsetAnimationclose0.00-1"
     "OnUser2" "fizzler0-triggerEnable0.00-1"
-    "OnUser2" "fizzler0-leftPropSetAinimationclose0.00-1"
-    "OnUser2" "fizzler0-rightPropSetAinimationclose0.00-1"
+    "OnUser2" "fizzler0-leftPropsetAnimationopen0.00-1"
+    "OnUser2" "fizzler0-rightPropsetAnimationopen0.00-1"
   }
 solid
 {

@@ -16,31 +16,34 @@ ent:setKv("solid", 6);
 ent:setKv("disablereceiveshadows", false);
 ent:setKv("drawinfastreflection", false);
 ent:setKv("startdisabled", startDisabled);
+ent:markAsIO();
 
 local leftBrush = Brush.new({ 0, 0, -1 / 64 }, { 1, size[2], 1 / 64 });
-local centerBrush = Brush.new({ 1, 0, -1 / 64 }, { size[1] - 1, size[2], 1 / 64 });
 local rightBrush = Brush.new({ size[1] - 1, 0, -1 / 64 }, { size[1], size[2], 1 / 64 });
 
-local brushes = { leftBrush, centerBrush, rightBrush };
-ent:markAsIO();
+local brushes = { leftBrush, rightBrush };
+if (size[1] > 64) then
+  local centerBrush = Brush.new({ 1, 0, -1 / 64 }, { size[1] - 1, size[2], 1 / 64 });
+  table.insert(brushes, centerBrush);
+
+  centerBrush:setTexture(Direction.POS_Z, "EFFECTS/FIZZLER_CENTER", { texSize = 1024, fit = true });
+  centerBrush:setTexture(Direction.NEG_Z, "EFFECTS/FIZZLER_CENTER", { texSize = 1024, fit = true });
+end
 
 leftBrush:setTexture(Direction.POS_Z, "EFFECTS/FIZZLER_L", { texSize = 1024, fit = true });
 leftBrush:setTexture(Direction.NEG_Z, "EFFECTS/FIZZLER_R", { texSize = 1024, fit = true });
-
-centerBrush:setTexture(Direction.POS_Z, "EFFECTS/FIZZLER_CENTER", { texSize = 1024, fit = true });
-centerBrush:setTexture(Direction.NEG_Z, "EFFECTS/FIZZLER_CENTER", { texSize = 1024, fit = true });
 
 rightBrush:setTexture(Direction.POS_Z, "EFFECTS/FIZZLER_R", { texSize = 1024, fit = true });
 rightBrush:setTexture(Direction.NEG_Z, "EFFECTS/FIZZLER_L", { texSize = 1024, fit = true });
 
 for _, brush in pairs(brushes) do
-	brush:setTexture(Direction.POS_X, "TOOLS/TOOLSTRIGGER");
-	brush:setTexture(Direction.NEG_X, "TOOLS/TOOLSTRIGGER");
-	brush:setTexture(Direction.POS_Y, "TOOLS/TOOLSTRIGGER");
-	brush:setTexture(Direction.NEG_Y, "TOOLS/TOOLSTRIGGER");
+  brush:setTexture(Direction.POS_X, "TOOLS/TOOLSTRIGGER");
+  brush:setTexture(Direction.NEG_X, "TOOLS/TOOLSTRIGGER");
+  brush:setTexture(Direction.POS_Y, "TOOLS/TOOLSTRIGGER");
+  brush:setTexture(Direction.NEG_Y, "TOOLS/TOOLSTRIGGER");
 
-	brush:transform(pos, rot);
-	ent:attachBrush(brush);
+  brush:transform(pos, rot);
+  ent:attachBrush(brush);
 end
 
 local leftProp = Entity.new("leftProp", "prop_dynamic", { 0, 1, 0 }, { 0, 90, 0 });
@@ -55,15 +58,15 @@ rightProp:setKv("model", "models/props/fizzler_dynamic.mdl");
 rightProp:setKv("holdanimation", true);
 rightProp:transform(pos, rot);
 
-if(startDisabled) then
-	leftProp:setKv("defaultanimation", "close");
-	rightProp:setKv("defaultanimation", "close");
+if (startDisabled) then
+  leftProp:setKv("defaultanimation", "close");
+  rightProp:setKv("defaultanimation", "close");
 end
 
 ent:addOutput("OnUser1", ent, "Disable");
-ent:addOutput("OnUser1", leftProp, "SetAinimation", "open");
-ent:addOutput("OnUser1", rightProp, "SetAinimation", "open");
+ent:addOutput("OnUser1", leftProp, "setAnimation", "close");
+ent:addOutput("OnUser1", rightProp, "setAnimation", "close");
 
 ent:addOutput("OnUser2", ent, "Enable");
-ent:addOutput("OnUser2", leftProp, "SetAinimation", "close");
-ent:addOutput("OnUser2", rightProp, "SetAinimation", "close");
+ent:addOutput("OnUser2", leftProp, "setAnimation", "open");
+ent:addOutput("OnUser2", rightProp, "setAnimation", "open");

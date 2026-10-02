@@ -1,17 +1,74 @@
 #include "entityItem.h"
 #include "assetManager.h"
+#include "cglm/euler.h"
+#include "cglm/mat4.h"
+#include "cglm/quat.h"
 #include "cjson.h"
 #include "dynList.h"
 #include "export/entity.h"
+#include "item/item.h"
 #include "jsonUtils.h"
 #include "renderer/renderer.h"
+#include "utils.h"
+#include <math.h>
 #include <string.h>
 
-void* loadEntityItemDef(cJSON* item)
+static ItemCallbacks callbacks;
+
+static __attribute__((constructor)) void init()
 {
+	callbacks.init = entityItemInit;
+	callbacks.exportItem = entityItemExport;
+	callbacks.render = entityItemRender;
+	callbacks.getBoundingBox = entityItemGetBoundingBox;
+	callbacks.save = entityItemSave;
+	callbacks.load = entityItemLoad;
+}
+
+void* loadEntityItemDef(cJSON* item, ItemDefinition* itemDef)
+{
+	itemDef->callbacks = &callbacks;
 	EntityItemDef* def = malloc(sizeof(EntityItemDef));
 	const char* modelName = cJSON_GetObjectItem(item, "model")->valuestring;
 	const char* textureName = cJSON_GetObjectItem(item, "mat")->valuestring;
+
+	vec3 bound1;
+	vec3 bound2;
+
+	cJSON* bound = cJSON_GetObjectItem(item, "bound1");
+	bound1[0] = jsonArrGetFloat(bound, 0);
+	bound1[1] = jsonArrGetFloat(bound, 1);
+	bound1[2] = jsonArrGetFloat(bound, 2);
+
+	bound = cJSON_GetObjectItem(item, "bound2");
+	bound2[0] = jsonArrGetFloat(bound, 0);
+	bound2[1] = jsonArrGetFloat(bound, 1);
+	bound2[2] = jsonArrGetFloat(bound, 2);
+
+	def->bound1[0] = fminf(bound1[0], bound2[0]);
+	def->bound1[1] = fminf(bound1[1], bound2[1]);
+	def->bound1[2] = fminf(bound1[2], bound2[2]);
+	def->bound2[0] = fmaxf(bound1[0], bound2[0]);
+	def->bound2[1] = fmaxf(bound1[1], bound2[1]);
+	def->bound2[2] = fmaxf(bound1[2], bound2[2]);
+
+	cJSON* transform = cJSON_GetObjectItem(item, "transform");
+	def->positionOffset[0] = 0;
+	def->positionOffset[1] = 0;
+	def->positionOffset[2] = 0;
+
+	def->rotationOffset[0] = 0;
+	def->rotationOffset[1] = 0;
+	def->rotationOffset[2] = 0;
+	if (transform)
+	{
+		cJSON* position = cJSON_GetObjectItem(transform, "position");
+		cJSON* rotation = cJSON_GetObjectItem(transform, "rotation");
+		if (position)
+			jsonGetVec3(transform, "position", def->positionOffset);
+		if (rotation)
+			jsonGetVec3(transform, "rotation", def->rotationOffset);
+	}
 
 	if (cJSON_HasObjectItem(item, "instance"))
 	{
@@ -47,22 +104,47 @@ void entityItemExport(Item* item)
 	char buf[100];
 	snprintf(buf, 100, "%s%d", item->def->name, item->index);
 
-	float x = item->pos[0] + item->def->offset[0];
-	float y = item->pos[1] + item->def->offset[1];
-	float z = item->pos[2] + item->def->offset[2];
+	vec3 itemPos;
+	memcpy(itemPos, item->pos, sizeof(vec3));
+	vec4 itemRot;
+	memcpy(itemRot, item->quat, sizeof(vec4));
+
+	mat4 transform;
+	mat4 rotMat;
+	glm_mat4_identity(transform);
+	glm_translate(transform, itemPos);
+	glm_quat_mat4(itemRot, rotMat);
+	glm_mat4_mul(transform, rotMat, transform);
 
 	Entity* entity = exportCreateEntity();
-	entity->pos[0] = x;
-	entity->pos[1] = y;
-	entity->pos[2] = z;
-	entity->rotation[0] = item->dir[0];
-	entity->rotation[1] = item->dir[1];
-	entity->rotation[2] = item->dir[2];
+
+	vec3 entPos;
+	memcpy(entPos, defData->positionOffset, sizeof(vec3));
+	glm_mat4_mulv3(transform, entPos, 1, entPos);
+	memcpy(entity->pos, entPos, sizeof(vec3));
+
+	vec3 entRot;
+	memcpy(entRot, defData->rotationOffset, sizeof(vec3));
+	entRot[0] = glm_rad(entRot[0]);
+	entRot[1] = glm_rad(entRot[1]);
+	entRot[2] = glm_rad(entRot[2]);
+	mat4 rotMat2;
+  vec4 quat;
+	glm_euler_yzx_quat(entRot, quat);
+  glm_quat_mat4(quat, rotMat2);
+
+	glm_mat4_mul(rotMat, rotMat2, rotMat);
+	getEulerAngles(rotMat, entRot);
+	entRot[0] = glm_deg(entRot[0]);
+	entRot[1] = glm_deg(entRot[1]);
+	entRot[2] = glm_deg(entRot[2]);
+	memcpy(entity->rotation, entRot, sizeof(vec3));
+
 	entity->name = strdup(buf);
 	if (defData->instanceName)
 	{
 		entity->className = "func_instance";
-    snprintf(buf, sizeof(buf), "puzzlemakerInstances/%s", defData->instanceName);
+		snprintf(buf, sizeof(buf), "puzzlemakerInstances/%s", defData->instanceName);
 		exportEntityAddKvss(entity, "file", buf);
 	}
 	else
@@ -81,4 +163,20 @@ void entityItemExport(Item* item)
 
 	if (dynList_size(item->outputs))
 		entity->outputs = item->outputs;
+}
+
+void entityItemGetBoundingBox(Item* item, vec3 min, vec3 max)
+{
+	EntityItemDef* defData = item->def->data;
+
+	memcpy(min, defData->bound1, sizeof(vec3));
+	memcpy(max, defData->bound2, sizeof(vec3));
+}
+
+void entityItemSave(Item* item, cJSON* json)
+{
+}
+
+void entityItemLoad(Item* item, cJSON* json)
+{
 }

@@ -9,3 +9,5 @@ void setSelectedItem(Item* item);
 
 void openMapSettingsUi();
 void renderMapSettingsUi();
+void openEditorSettingsUi();
+void renderEditorSettingsUi();

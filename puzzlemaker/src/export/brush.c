@@ -8,6 +8,8 @@
 
 static Brush* brushes;
 
+static int sideId = 0;
+
 static __attribute__((constructor)) void init()
 {
 	brushes = dynList_new(0, sizeof(Brush));
@@ -21,6 +23,7 @@ Brush* getBrushArray()
 
 void exportStartBrushes()
 {
+	sideId = 0;
 	dynList_resize((void**)&brushes, 0);
 }
 
@@ -51,8 +54,9 @@ Brush* exportCreateBrush(vec3 start, vec3 end)
 	int len = dynList_size(brushes);
 	dynList_resize((void**)&brushes, len + 1);
 	Brush* brush = &brushes[len];
-	brush->id = len + 1;
+	brush->id = len;
 	brush->ent = 0;
+	brush->script = 0;
 
 	for (int i = 0; i < 6; i++)
 	{
@@ -60,6 +64,9 @@ Brush* exportCreateBrush(vec3 start, vec3 end)
 		side->id = i;
 		side->lightmapscale = 16;
 		side->fit = 0;
+		side->texHeight = 512;
+		side->texWidth = 512;
+		side->material = 0;
 		memcpy(side->uvs[0], uvxy, sizeof(vec2));
 		memcpy(side->uvs[1], uvXy, sizeof(vec2));
 		memcpy(side->uvs[2], uvxY, sizeof(vec2));
@@ -122,6 +129,7 @@ void exportBrush(FILE* file, Brush* brush)
 	fprintf(file, "  \"id\" \"%d\"\n", brush->id);
 	for (int j = 0; j < 6; j++)
 	{
+		sideId++;
 		Side* side = &brush->sides[j];
 		char v1[40];
 		char v2[40];
@@ -133,7 +141,7 @@ void exportBrush(FILE* file, Brush* brush)
 		char planeBuf[140];
 		snprintf(planeBuf, 140, "%s %s %s", v1, v2, v3);
 		fprintf(file, "  side\n  {\n");
-		fprintf(file, "    \"id\" \"%d\"\n", side->id + 1);
+		fprintf(file, "    \"id\" \"%d\"\n", sideId);
 		fprintf(file, "    \"plane\" \"%s\"\n", planeBuf);
 
 		fprintf(file, "    point_data\n    {\n");
@@ -215,7 +223,7 @@ void exportBrush(FILE* file, Brush* brush)
 			yoff = fmodf(yoff, side->texHeight);
 		}
 
-		fprintf(file, "    \"uaxis\" \"[%.4f %.4f %.4f %.4f] %.4f\"\n", uDir[0], uDir[1], uDir[2], -xoff, horizScale);
+		fprintf(file, "    \"uaxis\" \"[%.4f %.4f %.4f %.4f] %.4f\"\n", uDir[0], uDir[1], uDir[2], xoff, horizScale);
 		fprintf(file, "    \"vaxis\" \"[%.4f %.4f %.4f %.4f] %.4f\"\n", vDir[0], vDir[1], vDir[2], yoff, vertScale);
 
 		fprintf(file, "    \"material\" \"%s\"\n", side->material);
@@ -223,6 +231,8 @@ void exportBrush(FILE* file, Brush* brush)
 		fprintf(file, "    \"lightmapscale\" \"%d\"\n", side->lightmapscale);
 		fprintf(file, "    \"smoothing_groups\" \"0\"\n");
 		fprintf(file, "  }\n");
+		if (brush->script)
+			free((char*)side->material);
 	}
 	fprintf(file, "}\n");
 }
@@ -230,7 +240,6 @@ void exportBrush(FILE* file, Brush* brush)
 void exportEndBrushes(FILE* file)
 {
 	int len = dynList_size(brushes);
-  printf("brush count: %d\n", len);
 	for (int i = 0; i < len; i++)
 	{
 		Brush* brush = &brushes[i];

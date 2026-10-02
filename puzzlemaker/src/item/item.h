@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cjson.h"
 #include "renderer/mesh.h"
 #include <cglm/cglm.h>
 
@@ -19,12 +20,24 @@
 #define SNAP_MINI_CORNER 2
 #define SNAP_MINI_CENTER 3
 
+typedef struct Item Item;
+
 typedef union {
 	int i;
 	float f;
 	char b;
 	char* s;
 } V;
+
+typedef struct
+{
+	void (*init)(Item* item);
+	void (*exportItem)(Item* item);
+	void (*render)(Item* item);
+	void (*getBoundingBox)(Item* item, vec3 min, vec3 max);
+	void (*save)(Item* item, cJSON* json);
+	void (*load)(Item* item, cJSON* json);
+} ItemCallbacks;
 
 typedef struct
 {
@@ -60,18 +73,19 @@ typedef struct
 	const char* name;
 	const char* group;
 
+	const char* exportScript;
+
 	InputDef* inputs;
 	OutputDef* outputs;
 
 	ItemKvDef* kvs;
 	char** staticKvs;
 
-	vec4 bound1;
-	vec4 bound2;
-	vec3 offset;
   char snapMode;
 	char deleteIntersectingVoxels;
 	char genMissingVoxels;
+
+	ItemCallbacks* callbacks;
 } ItemDefinition;
 
 typedef struct
@@ -80,7 +94,6 @@ typedef struct
 	V value;
 } ItemKv;
 
-typedef struct Item Item;
 
 typedef struct
 {
@@ -100,6 +113,7 @@ struct Item
 	mat4 transform;
 	mat4 invTransform;
   char snapDir;
+  const char* ioEnt;
 
 	ItemKv* kv;
 	ItemOutput* outputs;

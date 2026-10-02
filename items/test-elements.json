@@ -8,13 +8,13 @@
     "entity": "trigger_portal_cleanser",
     "texSize": 1024,
     "thickness": 2,
-    "bound1": [0, 0, -1],
-    "bound2": [0.5, 2, 1],
     "minSize": [0, 2],
-    "maxSize": [99999, 99999],
+    "maxSize": [99999, 2],
     "snapMode": "mini-center",
     "defaultSize": [4, 2],
-    "boarders": [
+		"vertTile": true,
+		"exportScript": "fizzler.lua",
+    "borders": [
       {
         "id": "left",
         "editorTexture": "fizzler-left.png",
@@ -35,8 +35,8 @@
 		"inputs": [
 			{
 				"name": "disable",
-				"trueInput": "Disable",
-				"falseInput": "Enable"
+				"trueInput": "FireUser1",
+				"falseInput": "FireUser2"
 			}
     ],
 		"keyvalues": [
@@ -68,12 +68,12 @@
     "entity": "trigger_hurt",
     "texSize": 1024,
     "thickness": 2,
-    "bound1": [0, 0, -1],
-    "bound2": [0.5, 2, 1],
     "minSize": [2, 2],
-    "maxSize": [99999, 99999],
+    "maxSize": [99999, 2],
     "snapMode": "mini-center",
+		"vertTile": true,
     "defaultSize": [4, 2],
+		"exportScript": "laserField.lua",
 		"inputs": [
 			{
 				"name": "disable",
@@ -174,7 +174,9 @@
 		"model": "weighted-cube.obj",
 		"mat": "cube.png",
     "entity": "prop_weighted_cube",
-    "offset": [0, 0.5, 0],
+		"transform": {
+			"position": [0, 0.5, 0]
+		},
     "bound1": [-0.5, 0, -0.5],
     "bound2": [0.5, 1, 0.5],
 		"keyvalues": [
@@ -292,8 +294,13 @@
 		"mat": "laser.png",
     "entity": "env_portal_laser",
     "bound1": [-0.5, -0.5, -0.5],
-    "bound2": [0.5, 0.5, 0.5],
+    "bound2": [0.5, 0.01, 0.5],
+    "snapMode": "mini-corner",
 		"deleteIntersectingVoxels": true,
+    "transform": {
+      "position": [0, -0.25, 0],
+      "rotation": [0, 0, -90]
+    },
     "keyvalues": [
       {
         "name": "startstate",
@@ -325,8 +332,13 @@
 		"mat": "laser-catcher.png",
     "entity": "prop_laser_catcher",
     "bound1": [-0.5, -0.5, -0.5],
-    "bound2": [0.5, 0.5, 0.5],
+    "bound2": [0.5, 0.01, 0.5],
+    "snapMode": "mini-corner",
 		"deleteIntersectingVoxels": true,
+    "transform": {
+      "position": [0, -0.25, 0],
+      "rotation": [0, 0, -90]
+    },
     "keyvalues": [
       {
         "name": "model",

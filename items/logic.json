@@ -12,8 +12,7 @@
     "outputs": [
       {
         "name": "onTrigger",
-        "trueOutput": "OnTrigger",
-        "falseOutput": "heh"
+        "trueOutput": "OnTrigger"
       }
     ],
     "statickvs": {
@@ -33,8 +32,7 @@
 			{
 				"name": "trigger",
 				"trueInput": "Command",
-        "trueArg": "disconnect",
-				"falseInput": "nuh uh"
+        "trueArg": "disconnect"
 			}
 		]
 	},

@@ -126,12 +126,16 @@ void initRenderer()
 	}
 }
 
-void bindVoxelTextures(unsigned int black, unsigned int white)
+void bindVoxelTextures(unsigned int black, unsigned int white, unsigned int miniBlack, unsigned int miniWhite)
 {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, black);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, white);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, miniBlack);
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, miniWhite);
 }
 
 void bindTexture(unsigned int texture)
@@ -150,6 +154,8 @@ void endFrame()
 
 	setUndformi(prgmId, "blackTex", 0);
 	setUndformi(prgmId, "whiteTex", 1);
+	setUndformi(prgmId, "blackMiniTex", 2);
+	setUndformi(prgmId, "whiteMiniTex", 3);
 	setUniformMat4(prgmId, "cam", camMat);
 	setUniformMat4(prgmId, "mat", projMat);
 

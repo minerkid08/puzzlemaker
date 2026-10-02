@@ -5,14 +5,28 @@
 #include "dynList.h"
 #include "export/brush.h"
 #include "export/entity.h"
+#include "item/item.h"
 #include "jsonUtils.h"
 #include "renderer/renderer.h"
 #include "utils.h"
 #include <stdio.h>
 #include <string.h>
 
-void* loadPanelItemDef(cJSON* item)
+static ItemCallbacks callbacks;
+
+static __attribute__((constructor)) void init()
 {
+	callbacks.init = panelItemInit;
+	callbacks.exportItem = panelItemExport;
+	callbacks.render = panelItemRender;
+	callbacks.getBoundingBox = panelItemGetBoundingBox;
+	callbacks.save = panelItemSave;
+	callbacks.load = panelItemLoad;
+}
+
+void* loadPanelItemDef(cJSON* item, ItemDefinition* itemDef)
+{
+	itemDef->callbacks = &callbacks;
 	PanelDefData* data = malloc(sizeof(PanelDefData));
 
 	if (cJSON_GetObjectItem(item, "minSize"))
@@ -57,12 +71,12 @@ void* loadPanelItemDef(cJSON* item)
 	const char* filename = cJSON_GetObjectItem(item, "editorCenterTexture")->valuestring;
 	data->centerMat = assetManagerLoadTexture(filename);
 
-	cJSON* arr = cJSON_GetObjectItem(item, "boarders");
-	cJSON* boarder;
-	cJSON_ArrayForEach(boarder, arr)
+	cJSON* arr = cJSON_GetObjectItem(item, "borders");
+	cJSON* border;
+	cJSON_ArrayForEach(border, arr)
 	{
 		int index = 0;
-		const char* id = cJSON_GetObjectItem(boarder, "id")->valuestring;
+		const char* id = cJSON_GetObjectItem(border, "id")->valuestring;
 		if (strcmp(id, "top") == 0)
 			index = PANEL_ITEM_ID_TOP;
 		else if (strcmp(id, "bottom") == 0)
@@ -83,19 +97,19 @@ void* loadPanelItemDef(cJSON* item)
 			errorf("bad id '%s'\n", id);
 
 		PanelItemDef* item = &data->items[index];
-		const char* filename = cJSON_GetObjectItem(boarder, "editorTexture")->valuestring;
+		const char* filename = cJSON_GetObjectItem(border, "editorTexture")->valuestring;
 		item->material = assetManagerLoadTexture(filename);
 
 		item->maxSize = 9999;
-		if (cJSON_GetObjectItem(boarder, "maxSize"))
-			item->maxSize = jsonGetFloat(boarder, "maxSize");
+		if (cJSON_GetObjectItem(border, "maxSize"))
+			item->maxSize = jsonGetFloat(border, "maxSize");
 
 		item->minSize = 0;
-		if (cJSON_GetObjectItem(boarder, "minSize"))
-			item->minSize = jsonGetFloat(boarder, "minSize");
+		if (cJSON_GetObjectItem(border, "minSize"))
+			item->minSize = jsonGetFloat(border, "minSize");
 
-		item->exportMaterial = jsonGetStr(boarder, "texture");
-		item->texSize = jsonGetInt(boarder, "texSize");
+		item->exportMaterial = jsonGetStr(border, "texture");
+		item->texSize = jsonGetInt(border, "texSize");
 	}
 
 	float size1 = data->items[PANEL_ITEM_ID_RIGHT].minSize;
@@ -127,6 +141,8 @@ void panelItemInit(Item* item)
 	PanelData* data = malloc(sizeof(PanelData));
 	data->size[0] = def->defaultSize[0];
 	data->size[1] = def->defaultSize[1];
+	data->tile[0] = 1;
+	data->tile[1] = 1;
 	item->data = data;
 }
 
@@ -145,12 +161,12 @@ void getPanelSizes(Item* item, PanelSizes* sizes)
 
 	PanelData* data = item->data;
 	PanelDefData* def = item->def->data;
-	PanelItemDef* boarder = def->items;
+	PanelItemDef* border = def->items;
 
-	sizes->topSize = boarder[PANEL_ITEM_ID_TOP].maxSize;
-	sizes->bottomSize = boarder[PANEL_ITEM_ID_BOTTOM].maxSize;
-	sizes->leftSize = boarder[PANEL_ITEM_ID_LEFT].maxSize;
-	sizes->rightSize = boarder[PANEL_ITEM_ID_RIGHT].maxSize;
+	sizes->topSize = border[PANEL_ITEM_ID_TOP].maxSize;
+	sizes->bottomSize = border[PANEL_ITEM_ID_BOTTOM].maxSize;
+	sizes->leftSize = border[PANEL_ITEM_ID_LEFT].maxSize;
+	sizes->rightSize = border[PANEL_ITEM_ID_RIGHT].maxSize;
 
 	if (data->size[0] < sizes->leftSize + sizes->rightSize)
 	{
@@ -163,17 +179,17 @@ void getPanelSizes(Item* item, PanelSizes* sizes)
 			float r = sizes->leftSize / sizes->rightSize;
 
 			sizes->leftSize = data->size[0] * r;
-			if (sizes->leftSize < boarder[PANEL_ITEM_ID_LEFT].minSize)
+			if (sizes->leftSize < border[PANEL_ITEM_ID_LEFT].minSize)
 			{
-				sizes->leftSize = boarder[PANEL_ITEM_ID_LEFT].minSize;
+				sizes->leftSize = border[PANEL_ITEM_ID_LEFT].minSize;
 				sizes->rightSize = data->size[0] - sizes->leftSize;
 			}
 			else
 				sizes->rightSize = data->size[0] * (1 - r);
 
-			if (sizes->rightSize < boarder[PANEL_ITEM_ID_RIGHT].minSize)
+			if (sizes->rightSize < border[PANEL_ITEM_ID_RIGHT].minSize)
 			{
-				sizes->rightSize = boarder[PANEL_ITEM_ID_RIGHT].minSize;
+				sizes->rightSize = border[PANEL_ITEM_ID_RIGHT].minSize;
 				sizes->leftSize = data->size[0] - sizes->rightSize;
 			}
 		}
@@ -191,17 +207,17 @@ void getPanelSizes(Item* item, PanelSizes* sizes)
 			float r = sizes->topSize / sizes->bottomSize;
 
 			sizes->topSize = data->size[1] * r;
-			if (sizes->topSize < boarder[PANEL_ITEM_ID_TOP].minSize)
+			if (sizes->topSize < border[PANEL_ITEM_ID_TOP].minSize)
 			{
-				sizes->topSize = boarder[PANEL_ITEM_ID_TOP].minSize;
+				sizes->topSize = border[PANEL_ITEM_ID_TOP].minSize;
 				sizes->bottomSize = data->size[1] - sizes->topSize;
 			}
 			else
 				sizes->bottomSize = data->size[1] * (1 - r);
 
-			if (sizes->bottomSize < boarder[PANEL_ITEM_ID_BOTTOM].minSize)
+			if (sizes->bottomSize < border[PANEL_ITEM_ID_BOTTOM].minSize)
 			{
-				sizes->bottomSize = boarder[PANEL_ITEM_ID_BOTTOM].minSize;
+				sizes->bottomSize = border[PANEL_ITEM_ID_BOTTOM].minSize;
 				sizes->topSize = data->size[0] - sizes->bottomSize;
 			}
 		}
@@ -214,7 +230,7 @@ void panelItemRender(Item* item)
 {
 	PanelData* data = item->data;
 	PanelDefData* def = item->def->data;
-	PanelItemDef* boarder = def->items;
+	PanelItemDef* border = def->items;
 
 	PanelSizes sizes;
 
@@ -223,88 +239,97 @@ void panelItemRender(Item* item)
 	vec2 start;
 	vec2 end;
 
-	if (sizes.leftSize > 0 && sizes.bottomSize > 0)
+	for (int xTile = 0; xTile < data->tile[0]; xTile++)
 	{
-		start[0] = 0;
-		start[1] = 0;
-		end[0] = sizes.leftSize;
-		end[1] = sizes.bottomSize;
-		panelDrawRect(start, end, boarder[PANEL_ITEM_ID_BOTTOM_LEFT].material);
-	}
+		float xOff = data->size[0] * xTile;
+		for (int yTile = 0; yTile < data->tile[1]; yTile++)
+		{
+			float yOff = data->size[1] * yTile;
 
-	if (sizes.leftSize > 0 && sizes.centerHeight > 0)
-	{
-		start[0] = 0;
-		start[1] = sizes.bottomSize;
-		end[0] = sizes.leftSize;
-		end[1] = sizes.bottomSize + sizes.centerHeight;
-		panelDrawRect(start, end, boarder[PANEL_ITEM_ID_LEFT].material);
-	}
+			if (sizes.leftSize > 0 && sizes.bottomSize > 0)
+			{
+				start[0] = xOff;
+				start[1] = yOff;
+				end[0] = sizes.leftSize + xOff;
+				end[1] = sizes.bottomSize + yOff;
+				panelDrawRect(start, end, border[PANEL_ITEM_ID_BOTTOM_LEFT].material);
+			}
 
-	if (sizes.leftSize > 0 && sizes.topSize > 0)
-	{
-		start[0] = 0;
-		start[1] = sizes.bottomSize + sizes.centerHeight;
-		end[0] = sizes.leftSize;
-		end[1] = data->size[1];
-		panelDrawRect(start, end, boarder[PANEL_ITEM_ID_TOP_LEFT].material);
-	}
+			if (sizes.leftSize > 0 && sizes.centerHeight > 0)
+			{
+				start[0] = xOff;
+				start[1] = sizes.bottomSize + yOff;
+				end[0] = sizes.leftSize + xOff;
+				end[1] = sizes.bottomSize + sizes.centerHeight + yOff;
+				panelDrawRect(start, end, border[PANEL_ITEM_ID_LEFT].material);
+			}
 
-	if (sizes.centerWidth > 0 && sizes.bottomSize > 0)
-	{
-		start[0] = sizes.leftSize;
-		start[1] = 0;
-		end[0] = sizes.leftSize + sizes.centerWidth;
-		end[1] = sizes.bottomSize;
-		panelDrawRect(start, end, boarder[PANEL_ITEM_ID_BOTTOM].material);
-	}
+			if (sizes.leftSize > 0 && sizes.topSize > 0)
+			{
+				start[0] = xOff;
+				start[1] = sizes.bottomSize + sizes.centerHeight + yOff;
+				end[0] = sizes.leftSize + xOff;
+				end[1] = data->size[1] + yOff;
+				panelDrawRect(start, end, border[PANEL_ITEM_ID_TOP_LEFT].material);
+			}
 
-	if (sizes.centerWidth > 0 && sizes.centerHeight > 0)
-	{
-		start[0] = sizes.leftSize;
-		start[1] = sizes.bottomSize;
-		end[0] = sizes.leftSize + sizes.centerWidth;
-		end[1] = sizes.bottomSize + sizes.centerHeight;
-		panelDrawRect(start, end, def->centerMat);
-	}
+			if (sizes.centerWidth > 0 && sizes.bottomSize > 0)
+			{
+				start[0] = sizes.leftSize + xOff;
+				start[1] = yOff;
+				end[0] = sizes.leftSize + sizes.centerWidth + xOff;
+				end[1] = sizes.bottomSize + yOff;
+				panelDrawRect(start, end, border[PANEL_ITEM_ID_BOTTOM].material);
+			}
 
-	if (sizes.centerWidth > 0 && sizes.topSize > 0)
-	{
-		start[0] = sizes.leftSize;
-		start[1] = sizes.bottomSize + sizes.centerHeight;
-		end[0] = sizes.leftSize + sizes.centerWidth;
-		end[1] = data->size[1];
-		panelDrawRect(start, end, boarder[PANEL_ITEM_ID_TOP].material);
-	}
+			if (sizes.centerWidth > 0 && sizes.centerHeight > 0)
+			{
+				start[0] = sizes.leftSize + xOff;
+				start[1] = sizes.bottomSize + yOff;
+				end[0] = sizes.leftSize + sizes.centerWidth + xOff;
+				end[1] = sizes.bottomSize + sizes.centerHeight + yOff;
+				panelDrawRect(start, end, def->centerMat);
+			}
 
-	if (sizes.rightSize > 0 && sizes.bottomSize > 0)
-	{
-		start[0] = sizes.leftSize + sizes.centerWidth;
-		start[1] = 0;
-		end[0] = data->size[0];
-		end[1] = sizes.bottomSize;
-		panelDrawRect(start, end, boarder[PANEL_ITEM_ID_BOTTOM_RIGHT].material);
-	}
+			if (sizes.centerWidth > 0 && sizes.topSize > 0)
+			{
+				start[0] = sizes.leftSize + xOff;
+				start[1] = sizes.bottomSize + sizes.centerHeight + yOff;
+				end[0] = sizes.leftSize + sizes.centerWidth + xOff;
+				end[1] = data->size[1] + yOff;
+				panelDrawRect(start, end, border[PANEL_ITEM_ID_TOP].material);
+			}
 
-	if (sizes.rightSize > 0 && sizes.centerHeight > 0)
-	{
-		start[0] = sizes.leftSize + sizes.centerWidth;
-		start[1] = sizes.bottomSize;
-		end[0] = data->size[0];
-		end[1] = sizes.bottomSize + sizes.centerHeight;
-		panelDrawRect(start, end, boarder[PANEL_ITEM_ID_RIGHT].material);
-	}
+			if (sizes.rightSize > 0 && sizes.bottomSize > 0)
+			{
+				start[0] = sizes.leftSize + sizes.centerWidth + xOff;
+				start[1] = yOff;
+				end[0] = data->size[0] + xOff;
+				end[1] = sizes.bottomSize + yOff;
+				panelDrawRect(start, end, border[PANEL_ITEM_ID_BOTTOM_RIGHT].material);
+			}
 
-	if (sizes.rightSize > 0 && sizes.topSize > 0)
-	{
-		start[0] = sizes.leftSize + sizes.centerWidth;
-		start[1] = sizes.bottomSize + sizes.centerHeight;
-		end[0] = data->size[0];
-		end[1] = data->size[1];
-		panelDrawRect(start, end, boarder[PANEL_ITEM_ID_TOP_RIGHT].material);
-	}
+			if (sizes.rightSize > 0 && sizes.centerHeight > 0)
+			{
+				start[0] = sizes.leftSize + sizes.centerWidth + xOff;
+				start[1] = sizes.bottomSize + yOff;
+				end[0] = data->size[0] + xOff;
+				end[1] = sizes.bottomSize + sizes.centerHeight + yOff;
+				panelDrawRect(start, end, border[PANEL_ITEM_ID_RIGHT].material);
+			}
 
-	panelEndFrame(item->transform, 0);
+			if (sizes.rightSize > 0 && sizes.topSize > 0)
+			{
+				start[0] = sizes.leftSize + sizes.centerWidth + xOff;
+				start[1] = sizes.bottomSize + sizes.centerHeight + yOff;
+				end[0] = data->size[0] + xOff;
+				end[1] = data->size[1] + yOff;
+				panelDrawRect(start, end, border[PANEL_ITEM_ID_TOP_RIGHT].material);
+			}
+
+			panelEndFrame(item->transform, 0);
+		}
+	}
 }
 
 static void addBrush(Entity* entity, vec3 start, vec3 end, const char* mat, const char* zTex, mat4 transform,
@@ -347,25 +372,36 @@ static void addBrush(Entity* entity, vec3 start, vec3 end, const char* mat, cons
 void panelItemSave(Item* item, cJSON* json)
 {
 	PanelData* data = item->data;
-	cJSON* obj = cJSON_CreateObject();
-	cJSON_AddNumberToObject(obj, "x", data->size[0]);
-	cJSON_AddNumberToObject(obj, "y", data->size[1]);
-	cJSON_AddItemToObject(json, "size", obj);
+	cJSON* size = cJSON_CreateObject();
+	cJSON_AddNumberToObject(size, "x", data->size[0]);
+	cJSON_AddNumberToObject(size, "y", data->size[1]);
+	cJSON_AddItemToObject(json, "size", size);
+	cJSON* tile = cJSON_CreateObject();
+	cJSON_AddNumberToObject(tile, "x", data->tile[0]);
+	cJSON_AddNumberToObject(tile, "y", data->tile[1]);
+	cJSON_AddItemToObject(json, "tile", tile);
 }
 
 void panelItemLoad(Item* item, cJSON* json)
 {
 	PanelData* data = item->data;
-	cJSON* obj = cJSON_GetObjectItem(json, "size");
-	data->size[0] = jsonGetFloat(obj, "x");
-	data->size[1] = jsonGetFloat(obj, "y");
+	cJSON* size = cJSON_GetObjectItem(json, "size");
+	data->size[0] = jsonGetFloat(size, "x");
+	data->size[1] = jsonGetFloat(size, "y");
+
+	cJSON* tile = cJSON_GetObjectItem(json, "tile");
+	if (tile)
+	{
+		data->tile[0] = jsonGetFloat(tile, "x");
+		data->tile[1] = jsonGetFloat(tile, "y");
+	}
 }
 
 void panelItemExport(Item* item)
 {
 	PanelData* data = item->data;
 	PanelDefData* defData = item->def->data;
-	PanelItemDef* boarder = defData->items;
+	PanelItemDef* border = defData->items;
 
 	Entity* entity = 0;
 	if (defData->classname)
@@ -420,8 +456,8 @@ void panelItemExport(Item* item)
 		start[1] = 0;
 		end[0] = sizes.leftSize;
 		end[1] = sizes.bottomSize;
-		PanelItemDef* b = &boarder[PANEL_ITEM_ID_BOTTOM_LEFT];
-		PanelItemDef* b2 = &boarder[PANEL_ITEM_ID_BOTTOM_RIGHT];
+		PanelItemDef* b = &border[PANEL_ITEM_ID_BOTTOM_LEFT];
+		PanelItemDef* b2 = &border[PANEL_ITEM_ID_BOTTOM_RIGHT];
 		addBrush(entity, start, end, b->exportMaterial, zTex, transform, b->texSize, b2->exportMaterial, b2->texSize);
 	}
 
@@ -431,8 +467,8 @@ void panelItemExport(Item* item)
 		start[1] = sizes.bottomSize;
 		end[0] = sizes.leftSize;
 		end[1] = sizes.bottomSize + sizes.centerHeight;
-		PanelItemDef* b = &boarder[PANEL_ITEM_ID_LEFT];
-		PanelItemDef* b2 = &boarder[PANEL_ITEM_ID_RIGHT];
+		PanelItemDef* b = &border[PANEL_ITEM_ID_LEFT];
+		PanelItemDef* b2 = &border[PANEL_ITEM_ID_RIGHT];
 		addBrush(entity, start, end, b->exportMaterial, zTex, transform, b->texSize, b2->exportMaterial, b2->texSize);
 	}
 
@@ -442,8 +478,8 @@ void panelItemExport(Item* item)
 		start[1] = sizes.bottomSize + sizes.centerHeight;
 		end[0] = sizes.leftSize;
 		end[1] = data->size[1];
-		PanelItemDef* b = &boarder[PANEL_ITEM_ID_TOP_LEFT];
-		PanelItemDef* b2 = &boarder[PANEL_ITEM_ID_TOP_RIGHT];
+		PanelItemDef* b = &border[PANEL_ITEM_ID_TOP_LEFT];
+		PanelItemDef* b2 = &border[PANEL_ITEM_ID_TOP_RIGHT];
 		addBrush(entity, start, end, b->exportMaterial, zTex, transform, b->texSize, b2->exportMaterial, b2->texSize);
 	}
 
@@ -453,7 +489,7 @@ void panelItemExport(Item* item)
 		start[1] = 0;
 		end[0] = sizes.leftSize + sizes.centerWidth;
 		end[1] = sizes.bottomSize;
-		PanelItemDef* b = &boarder[PANEL_ITEM_ID_BOTTOM];
+		PanelItemDef* b = &border[PANEL_ITEM_ID_BOTTOM];
 		addBrush(entity, start, end, b->exportMaterial, zTex, transform, b->texSize, 0, 0);
 	}
 
@@ -472,7 +508,7 @@ void panelItemExport(Item* item)
 		start[1] = sizes.bottomSize + sizes.centerHeight;
 		end[0] = sizes.leftSize + sizes.centerWidth;
 		end[1] = data->size[1];
-		PanelItemDef* b = &boarder[PANEL_ITEM_ID_TOP];
+		PanelItemDef* b = &border[PANEL_ITEM_ID_TOP];
 		addBrush(entity, start, end, b->exportMaterial, zTex, transform, b->texSize, 0, 0);
 	}
 
@@ -482,8 +518,8 @@ void panelItemExport(Item* item)
 		start[1] = 0;
 		end[0] = data->size[0];
 		end[1] = sizes.bottomSize;
-		PanelItemDef* b = &boarder[PANEL_ITEM_ID_BOTTOM_RIGHT];
-		PanelItemDef* b2 = &boarder[PANEL_ITEM_ID_BOTTOM_LEFT];
+		PanelItemDef* b = &border[PANEL_ITEM_ID_BOTTOM_RIGHT];
+		PanelItemDef* b2 = &border[PANEL_ITEM_ID_BOTTOM_LEFT];
 		addBrush(entity, start, end, b->exportMaterial, zTex, transform, b->texSize, b2->exportMaterial, b2->texSize);
 	}
 
@@ -493,8 +529,8 @@ void panelItemExport(Item* item)
 		start[1] = sizes.bottomSize;
 		end[0] = data->size[0];
 		end[1] = sizes.bottomSize + sizes.centerHeight;
-		PanelItemDef* b = &boarder[PANEL_ITEM_ID_RIGHT];
-		PanelItemDef* b2 = &boarder[PANEL_ITEM_ID_LEFT];
+		PanelItemDef* b = &border[PANEL_ITEM_ID_RIGHT];
+		PanelItemDef* b2 = &border[PANEL_ITEM_ID_LEFT];
 		addBrush(entity, start, end, b->exportMaterial, zTex, transform, b->texSize, b2->exportMaterial, b2->texSize);
 	}
 
@@ -504,8 +540,20 @@ void panelItemExport(Item* item)
 		start[1] = sizes.bottomSize + sizes.centerHeight;
 		end[0] = data->size[0];
 		end[1] = data->size[1];
-		PanelItemDef* b = &boarder[PANEL_ITEM_ID_TOP_RIGHT];
-		PanelItemDef* b2 = &boarder[PANEL_ITEM_ID_TOP_LEFT];
+		PanelItemDef* b = &border[PANEL_ITEM_ID_TOP_RIGHT];
+		PanelItemDef* b2 = &border[PANEL_ITEM_ID_TOP_LEFT];
 		addBrush(entity, start, end, b->exportMaterial, zTex, transform, b->texSize, b2->exportMaterial, b2->texSize);
 	}
+}
+
+void panelItemGetBoundingBox(Item* item, vec3 min, vec3 max)
+{
+	PanelData* data = item->data;
+
+	min[0] = 0;
+	min[1] = 0;
+	min[2] = -0.125;
+	max[0] = data->size[0] * data->tile[0];
+	max[1] = data->size[1] * data->tile[1];
+	max[2] = 0.125;
 }

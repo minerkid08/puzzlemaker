@@ -38,7 +38,7 @@ void loadVoxelConfig()
 		errorf("failed to parse voxel.json\n%s\n", err);
 
 	voxelConfig.nodraw = loadField(json, "nodraw");
-	voxelConfig.backstage= loadField(json, "backstage");
+	voxelConfig.backstage = loadField(json, "backstage");
 
 	voxelConfig.blackFloor = loadField(json, "blackFloor");
 	voxelConfig.blackWall = loadField(json, "blackWall");
@@ -59,8 +59,17 @@ void loadVoxelConfig()
 
 	char* whiteEditor = loadField(json, "whiteEditor");
 	voxelConfig.whiteEditor = assetManagerLoadTexture(whiteEditor);
-  free(blackEditor);
-  free(whiteEditor);
 
-  cJSON_free(json);
+	char* blackMiniEditor = loadField(json, "blackMiniEditor");
+	voxelConfig.blackMiniEditor = assetManagerLoadTexture(blackMiniEditor);
+
+	char* whiteMiniEditor = loadField(json, "whiteMiniEditor");
+	voxelConfig.whiteMiniEditor = assetManagerLoadTexture(whiteMiniEditor);
+
+	free(blackEditor);
+	free(whiteEditor);
+	free(blackMiniEditor);
+	free(whiteMiniEditor);
+
+	cJSON_free(json);
 }

@@ -3,17 +3,13 @@
 #include "cglm/mat4.h"
 #include "cglm/quat.h"
 #include "cglm/util.h"
-#include "cglm/vec3.h"
-#include "item/entityItem.h"
-#include "item/panel.h"
-#include "item/volumeItem.h"
 #include "jsonUtils.h"
 #include "raycast.h"
 #include "renderer/debug.h"
+#include "utils.h"
 
 #include <cjson.h>
 #include <dynList.h>
-#include <math.h>
 #include <string.h>
 
 extern Item* itemList;
@@ -28,12 +24,7 @@ void drawItems()
 		Item* item = &itemList[i];
 		if (item->index == -1)
 			continue;
-		if (item->def->type == ITEM_TYPE_ENTITY)
-			entityItemRender(item);
-		if (item->def->type == ITEM_TYPE_PANEL)
-			panelItemRender(item);
-		if (item->def->type == ITEM_TYPE_VOLUME)
-			volumeItemRender(item);
+		item->def->callbacks->render(item);
 		// drawDebugRect(item->def->bound1, item->def->bound2);
 	}
 }
@@ -46,34 +37,25 @@ Item* getIntersectingItem(vec3 pos)
 	{
 		Item* item = &itemList[j];
 		vec4 pos2 = {pos[0], pos[1], pos[2], 1};
-
+    if(item->def == 0)
+      continue;
 		mat4 transform;
 		memcpy(transform, item->invTransform, sizeof(mat4));
 		glm_mat4_mulv(transform, pos2, pos2);
-		vec4* bound1 = &item->def->bound1;
-		vec4* bound2 = &item->def->bound2;
-		if (pos2[0] < (*bound1)[0] || pos2[0] > (*bound2)[0])
+		vec3 bound1;
+		vec3 bound2;
+
+		item->def->callbacks->getBoundingBox(item, bound1, bound2);
+
+		if (pos2[0] < bound1[0] || pos2[0] > bound2[0])
 			continue;
-		if (pos2[1] < (*bound1)[1] || pos2[1] > (*bound2)[1])
+		if (pos2[1] < bound1[1] || pos2[1] > bound2[1])
 			continue;
-		if (pos2[2] < (*bound1)[2] || pos2[2] > (*bound2)[2])
+		if (pos2[2] < bound1[2] || pos2[2] > bound2[2])
 			continue;
 		return item;
 	}
 	return 0;
-}
-
-void getEulerAngles(mat4 mat, vec3 out)
-{
-	double t1 = atan2(-mat[0][2], mat[0][0]);
-	double c2 = sqrt(mat[1][1] * mat[1][1] + mat[2][1] * mat[2][1]);
-	double t2 = atan2(mat[0][1], c2);
-	double s1 = sin(t1);
-	double c1 = cos(t1);
-	double t3 = atan2(s1 * mat[1][0] + c1 * mat[1][2], s1 * mat[2][0] + c1 * mat[2][2]);
-	out[1] = t1;
-	out[2] = t2;
-	out[0] = t3;
 }
 
 void updateItemTransform(Item* item)

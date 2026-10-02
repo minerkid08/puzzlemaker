@@ -22,8 +22,6 @@
       "back": "METAL/BLACK_WALL_METAL_002B"
     },
     "editorFit": false,
-    "bound1": [0, 0, 0],
-    "bound2": [0.5, 0.5, 0.5],
     "minSize": [0.5, 0.5, 0.5],
     "snapMode": "mini-center",
     "defaultSize": [0.5, 0.5, 0.5]
@@ -36,8 +34,6 @@
     "zTexture": "ANIM_WP/FRAMEWORK/BACKPANELS",
     "texSize": 512,
     "thickness": 2,
-    "bound1": [0, 0, -1],
-    "bound2": [0.5, 2, 1],
     "minSize": [0.5, 0.5],
     "maxSize": [99999, 99999],
     "snapMode": "mini-center",

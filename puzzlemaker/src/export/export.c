@@ -2,10 +2,8 @@
 #include "dynList.h"
 #include "export/brush.h"
 #include "export/entity.h"
-#include "item/entityItem.h"
+#include "export/script/exportScript.h"
 #include "item/item.h"
-#include "item/panel.h"
-#include "item/volumeItem.h"
 #include "ui/fileBrowser.h"
 #include <stdio.h>
 
@@ -24,13 +22,19 @@ int exportMap()
 	for (int i = 0; i < len; i++)
 	{
 		Item* item = &items[i];
-		if (item->def->type == ITEM_TYPE_ENTITY)
-			entityItemExport(item);
-		if (item->def->type == ITEM_TYPE_PANEL)
-			panelItemExport(item);
-		if (item->def->type == ITEM_TYPE_VOLUME)
-			volumeItemExport(item);
+		item->ioEnt = 0;
+		if (item->def == 0)
+			continue;
+		if (item->def->exportScript)
+		{
+			if (runExportScript(item))
+				return 1;
+		}
+		else
+			item->def->callbacks->exportItem(item);
 	}
+
+	exportEntitiesProcessOutputs();
 
 	exportMapSettings();
 	exportVoxels();
@@ -84,5 +88,12 @@ cordons
   "active" "0"
 })");
 	fclose(file);
+
+	for (int i = 0; i < len; i++)
+	{
+		Item* item = &items[i];
+		if (item->ioEnt)
+			free((char*)item->ioEnt);
+	}
 	return 0;
 }

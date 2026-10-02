@@ -1,6 +1,8 @@
 {
 	"blackEditor": "blackVoxel.png",
 	"whiteEditor": "whiteVoxel.png",
+	"blackMiniEditor": "blackMiniVoxel.png",
+	"whiteMiniEditor": "whiteMiniVoxel.png",
 	"nodraw": "TOOLS/TOOLSNODRAW",
 	"backstage": "ANIM_WP/FRAMEWORK/BACKPANELS",
 

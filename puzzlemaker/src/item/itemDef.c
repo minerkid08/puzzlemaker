@@ -34,10 +34,10 @@ void loadItemDefinitions()
 	groups = dynList_new(0, sizeof(ItemGroup));
 
 	int len = dynList_size(files);
-	for(int i = 0; i < len; i++)
+	for (int i = 0; i < len; i++)
 	{
-			loadItemDefinitionFile(files[i]);
-			free((void*)files[i]);
+		loadItemDefinitionFile(files[i]);
+		free((void*)files[i]);
 	}
 	dynList_free(files);
 
@@ -110,23 +110,28 @@ void loadItemDefinitionFile(const char* filename)
 		if (strcmp(type, "entity") == 0)
 		{
 			def->type = ITEM_TYPE_ENTITY;
-			def->data = loadEntityItemDef(item);
+			def->data = loadEntityItemDef(item, def);
 		}
 		else if (strcmp(type, "panel") == 0)
 		{
 			def->type = ITEM_TYPE_PANEL;
-			def->data = loadPanelItemDef(item);
+			def->data = loadPanelItemDef(item, def);
 		}
 		else if (strcmp(type, "volume") == 0)
 		{
 			def->type = ITEM_TYPE_VOLUME;
-			def->data = loadVolumeItemDef(item);
+			def->data = loadVolumeItemDef(item, def);
 		}
 		else
 			errorf("unknown type for entity %s\n", def->name);
 
 		def->deleteIntersectingVoxels = jsonGetBoolC(item, "deleteIntersectingVoxels", 0);
 		def->genMissingVoxels = jsonGetBoolC(item, "genMissingVoxels", 1);
+
+		cJSON* exportScript = cJSON_GetObjectItem(item, "exportScript");
+		def->exportScript = 0;
+		if (exportScript)
+			def->exportScript = jsonGetStr(item, "exportScript");
 
 		cJSON* keyValues = cJSON_GetObjectItem(item, "keyvalues");
 		len = cJSON_GetArraySize(keyValues);
@@ -220,7 +225,9 @@ void loadItemDefinitionFile(const char* filename)
 
 				inputDef->name = jsonGetStr(input, "name");
 				inputDef->trueInput = jsonGetStr(input, "trueInput");
-				inputDef->falseInput = jsonGetStr(input, "falseInput");
+				inputDef->falseInput = 0;
+				if (cJSON_GetObjectItem(input, "falseInput"))
+					inputDef->falseInput = jsonGetStr(input, "falseInput");
 				inputDef->trueArg = 0;
 				inputDef->falseArg = 0;
 				if (cJSON_GetObjectItem(input, "trueArg"))
@@ -244,21 +251,11 @@ void loadItemDefinitionFile(const char* filename)
 
 				outputDef->name = jsonGetStr(output, "name");
 				outputDef->trueOutput = jsonGetStr(output, "trueOutput");
-				outputDef->falseOutput = jsonGetStr(output, "falseOutput");
+				outputDef->falseOutput = 0;
+				if (cJSON_GetObjectItem(output, "falseOutput"))
+					outputDef->falseOutput = jsonGetStr(output, "falseOutput");
 			}
 		}
-
-		cJSON* bound = cJSON_GetObjectItem(item, "bound1");
-		def->bound1[0] = jsonArrGetFloat(bound, 0);
-		def->bound1[1] = jsonArrGetFloat(bound, 1);
-		def->bound1[2] = jsonArrGetFloat(bound, 2);
-		def->bound1[3] = 1;
-
-		bound = cJSON_GetObjectItem(item, "bound2");
-		def->bound2[0] = jsonArrGetFloat(bound, 0);
-		def->bound2[1] = jsonArrGetFloat(bound, 1);
-		def->bound2[2] = jsonArrGetFloat(bound, 2);
-		def->bound2[3] = 1;
 
 		cJSON* staticKvs = cJSON_GetObjectItem(item, "statickvs");
 		int len = cJSON_GetArraySize(staticKvs);
@@ -293,19 +290,6 @@ void loadItemDefinitionFile(const char* filename)
 				def->snapMode = SNAP_MINI_CORNER;
 			if (strcmp(value, "mini-center") == 0)
 				def->snapMode = SNAP_MINI_CENTER;
-		}
-		cJSON* offset = cJSON_GetObjectItem(item, "offset");
-		if (offset)
-		{
-			def->offset[0] = jsonArrGetFloat(offset, 0);
-			def->offset[1] = jsonArrGetFloat(offset, 1);
-			def->offset[2] = jsonArrGetFloat(offset, 2);
-		}
-		else
-		{
-			def->offset[0] = 0;
-			def->offset[1] = 0;
-			def->offset[2] = 0;
 		}
 	}
 

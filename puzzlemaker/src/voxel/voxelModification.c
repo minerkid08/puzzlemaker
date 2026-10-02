@@ -7,6 +7,7 @@
 #define ACTION_PUSH 1
 #define ACTION_PULL 2
 #define ACTION_PORT 3
+#define ACTION_SIZE 4
 
 void modify2dSelection(int action)
 {
@@ -75,11 +76,16 @@ void modify2dSelection(int action)
 			else if (action == ACTION_PORT)
 			{
 				Voxel* v = getVoxelv(pos);
-				v->portalability[currentDir] = !v->portalability[currentDir];
+				v->portalability[currentDir] ^= 1;
+			}
+			else if (action == ACTION_SIZE)
+			{
+				Voxel* v = getVoxelv(pos);
+				v->portalability[currentDir] ^= 2;
 			}
 		}
 	}
-	if (action == ACTION_PORT)
+	if (action == ACTION_PORT || action == ACTION_SIZE)
 		return;
 	currentVoxelPos[axis3] -= dir;
 	currentVoxel2Pos[axis3] -= dir;
@@ -103,12 +109,22 @@ void modify3dSelection(int action)
 				else if (action == ACTION_PORT)
 				{
 					Voxel* v = getVoxel(x, y, z);
-					v->portalability[0] = !v->portalability[0];
-					v->portalability[1] = !v->portalability[1];
-					v->portalability[2] = !v->portalability[2];
-					v->portalability[3] = !v->portalability[3];
-					v->portalability[4] = !v->portalability[4];
-					v->portalability[5] = !v->portalability[5];
+					v->portalability[0] ^= 1;
+					v->portalability[1] ^= 1;
+					v->portalability[2] ^= 1;
+					v->portalability[3] ^= 1;
+					v->portalability[4] ^= 1;
+					v->portalability[5] ^= 1;
+				}
+				else if (action == ACTION_SIZE)
+				{
+					Voxel* v = getVoxel(x, y, z);
+					v->portalability[0] ^= 2;
+					v->portalability[1] ^= 2;
+					v->portalability[2] ^= 2;
+					v->portalability[3] ^= 2;
+					v->portalability[4] ^= 2;
+					v->portalability[5] ^= 2;
 				}
 			}
 		}
@@ -231,5 +247,22 @@ void voxelTogglePortal()
 		return;
 	}
 
-	currentVoxel->portalability[currentDir] = !currentVoxel->portalability[currentDir];
+	currentVoxel->portalability[currentDir] ^= 1;
+}
+
+void voxelToggleSize()
+{
+	if (currentVoxel == 0)
+		return;
+
+	if (currentVoxel2Pos[0] >= 0)
+	{
+		if (isSelection2d())
+			modify2dSelection(ACTION_SIZE);
+		else
+			modify3dSelection(ACTION_SIZE);
+		return;
+	}
+
+	currentVoxel->portalability[currentDir] ^= 2;
 }

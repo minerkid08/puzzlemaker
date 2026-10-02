@@ -10,7 +10,7 @@ void drawMesh(Mesh* mesh, unsigned int texture, mat4 transform);
 void setProjMat(mat4 mat);
 void setCamMat(mat4 mat);
 void bindTexture(unsigned int texture);
-void bindVoxelTextures(unsigned int black, unsigned int white);
+void bindVoxelTextures(unsigned int black, unsigned int white, unsigned int miniBlack, unsigned int miniWhite);
 
 void panelDrawRect(vec2 start, vec2 end, unsigned int texture);
 void drawRect(vec3 v1, vec3 v2, vec3 v3, vec3 v4, unsigned int texture);

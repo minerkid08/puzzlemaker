@@ -19,6 +19,7 @@ extern Picker picker;
 
 static Item* pickEntity;
 static Item* prevItem = 0;
+static int pickItemId = 0;
 
 static char buf[50];
 
@@ -57,12 +58,12 @@ void itemPanelRender()
 	{
 		for (int i = 0; i < groupCount; i++)
 		{
-      ItemGroup* group = &groups[i];
+			ItemGroup* group = &groups[i];
 			if (!igBeginMenu(group->name, 1))
 				continue;
 			for (int j = 0; j < group->size; j++)
 			{
-        ItemDefinition* def = &getItemDefinitions()[j + group->startInd];
+				ItemDefinition* def = &getItemDefinitions()[j + group->startInd];
 				if (igSelectable_Bool(def->name, 0, 0, zero))
 				{
 					vec3 offset;
@@ -79,18 +80,18 @@ void itemPanelRender()
 					ipos[1] = floorf(pos[1]);
 					ipos[2] = floorf(pos[2]);
 
-					addItemFromDef(def, ipos);
+					selectedItem = addItemFromDef(def, ipos);
 				}
 			}
-      igEndMenu();
+			igEndMenu();
 		}
 		igEndPopup();
 	}
-  
+
 	if (selectedItem)
 	{
-    if(prevItem != selectedItem)
-      goto end;
+		if (prevItem != selectedItem)
+			goto end;
 		igText("%s, %d", selectedItem->def->name, selectedItem->index);
 		if (igButton("remove", zero))
 		{
@@ -119,6 +120,22 @@ void itemPanelRender()
 					data->size[1] = def->maxSize[1];
 				if (data->size[1] < def->minSize[1])
 					data->size[1] = def->minSize[1];
+			}
+			if (def->horizTile)
+			{
+				if (igInputInt("horiz tile", &data->tile[0], 1, 1, 0))
+				{
+					if (data->tile[0] < 1)
+						data->tile[0] = 1;
+				}
+			}
+			if (def->vertTile)
+			{
+				if (igInputInt("vert tile", &data->tile[1], 1, 1, 0))
+				{
+					if (data->tile[1] < 1)
+						data->tile[1] = 1;
+				}
 			}
 		}
 
@@ -151,7 +168,7 @@ void itemPanelRender()
 		for (int i = 0; i < l; i++)
 		{
 			ItemKv* kv = &selectedItem->kv[i];
-      int type = kv->def->type & (~(TYPE_INSTANCE));
+			int type = kv->def->type & (~(TYPE_INSTANCE));
 			if (type == TYPE_INT)
 				igInputInt(kv->def->name, &kv->value.i, 1, 0, 0);
 			if (type == TYPE_FLOAT)
@@ -234,13 +251,14 @@ void itemPanelRender()
 						picker.ptr = &pickEntity;
 						pickEntity = 0;
 						output->entity = -1;
-            output->input = 0;
+						output->input = 0;
+						pickItemId = i;
 					}
 
-					if (picker.active == 0 && pickEntity)
+					if (picker.active == 0 && pickEntity && i == pickItemId)
 					{
 						output->entity = pickEntity->index;
-            pickEntity = 0;
+						pickEntity = 0;
 					}
 
 					if (output->entity != -1)
@@ -272,6 +290,6 @@ void itemPanelRender()
 		}
 	}
 end:
-  prevItem = selectedItem;
+	prevItem = selectedItem;
 	igEnd();
 }

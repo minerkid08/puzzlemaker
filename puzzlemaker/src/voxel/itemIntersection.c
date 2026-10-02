@@ -63,15 +63,18 @@ void genOBB(vec3 a, vec3 b, mat4 rotMatrix, vec3 posOffset, OBB* obb)
 	obb->halfSize[1] = (b[1] - a[1]) / 2.0f;
 	obb->halfSize[2] = (b[2] - a[2]) / 2.0f;
 
-	obb->center[0] = (b[0] + a[0]) / 2.0f;
-	obb->center[1] = (b[1] + a[1]) / 2.0f;
-	obb->center[2] = (b[2] + a[2]) / 2.0f;
+	vec3 center;
+	center[0] = (b[0] + a[0]) / 2.0f;
+	center[1] = (b[1] + a[1]) / 2.0f;
+	center[2] = (b[2] + a[2]) / 2.0f;
 	if (posOffset)
 	{
-		obb->center[0] += posOffset[0];
-		obb->center[1] += posOffset[1];
-		obb->center[2] += posOffset[2];
+		glm_mat4_mulv3(rotMatrix, center, 1, center);
+		center[0] += posOffset[0];
+		center[1] += posOffset[1];
+		center[2] += posOffset[2];
 	}
+	memcpy(&obb->center, &center, sizeof(vec3));
 
 	vec3 dirx = {1, 0, 0};
 	vec3 diry = {0, 1, 0};

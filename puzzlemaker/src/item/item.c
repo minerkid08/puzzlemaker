@@ -37,7 +37,8 @@ Item* getIntersectingItem(vec3 pos)
 	{
 		Item* item = &itemList[j];
 		vec4 pos2 = {pos[0], pos[1], pos[2], 1};
-
+    if(item->def == 0)
+      continue;
 		mat4 transform;
 		memcpy(transform, item->invTransform, sizeof(mat4));
 		glm_mat4_mulv(transform, pos2, pos2);

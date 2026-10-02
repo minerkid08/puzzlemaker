@@ -293,9 +293,14 @@
 		"model": "laser.obj",
 		"mat": "laser.png",
     "entity": "env_portal_laser",
-    "bound1": [-0.25, -0.5, -0.5],
-    "bound2": [0.25, 0.5, 0.5],
+    "bound1": [-0.5, -0.5, -0.5],
+    "bound2": [0.5, 0.01, 0.5],
+    "snapMode": "mini-corner",
 		"deleteIntersectingVoxels": true,
+    "transform": {
+      "position": [0, -0.25, 0],
+      "rotation": [0, 0, -90]
+    },
     "keyvalues": [
       {
         "name": "startstate",
@@ -326,9 +331,14 @@
 		"model": "laser-catcher.obj",
 		"mat": "laser-catcher.png",
     "entity": "prop_laser_catcher",
-    "bound1": [-0.25, -0.5, -0.5],
-    "bound2": [0.25, 0.5, 0.5],
+    "bound1": [-0.5, -0.5, -0.5],
+    "bound2": [0.5, 0.01, 0.5],
+    "snapMode": "mini-corner",
 		"deleteIntersectingVoxels": true,
+    "transform": {
+      "position": [0, -0.25, 0],
+      "rotation": [0, 0, -90]
+    },
     "keyvalues": [
       {
         "name": "model",

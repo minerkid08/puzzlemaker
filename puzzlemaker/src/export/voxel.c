@@ -5,9 +5,11 @@
 #include "utils.h"
 #include "voxel/voxelConfig.h"
 
-const char* getMat(Voxel* voxel, int dir)
+const char* getMat(Voxel* voxel, int dir, char forceMini)
 {
 	char portal = voxel->portalability[dir];
+  if(forceMini)
+    portal |= 2;
 	switch (portal)
 	{
 	case 0: {
@@ -72,7 +74,7 @@ void exportVoxel(Voxel* voxel, ivec3 pos, ivec3 size)
 		if (!v2->solid || v2->subVoxels)
 		{
 			Side* side = &brush->sides[DIR_POS_Z];
-			side->material = getMat(voxel, DIR_POS_Z);
+			side->material = getMat(voxel, DIR_POS_Z, 0);
 		}
 	}
 
@@ -82,7 +84,7 @@ void exportVoxel(Voxel* voxel, ivec3 pos, ivec3 size)
 		if (!v2->solid || v2->subVoxels)
 		{
 			Side* side = &brush->sides[DIR_NEG_Z];
-			side->material = getMat(voxel, DIR_NEG_Z);
+			side->material = getMat(voxel, DIR_NEG_Z, 0);
 		}
 	}
 
@@ -92,7 +94,7 @@ void exportVoxel(Voxel* voxel, ivec3 pos, ivec3 size)
 		if (!v2->solid || v2->subVoxels)
 		{
 			Side* side = &brush->sides[DIR_POS_X];
-			side->material = getMat(voxel, DIR_POS_X);
+			side->material = getMat(voxel, DIR_POS_X, 0);
 		}
 	}
 
@@ -102,7 +104,7 @@ void exportVoxel(Voxel* voxel, ivec3 pos, ivec3 size)
 		if (!v2->solid || v2->subVoxels)
 		{
 			Side* side = &brush->sides[DIR_NEG_X];
-			side->material = getMat(voxel, DIR_NEG_X);
+			side->material = getMat(voxel, DIR_NEG_X, 0);
 		}
 	}
 
@@ -112,7 +114,7 @@ void exportVoxel(Voxel* voxel, ivec3 pos, ivec3 size)
 		if (!v2->solid || v2->subVoxels)
 		{
 			Side* side = &brush->sides[DIR_POS_Y];
-			side->material = getMat(voxel, DIR_POS_Y);
+			side->material = getMat(voxel, DIR_POS_Y, 0);
 		}
 	}
 
@@ -122,7 +124,7 @@ void exportVoxel(Voxel* voxel, ivec3 pos, ivec3 size)
 		if (!v2->solid || v2->subVoxels)
 		{
 			Side* side = &brush->sides[DIR_NEG_Y];
-			side->material = getMat(voxel, DIR_NEG_Y);
+			side->material = getMat(voxel, DIR_NEG_Y, 0);
 		}
 	}
 }
@@ -306,38 +308,38 @@ void exportSubVoxels(int x, int y, int z, Voxel* voxel)
 			if (xoff == 0.0f)
 			{
 				if (voxel->faces & (1 << DIR_NEG_X))
-					brush->sides[DIR_NEG_X].material = getMat(voxel, DIR_NEG_X);
+					brush->sides[DIR_NEG_X].material = getMat(voxel, DIR_NEG_X, 1);
 				brush->sides[DIR_POS_X].material = voxelConfig.backstage;
 			}
 
 			if (xoff == 0.5f)
 			{
 				if (voxel->faces & (1 << DIR_POS_X))
-					brush->sides[DIR_POS_X].material = getMat(voxel, DIR_POS_X);
+					brush->sides[DIR_POS_X].material = getMat(voxel, DIR_POS_X, 1);
 				brush->sides[DIR_NEG_X].material = voxelConfig.backstage;
 			}
 			if (yoff == 0.0f)
 			{
 				if (voxel->faces & (1 << DIR_NEG_Y))
-					brush->sides[DIR_NEG_Y].material = getMat(voxel, DIR_NEG_Y);
+					brush->sides[DIR_NEG_Y].material = getMat(voxel, DIR_NEG_Y, 1);
 				brush->sides[DIR_POS_Y].material = voxelConfig.backstage;
 			}
 			if (yoff == 0.5f)
 			{
 				if (voxel->faces & (1 << DIR_POS_Y))
-					brush->sides[DIR_POS_Y].material = getMat(voxel, DIR_POS_Y);
+					brush->sides[DIR_POS_Y].material = getMat(voxel, DIR_POS_Y, 1);
 				brush->sides[DIR_NEG_Y].material = voxelConfig.backstage;
 			}
 			if (zoff == 0.0f)
 			{
 				if (voxel->faces & (1 << DIR_NEG_Z))
-					brush->sides[DIR_NEG_Z].material = getMat(voxel, DIR_NEG_Z);
+					brush->sides[DIR_NEG_Z].material = getMat(voxel, DIR_NEG_Z, 1);
 				brush->sides[DIR_POS_Z].material = voxelConfig.backstage;
 			}
 			if (zoff == 0.5f)
 			{
 				if (voxel->faces & (1 << DIR_POS_Z))
-					brush->sides[DIR_POS_Z].material = getMat(voxel, DIR_POS_Z);
+					brush->sides[DIR_POS_Z].material = getMat(voxel, DIR_POS_Z, 1);
 				brush->sides[DIR_NEG_Z].material = voxelConfig.backstage;
 			}
 		}
@@ -407,6 +409,8 @@ void exportVoxels()
 					for (int i = 0; i < len; i++)
 					{
 						Item* item = &items[i];
+            if(item->def == 0)
+              continue;
 						if (item->def->deleteIntersectingVoxels == 0)
 							continue;
 						if (itemIntersectsVoxel(item, pos, 1))

@@ -23,6 +23,7 @@ void removeItem(Item* item)
 
 	item->id = -1;
 	item->index = -1;
+	item->def = 0;
 }
 
 Item* getItem(int i)

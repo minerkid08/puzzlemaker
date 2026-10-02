@@ -1,6 +1,8 @@
 #include "entityItem.h"
 #include "assetManager.h"
+#include "cglm/euler.h"
 #include "cglm/mat4.h"
+#include "cglm/quat.h"
 #include "cjson.h"
 #include "dynList.h"
 #include "export/entity.h"
@@ -51,6 +53,13 @@ void* loadEntityItemDef(cJSON* item, ItemDefinition* itemDef)
 	def->bound2[2] = fmaxf(bound1[2], bound2[2]);
 
 	cJSON* transform = cJSON_GetObjectItem(item, "transform");
+	def->positionOffset[0] = 0;
+	def->positionOffset[1] = 0;
+	def->positionOffset[2] = 0;
+
+	def->rotationOffset[0] = 0;
+	def->rotationOffset[1] = 0;
+	def->rotationOffset[2] = 0;
 	if (transform)
 	{
 		cJSON* position = cJSON_GetObjectItem(transform, "position");
@@ -59,16 +68,6 @@ void* loadEntityItemDef(cJSON* item, ItemDefinition* itemDef)
 			jsonGetVec3(transform, "position", def->positionOffset);
 		if (rotation)
 			jsonGetVec3(transform, "rotation", def->rotationOffset);
-	}
-	else
-	{
-		def->positionOffset[0] = 0;
-		def->positionOffset[1] = 0;
-		def->positionOffset[2] = 0;
-
-		def->rotationOffset[0] = 0;
-		def->rotationOffset[1] = 0;
-		def->rotationOffset[2] = 0;
 	}
 
 	if (cJSON_HasObjectItem(item, "instance"))
@@ -107,17 +106,14 @@ void entityItemExport(Item* item)
 
 	vec3 itemPos;
 	memcpy(itemPos, item->pos, sizeof(vec3));
-	vec3 itemRot;
-	memcpy(itemRot, item->dir, sizeof(vec3));
-	itemRot[0] = glm_rad(itemRot[0]);
-	itemRot[1] = glm_rad(itemRot[1]);
-	itemRot[2] = glm_rad(itemRot[2]);
+	vec4 itemRot;
+	memcpy(itemRot, item->quat, sizeof(vec4));
 
 	mat4 transform;
 	mat4 rotMat;
 	glm_mat4_identity(transform);
 	glm_translate(transform, itemPos);
-	glm_euler_yzx(itemRot, rotMat);
+	glm_quat_mat4(itemRot, rotMat);
 	glm_mat4_mul(transform, rotMat, transform);
 
 	Entity* entity = exportCreateEntity();
@@ -133,7 +129,9 @@ void entityItemExport(Item* item)
 	entRot[1] = glm_rad(entRot[1]);
 	entRot[2] = glm_rad(entRot[2]);
 	mat4 rotMat2;
-	glm_euler_yzx(entRot, rotMat2);
+  vec4 quat;
+	glm_euler_yzx_quat(entRot, quat);
+  glm_quat_mat4(quat, rotMat2);
 
 	glm_mat4_mul(rotMat, rotMat2, rotMat);
 	getEulerAngles(rotMat, entRot);

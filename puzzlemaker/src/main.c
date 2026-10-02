@@ -205,7 +205,11 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 		if (key == GLFW_KEY_Z)
 			voxelToggleSize();
 		if (key == GLFW_KEY_G)
+    {
+			if (selectedItem == 0)
+				return;
 			mouseMode = MODE_GRAB;
+    }
 		if (key == GLFW_KEY_F)
 		{
 			if (selectedItem == 0)
@@ -411,8 +415,8 @@ void mouseMoveCallback(GLFWwindow* window, double x, double y)
 				else if (hit.dir == DIR_POS_X)
 				{
 					selectedItem->dir[0] = 0;
-					selectedItem->dir[1] = 0;
-					selectedItem->dir[2] = -90;
+					selectedItem->dir[1] = 180;
+					selectedItem->dir[2] = 90;
 				}
 				else if (hit.dir == DIR_NEG_X)
 				{
@@ -422,15 +426,15 @@ void mouseMoveCallback(GLFWwindow* window, double x, double y)
 				}
 				else if (hit.dir == DIR_POS_Z)
 				{
-					selectedItem->dir[0] = 90;
-					selectedItem->dir[1] = 0;
-					selectedItem->dir[2] = 0;
+					selectedItem->dir[0] = 0;
+					selectedItem->dir[1] = 90;
+					selectedItem->dir[2] = 90;
 				}
 				else if (hit.dir == DIR_NEG_Z)
 				{
-					selectedItem->dir[0] = -90;
-					selectedItem->dir[1] = 0;
-					selectedItem->dir[2] = 0;
+					selectedItem->dir[0] = 0;
+					selectedItem->dir[1] = -90;
+					selectedItem->dir[2] = 90;
 				}
 				updateItemTransformRot(selectedItem);
 			}

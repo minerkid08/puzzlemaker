@@ -23,6 +23,8 @@ int exportMap()
 	{
 		Item* item = &items[i];
 		item->ioEnt = 0;
+		if (item->def == 0)
+			continue;
 		if (item->def->exportScript)
 		{
 			if (runExportScript(item))

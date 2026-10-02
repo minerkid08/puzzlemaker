@@ -175,6 +175,8 @@ void itemPanelRender()
 				igInputFloat(kv->def->name, &kv->value.f, 1, 0, "%.2f", 0);
 			if (type == TYPE_BOOL)
 				igCheckbox(kv->def->name, (bool*)&kv->value.b);
+			if (type == TYPE_STRING)
+				igInputText(kv->def->name, kv->value.s, 256, 0, 0, 0);
 
 			if (type & TYPE_DROPDOWN)
 			{

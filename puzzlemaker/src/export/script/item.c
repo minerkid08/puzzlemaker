@@ -92,6 +92,8 @@ int itemGetKv(lua_State* l)
 			lua_pushboolean(l, kv->value.b);
 		if (type == TYPE_FLOAT)
 			lua_pushnumber(l, kv->value.f);
+		if (type == TYPE_STRING)
+			lua_pushstring(l, kv->value.s);
 
 		if (type & TYPE_DROPDOWN)
 		{

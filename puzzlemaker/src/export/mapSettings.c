@@ -29,4 +29,16 @@ void exportMapSettings()
   exportEntityAddKvss(ent, "equippaintgun", buf);
   snprintf(buf, 8, "%d", mapSettings.gameType);
   exportEntityAddKvss(ent, "gametype", buf);
+
+	Entity* globalEnts = exportCreateEntity();
+	globalEnts->name = strdup("globalEnts");
+	globalEnts->className = "func_instance";
+	globalEnts->pos[0] = -512;
+	globalEnts->pos[1] = 0;
+	globalEnts->pos[2] = 0;
+
+	globalEnts->rotation[0] = 0;
+	globalEnts->rotation[1] = 0;
+	globalEnts->rotation[2] = 0;
+  exportEntityAddKvss(globalEnts, "file", "instances/global_ents_generic");
 }

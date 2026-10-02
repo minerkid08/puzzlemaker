@@ -181,6 +181,11 @@
     "bound2": [0.5, 1, 0.5],
 		"keyvalues": [
 			{
+				"name": "StringProbably",
+				"type": "string",
+				"defaultValue": "test"
+			},
+			{
     	  "name": "CubeBehavior",
     	  "type": "drop-int",
     	  "defaultValue": 0,

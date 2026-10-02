@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-const char* jsonGetStr(const cJSON* json, const char* name)
+char* jsonGetStr(const cJSON* json, const char* name)
 {
 	cJSON* j = cJSON_GetObjectItem(json, name);
   if(j == 0)
@@ -68,7 +68,7 @@ char jsonGetBoolC(const cJSON* json, const char* name, char def)
 	return j->type == cJSON_True;
 }
 
-const char* jsonArrGetStr(const cJSON* json, int i)
+char* jsonArrGetStr(const cJSON* json, int i)
 {
 	cJSON* j = cJSON_GetArrayItem(json, i);
   if(j == 0)

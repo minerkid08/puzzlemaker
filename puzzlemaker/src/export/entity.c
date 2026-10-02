@@ -75,6 +75,8 @@ void exportEntityAddKv(Entity* ent, ItemKv* kv)
 			snprintf(buf, 128, "\"%s\" \"%.2f\"", def->name, kv->value.f);
 		if (def->type == TYPE_BOOL)
 			snprintf(buf, 128, "\"%s\" \"%d\"", def->name, (int)kv->value.b);
+		if (def->type == TYPE_STRING)
+			snprintf(buf, 128, "\"%s\" \"%s\"", def->name, kv->value.s);
 		if (def->type & TYPE_DROPDOWN)
 		{
 			int type = (def->type & (~TYPE_DROPDOWN));

@@ -1,4 +1,6 @@
-struct ItemBase
+## Item Base
+
+#### struct ItemBase
 |Key|Type|Default Value|Description|
 |---|----|-------------|-----------|
 |type|string|||
@@ -7,31 +9,31 @@ struct ItemBase
 |inputs|Input[]||optional|
 |outputs|Output[]||opional|
 |kvs|Kv[]||optional|
-|statickvs|table<string,string>||optional|
-|snapMode|SnapMode|"corner"|
+|statickvs|table<string, string>||kv pairs to add to exported entity, does not work on instances. optional|
+|snapMode|SnapMode|"corner"|how the item snaps when grabbed|
 |deleteIntersectingVoxels|boolean|false|if the item should delete the voxels that it intersects with|
-|genMissingVoxels|boolean|false|if the item should generate voxels so the map stays sealed|
+|genMissingVoxels|boolean|true|if the item should generate voxels so the map stays sealed, only does something when deleteIntersectingVoxels is true|
 
-enum SnapMode (string)  
+#### enum SnapMode (string)  
 corner, center, mini-corner, mini-center
 
-struct Input
+#### struct Input
 |Key|Type|Default Value|Description|
 |---|----|-------------|-----------|
 |name|string|||
 |trueInput|string|||
-|falseInput|string|||
+|falseInput|string||oprional|
 |trueArg|string||optional|
 |falseArg|string||optional|
 
-struct Output
+#### struct Output
 |Key|Type|Default Value|Description|
 |---|----|-------------|-----------|
 |name|string|||
 |trueOutput|string|||
-|falseOutput|string|||
+|falseOutput|string||optional|
 
-struct Kv
+#### struct Kv
 |Key|Type|Default Value|Description|
 |---|----|-------------|-----------|
 |name|string|||
@@ -39,11 +41,12 @@ struct Kv
 |defaultValue|type|||
 |options|object<string, type>||only needs to be specified if using a dropdown type|
 
-enum KvType (string)  
+#### enum KvType (string)  
 int, float, bool, drop-int, drop-string 
 
-----------------------
-struct EntityItem (ItemBase)
+## Entity Item
+
+#### struct EntityItem (ItemBase)
 |Key|Type|Default Value|Description|
 |---|----|-------------|-----------|
 |type|string|"entity"||
@@ -55,22 +58,27 @@ struct EntityItem (ItemBase)
 |entity|string||entity to spawn ingame, ignored if instance is specified|
 |instance|string||instance to spawn ingame|
 
-struct Transform
+#### struct Transform
 |Key|Type|Default Value|Description|
 |---|----|-------------|-----------|
-|position|vec3|{0, 0, 0}||
-|rotation|vec3|{0, 0, 0}|rotations happen in the yzx order|
+|position|vec3|[0, 0, 0]||
+|rotation|vec3|[0, 0, 0]|rotations happen in the yzx order|
 
-----------------------
-struct PanelItem (ItemBase)
+#### Note
+For snapping on walls to work best, build your instance in hammer so the side facing away from the wall faces +x  
+Then set the rotation field in the transform to [0, 0, -90]  
+
+## Panel Item
+
+#### struct PanelItem (ItemBase)
 |Key|Type|Default Value|Description|
 |---|----|-------------|-----------|
 |type|string|"panel"||
-|minSize|vec2|{0, 0}||
-|maxSize|vec2|{99999, 99999}||
-|defaultSize|vec2|{4, 4}||
-|horizTile|bool||weather tiling horizontaly is enabled, optional|
-|vertTile|bool||weather tiling vertically is enabled, optional|
+|minSize|vec2|[0, 0]||
+|maxSize|vec2|[99999, 99999]||
+|defaultSize|vec2|[4, 4]||
+|horizTile|bool|false|weather tiling horizontaly is enabled|
+|vertTile|bool|false|weather tiling vertically is enabled|
 |editorCenterTexture|string|||
 |centerTexture|string|||
 |texSize|string||size of the center texture|
@@ -79,7 +87,7 @@ struct PanelItem (ItemBase)
 |entity|string||name of the brush entity to tie this to, optional|
 |borders|PanelBorder[]|||
 
-struct PanelBorder
+#### struct PanelBorder
 |Key|Type|Default Value|Description|
 |---|----|-------------|-----------|
 |id|PanelBorderId|||
@@ -92,18 +100,19 @@ struct PanelBorder
 enum PanelBorderId (string)  
 bottom-left, bottom, bottom-right, left, right, top-left, top, top-right
 
-----------------------
-struct VolumeItem(ItemBase)
+## Volume Item
+
+#### struct VolumeItem(ItemBase)
 |Key|Type|Default Value|Description|
 |---|----|-------------|-----------|
-|minSize|vec3|{0, 0, 0}||
-|maxSize|vec3|{99999, 99999, 99999}||
-|defaultSize|vec3|{4, 4, 4}||
+|minSize|vec3|[0, 0, 0]||
+|maxSize|vec3|[99999, 99999, 99999]||
+|defaultSize|vec3|[4, 4, 4]||
 |editorTexture|string|||
 |texture|string\|VolumeTextures|||
 |entity|string||brush entity to tie this brush to, optional|
 
-struct VolumeTextures
+#### struct VolumeTextures
 |Key|Type|Default Value|Description|
 |---|----|-------------|-----------|
 |right|string||texture to use on the -x side|

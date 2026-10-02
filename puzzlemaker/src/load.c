@@ -1,8 +1,6 @@
 #include "cjson.h"
 #include "dynList.h"
 #include "item/item.h"
-#include "item/panel.h"
-#include "item/volumeItem.h"
 #include "jsonUtils.h"
 #include "mapsettings.h"
 #include "utils.h"
@@ -20,7 +18,9 @@ void load()
 
 	for (int i = 0; i < dynList_size(itemList); i++)
 	{
-		removeItem(&itemList[i]);
+		Item* item = &itemList[i];
+		if (item->def)
+			removeItem(item);
 	}
 
 	FILE* file = fopen(filename, "rb");
@@ -160,6 +160,12 @@ void load()
 					kv->value.f = jsonGetFloat(kvJson, def->name);
 				if (type == TYPE_BOOL)
 					kv->value.b = jsonGetBool(kvJson, def->name);
+				if (type == TYPE_STRING)
+				{
+					char* str = jsonGetStr(kvJson, def->name);
+					strncpy(kv->value.s, str, 256);
+					free(str);
+				}
 				if (type & TYPE_DROPDOWN)
 					kv->value.i = jsonGetInt(kvJson, def->name);
 			}

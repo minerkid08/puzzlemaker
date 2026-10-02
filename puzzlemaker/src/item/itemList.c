@@ -18,6 +18,14 @@ Item* getItemList()
 
 void removeItem(Item* item)
 {
+	ItemDefinition* def = item->def;
+	int l = dynList_size(item->kv);
+	for (int i = 0; i < l; i++)
+	{
+		if (def->kvs[i].type == TYPE_STRING)
+			free(item->kv[i].value.s);
+	}
+
 	dynList_free(item->kv);
 	dynList_free(item->outputs);
 
@@ -98,7 +106,13 @@ Item* addItem(int defId, ivec3 position)
 	for (int i = 0; i < l; i++)
 	{
 		item->kv[i].def = &def->kvs[i];
-		item->kv[i].value = def->kvs[i].defaultValue;
+		if (def->kvs[i].type == TYPE_STRING)
+		{
+			item->kv[i].value.s = malloc(256);
+			strncpy(item->kv[i].value.s, def->kvs[i].defaultValue.s, 256);
+		}
+		else
+			item->kv[i].value = def->kvs[i].defaultValue;
 	}
 
 	item->def->callbacks->init(item);

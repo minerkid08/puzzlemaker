@@ -160,6 +160,11 @@ void loadItemDefinitionFile(const char* filename)
 				kvDef->type = TYPE_INT;
 				kvDef->defaultValue.i = jsonGetInt(kv, "defaultValue");
 			}
+			if (strcmp(type->valuestring, "string") == 0)
+			{
+				kvDef->type = TYPE_STRING;
+				kvDef->defaultValue.s = jsonGetStr(kv, "defaultValue");
+			}
 			if (strcmp(type->valuestring, "drop-string") == 0)
 			{
 				kvDef->type = TYPE_STRING | TYPE_DROPDOWN;

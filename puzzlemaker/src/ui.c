@@ -141,10 +141,7 @@ void uiMenuBar()
 	if (igMenuItem_Bool("compile", 0, 0, 1))
 	{
 		if (mapSettings.name[0] == 0)
-		{
-			fileBrowserCompileAfterSave();
 			fileBrowserOpen(MODE_SAVE);
-		}
 		else
 			startCompile();
 	}

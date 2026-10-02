@@ -1,28 +1,47 @@
 #ifdef _WIN32
 #include "compile/compileThread.h"
 #include "dynList.h"
+#include <io.h>
 #include <stdio.h>
 #include <windows.h>
-#include <io.h>
 
 extern CompileStatus compileStatus;
 
 HANDLE event;
 
 static char buf[512];
+static char proc[1024];
 
 void processString(const char* str, char* out);
 
 int runCmd(char* cmd)
 {
 	processString(cmd, buf);
+  memset(proc, 0, 1024);
 
 	int len = strlen(buf);
+	int j = 1;
+  proc[0] = '"';
 	for (int i = 0; i < len; i++)
 	{
 		if (buf[i] == '%')
-			buf[i] = '\\';
+		{
+			proc[j] = buf[i + 1];
+			continue;
+		}
+		if (buf[i] == ' ' && proc[j] != ' ')
+		{
+      proc[j] = '"';
+      proc[j + 1] = ' ';
+      proc[j + 2] = '"';
+			j += 3;
+			continue;
+		}
+		proc[j] = buf[i];
+		j++;
 	}
+  proc[j] = '"';
+  proc[j + 1] = 0;
 
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
@@ -31,10 +50,10 @@ int runCmd(char* cmd)
 	si.cb = sizeof(si);
 	memset(&pi, 0, sizeof(pi));
 
-	if (!CreateProcess(0, buf, 0, 0, FALSE, 0, 0, compileStatus.workingDir, &si, &pi))
+	if (!CreateProcess(0, proc, 0, 0, FALSE, 0, 0, compileStatus.workingDir, &si, &pi))
 	{
 		printf("CreateProcess failed (%d).\n", GetLastError());
-		printf("command line: '%s'\n", buf);
+		printf("command line: '%s'\n", proc);
 		printf("working dir: '%s'\n", compileStatus.workingDir);
 
 		int len = strlen(buf);
@@ -61,7 +80,11 @@ int runCmd(char* cmd)
 	DWORD exitCode = 0;
 	GetExitCodeProcess(pi.hProcess, &exitCode);
 	if (exitCode)
+	{
+		printf("command line: '%s'\n", proc);
+		printf("working dir: '%s'\n", compileStatus.workingDir);
 		compileStatus.failed = 1;
+	}
 
 	CloseHandle(pi.hProcess);
 	CloseHandle(pi.hThread);

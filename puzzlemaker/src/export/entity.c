@@ -187,20 +187,37 @@ void exportEntitiesProcessOutputs()
 		if (uniqueOutputs == 0)
 			continue;
 
-		for (int j = 0; j < uniqueOutputs; j++)
-		{
-			OutputDef* output = outputDefs[j];
-			char name[64];
-			snprintf(name, 64, "%s_%s", entName, output->name);
-			exportEntityAddRawOutput(entity, output->trueOutput, name, "FireUser1", "", 0);
-			if (output->falseOutput)
-				exportEntityAddRawOutput(entity, output->falseOutput, name, "FireUser2", "", 0);
-		}
+		printf("ent name %s\n", entName);
+		printf("io count %d\n", outputCount);
+		printf("un count %d\n", uniqueOutputs);
+
+		int* relays = malloc(sizeof(int) * uniqueOutputs);
 
 		vec3 entPos;
 		entPos[0] = entity->pos[0];
 		entPos[1] = entity->pos[1];
 		entPos[2] = entity->pos[2];
+
+		for (int j = 0; j < uniqueOutputs; j++)
+		{
+			OutputDef* output = outputDefs[j];
+			char name[128];
+			snprintf(name, 128, "%s_%s", entName, output->name);
+			exportEntityAddRawOutput(entity, output->trueOutput, name, "FireUser1", "", 0);
+			if (output->falseOutput)
+				exportEntityAddRawOutput(entity, output->falseOutput, name, "FireUser2", "", 0);
+
+			Entity* relay = exportCreateEntity();
+			relay->className = "logic_relay";
+			relay->name = strdup(name);
+			relay->rotation[0] = 0;
+			relay->rotation[1] = 0;
+			relay->rotation[2] = 0;
+			relay->pos[0] = entPos[0];
+			relay->pos[1] = entPos[1];
+			relay->pos[2] = entPos[2];
+			relays[j] = relay->id;
+		}
 
 		ItemOutput* outputArr = entity->outputs;
 		entity->outputs = 0;
@@ -208,17 +225,20 @@ void exportEntitiesProcessOutputs()
 		for (int j = 0; j < outputCount; j++)
 		{
 			ItemOutput* output = &outputArr[j];
-			Entity* relay = exportCreateEntity();
 			char relayName[128];
 			snprintf(relayName, 128, "%s_%s", entName, output->def->name);
-			relay->className = "logic_relay";
-			relay->name = strdup(relayName);
-			relay->rotation[0] = 0;
-			relay->rotation[1] = 0;
-			relay->rotation[2] = 0;
-			relay->pos[0] = entPos[0];
-			relay->pos[1] = entPos[1];
-			relay->pos[2] = entPos[2];
+
+			Entity* relay = 0;
+
+			for (int k = 0; k < uniqueOutputs; k++)
+			{
+				Entity* relay2 = &entities[relays[k]];
+				if (strcmp(relay2->name, relayName) == 0)
+				{
+					relay = relay2;
+					break;
+				}
+			}
 
 			char ioEntName[128];
 			Item* item = getItem(output->entity);
@@ -252,9 +272,9 @@ void exportEntitiesProcessOutputs()
 				else
 					exportEntityAddRawOutput(relay, "OnUser1", ioEntName, input->trueInput, "", 0);
 
-				if (input->falseInput)
+				if (input->falseInput || output->def->falseOutput)
 				{
-					if (input->falseArg && output->def->falseOutput)
+					if (input->falseArg)
 						exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->falseInput, input->falseArg, 0);
 					else
 						exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->falseInput, "", 0);
@@ -306,41 +326,51 @@ void exportEndEntities(FILE* file)
 				{
 					ItemOutput* output = &entity->outputs[i];
 					Item* item = getItem(output->entity);
+					InputDef* input = output->input;
 					if (item->ioEnt)
 						strncpy(buf, item->ioEnt, 100);
 					else
 						snprintf(buf, 100, "%s%d", item->def->name, output->entity);
 					if (output->inverted)
 					{
-						if (output->input->falseArg)
-							fprintf(file, "    \"%s\" \"%s\x1b%s\x1b%s\x1b 0\x1b-1\"\n", output->def->trueOutput, buf,
-									output->input->falseInput, output->input->falseArg);
-						else
-							fprintf(file, "    \"%s\" \"%s\x1b%s\x1b\x1b 0\x1b-1\"\n", output->def->trueOutput, buf,
-									output->input->falseInput);
+						if (input->falseInput)
+						{
+							if (input->falseArg)
+								fprintf(file, "    \"%s\" \"%s\x1b%s\x1b%s\x1b 0\x1b-1\"\n", output->def->trueOutput,
+										buf, input->falseInput, input->falseArg);
+							else
+								fprintf(file, "    \"%s\" \"%s\x1b%s\x1b\x1b 0\x1b-1\"\n", output->def->trueOutput, buf,
+										input->falseInput);
+						}
 
-						if (output->input->trueArg)
-							fprintf(file, "    \"%s\" \"%s\x1b%s\x1b%s\x1b 0\x1b-1\"\n", output->def->falseOutput, buf,
-									output->input->trueInput, output->input->trueArg);
-						else
-							fprintf(file, "    \"%s\" \"%s\x1b%s\x1b\x1b 0\x1b-1\"\n", output->def->falseOutput, buf,
-									output->input->trueInput);
+						if (output->def->falseOutput)
+						{
+							if (input->trueArg)
+								fprintf(file, "    \"%s\" \"%s\x1b%s\x1b%s\x1b 0\x1b-1\"\n", output->def->falseOutput,
+										buf, input->trueInput, input->trueArg);
+							else
+								fprintf(file, "    \"%s\" \"%s\x1b%s\x1b\x1b 0\x1b-1\"\n", output->def->falseOutput,
+										buf, input->trueInput);
+						}
 					}
 					else
 					{
-						if (output->input->trueArg)
+						if (input->trueArg)
 							fprintf(file, "    \"%s\" \"%s\x1b%s\x1b%s\x1b 0\x1b-1\"\n", output->def->trueOutput, buf,
-									output->input->trueInput, output->input->trueArg);
+									input->trueInput, input->trueArg);
 						else
 							fprintf(file, "    \"%s\" \"%s\x1b%s\x1b\x1b 0\x1b-1\"\n", output->def->trueOutput, buf,
-									output->input->trueInput);
+									input->trueInput);
 
-						if (output->input->falseArg)
-							fprintf(file, "    \"%s\" \"%s\x1b%s\x1b%s\x1b 0\x1b-1\"\n", output->def->falseOutput, buf,
-									output->input->falseInput, output->input->falseArg);
-						else
-							fprintf(file, "    \"%s\" \"%s\x1b%s\x1b\x1b 0\x1b-1\"\n", output->def->falseOutput, buf,
-									output->input->falseInput);
+						if (input->falseInput || output->def->falseOutput)
+						{
+							if (input->falseArg)
+								fprintf(file, "    \"%s\" \"%s\x1b%s\x1b%s\x1b 0\x1b-1\"\n", output->def->falseOutput,
+										buf, input->falseInput, input->falseArg);
+							else
+								fprintf(file, "    \"%s\" \"%s\x1b%s\x1b\x1b 0\x1b-1\"\n", output->def->falseOutput,
+										buf, input->falseInput);
+						}
 					}
 				}
 				fprintf(file, "  }\n");

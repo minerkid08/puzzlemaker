@@ -22146,8 +22146,8 @@ entity
 
   connections
   {
-    "instance:button;OnPressed" "button10_pressFireUser10.00-1"
-    "instance:button;OnUnPressed" "button10_pressFireUser20.00-1"
+    "instance:button;OnPressed" "funnel6instance:reverse;Trigger 0-1"
+    "instance:button;OnUnPressed" "funnel6instance:forward;Trigger 0-1"
   }
 }
 entity
@@ -22860,8 +22860,8 @@ entity
 
   connections
   {
-    "OnPressed" "ped-button13_pressFireUser10.00-1"
-    "OnButtonReset" "ped-button13_pressFireUser20.00-1"
+    "OnPressed" "fizzler11-trigger1FireUser1 0-1"
+    "OnButtonReset" "fizzler11-trigger1FireUser2 0-1"
   }
 }
 entity
@@ -22879,8 +22879,8 @@ entity
 
   connections
   {
-    "OnPressed" "ped-button14_pressFireUser10.00-1"
-    "OnButtonReset" "ped-button14_pressFireUser20.00-1"
+    "OnPressed" "dropper15instance:drop;Trigger 0-1"
+    "OnButtonReset" "dropper15nuh 0-1"
   }
 }
 entity
@@ -22906,8 +22906,8 @@ entity
 
   connections
   {
-    "instance:button;OnPressed" "button16_pressFireUser10.00-1"
-    "instance:button;OnUnPressed" "button16_pressFireUser20.00-1"
+    "instance:button;OnPressed" "fizzler7-trigger1FireUser1 0-1"
+    "instance:button;OnUnPressed" "fizzler7-trigger1FireUser2 0-1"
   }
 }
 entity
@@ -22937,8 +22937,8 @@ entity
 
   connections
   {
-    "OnPressed" "ped-button18_pressFireUser10.00-1"
-    "OnButtonReset" "ped-button18_pressFireUser20.00-1"
+    "OnPressed" "dropper17instance:drop;Trigger 0-1"
+    "OnButtonReset" "dropper17nuh 0-1"
   }
 }
 entity
@@ -22952,8 +22952,8 @@ entity
 
   connections
   {
-    "OnPowered" "laser-catcher19_on poweredFireUser10.00-1"
-    "OnUnpowered" "laser-catcher19_on poweredFireUser20.00-1"
+    "OnPowered" "door21instance:door;Open 0-1"
+    "OnUnpowered" "door21instance:door;Close 0-1"
   }
 }
 entity
@@ -23006,7 +23006,7 @@ entity
 
   connections
   {
-    "OnTrigger" "trigger-once24_onTriggerFireUser10.00-1"
+    "OnTrigger" "door22instance:door;Close 0-1"
   }
 solid
 {
@@ -23139,7 +23139,8 @@ entity
 
   connections
   {
-    "OnTrigger" "trigger-once25_onTriggerFireUser10.00-1"
+    "OnTrigger" "door21instance:door;Close 0-1"
+    "OnTrigger" "end26Commanddisconnect 0-1"
   }
 solid
 {
@@ -23451,129 +23452,6 @@ entity
 entity
 {
   "id" "53"
-  "classname" "logic_relay"
-  "origin" "-1152.000000 1600.000000 192.000000"
-  "angles" "0.000000 0.000000 -0.000000"
-  "targetname" "button10_press"
-
-  connections
-  {
-    "OnUser1" "funnel6instance:reverse;Trigger0.00-1"
-    "OnUser2" "funnel6instance:forward;Trigger0.00-1"
-  }
-}
-entity
-{
-  "id" "54"
-  "classname" "logic_relay"
-  "origin" "-720.000000 1472.000000 192.000000"
-  "angles" "0.000000 0.000000 -0.000000"
-  "targetname" "ped-button13_press"
-
-  connections
-  {
-    "OnUser1" "fizzler11-trigger1FireUser10.00-1"
-    "OnUser2" "fizzler11-trigger1FireUser20.00-1"
-  }
-}
-entity
-{
-  "id" "55"
-  "classname" "logic_relay"
-  "origin" "-1200.000000 1344.000000 192.000000"
-  "angles" "0.000000 0.000000 -0.000000"
-  "targetname" "ped-button14_press"
-
-  connections
-  {
-    "OnUser1" "dropper15instance:drop;Trigger0.00-1"
-    "OnUser2" "dropper15nuh0.00-1"
-  }
-}
-entity
-{
-  "id" "56"
-  "classname" "logic_relay"
-  "origin" "-960.000000 832.000000 192.000000"
-  "angles" "0.000000 0.000000 -0.000000"
-  "targetname" "button16_press"
-
-  connections
-  {
-    "OnUser1" "fizzler7-trigger1FireUser10.00-1"
-    "OnUser2" "fizzler7-trigger1FireUser20.00-1"
-  }
-}
-entity
-{
-  "id" "57"
-  "classname" "logic_relay"
-  "origin" "-432.000000 512.000000 320.000000"
-  "angles" "0.000000 0.000000 -0.000000"
-  "targetname" "ped-button18_press"
-
-  connections
-  {
-    "OnUser1" "dropper17instance:drop;Trigger0.00-1"
-    "OnUser2" "dropper17nuh0.00-1"
-  }
-}
-entity
-{
-  "id" "58"
-  "classname" "logic_relay"
-  "origin" "-384.000000 628.479980 256.000000"
-  "angles" "0.000000 0.000000 -0.000000"
-  "targetname" "laser-catcher19_on powered"
-
-  connections
-  {
-    "OnUser1" "door21instance:door;Open0.00-1"
-    "OnUser2" "door21instance:door;Close0.00-1"
-  }
-}
-entity
-{
-  "id" "59"
-  "classname" "logic_relay"
-  "origin" "-576.000000 224.000000 320.000000"
-  "angles" "0.000000 0.000000 -0.000000"
-  "targetname" "trigger-once24_onTrigger"
-
-  connections
-  {
-    "OnUser1" "door22instance:door;Close0.00-1"
-  }
-}
-entity
-{
-  "id" "60"
-  "classname" "logic_relay"
-  "origin" "-64.000000 768.000000 192.000000"
-  "angles" "0.000000 0.000000 -0.000000"
-  "targetname" "trigger-once25_onTrigger"
-
-  connections
-  {
-    "OnUser1" "door21instance:door;Close0.00-1"
-  }
-}
-entity
-{
-  "id" "61"
-  "classname" "logic_relay"
-  "origin" "-64.000000 768.000000 192.000000"
-  "angles" "0.000000 0.000000 -0.000000"
-  "targetname" "trigger-once25_onTrigger"
-
-  connections
-  {
-    "OnUser1" "end26Commanddisconnect0.00-1"
-  }
-}
-entity
-{
-  "id" "62"
   "classname" "info_portal_gamerules"
   "origin" "-448.000000 624.000000 192.000000"
   "angles" "0.000000 0.000000 -0.000000"

@@ -19,6 +19,7 @@ extern Picker picker;
 
 static Item* pickEntity;
 static Item* prevItem = 0;
+static int pickItemId = 0;
 
 static char buf[50];
 
@@ -251,9 +252,10 @@ void itemPanelRender()
 						pickEntity = 0;
 						output->entity = -1;
 						output->input = 0;
+						pickItemId = i;
 					}
 
-					if (picker.active == 0 && pickEntity)
+					if (picker.active == 0 && pickEntity && i == pickItemId)
 					{
 						output->entity = pickEntity->index;
 						pickEntity = 0;

@@ -127,51 +127,47 @@ void exportVoxel(Voxel* voxel, ivec3 pos, ivec3 size)
 	}
 }
 
-char canMerge(Voxel* a, Voxel* b)
+char portabilityCheck(Voxel* a, Voxel* b)
 {
 	if (a->subVoxels || b->subVoxels)
-		return 0;
+		return 1;
 	if (a->faces != b->faces)
-		return 0;
+		return 1;
 
-	switch (a->faces)
-	{
-	case (1 << DIR_POS_X):
-		return a->portalability[DIR_POS_X] == b->portalability[DIR_POS_X];
-	case (1 << DIR_NEG_X):
-		return a->portalability[DIR_NEG_X] == b->portalability[DIR_NEG_X];
-	case (1 << DIR_POS_Y):
-		return a->portalability[DIR_POS_Y] == b->portalability[DIR_POS_Y];
-	case (1 << DIR_NEG_Y):
-		return a->portalability[DIR_NEG_Y] == b->portalability[DIR_NEG_Y];
-	case (1 << DIR_POS_Z):
-		return a->portalability[DIR_POS_Z] == b->portalability[DIR_POS_Z];
-	case (1 << DIR_NEG_Z):
-		return a->portalability[DIR_NEG_Z] == b->portalability[DIR_NEG_Z];
-	default:
-		return 0;
-	}
+	char out = 0;
+	if (a->faces & (1 << DIR_POS_X))
+		out |= (a->portalability[DIR_POS_X] != b->portalability[DIR_POS_X]);
+	if (a->faces & (1 << DIR_NEG_X))
+		out |= (a->portalability[DIR_NEG_X] != b->portalability[DIR_NEG_X]);
+	if (a->faces & (1 << DIR_POS_Y))
+		out |= (a->portalability[DIR_POS_Y] != b->portalability[DIR_POS_Y]);
+	if (a->faces & (1 << DIR_NEG_Y))
+		out |= (a->portalability[DIR_NEG_Y] != b->portalability[DIR_NEG_Y]);
+	if (a->faces & (1 << DIR_POS_Z))
+		out |= (a->portalability[DIR_POS_Z] != b->portalability[DIR_POS_Z]);
+	if (a->faces & (1 << DIR_NEG_Z))
+		out |= (a->portalability[DIR_NEG_Z] != b->portalability[DIR_NEG_Z]);
+	return out;
 }
 
 char getVoxelDir(Voxel* v)
 {
-	switch (v->faces)
-	{
-	case (1 << DIR_POS_X):
+	char isX = 1;
+	char isY = 1;
+	char isZ = 1;
+	if (v->faces & (1 << DIR_POS_X) || v->faces & (1 << DIR_NEG_X))
+		isX = 0;
+	if (v->faces & (1 << DIR_POS_Y) || v->faces & (1 << DIR_NEG_Y))
+		isY = 0;
+	if (v->faces & (1 << DIR_POS_Z) || v->faces & (1 << DIR_NEG_Z))
+		isZ = 0;
+	if (!isX && isY && isZ)
 		return DIR_POS_X;
-	case (1 << DIR_NEG_X):
-		return DIR_NEG_X;
-	case (1 << DIR_POS_Y):
+	if (isX && !isY && isZ)
 		return DIR_POS_Y;
-	case (1 << DIR_NEG_Y):
-		return DIR_NEG_Y;
-	case (1 << DIR_POS_Z):
+	if (isX && isY && !isZ)
 		return DIR_POS_Z;
-	case (1 << DIR_NEG_Z):
-		return DIR_NEG_Z;
-	default:
-		return -1;
-	}
+	return -1;
 }
 
 void scanX(Voxel* voxel, int x, int y, int z, int* width, ivec2 tile)
@@ -190,7 +186,7 @@ void scanX(Voxel* voxel, int x, int y, int z, int* width, ivec2 tile)
 		for (int i = 0; i < maxTile; i++)
 		{
 			Voxel* v2 = getVoxel(x2, y + i * tileNorm[0], z + i * tileNorm[1]);
-			if (!canMerge(voxel, v2))
+			if (portabilityCheck(voxel, v2))
 				return;
 		}
 		(*width)++;
@@ -213,7 +209,7 @@ void scanY(Voxel* voxel, int x, int y, int z, int* width, ivec2 tile)
 		for (int i = 0; i < maxTile; i++)
 		{
 			Voxel* v2 = getVoxel(x + i * tileNorm[0], y2, z + i * tileNorm[1]);
-			if (!canMerge(voxel, v2))
+			if (portabilityCheck(voxel, v2))
 				return;
 		}
 		(*width)++;
@@ -236,7 +232,7 @@ void scanZ(Voxel* voxel, int x, int y, int z, int* width, ivec2 tile)
 		for (int i = 0; i < maxTile; i++)
 		{
 			Voxel* v2 = getVoxel(x + i * tileNorm[0], y + i * tileNorm[1], z2);
-			if (!canMerge(voxel, v2))
+			if (portabilityCheck(voxel, v2))
 				return;
 		}
 		(*width)++;
@@ -589,7 +585,7 @@ void exportVoxels()
 							if (x2 >= MAP_SIZE)
 								break;
 							Voxel* v2 = getVoxel(x2, y, z);
-							if (voxel->faces != v2->faces)
+							if (portabilityCheck(voxel, v2))
 								break;
 							width++;
 						}
@@ -607,7 +603,7 @@ void exportVoxels()
 							if (y2 >= MAP_SIZE)
 								break;
 							Voxel* v2 = getVoxel(x, y2, z);
-							if (voxel->faces != v2->faces)
+							if (portabilityCheck(voxel, v2))
 								break;
 							width++;
 						}
@@ -625,7 +621,7 @@ void exportVoxels()
 							if (z2 >= MAP_SIZE)
 								break;
 							Voxel* v2 = getVoxel(x, y, z2);
-							if (voxel->faces != v2->faces)
+							if (portabilityCheck(voxel, v2))
 								break;
 							width++;
 						}

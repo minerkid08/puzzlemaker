@@ -553,7 +553,7 @@ void panelItemGetBoundingBox(Item* item, vec3 min, vec3 max)
 	min[0] = 0;
 	min[1] = 0;
 	min[2] = -0.125;
-	max[0] = data->size[0];
-	max[1] = data->size[1];
+	max[0] = data->size[0] * data->tile[0];
+	max[1] = data->size[1] * data->tile[1];
 	max[2] = 0.125;
 }

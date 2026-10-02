@@ -6,6 +6,7 @@ MapSettings mapSettings;
 static __attribute__((constructor)) void init()
 {
   mapSettings.name = malloc(256);
+	mapSettings.name[0] = 0;
   mapSettings.boots = 0;
   mapSettings.regen = 1;
   mapSettings.portalGun = 3;

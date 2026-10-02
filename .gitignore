@@ -3,3 +3,4 @@ maps/*.vmf
 imgui.ini
 compileSteps.json
 captureSettings.cap
+*.exe

@@ -70,10 +70,18 @@ int runCmd(char* cmd)
 		data[l] = 0;
 
 		if (chdir(compileStatus.workingDir))
+		{
 			perror("chdir");
+			printf("command line: '%s'\n", cmd);
+			printf("working dir: '%s'\n", compileStatus.workingDir);
+			printf("bad working dir\n");
+		}
 
 		execvp(data[0], data);
 		perror("execlp");
+		printf("command line: '%s'\n", cmd);
+		printf("working dir: '%s'\n", compileStatus.workingDir);
+		printf("bad command line\n");
 		return 1;
 	}
 	else

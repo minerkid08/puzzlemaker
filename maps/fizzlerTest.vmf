@@ -45,7 +45,7 @@ world
     "uaxis" "[0.0000 -1.0000 0.0000 0.0000] 0.2500"
     "vaxis" "[0.0000 0.0000 -1.0000 0.0000] 0.2500"
     "material" "TOOLS/TOOLSNODRAW"
-    "rotation" "0"
+    "rotation" "0"19     "inputs": [                                                           │    2   char res = getCollision(&a, &b);
     "lightmapscale" "16"
     "smoothing_groups" "0"
   }
@@ -238,7 +238,7 @@ solid
     }
     "uaxis" "[-1.0000 0.0000 0.0000 0.0000] 0.2500"
     "vaxis" "[0.0000 0.0000 -1.0000 0.0000] 0.2500"
-    "material" "TOOLS/TOOLSNODRAW"
+    "material" "METAL/BLACK_WALL_METAL_002A"
     "rotation" "0"
     "lightmapscale" "16"
     "smoothing_groups" "0"
@@ -356,7 +356,7 @@ solid
     }
     "uaxis" "[-1.0000 0.0000 0.0000 0.0000] 0.2500"
     "vaxis" "[0.0000 0.0000 -1.0000 0.0000] 0.2500"
-    "material" "TOOLS/TOOLSNODRAW"
+    "material" "METAL/BLACK_WALL_METAL_002A"
     "rotation" "0"
     "lightmapscale" "16"
     "smoothing_groups" "0"
@@ -436,7 +436,7 @@ solid
     }
     "uaxis" "[1.0000 0.0000 0.0000 0.0000] 0.2500"
     "vaxis" "[0.0000 -1.0000 0.0000 0.0000] 0.2500"
-    "material" "TOOLS/TOOLSNODRAW"
+    "material" "METAL/BLACK_FLOOR_METAL_001C"
     "rotation" "0"
     "lightmapscale" "16"
     "smoothing_groups" "0"
@@ -554,7 +554,7 @@ solid
     }
     "uaxis" "[1.0000 0.0000 0.0000 0.0000] 0.2500"
     "vaxis" "[0.0000 -1.0000 0.0000 0.0000] 0.2500"
-    "material" "TOOLS/TOOLSNODRAW"
+    "material" "METAL/BLACK_FLOOR_METAL_001C"
     "rotation" "0"
     "lightmapscale" "16"
     "smoothing_groups" "0"
@@ -634,7 +634,7 @@ solid
     }
     "uaxis" "[0.0000 -1.0000 0.0000 0.0000] 0.2500"
     "vaxis" "[0.0000 0.0000 -1.0000 0.0000] 0.2500"
-    "material" "TOOLS/TOOLSNODRAW"
+    "material" "METAL/BLACK_WALL_METAL_002A"
     "rotation" "0"
     "lightmapscale" "16"
     "smoothing_groups" "0"
@@ -729,7 +729,7 @@ solid
     }
     "uaxis" "[1.0000 0.0000 0.0000 0.0000] 0.2500"
     "vaxis" "[0.0000 0.0000 -1.0000 0.0000] 0.2500"
-    "material" "METAL/BLACK_WALL_METAL_002A"
+    "material" "TOOLS/TOOLSNODRAW"
     "rotation" "0"
     "lightmapscale" "16"
     "smoothing_groups" "0"

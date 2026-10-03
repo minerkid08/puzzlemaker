@@ -70,6 +70,32 @@ void* loadEntityItemDef(cJSON* item, ItemDefinition* itemDef)
 			jsonGetVec3(transform, "rotation", def->rotationOffset);
 	}
 
+	cJSON* editorTransformJson = cJSON_GetObjectItem(item, "editorTransform");
+	mat4 editorTransform;
+	glm_mat4_identity(editorTransform);
+	if (editorTransformJson)
+	{
+		vec3 pos = {0, 0, 0};
+		vec3 rot = {0, 0, 0};
+		cJSON* position = cJSON_GetObjectItem(editorTransformJson, "position");
+		cJSON* rotation = cJSON_GetObjectItem(editorTransformJson, "rotation");
+		if (position)
+			jsonGetVec3(editorTransformJson, "position", pos);
+		if (rotation)
+			jsonGetVec3(editorTransformJson, "rotation", rot);
+
+		mat4 rotMat;
+		vec4 quat;
+		rot[0] = glm_rad(rot[0]);
+		rot[1] = glm_rad(rot[1]);
+		rot[2] = glm_rad(rot[2]);
+		glm_translate(editorTransform, pos);
+		glm_euler_yzx_quat(rot, quat);
+		glm_quat_mat4(quat, rotMat);
+		glm_mat4_mul(editorTransform, rotMat, editorTransform);
+	}
+	memcpy(def->editorTransform, editorTransform, sizeof(mat4));
+
 	if (cJSON_HasObjectItem(item, "instance"))
 	{
 		def->entityName = 0;
@@ -94,7 +120,12 @@ void entityItemInit(Item* item)
 void entityItemRender(Item* item)
 {
 	EntityItemDef* def = item->def->data;
-	drawMesh(def->mesh, def->texture, item->transform);
+	mat4 transform;
+	mat4 editorTransform;
+	memcpy(editorTransform, def->editorTransform, sizeof(mat4));
+	memcpy(transform, item->transform, sizeof(mat4));
+	glm_mat4_mul(transform, editorTransform, transform);
+	drawMesh(def->mesh, def->texture, transform);
 }
 
 void entityItemExport(Item* item)
@@ -129,9 +160,9 @@ void entityItemExport(Item* item)
 	entRot[1] = glm_rad(entRot[1]);
 	entRot[2] = glm_rad(entRot[2]);
 	mat4 rotMat2;
-  vec4 quat;
+	vec4 quat;
 	glm_euler_yzx_quat(entRot, quat);
-  glm_quat_mat4(quat, rotMat2);
+	glm_quat_mat4(quat, rotMat2);
 
 	glm_mat4_mul(rotMat, rotMat2, rotMat);
 	getEulerAngles(rotMat, entRot);

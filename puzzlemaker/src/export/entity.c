@@ -58,6 +58,16 @@ void exportEntityAddKv(Entity* ent, ItemKv* kv)
 			snprintf(buf, 128, "\"replace%d\" \"$%s %d\"", len, def->name, (int)kv->value.b);
 		if (type == TYPE_FLOAT)
 			snprintf(buf, 128, "\"replace%d\" \"$%s %.2f\"", len, def->name, kv->value.f);
+		if (type == TYPE_PICKER)
+		{
+			if (kv->value.i == -1)
+				snprintf(buf, 128, "\"replace%d\" \"$%s (none)\"", len, def->name);
+			else
+			{
+				Item* target = getItem(kv->value.i);
+				snprintf(buf, 128, "\"replace%d\" \"$%s %s%d\"", len, def->name, target->def->name, target->index);
+			}
+		}
 		if (type & TYPE_DROPDOWN)
 		{
 			type &= ~(TYPE_DROPDOWN);
@@ -84,6 +94,16 @@ void exportEntityAddKv(Entity* ent, ItemKv* kv)
 				snprintf(buf, 128, "\"%s\" \"%s\"", def->name, kv->def->dropValues[kv->value.i].s);
 			if (type == TYPE_INT)
 				snprintf(buf, 128, "\"%s\" \"%d\"", def->name, kv->def->dropValues[kv->value.i].i);
+		}
+		if (def->type == TYPE_PICKER)
+		{
+			if (kv->value.i == -1)
+				snprintf(buf, 128, "\"%s\" \"(none)\"", def->name);
+			else
+			{
+				Item* target = getItem(kv->value.i);
+				snprintf(buf, 128, "\"%s\" \"%s%d\"", def->name, target->def->name, target->index);
+			}
 		}
 	}
 

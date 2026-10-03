@@ -133,6 +133,11 @@ void loadItemDefinitionFile(const char* filename)
 		if (exportScript)
 			def->exportScript = jsonGetStr(item, "exportScript");
 
+		cJSON* transparent = cJSON_GetObjectItem(item, "transparent");
+		def->transparent = 0;
+		if (transparent)
+			def->transparent = jsonGetBool(item, "transparent");
+
 		cJSON* keyValues = cJSON_GetObjectItem(item, "keyvalues");
 		len = cJSON_GetArraySize(keyValues);
 		def->kvs = dynList_new(len, sizeof(ItemKvDef));
@@ -165,6 +170,11 @@ void loadItemDefinitionFile(const char* filename)
 				kvDef->type = TYPE_STRING;
 				kvDef->defaultValue.s = jsonGetStr(kv, "defaultValue");
 			}
+			if (strcmp(type->valuestring, "item") == 0)
+			{
+				kvDef->type = TYPE_PICKER;
+				kvDef->defaultValue.i = -1;
+			}
 			if (strcmp(type->valuestring, "drop-string") == 0)
 			{
 				kvDef->type = TYPE_STRING | TYPE_DROPDOWN;
@@ -180,8 +190,8 @@ void loadItemDefinitionFile(const char* filename)
 				{
 					if (opt == 0)
 						break;
-					kvDef->dropNames[i] = copyString(opt->string);
-					kvDef->dropValues[i].s = copyString(opt->valuestring);
+					kvDef->dropNames[i] = strdup(opt->string);
+					kvDef->dropValues[i].s = strdup(opt->valuestring);
 					opt = opt->next;
 					i++;
 				}
@@ -201,7 +211,7 @@ void loadItemDefinitionFile(const char* filename)
 				{
 					if (opt == 0)
 						break;
-					kvDef->dropNames[i] = copyString(opt->string);
+					kvDef->dropNames[i] = strdup(opt->string);
 					kvDef->dropValues[i].i = opt->valuedouble;
 					opt = opt->next;
 					i++;
@@ -304,5 +314,5 @@ void loadItemDefinitionFile(const char* filename)
 		printf("json error\n%s\n", err);
 		exit(1);
 	}
-	cJSON_free(json);
+	cJSON_Delete(json);
 }

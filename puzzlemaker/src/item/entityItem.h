@@ -13,6 +13,7 @@ typedef struct
 
 	vec3 positionOffset;
 	vec3 rotationOffset;
+	mat4 editorTransform;
 
 	Mesh* mesh;
 	unsigned int texture;

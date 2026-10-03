@@ -16,4 +16,4 @@ typedef struct
 	char dir;
 } RaycastHit;
 
-char raycast(vec3 start, vec3 dir, float len, int flags, RaycastHit* hit);
+char raycast(vec3 start, vec3 dir, float len, int flags, RaycastHit* hit, Item** ignore);

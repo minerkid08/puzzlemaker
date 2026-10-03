@@ -6,9 +6,16 @@
 
 Item* itemList;
 
-__attribute__((constructor)) static void init()
+static __attribute__((constructor)) void init()
 {
 	itemList = dynList_new(0, sizeof(Item));
+	dynList_reserve((void**)&itemList, 32);
+	for (int i = 0; i < 32; i++)
+	{
+		itemList[i].index = -1;
+		itemList[i].id = -1;
+		itemList[i].def = 0;
+	}
 }
 
 Item* getItemList()
@@ -18,20 +25,51 @@ Item* getItemList()
 
 void removeItem(Item* item)
 {
+	int itemCount = dynList_size(itemList);
+	for(int i = 0; i < itemCount; i++)
+	{
+		Item* item2 = &itemList[i];
+		if(!isItemValid(item2))
+			continue;
+		ItemOutput* outputs = item2->outputs;
+		int outputCount = dynList_size(outputs);
+		for(int j = 0; j < outputCount; j++)
+		{
+			ItemOutput* output = &outputs[j];
+			if(output->entity == item->index)
+			{
+				output->entity = -1;
+				output->input = 0;
+			}
+		}
+		ItemKv* kvs = item2->kv;
+		int kvCount = dynList_size(kvs);
+		for(int j = 0; j < kvCount; j++)
+		{
+			ItemKv* kv = &kvs[j];
+			if(kv->value.i == item->index)
+				kv->value.i= -1;
+		}
+	}
+
 	ItemDefinition* def = item->def;
 	int l = dynList_size(item->kv);
 	for (int i = 0; i < l; i++)
 	{
-		if (def->kvs[i].type == TYPE_STRING)
+		int type = def->kvs[i].type;
+		type &= ~(TYPE_INSTANCE);
+		if (type == TYPE_STRING)
 			free(item->kv[i].value.s);
 	}
 
 	dynList_free(item->kv);
 	dynList_free(item->outputs);
+	free(item->data);
 
 	item->id = -1;
 	item->index = -1;
 	item->def = 0;
+	item->data = 0;
 }
 
 Item* getItem(int i)
@@ -57,7 +95,7 @@ Item* addItem(int defId, ivec3 position)
 	for (int i = 0; i < len; i++)
 	{
 		Item* item = &itemList[i];
-		if (item->index == -1)
+		if (!isItemValid(item))
 		{
 			index = i;
 			break;
@@ -105,8 +143,12 @@ Item* addItem(int defId, ivec3 position)
 	item->kv = dynList_new(l, sizeof(ItemKv));
 	for (int i = 0; i < l; i++)
 	{
+		ItemKvDef* kvDef = &def->kvs[i];
+		ItemKv* kv = &item->kv[i];
 		item->kv[i].def = &def->kvs[i];
-		if (def->kvs[i].type == TYPE_STRING)
+		int type = def->kvs[i].type;
+		type &= ~(TYPE_INSTANCE);
+		if (type == TYPE_STRING)
 		{
 			item->kv[i].value.s = malloc(256);
 			strncpy(item->kv[i].value.s, def->kvs[i].defaultValue.s, 256);

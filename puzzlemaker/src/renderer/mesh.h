@@ -1,5 +1,7 @@
 #pragma once
 
+#include "cglm/types.h"
+
 typedef struct
 {
   unsigned int vertexArray;

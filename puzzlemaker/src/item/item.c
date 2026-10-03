@@ -16,29 +16,116 @@ extern Item* itemList;
 
 char moving = 0;
 
+char isItemValid(Item* item)
+{
+	return item->index != -1;
+}
+
 void drawItems()
 {
 	int len = dynList_size(itemList);
 	for (int i = 0; i < len; i++)
 	{
 		Item* item = &itemList[i];
-		if (item->index == -1)
+		if (!isItemValid(item))
 			continue;
-		item->def->callbacks->render(item);
+		if (item->def->transparent == 0)
+			item->def->callbacks->render(item);
+		// drawDebugRect(item->def->bound1, item->def->bound2);
+	}
+
+	for (int i = 0; i < len; i++)
+	{
+		Item* item = &itemList[i];
+		if (!isItemValid(item))
+			continue;
+		if (item->def->transparent)
+			item->def->callbacks->render(item);
 		// drawDebugRect(item->def->bound1, item->def->bound2);
 	}
 }
 
-Item* getIntersectingItem(vec3 pos)
+Item** getIntersectingItems(vec3 pos, Item** ignore)
 {
+	Item** outItems = dynList_new(0, sizeof(Item*));
+	int outItemsCount = 0;
 	int count = dynList_size(itemList);
+	int ignoreCount = 0;
+	if (ignore)
+		ignoreCount = dynList_size(itemList);
 
 	for (int j = 0; j < count; j++)
 	{
 		Item* item = &itemList[j];
+		if (!isItemValid(item))
+			continue;
+		if (ignore)
+		{
+			char skip = 0;
+			for (int k = 0; k < ignoreCount; k++)
+			{
+				if (item == ignore[k])
+				{
+					skip = 1;
+					break;
+				}
+			}
+			if (skip)
+				continue;
+		}
 		vec4 pos2 = {pos[0], pos[1], pos[2], 1};
-    if(item->def == 0)
-      continue;
+		if (item->def == 0)
+			continue;
+		mat4 transform;
+		memcpy(transform, item->invTransform, sizeof(mat4));
+		glm_mat4_mulv(transform, pos2, pos2);
+		vec3 bound1;
+		vec3 bound2;
+
+		item->def->callbacks->getBoundingBox(item, bound1, bound2);
+
+		if (pos2[0] < bound1[0] || pos2[0] > bound2[0])
+			continue;
+		if (pos2[1] < bound1[1] || pos2[1] > bound2[1])
+			continue;
+		if (pos2[2] < bound1[2] || pos2[2] > bound2[2])
+			continue;
+		dynList_resize((void*)&outItems, outItemsCount + 1);
+		outItems[outItemsCount] = item;
+		outItemsCount++;
+	}
+	return outItems;
+}
+
+Item* getIntersectingItem(vec3 pos, Item** ignore)
+{
+	int count = dynList_size(itemList);
+	int ignoreCount = 0;
+	if (ignore)
+		ignoreCount = dynList_size(itemList);
+
+	for (int j = 0; j < count; j++)
+	{
+		Item* item = &itemList[j];
+		if (!isItemValid(item))
+			continue;
+		if (ignore)
+		{
+			char skip = 0;
+			for (int k = 0; k < ignoreCount; k++)
+			{
+				if (item == ignore[k])
+				{
+					skip = 1;
+					break;
+				}
+			}
+			if (skip)
+				continue;
+		}
+		vec4 pos2 = {pos[0], pos[1], pos[2], 1};
+		if (item->def == 0)
+			continue;
 		mat4 transform;
 		memcpy(transform, item->invTransform, sizeof(mat4));
 		glm_mat4_mulv(transform, pos2, pos2);

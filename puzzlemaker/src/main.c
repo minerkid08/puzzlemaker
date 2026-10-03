@@ -352,7 +352,7 @@ void mouseMoveCallback(GLFWwindow* window, double x, double y)
 	{
 		RaycastHit hit;
 		calcSelectAxis();
-		if (raycast(cameraPos, mouseDir, 40, RAYCAST_VOXEL, &hit))
+		if (raycast(cameraPos, mouseDir, 40, RAYCAST_VOXEL, &hit, 0))
 		{
 			float startX = hit.pos[0];
 			float startY = hit.pos[1];

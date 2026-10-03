@@ -19,7 +19,7 @@ void load()
 	for (int i = 0; i < dynList_size(itemList); i++)
 	{
 		Item* item = &itemList[i];
-		if (item->def)
+		if (isItemValid(item))
 			removeItem(item);
 	}
 
@@ -82,13 +82,16 @@ void load()
 		}
 	}
 
-	int itemCount = jsonGetInt(json, "itemCount");
+	cJSON* items = cJSON_GetObjectItem(json, "items");
+	int itemCount = cJSON_GetArraySize(items);
 
 	dynList_resize((void**)&itemList, itemCount);
 	for (int i = 0; i < itemCount; i++)
+	{
 		itemList[i].index = -1;
+		itemList[i].def = 0;
+	}
 
-	cJSON* items = cJSON_GetObjectItem(json, "items");
 	cJSON* itemJson;
 	cJSON_ArrayForEach(itemJson, items)
 	{
@@ -105,6 +108,7 @@ void load()
 		}
 		if (item == 0)
 			errorf("failed to load item, item definition not found for item '%s'\n", id);
+		item->loadIndex = index;
 
 		jsonGetVec3(itemJson, "pos", item->pos);
 		jsonGetVec3(itemJson, "rot", item->dir);
@@ -142,35 +146,33 @@ void load()
 			const char* inputName = jsonGetStr(outputJson, "input");
 			output->input = (InputDef*)inputName;
 		}
-
 		cJSON* kvJson = cJSON_GetObjectItem(itemJson, "kv");
 		int len = dynList_size(item->def->kvs);
 		for (int i = 0; i < len; i++)
 		{
-			ItemKvDef* def = &item->def->kvs[i];
 			ItemKv* kv = &item->kv[i];
+			ItemKvDef* def = kv->def;
 
+			int type = def->type;
+			type &= ~(TYPE_INSTANCE);
 			if (cJSON_GetObjectItem(kvJson, def->name))
 			{
-				int type = def->type;
-				type &= ~(TYPE_INSTANCE);
 				if (type == TYPE_INT)
 					kv->value.i = jsonGetInt(kvJson, def->name);
 				if (type == TYPE_FLOAT)
 					kv->value.f = jsonGetFloat(kvJson, def->name);
 				if (type == TYPE_BOOL)
 					kv->value.b = jsonGetBool(kvJson, def->name);
+				if (type == TYPE_PICKER)
+					kv->value.i = jsonGetInt(kvJson, def->name);
 				if (type == TYPE_STRING)
 				{
-					char* str = jsonGetStr(kvJson, def->name);
+					char* str = cJSON_GetObjectItem(kvJson, def->name)->valuestring;
 					strncpy(kv->value.s, str, 256);
-					free(str);
 				}
 				if (type & TYPE_DROPDOWN)
 					kv->value.i = jsonGetInt(kvJson, def->name);
 			}
-			else
-				kv->value = def->defaultValue;
 		}
 	}
 	for (int i = 0; i < itemCount; i++)
@@ -184,7 +186,17 @@ void load()
 			ItemOutput* output = &item->outputs[j];
 			char* inputName = (char*)output->input;
 
-			Item* item2 = getItem(output->entity);
+			Item* item2 = 0;
+			for (int k = 0; k < itemCount; k++)
+			{
+				Item* item3 = getItem(k);
+				if (item3->loadIndex == output->entity)
+				{
+					item2 = item3;
+					output->entity = item2->index;
+					break;
+				}
+			}
 			InputDef* inputs = item2->def->inputs;
 			for (int k = 0; k < dynList_size(inputs); k++)
 			{
@@ -192,6 +204,29 @@ void load()
 					output->input = &inputs[k];
 			}
 			free(inputName);
+		}
+
+		len = dynList_size(item->def->kvs);
+		for (int j = 0; j < len; j++)
+		{
+			ItemKv* kv = &item->kv[j];
+			ItemKvDef* def = kv->def;
+
+			int type = def->type;
+			type &= ~(TYPE_INSTANCE);
+			if (type != TYPE_PICKER)
+				continue;
+			Item* item2 = 0;
+			for (int k = 0; k < itemCount; k++)
+			{
+				Item* item3 = getItem(k);
+				if (item3->loadIndex == kv->value.i)
+				{
+					item2 = item3;
+					kv->value.i = item2->index;
+					break;
+				}
+			}
 		}
 	}
 
@@ -207,5 +242,5 @@ void load()
 	}
 
 	printf("done\n");
-	cJSON_free(json);
+	cJSON_Delete(json);
 }

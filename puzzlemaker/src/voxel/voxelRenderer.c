@@ -13,7 +13,13 @@ void getTint(char isSelected, char is2d, char dir, vec4 tint)
 	if (!isSelected)
 		return;
 	if (!is2d)
+	{
+		tint[0] = 0;
+		tint[1] = 1;
+		tint[2] = 0;
+		tint[3] = 1;
 		return;
+	}
 	if (currentDir == dir)
 	{
 		tint[0] = 0;

@@ -3,7 +3,7 @@
 #include "voxel/voxel.h"
 #include <string.h>
 
-char raycast(vec3 start, vec3 dir, float len, int flags, RaycastHit* hit)
+char raycast(vec3 start, vec3 dir, float len, int flags, RaycastHit* hit, Item** ignore)
 {
 	vec3 end = {start[0] + dir[0] * len, start[1] + dir[1] * len, start[2] + dir[2] * len};
 	char hitAir = 0;
@@ -13,7 +13,7 @@ char raycast(vec3 start, vec3 dir, float len, int flags, RaycastHit* hit)
 		glm_vec3_lerp(start, end, i, out);
 		if (flags & RAYCAST_ITEM)
 		{
-			Item* item = getIntersectingItem(out);
+			Item* item = getIntersectingItem(out, ignore);
 			if (item)
 			{
 				hit->type = RAYCAST_ITEM;

@@ -1,4 +1,6 @@
 #include "camera.h"
+#include "dynList.h"
+#include "item/item.h"
 #include "picker.h"
 #include "raycast.h"
 #include "utils.h"
@@ -18,9 +20,11 @@ char isSelecting()
 
 void beginSelection(vec3 mouseDir)
 {
+	Item** ignoredItems = getIntersectingItems(cameraPos, 0);
+
 	int flags = RAYCAST_VOXEL | RAYCAST_ITEM;
 	RaycastHit hit;
-	if (raycast(cameraPos, mouseDir, RAY_LEN, flags, &hit))
+	if (raycast(cameraPos, mouseDir, RAY_LEN, flags, &hit, ignoredItems))
 	{
 		if (hit.type == RAYCAST_VOXEL)
 		{
@@ -49,13 +53,14 @@ void beginSelection(vec3 mouseDir)
 	}
 	else
 		currentVoxel = 0;
+	dynList_free(ignoredItems);
 }
 
 void updateSelection(vec3 mouseDir)
 {
 	int flags = RAYCAST_VOXEL;
 	RaycastHit hit;
-	if (raycast(cameraPos, mouseDir, RAY_LEN, flags, &hit))
+	if (raycast(cameraPos, mouseDir, RAY_LEN, flags, &hit, 0))
 	{
 		int zmin = min(currentVoxelPos[2], hit.ipos[2]);
 		int zmax = max(hit.ipos[2], currentVoxel2Pos[2]);

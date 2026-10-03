@@ -1,8 +1,8 @@
 #include "item/item.h"
-#include "item/panel.h"
-#include "item/volumeItem.h"
 #include "dynList.h"
 #include "export/script/api.h"
+#include "item/panel.h"
+#include "item/volumeItem.h"
 #include "lua/lauxlib.h"
 #include "lua/lua.h"
 #include <string.h>
@@ -94,6 +94,18 @@ int itemGetKv(lua_State* l)
 			lua_pushnumber(l, kv->value.f);
 		if (type == TYPE_STRING)
 			lua_pushstring(l, kv->value.s);
+		if (type == TYPE_PICKER)
+		{
+			if (kv->value.i == -1)
+				lua_pushnil(l);
+			else
+			{
+				Item* target = getItem(kv->value.i);
+				char buf[64];
+				snprintf(buf, 64, "%s%d", target->def->name, target->index);
+				lua_pushstring(l, buf);
+			}
+		}
 
 		if (type & TYPE_DROPDOWN)
 		{
@@ -118,13 +130,13 @@ int itemGetKv(lua_State* l)
 
 int itemGetSize(lua_State* l)
 {
-	if(item->def->type == ITEM_TYPE_PANEL)
+	if (item->def->type == ITEM_TYPE_PANEL)
 	{
 		PanelData* data = item->data;
 		luaPushVec2(l, data->size);
 		return 1;
 	}
-	if(item->def->type == ITEM_TYPE_VOLUME)
+	if (item->def->type == ITEM_TYPE_VOLUME)
 	{
 		VolumeItemData* data = item->data;
 		luaPushVec3(l, data->size);
@@ -136,7 +148,7 @@ int itemGetSize(lua_State* l)
 
 int itemGetTile(lua_State* l)
 {
-	if(item->def->type == ITEM_TYPE_PANEL)
+	if (item->def->type == ITEM_TYPE_PANEL)
 	{
 		PanelData* data = item->data;
 		luaPushiVec2(l, data->tile);

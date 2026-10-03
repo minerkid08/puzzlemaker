@@ -8,6 +8,7 @@
 #define TYPE_INT 2
 #define TYPE_STRING 3
 #define TYPE_FLOAT 4
+#define TYPE_PICKER 5
 #define TYPE_INSTANCE 64
 #define TYPE_DROPDOWN 128
 
@@ -82,6 +83,7 @@ typedef struct
 	char** staticKvs;
 
   char snapMode;
+  char transparent;
 	char deleteIntersectingVoxels;
 	char genMissingVoxels;
 
@@ -106,6 +108,7 @@ typedef struct
 struct Item
 {
 	int index;
+	int loadIndex;
 	int id;
 	vec3 pos;
 	vec3 dir;
@@ -136,7 +139,8 @@ void drawItems();
 
 void updateItemTransform(Item* item);
 void updateItemTransformRot(Item* item);
-Item* getIntersectingItem(vec3 pos);
+Item* getIntersectingItem(vec3 pos, Item** ignore);
+Item** getIntersectingItems(vec3 pos, Item** ignore);
 Item* getItem(int i);
 
 ItemDefinition* getItemDefinitions();
@@ -145,3 +149,4 @@ Item* getItemList();
 Item* addItem(int id, ivec3 position);
 Item* addItemFromDef(ItemDefinition* def, ivec3 position);
 void removeItem(Item* item);
+char isItemValid(Item* item);

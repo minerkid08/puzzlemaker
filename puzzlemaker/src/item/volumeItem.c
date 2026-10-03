@@ -59,7 +59,7 @@ void* loadVolumeItemDef(cJSON* item, ItemDefinition* itemDef)
 	cJSON* textureJson = cJSON_GetObjectItem(item, "texture");
 	if (cJSON_IsString(textureJson))
 	{
-		const char* exportMaterial = cJSON_GetStringValue(textureJson);
+		const char* exportMaterial = strdup(cJSON_GetStringValue(textureJson));
 		for (int i = 0; i < 6; i++)
 			data->exportMaterial[i] = exportMaterial;
 	}

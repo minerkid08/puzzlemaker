@@ -8,8 +8,8 @@
 const char* getMat(Voxel* voxel, int dir, char forceMini)
 {
 	char portal = voxel->portalability[dir];
-  if(forceMini)
-    portal |= 2;
+	if (forceMini)
+		portal |= 2;
 	switch (portal)
 	{
 	case 0: {
@@ -409,8 +409,8 @@ void exportVoxels()
 					for (int i = 0; i < len; i++)
 					{
 						Item* item = &items[i];
-            if(item->def == 0)
-              continue;
+						if (item->def == 0)
+							continue;
 						if (item->def->deleteIntersectingVoxels == 0)
 							continue;
 						if (itemIntersectsVoxel(item, pos, 1))
@@ -694,6 +694,21 @@ void exportVoxels()
 					ivec3 pos = {x, y, z};
 					ivec3 size = {length, height, 1};
 					exportVoxel(voxel, pos, size);
+				}
+			}
+		}
+	}
+	for (int z = 0; z < MAP_SIZE; z++)
+	{
+		for (int y = 0; y < MAP_SIZE; y++)
+		{
+			for (int x = 0; x < MAP_SIZE; x++)
+			{
+				Voxel* v = getVoxel(x, y, z);
+				for (int d = 0; d < 6; d++)
+				{
+					if (v->portalability[d] > 3)
+						v->portalability[d] = 0;
 				}
 			}
 		}

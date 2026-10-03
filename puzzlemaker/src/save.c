@@ -96,11 +96,10 @@ void save()
 
 	Item* itemList = getItemList();
 	int len = dynList_size(itemList);
-	cJSON_AddNumberToObject(json, "itemCount", len);
 	for (int i = 0; i < len; i++)
 	{
 		Item* item = &itemList[i];
-		if (item->index == -1)
+		if (!isItemValid(item))
 			continue;
 		cJSON* itemJson = cJSON_CreateObject();
 		cJSON_AddItemToArray(items, itemJson);
@@ -157,6 +156,8 @@ void save()
 				item = cJSON_CreateBool(kv->value.b);
 			if (type == TYPE_STRING)
 				item = cJSON_CreateString(kv->value.s);
+			if (type == TYPE_PICKER)
+				item = cJSON_CreateNumber(kv->value.i);
 			if (type & TYPE_DROPDOWN)
 				item = cJSON_CreateNumber(kv->value.i);
 			cJSON_AddItemToObject(kvList, kv->def->name, item);
@@ -179,6 +180,6 @@ void save()
 	fclose(file);
 
 	free(str);
-  cJSON_free(json);
+  cJSON_Delete(json);
 	printf("saved\n");
 }

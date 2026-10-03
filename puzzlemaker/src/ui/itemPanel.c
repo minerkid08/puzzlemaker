@@ -12,6 +12,9 @@
 #include "save.h"
 #include "ui/itemPanel.h"
 
+#define PICK_OUTPUT 0
+#define PICK_KV 1
+
 int groupCount;
 extern ItemGroup* groups;
 
@@ -20,6 +23,7 @@ extern Picker picker;
 static Item* pickEntity;
 static Item* prevItem = 0;
 static int pickItemId = 0;
+static int pickType = 0;
 
 static char buf[50];
 
@@ -177,6 +181,42 @@ void itemPanelRender()
 				igCheckbox(kv->def->name, (bool*)&kv->value.b);
 			if (type == TYPE_STRING)
 				igInputText(kv->def->name, kv->value.s, 256, 0, 0, 0);
+			if (type == TYPE_PICKER)
+			{
+				char pressed;
+				igPushID_Int(i);
+				if (kv->value.i != -1)
+				{
+					char msg[32];
+					Item* item = getItem(kv->value.i);
+					snprintf(msg, sizeof(msg), "entity: %s %d", item->def->name, kv->value.i);
+					pressed = igButton(msg, zero);
+				}
+				else if (picker.active)
+					pressed = igButton("entity: picking", zero);
+				else
+					pressed = igButton("entity: none", zero);
+				igPopID();
+
+				if (pressed)
+				{
+					picker.active = 1;
+					picker.ptr = &pickEntity;
+					pickEntity = 0;
+					kv->value.i = -1;
+					pickItemId = i;
+					pickType = PICK_KV;
+				}
+
+				if (picker.active == 0 && pickEntity && i == pickItemId && pickType == PICK_KV)
+				{
+					kv->value.i = pickEntity->index;
+					pickEntity = 0;
+				}
+
+				igSameLine(0, -1);
+				igText("%s", kv->def->name);
+			}
 
 			if (type & TYPE_DROPDOWN)
 			{
@@ -255,9 +295,10 @@ void itemPanelRender()
 						output->entity = -1;
 						output->input = 0;
 						pickItemId = i;
+						pickType = PICK_OUTPUT;
 					}
 
-					if (picker.active == 0 && pickEntity && i == pickItemId)
+					if (picker.active == 0 && pickEntity && i == pickItemId && pickType == PICK_OUTPUT)
 					{
 						output->entity = pickEntity->index;
 						pickEntity = 0;

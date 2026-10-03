@@ -37,7 +37,7 @@ void loadEditorSettings()
 	editorSettings.moveSpeed = jsonGetFloat(json, "moveSpeed");
 	editorSettings.boostSpeed = jsonGetFloat(json, "boostSpeed");
 	editorSettings.fov = jsonGetFloat(json, "fov");
-	cJSON_free(json);
+	cJSON_Delete(json);
 }
 
 void saveEditorSettings()
@@ -54,5 +54,5 @@ void saveEditorSettings()
 	fclose(file);
 
 	free(str);
-  cJSON_free(json);
+  cJSON_Delete(json);
 }

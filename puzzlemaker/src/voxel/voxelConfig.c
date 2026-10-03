@@ -71,5 +71,5 @@ void loadVoxelConfig()
 	free(blackMiniEditor);
 	free(whiteMiniEditor);
 
-	cJSON_free(json);
+	cJSON_Delete(json);
 }

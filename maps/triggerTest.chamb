@@ -3434,27 +3434,16 @@
 		}],
 	"items":	[{
 			"index":	0,
-			"id":	"cube",
-			"pos":	[5, 0.999999761581421, 4],
+			"id":	"dropper",
+			"pos":	[3, 3, 3],
 			"rot":	[0, 0, 0],
 			"snapDir":	6,
 			"outputs":	[],
 			"kv":	{
-				"StringProbably":	"test",
-				"CubeBehavior":	0,
-				"CubeShape":	0,
-				"model":	0,
-				"picker":	2
-			}
-		}, {
-			"index":	2,
-			"id":	"door",
-			"pos":	[2.5, 1, 4],
-			"rot":	[0, 0, 0],
-			"snapDir":	2,
-			"outputs":	[],
-			"kv":	{
-				"open":	false
+				"dontautorespawn":	true,
+				"dontdropinital":	true,
+				"cubeType":	0,
+				"spotlightBrightness":	"250 240 205 5000"
 			}
 		}],
 	"settings":	{

@@ -171,7 +171,14 @@ void load()
 					strncpy(kv->value.s, str, 256);
 				}
 				if (type & TYPE_DROPDOWN)
-					kv->value.i = jsonGetInt(kvJson, def->name);
+				{
+					int v = jsonGetInt(kvJson, def->name);
+					int l = dynList_size(def->dropNames);
+
+					if (v < 0 || v >= l)
+						v = 0;
+					kv->value.i = v;
+				}
 			}
 		}
 	}
@@ -239,6 +246,20 @@ void load()
 		mapSettings.paintGun = jsonGetInt(settings, "paintgun");
 		mapSettings.gameType = jsonGetInt(settings, "gametype");
 		mapSettings.maxHealth = jsonGetInt(settings, "maxhealth");
+		if (cJSON_GetObjectItem(settings, "maxExposure"))
+		{
+			PostProcessData* data = &mapSettings.postProcess;
+			data->maxExposure = jsonGetFloat(settings, "maxExposure");
+			data->minExposure = jsonGetFloat(settings, "minExposure");
+			data->tonemapRate = jsonGetFloat(settings, "tonemapRate");
+			data->brightPixelPercent = jsonGetFloat(settings, "brightPixelPercent");
+
+			jsonGetVec3(settings, "primaryFogColor", data->primaryFogColor);
+			jsonGetVec3(settings, "secondaryFogColor", data->secondaryFogColor);
+			data->fogStart = jsonGetFloat(settings, "fogStart");
+			data->fogEnd = jsonGetFloat(settings, "fogEnd");
+			data->fogDensity = jsonGetFloat(settings, "fogDensity");
+		}
 	}
 
 	printf("done\n");

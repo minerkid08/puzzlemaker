@@ -150,3 +150,16 @@ void jsonArrSetInt(cJSON* arr, int i)
 	cJSON* j = cJSON_CreateNumber(i);
 	cJSON_AddItemToArray(arr, j);
 }
+
+void jsonSetVec3(cJSON* json, const char* name, vec3 vec)
+{
+	cJSON* j = cJSON_CreateArray();
+	cJSON* x = cJSON_CreateNumber(vec[0]);
+	cJSON* y = cJSON_CreateNumber(vec[1]);
+	cJSON* z = cJSON_CreateNumber(vec[2]);
+
+	cJSON_AddItemToArray(j, x);
+	cJSON_AddItemToArray(j, y);
+	cJSON_AddItemToArray(j, z);
+	cJSON_AddItemToObject(json, name, j);
+}

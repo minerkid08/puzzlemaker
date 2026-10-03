@@ -22,8 +22,8 @@ void initDebug()
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
 
-  int inds[] = {0, 1};
-  //int inds[] = {2, 3, 1, 0, 4, 5, 7, 6, 6, 7, 3, 2};
+  //int inds[] = {0, 1};
+  int inds[] = {2, 3, 1, 0, 4, 5, 7, 6, 6, 7, 3, 2, 0, 1, 5, 4, 4, 6, 2, 0, 1, 3, 7, 5};
 
 	glCreateBuffers(1, &ib);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib);
@@ -32,7 +32,7 @@ void initDebug()
 	glLineWidth(10);
 }
 
-void drawDebugRect(vec3 a, vec3 b)
+void drawDebugRect(vec3 a, vec3 b, mat4 transform)
 {
   glBindVertexArray(va);
 	glBindBuffer(GL_ARRAY_BUFFER, vb);
@@ -41,8 +41,9 @@ void drawDebugRect(vec3 a, vec3 b)
 
 	setUniformMat4(shader, "cam", *getCamMat());
 	setUniformMat4(shader, "mat", *getProjMat());
+	setUniformMat4(shader, "transform", transform);
 
-  vec3 verts[] = {
+	vec3 verts[] = {
     {a[0], a[1], a[2]},
     {b[0], a[1], a[2]},
     {a[0], b[1], a[2]},
@@ -55,29 +56,13 @@ void drawDebugRect(vec3 a, vec3 b)
 
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vec3) * 8, verts);
 
-  glDrawElements(GL_QUADS, 12, GL_UNSIGNED_INT, 0);
+	glDisable(GL_DEPTH_TEST);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-  glBindVertexArray(0);
-}
+  glDrawElements(GL_QUADS, 24, GL_UNSIGNED_INT, 0);
 
-void drawDebugLine(vec3 a, vec3 b)
-{
-  glBindVertexArray(va);
-	glBindBuffer(GL_ARRAY_BUFFER, vb);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib);
-	glUseProgram(shader);
-
-	setUniformMat4(shader, "cam", *getCamMat());
-	setUniformMat4(shader, "mat", *getProjMat());
-
-  vec3 verts[] = {
-    {a[0], a[1], a[2]},
-    {b[0], b[1], b[2]},
-  };
-
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vec3) * 4, verts);
-
-  glDrawArrays(GL_LINES, 0, 2);
+	glEnable(GL_DEPTH_TEST);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
   glBindVertexArray(0);
 }

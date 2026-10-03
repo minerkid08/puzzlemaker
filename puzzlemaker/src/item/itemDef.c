@@ -147,7 +147,11 @@ void loadItemDefinitionFile(const char* filename)
 			cJSON* kv = cJSON_GetArrayItem(keyValues, i);
 			ItemKvDef* kvDef = &def->kvs[i];
 
-			kvDef->name = jsonGetStr(kv, "name");
+			kvDef->name = jsonGetStr(kv, "kv");
+			if (cJSON_GetObjectItem(kv, "name"))
+				kvDef->displayName = jsonGetStr(kv, "name");
+			else
+				kvDef->displayName = kvDef->name;
 
 			cJSON* type = cJSON_GetObjectItem(kv, "type");
 			if (strcmp(type->valuestring, "bool") == 0)

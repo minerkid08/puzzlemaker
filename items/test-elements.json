@@ -42,7 +42,7 @@
     ],
 		"keyvalues": [
 			{
-				"name": "startdisabled",
+				"kv": "startdisabled",
 				"type": "bool",
 				"defaultValue": false 
 			}
@@ -85,7 +85,7 @@
     ],
 		"keyvalues": [
 			{
-				"name": "startdisabled",
+				"kv": "startdisabled",
 				"type": "bool",
 				"defaultValue": false 
 			}
@@ -108,7 +108,7 @@
     "snapMode": "mini-corner",
 		"keyvalues": [
 			{
-				"name": "open",
+				"kv": "open",
 				"type": "bool",
 				"defaultValue": false
 			}
@@ -136,17 +136,17 @@
     "bound2": [0.5, 2, 1],
 		"keyvalues": [
 			{
-				"name": "dontautorespawn",
+				"kv": "dontautorespawn",
 				"type": "bool",
 				"defaultValue": true
 			},
 			{
-				"name": "dontdropinital",
+				"kv": "dontdropinital",
 				"type": "bool",
 				"defaultValue": true
 			},
       {
-    	  "name": "cubeType",
+    	  "kv": "cubeType",
     	  "type": "drop-string",
     	  "defaultValue": 0,
 				"options": {
@@ -183,12 +183,7 @@
     "bound2": [0.5, 1, 0.5],
 		"keyvalues": [
 			{
-				"name": "StringProbably",
-				"type": "string",
-				"defaultValue": "test"
-			},
-			{
-    	  "name": "CubeBehavior",
+    	  "kv": "CubeBehavior",
     	  "type": "drop-int",
     	  "defaultValue": 0,
 				"options": {
@@ -199,7 +194,7 @@
 				}
     	},
     	{
-    	  "name": "CubeShape",
+    	  "kv": "CubeShape",
     	  "type": "drop-int",
     	  "defaultValue": 0,
 				"options": {
@@ -209,7 +204,7 @@
 				}
     	},
     	{
-    	  "name": "model",
+    	  "kv": "model",
     	  "type": "drop-string",
     	  "defaultValue": 0,
 				"options": {
@@ -258,7 +253,7 @@
     "bound2": [0.125, 0.4, 0.125],
     "keyvalues": [
     	{
-    	  "name": "skin",
+    	  "kv": "skin",
     	  "type": "drop-int",
     	  "defaultValue": 0,
 				"options": {
@@ -267,17 +262,17 @@
 				}
       },
       {
-        "name": "delay",
+        "kv": "delay",
         "type": "float",
         "defaultValue": 1.0
       },
       {
-        "name": "istimer",
+        "kv": "istimer",
         "type": "bool",
         "defaultValue": false
       },
       {
-        "name": "preventfastreset",
+        "kv": "preventfastreset",
         "type": "bool",
         "defaultValue": false
       }
@@ -310,12 +305,12 @@
     },
     "keyvalues": [
       {
-        "name": "startstate",
+        "kv": "startstate",
         "type": "bool",
         "defaultValue": false
       },
       {
-        "name": "model",
+        "kv": "model",
         "type": "drop-string",
         "defaultValue": 0,
         "options": {
@@ -348,7 +343,7 @@
     },
     "keyvalues": [
       {
-        "name": "model",
+        "kv": "model",
         "type": "drop-string",
         "defaultValue": 0,
         "options": {
@@ -376,12 +371,14 @@
 		"deleteIntersectingVoxels": true,
     "keyvalues": [
       {
-        "name": "enabled",
+        "kv": "enabled",
+				"name": "Enabled",
         "type": "bool",
         "defaultValue": false
       },
       {
-        "name": "speed",
+        "kv": "speed",
+				"name": "Direction",
         "type": "drop-int",
         "defaultValue": 0,
         "options": {

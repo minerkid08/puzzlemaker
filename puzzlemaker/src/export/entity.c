@@ -58,6 +58,8 @@ void exportEntityAddKv(Entity* ent, ItemKv* kv)
 			snprintf(buf, 128, "\"replace%d\" \"$%s %d\"", len, def->name, (int)kv->value.b);
 		if (type == TYPE_FLOAT)
 			snprintf(buf, 128, "\"replace%d\" \"$%s %.2f\"", len, def->name, kv->value.f);
+		if (type == TYPE_STRING)
+			snprintf(buf, 128, "\"replace%d\" \"$%s %s\"", len, def->name, kv->value.s);
 		if (type == TYPE_PICKER)
 		{
 			if (kv->value.i == -1)
@@ -208,10 +210,6 @@ void exportEntitiesProcessOutputs()
 
 		if (uniqueOutputs == 0)
 			continue;
-
-		printf("ent name %s\n", entName);
-		printf("io count %d\n", outputCount);
-		printf("un count %d\n", uniqueOutputs);
 
 		int* relays = malloc(sizeof(int) * uniqueOutputs);
 

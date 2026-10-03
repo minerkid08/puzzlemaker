@@ -1,5 +1,6 @@
 #include "cglm/quat.h"
 #include "cglm/util.h"
+#include "mapsettings.h"
 #include "renderer/framebuffer.h"
 #include "settings.h"
 #include "ui/fileBrowser.h"
@@ -63,6 +64,8 @@ char mouseOffsetY = 0;
 
 Item** pickPtr = 0;
 
+extern char queueCompile;
+
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void mouseCallback(GLFWwindow* window, int button, int action, int mods);
 void mouseMoveCallback(GLFWwindow* window, double x, double y);
@@ -73,6 +76,7 @@ extern float uiScale;
 
 int main()
 {
+	loadMapSettingsPresets();
 	loadEditorSettings();
 	makeDir("maps");
 
@@ -170,6 +174,7 @@ int main()
 		fileBrowserRender();
 
 		itemPanelRender();
+		itemListRender();
 
 		uiEndFrame();
 
@@ -196,6 +201,8 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 	if (action == GLFW_PRESS)
 	{
+		if (key == GLFW_KEY_F9)
+			queueCompile = 1;
 		if (key == GLFW_KEY_2)
 			voxelPush();
 		if (key == GLFW_KEY_3)

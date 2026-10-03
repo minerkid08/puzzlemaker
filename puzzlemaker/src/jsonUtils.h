@@ -19,3 +19,5 @@ void jsonArrSetStr(cJSON* arr, const char* s);
 void jsonArrSetBool(cJSON* arr, char b);
 void jsonArrSetFloat(cJSON* arr, float f);
 void jsonArrSetInt(cJSON* arr, int i);
+
+void jsonSetVec3(cJSON* json, const char* name, vec3 vec);

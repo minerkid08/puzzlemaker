@@ -3,8 +3,8 @@
 #include "item/item.h"
 #include "picker.h"
 #include "raycast.h"
-#include "utils.h"
 #include "ui/itemPanel.h"
+#include "utils.h"
 #include "voxel/voxel.h"
 
 extern Picker picker;
@@ -15,11 +15,24 @@ static char mode = 0;
 
 char isSelecting()
 {
-  return mode;
+	return mode;
+}
+
+void clearSelection()
+{
+	currentVoxel = 0;
+	currentDir = DIR_NONE;
+	currentVoxelPos[0] = -1;
+	currentVoxelPos[1] = -1;
+	currentVoxelPos[2] = -1;
+	currentVoxel2Pos[0] = -1;
+	currentVoxel2Pos[1] = -1;
+	currentVoxel2Pos[2] = -1;
 }
 
 void beginSelection(vec3 mouseDir)
 {
+	clearSelection();
 	Item** ignoredItems = getIntersectingItems(cameraPos, 0);
 
 	int flags = RAYCAST_VOXEL | RAYCAST_ITEM;
@@ -37,7 +50,7 @@ void beginSelection(vec3 mouseDir)
 			currentVoxel2Pos[0] = -1;
 			currentVoxel2Pos[1] = -1;
 			currentVoxel2Pos[2] = -1;
-      mode = 1;
+			mode = 1;
 		}
 		else
 		{
@@ -83,5 +96,5 @@ void updateSelection(vec3 mouseDir)
 
 void endSelection()
 {
-  mode = 0;
+	mode = 0;
 }

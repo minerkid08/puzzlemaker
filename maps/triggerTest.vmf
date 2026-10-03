@@ -740,32 +740,21 @@ solid
 entity
 {
   "id" "1"
-  "classname" "prop_weighted_cube"
-  "origin" "-320.000000 256.000000 95.999985"
+  "classname" "func_instance"
+  "origin" "-192.000000 192.000000 192.000000"
   "angles" "0.000000 -0.000000 -0.000000"
-  "targetname" "cube0"
-  "newskins" "2"
-  "StringProbably" "test"
-  "CubeBehavior" "0"
-  "CubeShape" "0"
-  "model" "models/props/cubes/standard_cube.mdl"
-  "picker" "door1"
+  "targetname" "dropper0"
+  "file" "puzzlemakerInstances/dropper"
+  "replace1" "$dontautorespawn 1"
+  "replace2" "$dontdropinital 1"
+  "replace3" "$cubeType models/props/cubes/standard_cube.mdl"
+  "replace3" "$cubeType models/props/cubes/standard_cube.mdl"
 }
 entity
 {
   "id" "2"
-  "classname" "func_instance"
-  "origin" "-160.000000 256.000000 64.000000"
-  "angles" "0.000000 -0.000000 -0.000000"
-  "targetname" "door1"
-  "file" "puzzlemakerInstances/door"
-  "replace1" "$open 0"
-}
-entity
-{
-  "id" "3"
   "classname" "info_portal_gamerules"
-  "origin" "-320.000000 256.000000 63.999985"
+  "origin" "-192.000000 192.000000 192.000000"
   "angles" "0.000000 0.000000 -0.000000"
   "targetname" "settings"
   "enableregen" "1"
@@ -777,7 +766,7 @@ entity
 }
 entity
 {
-  "id" "4"
+  "id" "3"
   "classname" "func_instance"
   "origin" "32768.000000 0.000000 0.000000"
   "angles" "0.000000 0.000000 -0.000000"

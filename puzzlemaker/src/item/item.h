@@ -43,6 +43,7 @@ typedef struct
 typedef struct
 {
 	const char* name;
+	const char* displayName;
 	int type;
 	V defaultValue;
 	const char** dropNames;

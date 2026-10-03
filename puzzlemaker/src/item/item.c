@@ -13,6 +13,7 @@
 #include <string.h>
 
 extern Item* itemList;
+extern Item* selectedItem;
 
 char moving = 0;
 
@@ -29,9 +30,9 @@ void drawItems()
 		Item* item = &itemList[i];
 		if (!isItemValid(item))
 			continue;
-		if (item->def->transparent == 0)
-			item->def->callbacks->render(item);
-		// drawDebugRect(item->def->bound1, item->def->bound2);
+		if (item->def->transparent)
+			continue;
+		item->def->callbacks->render(item);
 	}
 
 	for (int i = 0; i < len; i++)
@@ -39,9 +40,17 @@ void drawItems()
 		Item* item = &itemList[i];
 		if (!isItemValid(item))
 			continue;
-		if (item->def->transparent)
-			item->def->callbacks->render(item);
-		// drawDebugRect(item->def->bound1, item->def->bound2);
+		if (item->def->transparent == 0)
+			continue;
+		item->def->callbacks->render(item);
+	}
+
+	if (selectedItem)
+	{
+		vec3 a;
+		vec3 b;
+		selectedItem->def->callbacks->getBoundingBox(selectedItem, a, b);
+		drawDebugRect(a, b, selectedItem->transform);
 	}
 }
 

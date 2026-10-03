@@ -17,6 +17,8 @@ static ImGuiIO* io;
 
 float uiScale = 1.0f;
 
+char queueCompile = 0;
+
 void initUi(GLFWwindow* window)
 {
 	ctx = igCreateContext(0);
@@ -146,14 +148,20 @@ void uiMenuBar()
 			startCompile();
 	}
 	if (igMenuItem_Bool("map settings", 0, 0, 1))
-    openMapSettingsUi();
+		openMapSettingsUi();
 	if (igMenuItem_Bool("editor settings", 0, 0, 1))
-    openEditorSettingsUi();
-  igText("%s", mapSettings.name);
+		openEditorSettingsUi();
+	igText("%s", mapSettings.name);
+
+	if (queueCompile)
+	{
+		queueCompile = 0;
+		startCompile();
+	}
 
 	updateCompilePopup();
 	igEndMenuBar();
 
-  renderMapSettingsUi();
+	renderMapSettingsUi();
 	renderEditorSettingsUi();
 }

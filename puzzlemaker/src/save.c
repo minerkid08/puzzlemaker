@@ -173,6 +173,18 @@ void save()
 	cJSON_AddNumberToObject(settings, "gametype", mapSettings.gameType);
 	cJSON_AddNumberToObject(settings, "maxhealth", mapSettings.maxHealth);
 
+	PostProcessData* data = &mapSettings.postProcess;
+
+	cJSON_AddNumberToObject(settings, "maxExposure", data->maxExposure);
+	cJSON_AddNumberToObject(settings, "minExposure", data->minExposure);
+	cJSON_AddNumberToObject(settings, "tonemapRate", data->tonemapRate);
+	cJSON_AddNumberToObject(settings, "brightPixelPercent", data->brightPixelPercent);
+	jsonSetVec3(settings, "primaryFogColor", data->primaryFogColor);
+	jsonSetVec3(settings, "secondaryFogColor", data->secondaryFogColor);
+	cJSON_AddNumberToObject(settings, "fogStart", data->fogStart);
+	cJSON_AddNumberToObject(settings, "fogEnd", data->fogEnd);
+	cJSON_AddNumberToObject(settings, "fogDensity", data->fogDensity);
+
 	char* str = cJSON_Print(json);
 
 	FILE* file = fopen(filename, "wb");

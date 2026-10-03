@@ -9,6 +9,7 @@
 #include "jsonUtils.h"
 #include "renderer/renderer.h"
 #include "utils.h"
+#include <math.h>
 #include <string.h>
 
 static ItemCallbacks callbacks;
@@ -200,6 +201,12 @@ void volumeItemLoad(Item* item, cJSON* json)
 	data->size[0] = jsonGetFloat(obj, "x");
 	data->size[1] = jsonGetFloat(obj, "y");
 	data->size[2] = jsonGetFloat(obj, "z");
+
+	VolumeItemDef* def = item->def->data;
+
+	data->size[0] = fmaxf(data->size[0], def->minSize[0]);
+	data->size[1] = fmaxf(data->size[1], def->minSize[1]);
+	data->size[2] = fmaxf(data->size[2], def->minSize[2]);
 }
 
 void volumeItemGetBoundingBox(Item* item, vec3 min, vec3 max)

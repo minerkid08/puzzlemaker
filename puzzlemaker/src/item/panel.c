@@ -385,15 +385,22 @@ void panelItemSave(Item* item, cJSON* json)
 void panelItemLoad(Item* item, cJSON* json)
 {
 	PanelData* data = item->data;
+	PanelDefData* def = item->def->data;
+
 	cJSON* size = cJSON_GetObjectItem(json, "size");
 	data->size[0] = jsonGetFloat(size, "x");
 	data->size[1] = jsonGetFloat(size, "y");
+
+	data->size[0] = fmaxf(data->size[0], def->minSize[0]);
+	data->size[1] = fmaxf(data->size[1], def->minSize[1]);
 
 	cJSON* tile = cJSON_GetObjectItem(json, "tile");
 	if (tile)
 	{
 		data->tile[0] = jsonGetFloat(tile, "x");
 		data->tile[1] = jsonGetFloat(tile, "y");
+		data->tile[0] = max(data->tile[0], 1);
+		data->tile[1] = max(data->tile[1], 1);
 	}
 }
 

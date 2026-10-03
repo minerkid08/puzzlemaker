@@ -1,6 +1,7 @@
 #include "item/item.h"
 
 void initItemPanel();
+void itemListRender();
 void itemPanelRender();
 void updateCompilePopup();
 

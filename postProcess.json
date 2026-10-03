@@ -1,0 +1,14 @@
+[
+	{
+		"name": "testchamber",
+	  "maxExposure": 3,
+	  "minExposure": 0.5,
+	  "tonemapRate": 0.25,
+	  "brightPixelPercent": 5,
+	  "primaryFogColor": [40, 53, 64],
+	  "secondaryFogColor": [40, 53, 64],
+	  "fogStart": 128,
+	  "fogEnd": 5000,
+	  "fogDensity": 1
+	}
+]

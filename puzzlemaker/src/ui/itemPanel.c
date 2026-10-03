@@ -1,11 +1,13 @@
 #include "item/panel.h"
 #include "item/volumeItem.h"
 #include <stdbool.h>
+#include <string.h>
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 
 #include "item/item.h"
 
 #include "camera.h"
+#include "selection.h"
 #include "cimgui.h"
 #include "dynList.h"
 #include "picker.h"
@@ -48,7 +50,7 @@ char* outputNames = 0;
 
 void itemPanelRender()
 {
-	igBegin("items", 0, 0);
+	igBegin("Item Editor", 0, 0);
 	ImVec2 zero;
 	zero.x = 0;
 	zero.y = 0;
@@ -70,6 +72,7 @@ void itemPanelRender()
 				ItemDefinition* def = &getItemDefinitions()[j + group->startInd];
 				if (igSelectable_Bool(def->name, 0, 0, zero))
 				{
+					clearSelection();
 					vec3 offset;
 					vec3 pos;
 					ivec3 ipos;
@@ -173,18 +176,18 @@ void itemPanelRender()
 		{
 			ItemKv* kv = &selectedItem->kv[i];
 			int type = kv->def->type & (~(TYPE_INSTANCE));
+			igPushID_Int(i);
 			if (type == TYPE_INT)
-				igInputInt(kv->def->name, &kv->value.i, 1, 0, 0);
+				igInputInt(kv->def->displayName, &kv->value.i, 1, 0, 0);
 			if (type == TYPE_FLOAT)
-				igInputFloat(kv->def->name, &kv->value.f, 1, 0, "%.2f", 0);
+				igInputFloat(kv->def->displayName, &kv->value.f, 1, 0, "%.2f", 0);
 			if (type == TYPE_BOOL)
-				igCheckbox(kv->def->name, (bool*)&kv->value.b);
+				igCheckbox(kv->def->displayName, (bool*)&kv->value.b);
 			if (type == TYPE_STRING)
-				igInputText(kv->def->name, kv->value.s, 256, 0, 0, 0);
+				igInputText(kv->def->displayName, kv->value.s, 256, 0, 0, 0);
 			if (type == TYPE_PICKER)
 			{
 				char pressed;
-				igPushID_Int(i);
 				if (kv->value.i != -1)
 				{
 					char msg[32];
@@ -196,7 +199,6 @@ void itemPanelRender()
 					pressed = igButton("entity: picking", zero);
 				else
 					pressed = igButton("entity: none", zero);
-				igPopID();
 
 				if (pressed)
 				{
@@ -215,12 +217,12 @@ void itemPanelRender()
 				}
 
 				igSameLine(0, -1);
-				igText("%s", kv->def->name);
+				igText("%s", kv->def->displayName);
 			}
 
 			if (type & TYPE_DROPDOWN)
 			{
-				if (igBeginCombo(kv->def->name, kv->def->dropNames[kv->value.i], 0))
+				if (igBeginCombo(kv->def->displayName, kv->def->dropNames[kv->value.i], 0))
 				{
 					int len = dynList_size(kv->def->dropNames);
 					for (int i = 0; i < len; i++)
@@ -234,6 +236,7 @@ void itemPanelRender()
 					igEndCombo();
 				}
 			}
+			igPopID();
 		}
 
 		igSeparatorText("outputs");
@@ -254,11 +257,20 @@ void itemPanelRender()
 				output->inverted = 0;
 			}
 
+			ItemOutput* outputs = selectedItem->outputs;
 			for (long long i = 0; i < l; i++)
 			{
-				ItemOutput* output = &selectedItem->outputs[i];
+				ItemOutput* output = &outputs[i];
 				if (igTreeNode_Ptr((void*)i, output->def->name))
 				{
+					if(igButton("remove", zero))
+					{
+						for(long long j = i; j < l - 1; j++)
+							memcpy(&outputs[j] , &outputs[j + 1], sizeof(ItemOutput));
+						l--;
+						dynList_resize((void**)&outputs, l);
+					}
+
 					if (igBeginCombo("output", output->def->name, 0))
 					{
 						int len = dynList_size(selectedItem->def->outputs);

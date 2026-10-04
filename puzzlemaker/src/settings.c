@@ -16,6 +16,7 @@ void loadEditorSettings()
 		editorSettings.boostSpeed = 8;
 		editorSettings.moveSpeed = 4;
 		editorSettings.fov = 90;
+		editorSettings.rotSnap = 90;
 		return;
 	}
 
@@ -37,6 +38,7 @@ void loadEditorSettings()
 	editorSettings.moveSpeed = jsonGetFloat(json, "moveSpeed");
 	editorSettings.boostSpeed = jsonGetFloat(json, "boostSpeed");
 	editorSettings.fov = jsonGetFloat(json, "fov");
+	editorSettings.rotSnap = jsonGetFloatC(json, "rotSnap", 90);
 	cJSON_Delete(json);
 }
 
@@ -46,6 +48,7 @@ void saveEditorSettings()
 	cJSON_AddNumberToObject(json, "moveSpeed", editorSettings.moveSpeed);
 	cJSON_AddNumberToObject(json, "boostSpeed", editorSettings.boostSpeed);
 	cJSON_AddNumberToObject(json, "fov", editorSettings.fov);
+	cJSON_AddNumberToObject(json, "rotSnap", editorSettings.rotSnap);
 
 	char* str = cJSON_Print(json);
 

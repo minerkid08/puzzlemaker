@@ -84,6 +84,9 @@ void* loadEntityItemDef(cJSON* item, ItemDefinition* itemDef)
 		if (rotation)
 			jsonGetVec3(editorTransformJson, "rotation", rot);
 
+		memcpy(def->editorPos, pos, sizeof(vec3));
+		memcpy(def->editorRot, rot, sizeof(vec3));
+
 		mat4 rotMat;
 		vec4 quat;
 		rot[0] = glm_rad(rot[0]);

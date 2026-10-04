@@ -26,17 +26,17 @@ Item* getItemList()
 void removeItem(Item* item)
 {
 	int itemCount = dynList_size(itemList);
-	for(int i = 0; i < itemCount; i++)
+	for (int i = 0; i < itemCount; i++)
 	{
 		Item* item2 = &itemList[i];
-		if(!isItemValid(item2))
+		if (!isItemValid(item2))
 			continue;
 		ItemOutput* outputs = item2->outputs;
 		int outputCount = dynList_size(outputs);
-		for(int j = 0; j < outputCount; j++)
+		for (int j = 0; j < outputCount; j++)
 		{
 			ItemOutput* output = &outputs[j];
-			if(output->entity == item->index)
+			if (output->entity == item->index)
 			{
 				output->entity = -1;
 				output->input = 0;
@@ -44,11 +44,15 @@ void removeItem(Item* item)
 		}
 		ItemKv* kvs = item2->kv;
 		int kvCount = dynList_size(kvs);
-		for(int j = 0; j < kvCount; j++)
+		for (int j = 0; j < kvCount; j++)
 		{
 			ItemKv* kv = &kvs[j];
-			if(kv->value.i == item->index)
-				kv->value.i= -1;
+			int type = kv->def->type;
+			type &= ~(TYPE_INSTANCE);
+			if (type != TYPE_PICKER)
+				continue;
+			if (kv->value.i == item->index)
+				kv->value.i = -1;
 		}
 	}
 

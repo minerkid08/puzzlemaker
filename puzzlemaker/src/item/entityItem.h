@@ -13,6 +13,8 @@ typedef struct
 
 	vec3 positionOffset;
 	vec3 rotationOffset;
+	vec3 editorPos;
+	vec3 editorRot;
 	mat4 editorTransform;
 
 	Mesh* mesh;

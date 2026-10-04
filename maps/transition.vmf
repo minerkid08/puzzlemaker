@@ -24393,7 +24393,7 @@ entity
   "angles" "0.000000 0.000000 -0.000000"
   "targetname" "settings"
   "enableregen" "1"
-  "equibboots" "0"
+  "equipboots" "0"
   "maxhealth" "100"
   "equipportalgun" "3"
   "equippaintgun" "0"
@@ -24402,11 +24402,39 @@ entity
 entity
 {
   "id" "62"
-  "classname" "func_instance"
-  "origin" "32768.000000 0.000000 0.000000"
+  "classname" "env_fog_controller"
+  "origin" "-448.000000 624.000000 192.000000"
   "angles" "0.000000 0.000000 -0.000000"
-  "targetname" "globalEnts"
-  "file" "instances/global_ents_generic"
+  "targetname" "fogController"
+  "fogcolor" "40.00, 53.00, 64.00"
+  "fogcolor2" "40.00, 53.00, 64.00"
+  "fogstart" "128.00"
+  "fogend" "5000.00"
+  "fogmaxdensity" "1.00"
+}
+entity
+{
+  "id" "63"
+  "classname" "env_tonemap_controller"
+  "origin" "-448.000000 624.000000 192.000000"
+  "angles" "0.000000 0.000000 -0.000000"
+  "targetname" "tonemapper"
+}
+entity
+{
+  "id" "64"
+  "classname" "logic_auto"
+  "origin" "-448.000000 624.000000 192.000000"
+  "angles" "0.000000 0.000000 -0.000000"
+  "targetname" "auto"
+
+  connections
+  {
+    "OnMapSpawn" "tonemapperSetAutoExposureMin0.500.00-1"
+    "OnMapSpawn" "tonemapperSetAutoExposureMax3.000.00-1"
+    "OnMapSpawn" "tonemapperSetTonemapRate0.250.00-1"
+    "OnMapSpawn" "tonemapperSetTonemapPercentBrightPixels5.000.00-1"
+  }
 }
 
 cameras

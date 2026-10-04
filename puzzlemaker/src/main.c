@@ -73,6 +73,7 @@ void mouseZoomCallback(GLFWwindow* window, double x, double y);
 void closeCallback(GLFWwindow* window);
 
 extern float uiScale;
+static char snapRotation;
 
 int main()
 {
@@ -134,6 +135,8 @@ int main()
 		float lookUp = glfwGetKey(window, GLFW_KEY_UP) - glfwGetKey(window, GLFW_KEY_DOWN);
 		float lookRight = glfwGetKey(window, GLFW_KEY_RIGHT) - glfwGetKey(window, GLFW_KEY_LEFT);
 
+		snapRotation = !glfwGetKey(window, GLFW_KEY_LEFT_CONTROL);
+
 		float moveSpeed = editorSettings.moveSpeed;
 		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT))
 			moveSpeed = editorSettings.boostSpeed;
@@ -175,6 +178,7 @@ int main()
 
 		itemPanelRender();
 		itemListRender();
+		itemDebugRender();
 
 		uiEndFrame();
 
@@ -212,11 +216,11 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 		if (key == GLFW_KEY_Z)
 			voxelToggleSize();
 		if (key == GLFW_KEY_G)
-    {
+		{
 			if (selectedItem == 0)
 				return;
 			mouseMode = MODE_GRAB;
-    }
+		}
 		if (key == GLFW_KEY_F)
 		{
 			if (selectedItem == 0)
@@ -452,9 +456,12 @@ void mouseMoveCallback(GLFWwindow* window, double x, double y)
 	if (mouseMode == MODE_ROTATE)
 	{
 		float rotStep = mx - mouseX;
-		rotStep /= 80.0f;
-		rotStep = floorf(rotStep);
-		rotStep *= 90.0f;
+		if (snapRotation)
+		{
+			rotStep /= editorSettings.rotSnap;
+			rotStep = floorf(rotStep);
+			rotStep *= editorSettings.rotSnap;
+		}
 		rotStep = glm_rad(rotStep);
 
 		vec3 axis = {0, 1, 0};

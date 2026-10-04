@@ -23,6 +23,8 @@ void itemListRender()
 	for (int i = 0; i < len; i++)
 	{
 		Item* item = &items[i];
+		if(!isItemValid(item))
+			continue;
 		igPushID_Int(i);
 		snprintf(buf, 64, "%s%d", item->def->name, item->index);
 		char selected = (item == selectedItem);

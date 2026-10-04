@@ -83,6 +83,16 @@ char jsonGetBoolC(const cJSON* json, const char* name, char def)
 	return j->type == cJSON_True;
 }
 
+float jsonGetFloatC(const cJSON* json, const char* name, float def)
+{
+	cJSON* j = cJSON_GetObjectItem(json, name);
+  if(j == 0)
+		return def;
+	if(!cJSON_IsNumber(j))
+    errorf("wrong type for key '%s', expected number\n", name);
+	return j->valuedouble;
+}
+
 char* jsonArrGetStr(const cJSON* json, int i)
 {
 	cJSON* j = cJSON_GetArrayItem(json, i);

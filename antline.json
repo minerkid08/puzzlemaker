@@ -5,7 +5,7 @@
 	"dotSize": 16,
 	"checkSize": 32,
 
-	"lineTex": "check.png",
+	"lineTex": "signage/indicator_lights/indicator_lights_floor",
 	"cornerTex": "check.png",
 	"checkTex": "signage/signage_doorstate",
 	"lineDotCountx": 4,

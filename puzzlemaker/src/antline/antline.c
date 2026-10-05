@@ -156,9 +156,9 @@ void renderAntlines()
 		{
 			vec3 start = {-config.editorCheckSize, -config.editorCheckSize, -0.125f};
 			vec3 end = {config.editorCheckSize, config.editorCheckSize, 0.125f};
-			overlayDrawRect(start, end, config.editorCheckTex);
+			overlayDrawRect(start, end, config.editorCheckTex, 1);
 			panelEndFrame(antline->baseSegment.transform, 1);
-			if (selection.type == SELECTION_ANTLINE && antline == selection.antline)
+			if (selection.type == SELECTION_ANTLINE && &antline->baseSegment == selection.antlineSeg)
 				drawDebugRectAntline(start, end, antline->baseSegment.transform);
 		}
 
@@ -169,10 +169,10 @@ void renderAntlines()
 
 			vec3 start = {-config.editorDotSize, -config.editorDotSize, -0.125f};
 			vec3 end = {config.editorDotSize, config.editorDotSize, 0.125f};
-			end[0] *= 2.0f * segment->len;
-			overlayDrawRect(start, end, config.editorAntlineTex);
+			end[0] *= 2.0f * segment->len - 1;
+			overlayDrawRect(start, end, config.editorAntlineTex, segment->len);
 			panelEndFrame(segment->transform, 1);
-			if (selection.type == SELECTION_ANTLINE_SEG && segment == selection.antlineSeg)
+			if (selection.type == SELECTION_ANTLINE && segment == selection.antlineSeg)
 				drawDebugRectAntline(start, end, segment->transform);
 		}
 	}
@@ -198,18 +198,22 @@ Antline* getIntersectingAntline(vec3 pos, AntlineSegment** seg)
 			hit = 0;
 		if (pos2[2] < bound1[2] || pos2[2] > bound2[2])
 			hit = 0;
-		if(hit)
+		if (hit)
+		{
+			*seg = &antline->baseSegment;
 			return antline;
+		}
 
 		for (int k = 0; k < dynList_size(antline->segments); k++)
 		{
 			AntlineSegment* segment = &antline->segments[k];
 			vec4 pos2 = {pos[0], pos[1], pos[2], 1};
 			mat4 transform;
-			memcpy(transform, antline->baseSegment.invTransform, sizeof(mat4));
+			memcpy(transform, segment->invTransform, sizeof(mat4));
 			glm_mat4_mulv(transform, pos2, pos2);
-			vec3 bound1 = {-config.editorCheckSize, -config.editorCheckSize, -0.125f};
-			vec3 bound2 = {config.editorCheckSize, config.editorCheckSize, 0.125f};
+			vec3 bound1 = {-config.editorDotSize, -config.editorDotSize, -0.125f};
+			vec3 bound2 = {config.editorDotSize, config.editorDotSize, 0.125f};
+			bound2[0] *= 2.0f * segment->len - 1;
 
 			if (pos2[0] < bound1[0] || pos2[0] > bound2[0])
 				continue;
@@ -231,11 +235,12 @@ void antlineExport()
 	{
 		Antline* antline = &antlines[i];
 
+		char buf[64];
+		snprintf(buf, 64, "antline%d", antline->id);
+
 		if (antline->hasCheck)
 		{
 			Overlay* overlay = exportCreateOverlay();
-			char buf[64];
-			snprintf(buf, 64, "antline%d", antline->id);
 			overlay->name = strdup(buf);
 			memcpy(overlay->pos, antline->baseSegment.pos, sizeof(vec3));
 			memcpy(overlay->rotation, antline->baseSegment.rot, sizeof(vec3));
@@ -248,14 +253,47 @@ void antlineExport()
 			overlay->tint[1] = 255;
 			overlay->tint[2] = 255;
 			overlay->tint[3] = 255;
-
-			Entity* entity = exportCreateEntity();
-			memcpy(entity->pos, antline->baseSegment.pos, sizeof(vec3));
-			memcpy(entity->rotation, antline->baseSegment.rot, sizeof(vec3));
-			entity->className = "env_texturetoggle";
-			exportEntityAddKvss(entity, "target", buf);
-			snprintf(buf, 64, "antline%d-tex", antline->id);
-			entity->name = strdup(buf);
 		}
+		int segmentCount = dynList_size(selection.antline->segments);
+		for (int i = 0; i < segmentCount; i++)
+		{
+			AntlineSegment* segment = &selection.antline->segments[i];
+
+			Overlay* overlay = exportCreateOverlay();
+
+			vec3 bound1 = {-config.editorDotSize, -config.editorDotSize, 0};
+			vec3 bound2 = {config.editorDotSize, config.editorDotSize, 0};
+			bound2[0] *= 2.0f * segment->len - 1;
+
+			float x = (bound1[0] + bound2[0]) / 2.0f;
+
+			vec4 pos = {x, 0, 0, 1};
+			mat4 transform;
+			memcpy(transform, segment->transform, sizeof(mat4));
+			glm_mat4_mulv(transform, pos, pos);
+
+			memcpy(overlay->pos, pos, sizeof(vec3));
+
+			overlay->name = strdup(buf);
+			memcpy(overlay->rotation, segment->rot, sizeof(vec3));
+			overlay->tile[0] = segment->len;
+			overlay->tile[1] = 0.25f;
+			overlay->texture = config.antlineTex;
+			overlay->size[0] = config.dotSize;
+			overlay->size[1] = config.dotSize * segment->len;
+			overlay->tint[0] = 255;
+			overlay->tint[1] = 255;
+			overlay->tint[2] = 255;
+			overlay->tint[3] = 255;
+		}
+		AntlineSegment* segment = &selection.antline->segments[i];
+		Entity* entity = exportCreateEntity();
+
+		memcpy(entity->pos, antline->baseSegment.pos, sizeof(vec3));
+		memcpy(entity->rotation, antline->baseSegment.rot, sizeof(vec3));
+		entity->className = "env_texturetoggle";
+		exportEntityAddKvss(entity, "target", buf);
+		snprintf(buf, 64, "antline%d-tex", antline->id);
+		entity->name = strdup(buf);
 	}
 }

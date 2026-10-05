@@ -237,7 +237,7 @@ void panelDrawRect(vec2 start, vec2 end, unsigned int texture)
 	quadCount++;
 }
 
-void overlayDrawRect(vec2 start, vec2 end, unsigned int texture)
+void overlayDrawRect(vec2 start, vec2 end, unsigned int texture, int tile)
 {
 	for (int i = 0; i < 4; i++)
 	{
@@ -266,9 +266,9 @@ void overlayDrawRect(vec2 start, vec2 end, unsigned int texture)
 	verts[1].uv[0] = 1;
 	verts[1].uv[1] = 0;
 	verts[2].uv[0] = 0;
-	verts[2].uv[1] = 1;
+	verts[2].uv[1] = tile;
 	verts[3].uv[0] = 1;
-	verts[3].uv[1] = 1;
+	verts[3].uv[1] = tile;
 
 	glUseProgram(panelShader);
 	glActiveTexture(GL_TEXTURE0 + quadCount);

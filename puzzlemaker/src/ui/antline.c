@@ -38,6 +38,7 @@ void antlinePanelRender()
 		memset(&selection.antline->segments[segmentCount], 0, sizeof(AntlineSegment));
 		antlineUpdateTransformRot(&selection.antline->segments[segmentCount]);
 		selection.antlineSeg = &selection.antline->segments[segmentCount];
+    selection.antlineSeg->len = 1;
 		segmentCount++;
 	}
 
@@ -46,11 +47,19 @@ void antlinePanelRender()
 		AntlineSegment* segment = &selection.antline->segments[i];
 		if (igTreeNode_Ptr(segment, "segment %d", i))
 		{
+			AntlineSegment** segList = &selection.antline->segments;
+			if (igButton("remove", zero))
+			{
+				for (long long j = i; j < segmentCount - 1; j++)
+					memcpy(&(*segList)[j], &(*segList)[j + 1], sizeof(AntlineSegment));
+				segmentCount--;
+				dynList_resize((void**)segList, segmentCount);
+			}
 			if (igDragFloat3("position", segment->pos, 0.01f, 0.0f, 0.0f, "%.3f", 0))
 				antlineUpdateTransform(segment);
 			if (igDragFloat3("rotation", segment->rot, 0.01f, 0.0f, 0.0f, "%.3f", 0))
 				antlineUpdateTransformRot(segment);
-			igDragInt("length", &segment->len, 1, 0, 9999, "%d", 0);
+			igDragInt("length", &segment->len, 1, 1, 9999, "%d", 0);
 			igTreePop();
 		}
 	}

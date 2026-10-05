@@ -83,6 +83,7 @@ void beginSelection(vec3 mouseDir)
 					picker.active = 0;
 				}
 			}
+      break;
 		}
 	}
 	else

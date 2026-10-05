@@ -23,6 +23,11 @@ void updateGrab(vec3 cameraPos, vec3 mouseDir)
 		float startY = hit.pos[1];
 		float startZ = hit.pos[2];
 		char snapMode = SNAP_MINI_CENTER;
+		if (selection.type == SELECTION_ANTLINE)
+		{
+			if (&selection.antline->baseSegment != selection.antlineSeg)
+				snapMode = 5;
+		}
 		if (selection.type == SELECTION_ITEM)
 			snapMode = selection.item->def->snapMode;
 		switch (snapMode)
@@ -46,6 +51,11 @@ void updateGrab(vec3 cameraPos, vec3 mouseDir)
 			newPos[0] = round(hit.pos[0] * 2 - 0.25) / 2 + 0.25;
 			newPos[1] = round(hit.pos[1] * 2 - 0.25) / 2 + 0.25;
 			newPos[2] = round(hit.pos[2] * 2 - 0.25) / 2 + 0.25;
+			break;
+		case 5:
+			newPos[0] = round(hit.pos[0] * 4 - 0.125) / 4 + 0.125;
+			newPos[1] = round(hit.pos[1] * 4 - 0.125) / 4 + 0.125;
+			newPos[2] = round(hit.pos[2] * 4 - 0.125) / 4 + 0.125;
 			break;
 		}
 		char snapDir;

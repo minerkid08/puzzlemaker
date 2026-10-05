@@ -1,5 +1,6 @@
 #include "export/overlay.h"
 #include "cglm/mat4.h"
+#include "cglm/quat.h"
 #include "dynList.h"
 #include "export/brush.h"
 #include "export/entity.h"
@@ -54,8 +55,8 @@ void exportEndOverlays(FILE* file)
 
 		free((char*)overlay->name);
 
-		vec3 normDir = {-1, 0, 0};
-		vec3 uDir = {0, 0, -1};
+		vec3 normDir = {0, 0, 1};
+		vec3 uDir = {1, 0, 0};
 		vec3 vDir = {0, -1, 0};
 
 		vec3 rot;
@@ -64,7 +65,9 @@ void exportEndOverlays(FILE* file)
 		rot[1] = glm_rad(rot[1]);
 		rot[2] = glm_rad(rot[2]);
 		mat4 rotMat;
-		glm_euler_yzx(rot, rotMat);
+    vec4 quat;
+    glm_euler_yzx_quat(rot, quat);
+		glm_quat_mat4(quat, rotMat);
 		glm_mat4_mulv3(rotMat, normDir, 1, normDir);
 		glm_mat4_mulv3(rotMat, uDir, 1, uDir);
 		glm_mat4_mulv3(rotMat, vDir, 1, vDir);

@@ -1,3 +1,4 @@
+#include "selection.h"
 #include "camera.h"
 #include "dynList.h"
 #include "item/item.h"
@@ -5,8 +6,8 @@
 #include "raycast.h"
 #include "ui/itemPanel.h"
 #include "utils.h"
-#include "voxel/voxel.h"
 
+Selection selection;
 extern Picker picker;
 
 #define RAY_LEN 40
@@ -20,52 +21,75 @@ char isSelecting()
 
 void clearSelection()
 {
-	currentVoxel = 0;
-	currentDir = DIR_NONE;
-	currentVoxelPos[0] = -1;
-	currentVoxelPos[1] = -1;
-	currentVoxelPos[2] = -1;
-	currentVoxel2Pos[0] = -1;
-	currentVoxel2Pos[1] = -1;
-	currentVoxel2Pos[2] = -1;
+	selection.type = SELECTION_NONE;
 }
 
 void beginSelection(vec3 mouseDir)
 {
-	clearSelection();
 	Item** ignoredItems = getIntersectingItems(cameraPos, 0);
 
-	int flags = RAYCAST_VOXEL | RAYCAST_ITEM;
+	int flags = RAYCAST_VOXEL | RAYCAST_ITEM | RAYCAST_ANTLINE;
 	RaycastHit hit;
 	if (raycast(cameraPos, mouseDir, RAY_LEN, flags, &hit, ignoredItems))
 	{
-		if (hit.type == RAYCAST_VOXEL)
+		switch (hit.type)
 		{
-			clearSelectedItem();
-			currentVoxel = hit.voxel;
-			currentDir = hit.dir;
-			currentVoxelPos[0] = hit.ipos[0];
-			currentVoxelPos[1] = hit.ipos[1];
-			currentVoxelPos[2] = hit.ipos[2];
-			currentVoxel2Pos[0] = -1;
-			currentVoxel2Pos[1] = -1;
-			currentVoxel2Pos[2] = -1;
+		case RAYCAST_VOXEL:
+			selection.type = SELECTION_VOXEL;
+			selection.voxel = hit.voxel;
+			selection.voxelDir = hit.dir;
+			selection.voxelPos[0] = hit.ipos[0];
+			selection.voxelPos[1] = hit.ipos[1];
+			selection.voxelPos[2] = hit.ipos[2];
+			selection.voxel2Pos[0] = -1;
+			selection.voxel2Pos[1] = -1;
+			selection.voxel2Pos[2] = -1;
 			mode = 1;
-		}
-		else
-		{
-			currentVoxel = 0;
-			if (picker.active)
+			picker.active = 0;
+			break;
+		case RAYCAST_ITEM:
+			selection.voxel = 0;
+			if (picker.active == PICKER_ITEM)
 			{
 				*picker.ptr = hit.item;
 				picker.active = 0;
 			}
 			else
-				setSelectedItem(hit.item);
+			{
+				selection.type = SELECTION_ITEM;
+				selection.item = hit.item;
+				picker.active = 0;
+			}
+			break;
+		case RAYCAST_ANTLINE:
+			if (picker.active == PICKER_ANTLINE)
+			{
+				*picker.ant = hit.antline;
+				picker.active = 0;
+			}
+			else
+			{
+				if (hit.antlineSeg)
+				{
+					selection.type = SELECTION_ANTLINE;
+					selection.antlineSeg = hit.antlineSeg;
+					picker.active = 0;
+				}
+				else
+				{
+					selection.type = SELECTION_ANTLINE;
+					selection.antline = hit.antline;
+					selection.antlineSeg = &selection.antline->baseSegment;
+					picker.active = 0;
+				}
+			}
 		}
 	}
 	else
-		currentVoxel = 0;
+	{
+		picker.active = 0;
+		selection.voxel = 0;
+	}
 	dynList_free(ignoredItems);
 }
 
@@ -75,23 +99,23 @@ void updateSelection(vec3 mouseDir)
 	RaycastHit hit;
 	if (raycast(cameraPos, mouseDir, RAY_LEN, flags, &hit, 0))
 	{
-		int zmin = min(currentVoxelPos[2], hit.ipos[2]);
-		int zmax = max(hit.ipos[2], currentVoxel2Pos[2]);
-		int ymin = min(currentVoxelPos[1], hit.ipos[1]);
-		int ymax = max(hit.ipos[1], currentVoxel2Pos[1]);
-		int xmin = min(currentVoxelPos[0], hit.ipos[0]);
-		int xmax = max(hit.ipos[0], currentVoxel2Pos[0]);
+		int zmin = min(selection.voxelPos[2], hit.ipos[2]);
+		int zmax = max(hit.ipos[2], selection.voxel2Pos[2]);
+		int ymin = min(selection.voxelPos[1], hit.ipos[1]);
+		int ymax = max(hit.ipos[1], selection.voxel2Pos[1]);
+		int xmin = min(selection.voxelPos[0], hit.ipos[0]);
+		int xmax = max(hit.ipos[0], selection.voxel2Pos[0]);
 
-		currentVoxelPos[0] = xmin;
-		currentVoxelPos[1] = ymin;
-		currentVoxelPos[2] = zmin;
+		selection.voxelPos[0] = xmin;
+		selection.voxelPos[1] = ymin;
+		selection.voxelPos[2] = zmin;
 
-		currentVoxel2Pos[0] = xmax;
-		currentVoxel2Pos[1] = ymax;
-		currentVoxel2Pos[2] = zmax;
+		selection.voxel2Pos[0] = xmax;
+		selection.voxel2Pos[1] = ymax;
+		selection.voxel2Pos[2] = zmax;
 	}
 	else
-		currentVoxel = 0;
+		selection.voxel = 0;
 }
 
 void endSelection()

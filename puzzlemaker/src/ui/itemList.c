@@ -10,8 +10,6 @@
 #include "selection.h"
 #include "ui/itemPanel.h"
 
-extern Item* selectedItem;
-
 static char buf[64];
 void itemListRender()
 {
@@ -23,14 +21,21 @@ void itemListRender()
 	for (int i = 0; i < len; i++)
 	{
 		Item* item = &items[i];
+		if (!isItemValid(item))
+			continue;
 		igPushID_Int(i);
 		snprintf(buf, 64, "%s%d", item->def->name, item->index);
-		char selected = (item == selectedItem);
+		char selected = 0;
+		if (selection.type == SELECTION_ITEM)
+			selected = (item == selection.item);
 		ImVec2 zero;
 		zero.x = 0;
 		zero.y = 0;
-		if(igSelectable_Bool(buf, selected, 0, zero))
-			selectedItem = item;
+		if (igSelectable_Bool(buf, selected, 0, zero))
+		{
+			selection.type = SELECTION_ITEM;
+			selection.item = item;
+		}
 		igPopID();
 	}
 

@@ -1,4 +1,5 @@
 #include "raycast.h"
+#include "antline/antline.h"
 #include "item/item.h"
 #include "voxel/voxel.h"
 #include <string.h>
@@ -21,6 +22,33 @@ char raycast(vec3 start, vec3 dir, float len, int flags, RaycastHit* hit, Item**
 				hit->voxel = 0;
 				hit->dir = 0;
 				memcpy(hit->pos, item->pos, sizeof(vec3));
+				return 1;
+			}
+		}
+
+		if (flags & RAYCAST_ANTLINE)
+		{
+			AntlineSegment* seg = 0;
+			Antline* antline = getIntersectingAntline(out, &seg);
+			if (antline)
+			{
+				if (seg)
+				{
+					hit->type = RAYCAST_ANTLINE;
+					hit->antline = antline;
+					hit->antlineSeg = seg;
+					hit->voxel = 0;
+					hit->item = 0;
+					hit->dir = 0;
+					memcpy(hit->pos, antline->baseSegment.pos, sizeof(vec3));
+					return 1;
+				}
+				hit->type = RAYCAST_ANTLINE;
+				hit->antline = antline;
+				hit->voxel = 0;
+				hit->item = 0;
+				hit->dir = 0;
+				memcpy(hit->pos, antline->baseSegment.pos, sizeof(vec3));
 				return 1;
 			}
 		}
@@ -50,7 +78,7 @@ char raycast(vec3 start, vec3 dir, float len, int flags, RaycastHit* hit, Item**
 			hit->item = 0;
 			hit->voxel = v;
 			ivec3 ipos = {x, y, z};
-      vec3 pos2;
+			vec3 pos2;
 			hit->dir = getVoxelSide(start, ipos, dir, &pos2);
 			hit->pos[0] = pos2[0];
 			hit->pos[1] = pos2[1];

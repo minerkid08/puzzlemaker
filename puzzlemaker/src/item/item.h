@@ -15,6 +15,7 @@
 #define ITEM_TYPE_ENTITY 1
 #define ITEM_TYPE_PANEL 2
 #define ITEM_TYPE_VOLUME 3
+#define ITEM_TYPE_OVERLAY 4
 
 #define SNAP_CORNER 0
 #define SNAP_CENTER 1
@@ -102,6 +103,7 @@ typedef struct
 {
 	OutputDef* def;
 	int entity;
+	int antline;
 	InputDef* input;
 	char inverted;
 } ItemOutput;

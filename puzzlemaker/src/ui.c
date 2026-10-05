@@ -18,9 +18,13 @@ static ImGuiIO* io;
 float uiScale = 1.0f;
 
 char queueCompile = 0;
+ImVec2 zero;
 
 void initUi(GLFWwindow* window)
 {
+	zero.x = 0;
+	zero.y = 0;
+
 	ctx = igCreateContext(0);
 	io = igGetIO_Nil();
 	io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;

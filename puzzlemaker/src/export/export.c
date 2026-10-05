@@ -1,7 +1,9 @@
 #include "export/export.h"
+#include "antline/antline.h"
 #include "dynList.h"
 #include "export/brush.h"
 #include "export/entity.h"
+#include "export/overlay.h"
 #include "export/script/exportScript.h"
 #include "item/item.h"
 #include "ui/fileBrowser.h"
@@ -14,6 +16,7 @@ int exportMap()
 	char* name = fileBrowserGetPath();
 	exportStartEntities();
 	exportStartBrushes();
+	exportStartOverlays();
 
 	Item* items = getItemList();
 	int len = dynList_size(items);
@@ -34,6 +37,7 @@ int exportMap()
 			item->def->callbacks->exportItem(item);
 	}
 
+	antlineExport();
 	exportEntitiesProcessOutputs();
 
 	exportMapSettings();
@@ -78,6 +82,7 @@ viewsettings
 	exportEndBrushes(file);
 	fprintf(file, "\n}\n");
 	exportEndEntities(file);
+	exportEndOverlays(file);
 	fprintf(file, R"(
 cameras
 {

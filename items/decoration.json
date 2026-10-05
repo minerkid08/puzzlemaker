@@ -39,5 +39,12 @@
     "snapMode": "mini-center",
     "defaultSize": [2, 2],
 		"transparent": true
-  }
+  },
+	{
+    "type": "overlay",
+		"name": "doorstate",
+		"texture": "light.png",
+		"size": [32, 32],
+		"exportTexture": "signage/signage_overlay_fling2"
+	}
 ]

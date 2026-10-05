@@ -1,4 +1,4 @@
-#include "brush.h"
+#include "export/brush.h"
 #include "cglm/vec3.h"
 #include "dynList.h"
 #include "utils.h"
@@ -23,7 +23,7 @@ Brush* getBrushArray()
 
 void exportStartBrushes()
 {
-	sideId = 0;
+	sideId = 1;
 	dynList_resize((void**)&brushes, 0);
 }
 
@@ -57,11 +57,25 @@ Brush* exportCreateBrush(vec3 start, vec3 end)
 	brush->id = len;
 	brush->ent = 0;
 	brush->script = 0;
+	brush->pos[0] = 0;
+	brush->pos[1] = 0;
+	brush->pos[2] = 0;
+	brush->rot[0] = 0;
+	brush->rot[1] = 0;
+	brush->rot[2] = 0;
+
+	brush->bound1[0] = minx;
+	brush->bound1[1] = miny;
+	brush->bound1[2] = minz;
+	brush->bound2[0] = maxx;
+	brush->bound2[1] = maxy;
+	brush->bound2[2] = maxz;
 
 	for (int i = 0; i < 6; i++)
 	{
 		Side* side = &brush->sides[i];
-		side->id = i;
+		side->id = sideId;
+		sideId++;
 		side->lightmapscale = 16;
 		side->fit = 0;
 		side->texHeight = 512;
@@ -129,7 +143,6 @@ void exportBrush(FILE* file, Brush* brush)
 	fprintf(file, "  \"id\" \"%d\"\n", brush->id);
 	for (int j = 0; j < 6; j++)
 	{
-		sideId++;
 		Side* side = &brush->sides[j];
 		char v1[40];
 		char v2[40];
@@ -141,7 +154,7 @@ void exportBrush(FILE* file, Brush* brush)
 		char planeBuf[140];
 		snprintf(planeBuf, 140, "%s %s %s", v1, v2, v3);
 		fprintf(file, "  side\n  {\n");
-		fprintf(file, "    \"id\" \"%d\"\n", sideId);
+		fprintf(file, "    \"id\" \"%d\"\n", side->id);
 		fprintf(file, "    \"plane\" \"%s\"\n", planeBuf);
 
 		fprintf(file, "    point_data\n    {\n");
@@ -192,12 +205,12 @@ void exportBrush(FILE* file, Brush* brush)
 
 		float xoff = 0;
 		float yoff = 0;
+		vec3 normal;
+		glm_cross(uDir, vDir, normal);
+		glm_normalize(normal);
+		memcpy(side->normal, normal, sizeof(vec3));
 		if (side->fit)
 		{
-			vec3 normal;
-			glm_cross(uDir, vDir, normal);
-			glm_normalize(normal);
-
 			vec3 zero = {0, 0, 0};
 			vec3 intersect;
 			planeIntersect(ref, normal, zero, normal, intersect);

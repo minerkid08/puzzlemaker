@@ -7,13 +7,13 @@
 #include "raycast.h"
 #include "renderer/debug.h"
 #include "utils.h"
+#include "selection.h"
 
 #include <cjson.h>
 #include <dynList.h>
 #include <string.h>
 
 extern Item* itemList;
-extern Item* selectedItem;
 
 char moving = 0;
 
@@ -45,12 +45,13 @@ void drawItems()
 		item->def->callbacks->render(item);
 	}
 
-	if (selectedItem)
+	if (selection.type == SELECTION_ITEM)
 	{
 		vec3 a;
 		vec3 b;
-		selectedItem->def->callbacks->getBoundingBox(selectedItem, a, b);
-		drawDebugRect(a, b, selectedItem->transform);
+		Item* item = selection.item;
+		item->def->callbacks->getBoundingBox(item, a, b);
+		drawDebugRect(a, b, item->transform);
 	}
 }
 

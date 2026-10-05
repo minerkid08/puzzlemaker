@@ -267,6 +267,10 @@ void exportEntitiesProcessOutputs()
 				strncpy(ioEntName, item->ioEnt, 128);
 			else
 				snprintf(ioEntName, 128, "%s%d", item->def->name, output->entity);
+			char antlineName[64];
+			snprintf(antlineName, 64, "antline%d-tex", output->antline);
+			if (output->antline != -1)
+				exportEntityAddRawOutput(relay, "OnUser1", antlineName, "SetTextureIndex", "1", 0);
 			if (output->inverted)
 			{
 				if (input->falseInput)
@@ -283,6 +287,8 @@ void exportEntitiesProcessOutputs()
 						exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->trueInput, input->trueArg, 0);
 					else
 						exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->trueInput, "", 0);
+					if (output->antline != -1)
+						exportEntityAddRawOutput(relay, "OnUser2", antlineName, "SetTextureIndex", "0", 0);
 				}
 			}
 			else
@@ -298,6 +304,8 @@ void exportEntitiesProcessOutputs()
 						exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->falseInput, input->falseArg, 0);
 					else
 						exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->falseInput, "", 0);
+					if (output->antline != -1)
+						exportEntityAddRawOutput(relay, "OnUser2", antlineName, "SetTextureIndex", "0", 0);
 				}
 			}
 		}

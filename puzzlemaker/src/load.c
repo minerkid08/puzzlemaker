@@ -1,3 +1,4 @@
+#include "antline/antline.h"
 #include "cjson.h"
 #include "dynList.h"
 #include "item/item.h"
@@ -9,6 +10,7 @@
 #include <string.h>
 
 extern Item* itemList;
+extern Antline* antlines;
 
 void load()
 {
@@ -22,6 +24,13 @@ void load()
 		if (isItemValid(item))
 			removeItem(item);
 	}
+
+	for (int i = 0; i < dynList_size(antlines); i++)
+	{
+		Antline* antline = &antlines[i];
+		free(antline->segments);
+	}
+	dynList_resize((void**)&antlines, 0);
 
 	FILE* file = fopen(filename, "rb");
 
@@ -132,6 +141,10 @@ void load()
 			output->entity = itemIndex;
 			output->inverted = jsonGetBool(outputJson, "inverted");
 			output->def = 0;
+			if (cJSON_GetObjectItem(outputJson, "antline"))
+				output->antline = jsonGetInt(outputJson, "antline");
+			else
+				output->antline = -1;
 
 			const char* outputName = cJSON_GetObjectItem(outputJson, "output")->valuestring;
 			OutputDef* outputs = item->def->outputs;
@@ -234,6 +247,19 @@ void load()
 					break;
 				}
 			}
+		}
+	}
+	cJSON* antlines = cJSON_GetObjectItem(json, "antlines");
+	if (antlines)
+	{
+		cJSON* antlineJson;
+		cJSON_ArrayForEach(antlineJson, antlines)
+		{
+			Antline* antline = addAntline();
+			jsonGetVec3(antlineJson, "pos", antline->baseSegment.pos);
+			jsonGetVec3(antlineJson, "rot", antline->baseSegment.rot);
+			antline->hasCheck = jsonGetBool(antlineJson, "hasCheck");
+			antlineUpdateTransformRot(&antline->baseSegment);
 		}
 	}
 

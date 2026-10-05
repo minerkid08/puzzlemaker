@@ -73,6 +73,7 @@ void mouseZoomCallback(GLFWwindow* window, double x, double y);
 void closeCallback(GLFWwindow* window);
 
 extern float uiScale;
+static char snapRotation;
 
 int main()
 {
@@ -135,6 +136,8 @@ int main()
 		float lookUp = glfwGetKey(window, GLFW_KEY_UP) - glfwGetKey(window, GLFW_KEY_DOWN);
 		float lookRight = glfwGetKey(window, GLFW_KEY_RIGHT) - glfwGetKey(window, GLFW_KEY_LEFT);
 
+		snapRotation = !glfwGetKey(window, GLFW_KEY_LEFT_CONTROL);
+
 		float moveSpeed = editorSettings.moveSpeed;
 		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT))
 			moveSpeed = editorSettings.boostSpeed;
@@ -176,6 +179,7 @@ int main()
 		fileBrowserRender();
 
 		itemListRender();
+		itemDebugRender();
 		renderEditorPanel();
 
 		uiEndFrame();

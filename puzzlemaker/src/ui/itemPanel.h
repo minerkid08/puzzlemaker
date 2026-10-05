@@ -13,6 +13,8 @@ void updateCompilePopup();
 void clearSelectedItem();
 void setSelectedItem(Item* item);
 
+void openItemDebug();
+void itemDebugRender();
 void openMapSettingsUi();
 void renderMapSettingsUi();
 void openEditorSettingsUi();

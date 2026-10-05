@@ -1,5 +1,6 @@
 {
-	"moveSpeed":	4,
+	"moveSpeed":	8,
 	"boostSpeed":	8,
-	"fov":	90
+	"fov":	90,
+	"rotSnap":	45
 }

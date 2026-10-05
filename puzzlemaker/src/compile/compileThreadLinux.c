@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #ifdef linux
 
 #include "compileThread.h"
@@ -75,6 +76,7 @@ int runCmd(char* cmd)
 			printf("command line: '%s'\n", cmd);
 			printf("working dir: '%s'\n", compileStatus.workingDir);
 			printf("bad working dir\n");
+			exit(1);
 		}
 
 		execvp(data[0], data);
@@ -82,7 +84,7 @@ int runCmd(char* cmd)
 		printf("command line: '%s'\n", cmd);
 		printf("working dir: '%s'\n", compileStatus.workingDir);
 		printf("bad command line\n");
-		return 1;
+		exit(1);
 	}
 	else
 	{

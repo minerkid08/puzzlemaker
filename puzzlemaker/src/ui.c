@@ -155,6 +155,8 @@ void uiMenuBar()
 		openMapSettingsUi();
 	if (igMenuItem_Bool("editor settings", 0, 0, 1))
 		openEditorSettingsUi();
+	if (igMenuItem_Bool("debug", 0, 0, 1))
+		openItemDebug();
 	igText("%s", mapSettings.name);
 
 	if (queueCompile)

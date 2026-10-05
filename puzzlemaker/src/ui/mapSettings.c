@@ -31,7 +31,7 @@ void renderMapSettingsUi()
 	igCheckbox("enable health regen", (bool*)&mapSettings.regen);
 	igInputInt("max health", &mapSettings.maxHealth, 1, 1, 1);
 
-	igCombo_Str("staring portalgun", &mapSettings.portalGun, "None\0Blue\0Orange\0Blue+Orange\0Potato\0", -1);
+	igCombo_Str("staring portalgun", &mapSettings.portalGun, "None\0Orange\0Blue\0Blue+Orange\0Potato\0", -1);
 	igCombo_Str("staring paintgun", &mapSettings.paintGun, "None\0Basic\0Full\0", -1);
 	igCombo_Str("game type", &mapSettings.gameType,
 				"Default\0Coop\0Coop with guns\0Coop versus\0Coop versus with guns\0", -1);
@@ -66,7 +66,7 @@ void renderMapSettingsUi()
 	igColorEdit3("secondary fog color", data->primaryFogColor, 0);
 	igDragFloat("fog start", &data->fogStart, 1, 0, 9999, "%.2f", 0);
 	igDragFloat("fog end", &data->fogEnd, 1, 0, 9999, "%.2f", 0);
-	igDragFloat("fog density", &data->fogDensity, 1, 0, 1, "%.2f", 0);
+	igDragFloat("fog density", &data->fogDensity, 1, 0, 1, "%.5f", 0);
 
 	igEnd();
 }

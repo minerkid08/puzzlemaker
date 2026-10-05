@@ -16,11 +16,6 @@ typedef struct
   char subVoxels;
 } Voxel;
 
-extern ivec3 currentVoxelPos;
-extern ivec3 currentVoxel2Pos;
-extern Voxel* currentVoxel;
-extern char currentDir;
-
 void initVoxels();
 void initVoxelRenderer();
 void drawVoxels(vec3 pos, vec3 rot);

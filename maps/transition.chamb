@@ -261,7 +261,7 @@
 			"portal1":	0,
 			"portal2":	0,
 			"portal3":	0,
-			"portal4":	0,
+			"portal4":	2,
 			"portal5":	0
 		}, {
 			"x":	9,
@@ -294,7 +294,7 @@
 			"portal1":	0,
 			"portal2":	0,
 			"portal3":	0,
-			"portal4":	0,
+			"portal4":	2,
 			"portal5":	0
 		}, {
 			"x":	12,
@@ -415,7 +415,7 @@
 			"portal1":	0,
 			"portal2":	0,
 			"portal3":	0,
-			"portal4":	0,
+			"portal4":	2,
 			"portal5":	0
 		}, {
 			"x":	9,
@@ -448,7 +448,7 @@
 			"portal1":	0,
 			"portal2":	0,
 			"portal3":	0,
-			"portal4":	0,
+			"portal4":	2,
 			"portal5":	0
 		}, {
 			"x":	12,
@@ -463,17 +463,6 @@
 			"portal5":	0
 		}, {
 			"x":	13,
-			"y":	6,
-			"z":	2,
-			"solid":	true,
-			"portal0":	0,
-			"portal1":	0,
-			"portal2":	0,
-			"portal3":	0,
-			"portal4":	1,
-			"portal5":	0
-		}, {
-			"x":	14,
 			"y":	6,
 			"z":	2,
 			"solid":	true,
@@ -484,6 +473,17 @@
 			"portal4":	1,
 			"portal5":	0
 		}, {
+			"x":	14,
+			"y":	6,
+			"z":	2,
+			"solid":	true,
+			"portal0":	0,
+			"portal1":	0,
+			"portal2":	0,
+			"portal3":	0,
+			"portal4":	1,
+			"portal5":	0
+		}, {
 			"x":	15,
 			"y":	6,
 			"z":	2,
@@ -1324,7 +1324,7 @@
 			"y":	7,
 			"z":	3,
 			"solid":	true,
-			"portal0":	1,
+			"portal0":	2,
 			"portal1":	0,
 			"portal2":	0,
 			"portal3":	0,
@@ -2446,7 +2446,7 @@
 			"y":	7,
 			"z":	4,
 			"solid":	true,
-			"portal0":	1,
+			"portal0":	2,
 			"portal1":	0,
 			"portal2":	0,
 			"portal3":	0,
@@ -3711,7 +3711,7 @@
 			"y":	7,
 			"z":	5,
 			"solid":	true,
-			"portal0":	1,
+			"portal0":	2,
 			"portal1":	0,
 			"portal2":	0,
 			"portal3":	0,
@@ -4976,7 +4976,7 @@
 			"y":	7,
 			"z":	6,
 			"solid":	true,
-			"portal0":	1,
+			"portal0":	2,
 			"portal1":	0,
 			"portal2":	0,
 			"portal3":	0,
@@ -6241,7 +6241,7 @@
 			"y":	7,
 			"z":	7,
 			"solid":	true,
-			"portal0":	1,
+			"portal0":	2,
 			"portal1":	0,
 			"portal2":	0,
 			"portal3":	0,
@@ -7506,7 +7506,7 @@
 			"y":	7,
 			"z":	8,
 			"solid":	true,
-			"portal0":	1,
+			"portal0":	2,
 			"portal1":	0,
 			"portal2":	0,
 			"portal3":	0,
@@ -44360,7 +44360,7 @@
 			"id":	"laser-catcher",
 			"pos":	[6, 4, 10],
 			"rot":	[89.999992370605469, 0, 89.999992370605469],
-			"snapDir":	4,
+			"snapDir":	6,
 			"outputs":	[{
 					"ent":	21,
 					"inverted":	false,
@@ -44375,7 +44375,7 @@
 			"id":	"laser",
 			"pos":	[9, 4, 23],
 			"rot":	[0, 0, 90],
-			"snapDir":	1,
+			"snapDir":	6,
 			"outputs":	[],
 			"kv":	{
 				"startstate":	false,
@@ -44643,13 +44643,21 @@
 			"kv":	{
 			}
 		}],
-	"itemCount":	47,
 	"settings":	{
 		"regen":	1,
 		"boots":	0,
 		"portalgun":	3,
 		"paintgun":	0,
 		"gametype":	0,
-		"maxhealth":	100
+		"maxhealth":	100,
+		"maxExposure":	3,
+		"minExposure":	0.5,
+		"tonemapRate":	0.25,
+		"brightPixelPercent":	5,
+		"primaryFogColor":	[0.15686275064945221, 0.20784313976764679, 0.250980406999588],
+		"secondaryFogColor":	[0.15686275064945221, 0.20784313976764679, 0.250980406999588],
+		"fogStart":	128,
+		"fogEnd":	5000,
+		"fogDensity":	1
 	}
 }

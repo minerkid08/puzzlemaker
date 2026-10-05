@@ -1,16 +1,9 @@
+#include "voxel/itemIntersection.h"
 #include "cglm/mat4.h"
 #include "cglm/types.h"
-#include "cglm/vec3.h"
 #include "item/item.h"
 #include <math.h>
 #include <string.h>
-
-typedef struct
-{
-	vec3 center;
-	vec3 axes[3];
-	vec3 halfSize;
-} OBB;
 
 float getPlaneAxis(vec3 axis, float size, vec3 plane)
 {
@@ -104,12 +97,12 @@ char itemIntersectsVoxel(Item* item, vec3 pos, float size)
 	vec3 boundA;
 	vec3 boundB;
 	item->def->callbacks->getBoundingBox(item, boundA, boundB);
-	boundA[0] += 0.05;
-	boundA[1] += 0.05;
-	boundA[2] += 0.05;
-	boundB[0] -= 0.05;
-	boundB[1] -= 0.05;
-	boundB[2] -= 0.05;
+	boundA[0] += 0.01;
+	boundA[1] += 0.01;
+	boundA[2] += 0.01;
+	boundB[0] -= 0.01;
+	boundB[1] -= 0.01;
+	boundB[2] -= 0.01;
 	genOBB(boundA, boundB, rotMatrix, item->pos, &b);
 	char res = getCollision(&a, &b);
 	return res;

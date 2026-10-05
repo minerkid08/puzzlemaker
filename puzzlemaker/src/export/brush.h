@@ -12,11 +12,16 @@ typedef struct
   int texWidth;
   int texHeight;
   char fit;
+	vec3 normal;
 } Side;
 
 typedef struct
 {
   int id;
+	vec3 pos;
+	vec3 rot;
+	vec3 bound1;
+	vec3 bound2;
   char ent;
 	char script;
   Side sides[6];

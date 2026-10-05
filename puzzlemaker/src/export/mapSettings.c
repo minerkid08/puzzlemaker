@@ -1,14 +1,36 @@
 #include "mapsettings.h"
 #include "export/entity.h"
-#include "item/item.h"
+#include "voxel/voxel.h"
 #include <stdio.h>
 #include <string.h>
 
+void getExportPos(vec3 pos)
+{
+	for (int z = 0; z < MAP_SIZE; z++)
+	{
+		for (int y = 0; y < MAP_SIZE; y++)
+		{
+			for (int x = 0; x < MAP_SIZE; x++)
+			{
+				if (getVoxel(x, y, z)->solid == 0)
+				{
+					pos[0] = x + 0.5;
+					pos[1] = y + 0.5;
+					pos[2] = z + 0.5;
+					return;
+				}
+			}
+		}
+	}
+}
+
 void exportMapSettings()
 {
+	vec3 pos;
+	getExportPos(pos);
 	Entity* ent = exportCreateEntity();
 
-	memcpy(ent->pos, getItemList()[0].pos, sizeof(vec3));
+	memcpy(ent->pos, pos, sizeof(vec3));
 
 	ent->rotation[0] = 0;
 	ent->rotation[1] = 0;
@@ -35,16 +57,16 @@ void exportMapSettings()
 	Entity* fogController = exportCreateEntity();
 	fogController->name = strdup("fogController");
 	fogController->className = "env_fog_controller";
-	memcpy(fogController->pos, getItemList()[0].pos, sizeof(vec3));
+	memcpy(fogController->pos, pos, sizeof(vec3));
 
 	fogController->rotation[0] = 0;
 	fogController->rotation[1] = 0;
 	fogController->rotation[2] = 0;
-	snprintf(buf, 32, "%.2f, %.2f, %.2f", data->primaryFogColor[0] * 255.0f,
-			 data->primaryFogColor[1] * 255.0f, data->primaryFogColor[2] * 255.0f);
+	snprintf(buf, 32, "%.2f, %.2f, %.2f", data->primaryFogColor[0] * 255.0f, data->primaryFogColor[1] * 255.0f,
+			 data->primaryFogColor[2] * 255.0f);
 	exportEntityAddKvss(fogController, "fogcolor", buf);
-	snprintf(buf, 32, "%.2f, %.2f, %.2f", data->secondaryFogColor[0] * 255.0f,
-			 data->secondaryFogColor[1] * 255.0f, data->secondaryFogColor[2] * 255.0f);
+	snprintf(buf, 32, "%.2f, %.2f, %.2f", data->secondaryFogColor[0] * 255.0f, data->secondaryFogColor[1] * 255.0f,
+			 data->secondaryFogColor[2] * 255.0f);
 	exportEntityAddKvss(fogController, "fogcolor2", buf);
 	snprintf(buf, 32, "%.2f", data->fogStart);
 	exportEntityAddKvss(fogController, "fogstart", buf);
@@ -56,7 +78,7 @@ void exportMapSettings()
 	Entity* tonemapper = exportCreateEntity();
 	tonemapper->name = strdup("tonemapper");
 	tonemapper->className = "env_tonemap_controller";
-	memcpy(tonemapper->pos, getItemList()[0].pos, sizeof(vec3));
+	memcpy(tonemapper->pos, pos, sizeof(vec3));
 
 	tonemapper->rotation[0] = 0;
 	tonemapper->rotation[1] = 0;
@@ -65,7 +87,7 @@ void exportMapSettings()
 	Entity* logicAuto = exportCreateEntity();
 	logicAuto->name = strdup("auto");
 	logicAuto->className = "logic_auto";
-	memcpy(logicAuto->pos, getItemList()[0].pos, sizeof(vec3));
+	memcpy(logicAuto->pos, pos, sizeof(vec3));
 
 	logicAuto->rotation[0] = 0;
 	logicAuto->rotation[1] = 0;

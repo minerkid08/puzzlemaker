@@ -1,4 +1,4 @@
-#include "brush.h"
+#include "export/brush.h"
 #include "cglm/vec3.h"
 #include "dynList.h"
 #include "utils.h"
@@ -23,7 +23,7 @@ Brush* getBrushArray()
 
 void exportStartBrushes()
 {
-	sideId = 0;
+	sideId = 1;
 	dynList_resize((void**)&brushes, 0);
 }
 
@@ -57,11 +57,25 @@ Brush* exportCreateBrush(vec3 start, vec3 end)
 	brush->id = len;
 	brush->ent = 0;
 	brush->script = 0;
+	brush->pos[0] = 0;
+	brush->pos[1] = 0;
+	brush->pos[2] = 0;
+	brush->rot[0] = 0;
+	brush->rot[1] = 0;
+	brush->rot[2] = 0;
+
+	brush->bound1[0] = minx;
+	brush->bound1[1] = miny;
+	brush->bound1[2] = minz;
+	brush->bound2[0] = maxx;
+	brush->bound2[1] = maxy;
+	brush->bound2[2] = maxz;
 
 	for (int i = 0; i < 6; i++)
 	{
 		Side* side = &brush->sides[i];
-		side->id = i;
+		side->id = sideId;
+		sideId++;
 		side->lightmapscale = 16;
 		side->fit = 0;
 		side->texHeight = 512;
@@ -129,31 +143,30 @@ void exportBrush(FILE* file, Brush* brush)
 	fprintf(file, "  \"id\" \"%d\"\n", brush->id);
 	for (int j = 0; j < 6; j++)
 	{
-		sideId++;
 		Side* side = &brush->sides[j];
 		char v1[40];
 		char v2[40];
 		char v3[40];
-		snprintf(v1, 40, "(%.2f %.2f %.2f)", -side->verts[0][0] * 64, side->verts[0][2] * 64, side->verts[0][1] * 64);
-		snprintf(v2, 40, "(%.2f %.2f %.2f)", -side->verts[2][0] * 64, side->verts[2][2] * 64, side->verts[2][1] * 64);
-		snprintf(v3, 40, "(%.2f %.2f %.2f)", -side->verts[3][0] * 64, side->verts[3][2] * 64, side->verts[3][1] * 64);
+		snprintf(v1, 40, "(%.2f %.2f %.2f)", side->verts[0][2] * 64, side->verts[0][0] * 64, side->verts[0][1] * 64);
+		snprintf(v2, 40, "(%.2f %.2f %.2f)", side->verts[2][2] * 64, side->verts[2][0] * 64, side->verts[2][1] * 64);
+		snprintf(v3, 40, "(%.2f %.2f %.2f)", side->verts[3][2] * 64, side->verts[3][0] * 64, side->verts[3][1] * 64);
 
 		char planeBuf[140];
 		snprintf(planeBuf, 140, "%s %s %s", v1, v2, v3);
 		fprintf(file, "  side\n  {\n");
-		fprintf(file, "    \"id\" \"%d\"\n", sideId);
+		fprintf(file, "    \"id\" \"%d\"\n", side->id);
 		fprintf(file, "    \"plane\" \"%s\"\n", planeBuf);
 
 		fprintf(file, "    point_data\n    {\n");
 		fprintf(file, "      \"numpts\" \"4\"\n");
 
-		fprintf(file, "      \"point\" \"0 %.2f %.2f %.2f\"\n", -side->verts[0][0] * 64, side->verts[0][2] * 64,
+		fprintf(file, "      \"point\" \"0 %.2f %.2f %.2f\"\n", side->verts[0][2] * 64, side->verts[0][0] * 64,
 				side->verts[0][1] * 64);
-		fprintf(file, "      \"point\" \"1 %.2f %.2f %.2f\"\n", -side->verts[1][0] * 64, side->verts[1][2] * 64,
+		fprintf(file, "      \"point\" \"1 %.2f %.2f %.2f\"\n", side->verts[1][2] * 64, side->verts[1][0] * 64,
 				side->verts[1][1] * 64);
-		fprintf(file, "      \"point\" \"2 %.2f %.2f %.2f\"\n", -side->verts[2][0] * 64, side->verts[2][2] * 64,
+		fprintf(file, "      \"point\" \"2 %.2f %.2f %.2f\"\n", side->verts[2][2] * 64, side->verts[2][0] * 64,
 				side->verts[2][1] * 64);
-		fprintf(file, "      \"point\" \"3 %.2f %.2f %.2f\"\n", -side->verts[3][0] * 64, side->verts[3][2] * 64,
+		fprintf(file, "      \"point\" \"3 %.2f %.2f %.2f\"\n", side->verts[3][2] * 64, side->verts[3][0] * 64,
 				side->verts[3][1] * 64);
 
 		fprintf(file, "    }\n");
@@ -162,12 +175,12 @@ void exportBrush(FILE* file, Brush* brush)
 		vec3 vDir;
 
 		vec3 ref;
-		ref[0] = -side->verts[2][0] * 64;
-		ref[1] = -side->verts[2][2] * 64;
+		ref[0] = -side->verts[2][2] * 64;
+		ref[1] = -side->verts[2][0] * 64;
 		ref[2] = -side->verts[2][1] * 64;
 
-		uDir[0] = -side->verts[3][0] * 64 + side->verts[2][0] * 64;
-		uDir[1] = side->verts[3][2] * 64 - side->verts[2][2] * 64;
+		uDir[0] = side->verts[3][2] * 64 - side->verts[2][2] * 64;
+		uDir[1] = side->verts[3][0] * 64 - side->verts[2][0] * 64;
 		uDir[2] = side->verts[3][1] * 64 - side->verts[2][1] * 64;
 
 		float horizScale = 0.25;
@@ -177,8 +190,8 @@ void exportBrush(FILE* file, Brush* brush)
 			horizScale = width / side->texWidth;
 		}
 
-		vDir[0] = -side->verts[1][0] * 64 + side->verts[2][0] * 64;
-		vDir[1] = side->verts[1][2] * 64 - side->verts[2][2] * 64;
+		vDir[0] = side->verts[1][2] * 64 - side->verts[2][2] * 64;
+		vDir[1] = side->verts[1][0] * 64 - side->verts[2][0] * 64;
 		vDir[2] = side->verts[1][1] * 64 - side->verts[2][1] * 64;
 
 		float vertScale = 0.25;
@@ -192,12 +205,12 @@ void exportBrush(FILE* file, Brush* brush)
 
 		float xoff = 0;
 		float yoff = 0;
+		vec3 normal;
+		glm_cross(uDir, vDir, normal);
+		glm_normalize(normal);
+		memcpy(side->normal, normal, sizeof(vec3));
 		if (side->fit)
 		{
-			vec3 normal;
-			glm_cross(uDir, vDir, normal);
-			glm_normalize(normal);
-
 			vec3 zero = {0, 0, 0};
 			vec3 intersect;
 			planeIntersect(ref, normal, zero, normal, intersect);

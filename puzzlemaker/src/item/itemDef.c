@@ -2,6 +2,7 @@
 #include "dynList.h"
 #include "item/entityItem.h"
 #include "item/item.h"
+#include "item/overlayItem.h"
 #include "item/panel.h"
 #include "item/volumeItem.h"
 #include "jsonUtils.h"
@@ -121,6 +122,11 @@ void loadItemDefinitionFile(const char* filename)
 		{
 			def->type = ITEM_TYPE_VOLUME;
 			def->data = loadVolumeItemDef(item, def);
+		}
+		else if (strcmp(type, "overlay") == 0)
+		{
+			def->type = ITEM_TYPE_OVERLAY;
+			def->data = loadOverlayItemDef(item, def);
 		}
 		else
 			errorf("unknown type for entity %s\n", def->name);

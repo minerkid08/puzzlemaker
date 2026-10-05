@@ -16,6 +16,9 @@
 
 #define PICK_OUTPUT 0
 #define PICK_KV 1
+#define PICK_ANTLINE 2
+
+extern ImVec2 zero;
 
 int groupCount;
 extern ItemGroup* groups;
@@ -23,22 +26,17 @@ extern ItemGroup* groups;
 extern Picker picker;
 
 static Item* pickEntity;
+static Antline* pickAntline;
 static Item* prevItem = 0;
 static int pickItemId = 0;
 static int pickType = 0;
 
 static char buf[50];
 
-Item* selectedItem;
-
-void clearSelectedItem()
-{
-	selectedItem = 0;
-}
-
 void setSelectedItem(Item* item)
 {
-	selectedItem = item;
+	selection.type = SELECTION_ITEM;
+	selection.item = item;
 }
 
 void initItemPanel()
@@ -48,16 +46,9 @@ void initItemPanel()
 
 char* outputNames = 0;
 
-void itemPanelRender()
+void itemPanelStub()
 {
-	igBegin("Item Editor", 0, 0);
-	ImVec2 zero;
-	zero.x = 0;
-	zero.y = 0;
-
-	igSeparatorText("items");
-
-	if (igButton("add", zero))
+	if (igButton("add item", zero))
 		igOpenPopup_Str("pick", 0);
 
 	if (igBeginPopup("pick", 0))
@@ -87,35 +78,41 @@ void itemPanelRender()
 					ipos[1] = floorf(pos[1]);
 					ipos[2] = floorf(pos[2]);
 
-					selectedItem = addItemFromDef(def, ipos);
+					selection.item = addItemFromDef(def, ipos);
 				}
 			}
 			igEndMenu();
 		}
 		igEndPopup();
 	}
+}
 
-	if (selectedItem)
+void itemPanelRender()
+{
+	igSeparatorText("items");
+
+	if (selection.type == SELECTION_ITEM)
 	{
-		if (prevItem != selectedItem)
+		if (prevItem != selection.item)
 			goto end;
-		igText("%s, %d", selectedItem->def->name, selectedItem->index);
+		igText("%s, %d", selection.item->def->name, selection.item->index);
 		if (igButton("remove", zero))
 		{
-			removeItem(selectedItem);
-			selectedItem = 0;
+			removeItem(selection.item);
+			selection.item = 0;
+			selection.type = SELECTION_NONE;
 			goto end;
 		}
 
-		if (igDragFloat3("position", selectedItem->pos, 0.01f, 0.0f, 0.0f, "%.3f", 0))
-			updateItemTransform(selectedItem);
-		if (igDragFloat3("rotation", selectedItem->dir, 0.01f, 0.0f, 0.0f, "%.3f", 0))
-			updateItemTransformRot(selectedItem);
+		if (igDragFloat3("position", selection.item->pos, 0.01f, 0.0f, 0.0f, "%.3f", 0))
+			updateItemTransform(selection.item);
+		if (igDragFloat3("rotation", selection.item->dir, 0.01f, 0.0f, 0.0f, "%.3f", 0))
+			updateItemTransformRot(selection.item);
 
-		if (selectedItem->def->type == ITEM_TYPE_PANEL)
+		if (selection.item->def->type == ITEM_TYPE_PANEL)
 		{
-			PanelData* data = selectedItem->data;
-			PanelDefData* def = selectedItem->def->data;
+			PanelData* data = selection.item->data;
+			PanelDefData* def = selection.item->def->data;
 			if (igDragFloat2("size", data->size, 0.01f, 0.0f, 9999.0f, "%.3f", 0))
 			{
 				if (data->size[0] > def->maxSize[0])
@@ -146,10 +143,10 @@ void itemPanelRender()
 			}
 		}
 
-		if (selectedItem->def->type == ITEM_TYPE_VOLUME)
+		if (selection.item->def->type == ITEM_TYPE_VOLUME)
 		{
-			VolumeItemData* data = selectedItem->data;
-			VolumeItemDef* def = selectedItem->def->data;
+			VolumeItemData* data = selection.item->data;
+			VolumeItemDef* def = selection.item->def->data;
 			if (igDragFloat3("size", data->size, 0.01f, 0.0f, 9999.0f, "%.3f", 0))
 			{
 				if (data->size[0] > def->maxSize[0])
@@ -171,10 +168,10 @@ void itemPanelRender()
 
 		igSeparatorText("kvs");
 
-		int l = dynList_size(selectedItem->def->kvs);
+		int l = dynList_size(selection.item->def->kvs);
 		for (int i = 0; i < l; i++)
 		{
-			ItemKv* kv = &selectedItem->kv[i];
+			ItemKv* kv = &selection.item->kv[i];
 			int type = kv->def->type & (~(TYPE_INSTANCE));
 			igPushID_Int(i);
 			if (type == TYPE_INT)
@@ -241,23 +238,24 @@ void itemPanelRender()
 
 		igSeparatorText("outputs");
 
-		l = dynList_size(selectedItem->outputs);
-		int defCount = dynList_size(selectedItem->def->outputs);
+		l = dynList_size(selection.item->outputs);
+		int defCount = dynList_size(selection.item->def->outputs);
 		if (defCount == 0)
 			igText("no outputs for this item");
 		else
 		{
 			if (igButton("add output", zero))
 			{
-				dynList_resize((void**)&selectedItem->outputs, l + 1);
-				ItemOutput* output = &selectedItem->outputs[l];
+				dynList_resize((void**)&selection.item->outputs, l + 1);
+				ItemOutput* output = &selection.item->outputs[l];
 				output->entity = -1;
-				output->def = selectedItem->def->outputs;
+				output->def = selection.item->def->outputs;
 				output->input = 0;
+				output->antline = -1;
 				output->inverted = 0;
 			}
 
-			ItemOutput* outputs = selectedItem->outputs;
+			ItemOutput* outputs = selection.item->outputs;
 			for (long long i = 0; i < l; i++)
 			{
 				ItemOutput* output = &outputs[i];
@@ -273,10 +271,10 @@ void itemPanelRender()
 
 					if (igBeginCombo("output", output->def->name, 0))
 					{
-						int len = dynList_size(selectedItem->def->outputs);
+						int len = dynList_size(selection.item->def->outputs);
 						for (int i = 0; i < len; i++)
 						{
-							OutputDef* def = &selectedItem->def->outputs[i];
+							OutputDef* def = &selection.item->def->outputs[i];
 							char selected = (output->def == def);
 							if (igSelectable_Bool(def->name, selected, 0, zero))
 								output->def = def;
@@ -294,7 +292,7 @@ void itemPanelRender()
 						snprintf(msg, sizeof(msg), "entity: %s %d", item->def->name, output->entity);
 						pressed = igButton(msg, zero);
 					}
-					else if (picker.active)
+					else if (picker.active == PICKER_ITEM)
 						pressed = igButton("entity: picking", zero);
 					else
 						pressed = igButton("entity: none", zero);
@@ -337,6 +335,35 @@ void itemPanelRender()
 						}
 					}
 
+					pressed = 0;
+					if (output->antline != -1)
+					{
+						char msg[32];
+						Item* item = getItem(output->entity);
+						snprintf(msg, sizeof(msg), "antline: antline %d", output->antline);
+						pressed = igButton(msg, zero);
+					}
+					else if (picker.active == PICKER_ANTLINE)
+						pressed = igButton("antline: picking", zero);
+					else
+						pressed = igButton("antline: none", zero);
+
+					if (pressed)
+					{
+						picker.active = PICKER_ANTLINE;
+						picker.ant = &pickAntline;
+						pickAntline = 0;
+						output->antline = -1;
+						pickItemId = i;
+						pickType = PICK_ANTLINE;
+					}
+
+					if (picker.active == 0 && pickAntline && i == pickItemId && pickType == PICK_ANTLINE)
+					{
+						output->antline = pickAntline->id;
+						pickAntline = 0;
+					}
+
 					igCheckbox("inverted", (bool*)&output->inverted);
 
 					igTreePop();
@@ -345,6 +372,5 @@ void itemPanelRender()
 		}
 	}
 end:
-	prevItem = selectedItem;
-	igEnd();
+	prevItem = selection.item;
 }

@@ -141,6 +141,12 @@ void volumeItemExport(Item* item)
 	if (def->entity)
 		brush->ent = 1;
 
+	brush->pos[0] = item->pos[0];
+	brush->pos[1] = item->pos[1];
+	brush->pos[2] = item->pos[2];
+	brush->rot[0] = item->dir[0];
+	brush->rot[1] = item->dir[1];
+	brush->rot[2] = item->dir[2];
 	mat4 transform;
 	memcpy(transform, item->transform, sizeof(mat4));
 

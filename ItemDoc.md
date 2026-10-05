@@ -6,6 +6,7 @@
 |type|string|||
 |name|string|||
 |exportScript|string||optional|
+|transparent|bool|false|if the item is transparent and should render after other items|
 |inputs|Input[]||optional|
 |outputs|Output[]||opional|
 |kvs|Kv[]||optional|
@@ -42,7 +43,7 @@ corner, center, mini-corner, mini-center
 |options|object<string, type>||only needs to be specified if using a dropdown type|
 
 #### enum KvType (string)  
-int, float, bool, drop-int, drop-string 
+int, float, bool, string, drop-int, drop-string 
 
 ## Entity Item
 

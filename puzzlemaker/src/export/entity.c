@@ -267,6 +267,10 @@ void exportEntitiesProcessOutputs()
 				strncpy(ioEntName, item->ioEnt, 128);
 			else
 				snprintf(ioEntName, 128, "%s%d", item->def->name, output->entity);
+			char antlineName[64];
+			snprintf(antlineName, 64, "antline%d-tex", output->antline);
+			if (output->antline != -1)
+				exportEntityAddRawOutput(relay, "OnUser1", antlineName, "SetTextureIndex", "1", 0);
 			if (output->inverted)
 			{
 				if (input->falseInput)
@@ -283,6 +287,8 @@ void exportEntitiesProcessOutputs()
 						exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->trueInput, input->trueArg, 0);
 					else
 						exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->trueInput, "", 0);
+					if (output->antline != -1)
+						exportEntityAddRawOutput(relay, "OnUser2", antlineName, "SetTextureIndex", "0", 0);
 				}
 			}
 			else
@@ -298,6 +304,8 @@ void exportEntitiesProcessOutputs()
 						exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->falseInput, input->falseArg, 0);
 					else
 						exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->falseInput, "", 0);
+					if (output->antline != -1)
+						exportEntityAddRawOutput(relay, "OnUser2", antlineName, "SetTextureIndex", "0", 0);
 				}
 			}
 		}
@@ -315,8 +323,8 @@ void exportEndEntities(FILE* file)
 
 		fprintf(file, "  \"id\" \"%d\"\n", i + 1);
 		fprintf(file, "  \"classname\" \"%s\"\n", entity->className);
-		fprintf(file, "  \"origin\" \"%f %f %f\"\n", -entity->pos[0] * 64, entity->pos[2] * 64, entity->pos[1] * 64);
-		fprintf(file, "  \"angles\" \"%f %f %f\"\n", entity->rotation[2], entity->rotation[1], -entity->rotation[0]);
+		fprintf(file, "  \"origin\" \"%f %f %f\"\n", entity->pos[2] * 64, entity->pos[0] * 64, entity->pos[1] * 64);
+		fprintf(file, "  \"angles\" \"%f %f %f\"\n", entity->rotation[0], entity->rotation[1], entity->rotation[2]);
 		fprintf(file, "  \"targetname\" \"%s\"\n", entity->name);
 
 		free((char*)entity->name);

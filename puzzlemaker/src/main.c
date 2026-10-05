@@ -1,5 +1,5 @@
-#include "cglm/quat.h"
-#include "cglm/util.h"
+#include "antline/antline.h"
+#include "grab.h"
 #include "mapsettings.h"
 #include "renderer/framebuffer.h"
 #include "settings.h"
@@ -93,6 +93,7 @@ int main()
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
 	initVoxels();
+	loadAntlineConfig();
 
 	initRenderer();
 	aspect = (float)width / (float)height;
@@ -167,6 +168,7 @@ int main()
 		drawVoxels(cameraPos, cameraRot);
 		endFrame();
 
+		renderAntlines();
 		drawItems();
 		framebufferUnbind(&framebuffer);
 
@@ -176,9 +178,9 @@ int main()
 		uiViewport(&framebuffer);
 		fileBrowserRender();
 
-		itemPanelRender();
 		itemListRender();
 		itemDebugRender();
+		renderEditorPanel();
 
 		uiEndFrame();
 
@@ -193,10 +195,6 @@ void closeCallback(GLFWwindow* window)
 {
 	saveEditorSettings();
 }
-
-int mouseX = 0;
-vec4 itemQuat;
-extern Item* selectedItem;
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -217,51 +215,29 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 			voxelToggleSize();
 		if (key == GLFW_KEY_G)
 		{
-			if (selectedItem == 0)
+			if (selection.type == SELECTION_VOXEL)
 				return;
 			mouseMode = MODE_GRAB;
+			startGrab();
 		}
 		if (key == GLFW_KEY_F)
 		{
-			if (selectedItem == 0)
+			if (selection.type == SELECTION_VOXEL)
 				return;
 			mouseMode = MODE_ROTATE;
-			mouseX = mx;
-			memcpy(itemQuat, selectedItem->quat, sizeof(vec4));
+			startRotate(mx);
 		}
 		if (key == GLFW_KEY_Q)
 		{
-			if (selectedItem == 0)
+			if (selection.type == SELECTION_VOXEL)
 				return;
-			vec4 itemQuat;
-			memcpy(itemQuat, selectedItem->quat, sizeof(vec4));
-			vec4 quat2;
-			vec3 axis = {0, 1, 0};
-
-			glm_quatv(quat2, glm_rad(90), axis);
-
-			vec4 newItemQuat;
-			glm_quat_mul(itemQuat, quat2, newItemQuat);
-			memcpy(selectedItem->quat, newItemQuat, sizeof(vec4));
-
-			updateItemTransform(selectedItem);
+			rotateSelection(90);
 		}
 		if (key == GLFW_KEY_E)
 		{
-			if (selectedItem == 0)
+			if (selection.type == SELECTION_VOXEL)
 				return;
-			vec4 itemQuat;
-			memcpy(itemQuat, selectedItem->quat, sizeof(vec4));
-			vec4 quat2;
-			vec3 axis = {0, 1, 0};
-
-			glm_quatv(quat2, glm_rad(-90), axis);
-
-			vec4 newItemQuat;
-			glm_quat_mul(itemQuat, quat2, newItemQuat);
-			memcpy(selectedItem->quat, newItemQuat, sizeof(vec4));
-
-			updateItemTransform(selectedItem);
+			rotateSelection(90);
 		}
 	}
 }
@@ -361,121 +337,11 @@ void mouseMoveCallback(GLFWwindow* window, double x, double y)
 
 	if (mouseMode == MODE_GRAB)
 	{
-		RaycastHit hit;
 		calcSelectAxis();
-		if (raycast(cameraPos, mouseDir, 40, RAYCAST_VOXEL, &hit, 0))
-		{
-			float startX = hit.pos[0];
-			float startY = hit.pos[1];
-			float startZ = hit.pos[2];
-			switch (selectedItem->def->snapMode)
-			{
-			case SNAP_CORNER:
-				selectedItem->pos[0] = round(hit.pos[0]);
-				selectedItem->pos[1] = round(hit.pos[1]);
-				selectedItem->pos[2] = round(hit.pos[2]);
-				break;
-			case SNAP_CENTER:
-				selectedItem->pos[0] = round(hit.pos[0] - 0.5) + 0.5;
-				selectedItem->pos[1] = round(hit.pos[1] - 0.5) + 0.5;
-				selectedItem->pos[2] = round(hit.pos[2] - 0.5) + 0.5;
-				break;
-			case SNAP_MINI_CORNER:
-				selectedItem->pos[0] = round(hit.pos[0] * 2) / 2;
-				selectedItem->pos[1] = round(hit.pos[1] * 2) / 2;
-				selectedItem->pos[2] = round(hit.pos[2] * 2) / 2;
-				break;
-			case SNAP_MINI_CENTER:
-				selectedItem->pos[0] = round(hit.pos[0] * 2 - 0.25) / 2 + 0.25;
-				selectedItem->pos[1] = round(hit.pos[1] * 2 - 0.25) / 2 + 0.25;
-				selectedItem->pos[2] = round(hit.pos[2] * 2 - 0.25) / 2 + 0.25;
-				break;
-			}
-			switch (selectedItem->snapDir)
-			{
-			case DIR_POS_Z:
-			case DIR_NEG_Z:
-				selectedItem->pos[2] = startZ;
-				break;
-			case DIR_POS_Y:
-			case DIR_NEG_Y:
-				selectedItem->pos[1] = startY;
-				break;
-			case DIR_POS_X:
-			case DIR_NEG_X:
-				selectedItem->pos[0] = startX;
-				break;
-			}
-
-			if (selectedItem->snapDir != hit.dir)
-			{
-				selectedItem->snapDir = hit.dir;
-
-				if (hit.dir == DIR_POS_Y)
-				{
-					selectedItem->dir[0] = 0;
-					selectedItem->dir[1] = 0;
-					selectedItem->dir[2] = 0;
-				}
-				else if (hit.dir == DIR_NEG_Y)
-				{
-					selectedItem->dir[0] = 180;
-					selectedItem->dir[1] = 0;
-					selectedItem->dir[2] = 0;
-				}
-				else if (hit.dir == DIR_POS_X)
-				{
-					selectedItem->dir[0] = 0;
-					selectedItem->dir[1] = 180;
-					selectedItem->dir[2] = 90;
-				}
-				else if (hit.dir == DIR_NEG_X)
-				{
-					selectedItem->dir[0] = 0;
-					selectedItem->dir[1] = 0;
-					selectedItem->dir[2] = 90;
-				}
-				else if (hit.dir == DIR_POS_Z)
-				{
-					selectedItem->dir[0] = 0;
-					selectedItem->dir[1] = 90;
-					selectedItem->dir[2] = 90;
-				}
-				else if (hit.dir == DIR_NEG_Z)
-				{
-					selectedItem->dir[0] = 0;
-					selectedItem->dir[1] = -90;
-					selectedItem->dir[2] = 90;
-				}
-				updateItemTransformRot(selectedItem);
-			}
-			else
-				updateItemTransform(selectedItem);
-		}
+		updateGrab(cameraPos, mouseDir);
 	}
 	if (mouseMode == MODE_ROTATE)
-	{
-		float rotStep = mx - mouseX;
-		if (snapRotation)
-		{
-			rotStep /= editorSettings.rotSnap;
-			rotStep = floorf(rotStep);
-			rotStep *= editorSettings.rotSnap;
-		}
-		rotStep = glm_rad(rotStep);
-
-		vec3 axis = {0, 1, 0};
-
-		vec4 newQuat;
-
-		glm_quatv(newQuat, rotStep, axis);
-
-		vec4 newItemQuat;
-		glm_quat_mul(itemQuat, newQuat, newItemQuat);
-		memcpy(selectedItem->quat, newItemQuat, sizeof(vec4));
-
-		updateItemTransform(selectedItem);
-	}
+		updateRotate(mx);
 
 	if (isSelecting())
 	{

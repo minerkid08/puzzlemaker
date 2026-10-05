@@ -332,10 +332,20 @@ void panelItemRender(Item* item)
 	}
 }
 
-static void addBrush(Entity* entity, vec3 start, vec3 end, const char* mat, const char* zTex, mat4 transform,
+static void addBrush(Entity* entity, vec3 start, vec3 end, const char* mat, const char* zTex, Item* item,
 					 int texSize, const char* altTex, int altSize)
 {
 	Brush* brush = exportCreateBrush(start, end);
+	brush->pos[0] = item->pos[0];
+	brush->pos[1] = item->pos[1];
+	brush->pos[2] = item->pos[2];
+	brush->rot[0] = item->dir[0];
+	brush->rot[1] = item->dir[1];
+	brush->rot[2] = item->dir[2];
+
+	mat4 transform;
+	memcpy(transform, item->transform, sizeof(mat4));
+
 	for (int i = 0; i < 6; i++)
 	{
 		Side* side = &brush->sides[i];
@@ -448,9 +458,6 @@ void panelItemExport(Item* item)
 	end[1] = data->size[1];
 	end[2] = -defData->exportThickness / (2.0f * 64.0f);
 
-	mat4 transform;
-	memcpy(transform, item->transform, sizeof(mat4));
-
 	PanelSizes sizes;
 
 	getPanelSizes(item, &sizes);
@@ -465,7 +472,7 @@ void panelItemExport(Item* item)
 		end[1] = sizes.bottomSize;
 		PanelItemDef* b = &border[PANEL_ITEM_ID_BOTTOM_LEFT];
 		PanelItemDef* b2 = &border[PANEL_ITEM_ID_BOTTOM_RIGHT];
-		addBrush(entity, start, end, b->exportMaterial, zTex, transform, b->texSize, b2->exportMaterial, b2->texSize);
+		addBrush(entity, start, end, b->exportMaterial, zTex, item, b->texSize, b2->exportMaterial, b2->texSize);
 	}
 
 	if (sizes.leftSize > 0 && sizes.centerHeight > 0)
@@ -476,7 +483,7 @@ void panelItemExport(Item* item)
 		end[1] = sizes.bottomSize + sizes.centerHeight;
 		PanelItemDef* b = &border[PANEL_ITEM_ID_LEFT];
 		PanelItemDef* b2 = &border[PANEL_ITEM_ID_RIGHT];
-		addBrush(entity, start, end, b->exportMaterial, zTex, transform, b->texSize, b2->exportMaterial, b2->texSize);
+		addBrush(entity, start, end, b->exportMaterial, zTex, item, b->texSize, b2->exportMaterial, b2->texSize);
 	}
 
 	if (sizes.leftSize > 0 && sizes.topSize > 0)
@@ -487,7 +494,7 @@ void panelItemExport(Item* item)
 		end[1] = data->size[1];
 		PanelItemDef* b = &border[PANEL_ITEM_ID_TOP_LEFT];
 		PanelItemDef* b2 = &border[PANEL_ITEM_ID_TOP_RIGHT];
-		addBrush(entity, start, end, b->exportMaterial, zTex, transform, b->texSize, b2->exportMaterial, b2->texSize);
+		addBrush(entity, start, end, b->exportMaterial, zTex, item, b->texSize, b2->exportMaterial, b2->texSize);
 	}
 
 	if (sizes.centerWidth > 0 && sizes.bottomSize > 0)
@@ -497,7 +504,7 @@ void panelItemExport(Item* item)
 		end[0] = sizes.leftSize + sizes.centerWidth;
 		end[1] = sizes.bottomSize;
 		PanelItemDef* b = &border[PANEL_ITEM_ID_BOTTOM];
-		addBrush(entity, start, end, b->exportMaterial, zTex, transform, b->texSize, 0, 0);
+		addBrush(entity, start, end, b->exportMaterial, zTex, item, b->texSize, 0, 0);
 	}
 
 	if (sizes.centerWidth > 0 && sizes.centerHeight > 0)
@@ -506,7 +513,7 @@ void panelItemExport(Item* item)
 		start[1] = sizes.bottomSize;
 		end[0] = sizes.leftSize + sizes.centerWidth;
 		end[1] = sizes.bottomSize + sizes.centerHeight;
-		addBrush(entity, start, end, defData->exportCetnerMat, zTex, transform, defData->texSize, 0, 0);
+		addBrush(entity, start, end, defData->exportCetnerMat, zTex, item, defData->texSize, 0, 0);
 	}
 
 	if (sizes.centerWidth > 0 && sizes.topSize > 0)
@@ -516,7 +523,7 @@ void panelItemExport(Item* item)
 		end[0] = sizes.leftSize + sizes.centerWidth;
 		end[1] = data->size[1];
 		PanelItemDef* b = &border[PANEL_ITEM_ID_TOP];
-		addBrush(entity, start, end, b->exportMaterial, zTex, transform, b->texSize, 0, 0);
+		addBrush(entity, start, end, b->exportMaterial, zTex, item, b->texSize, 0, 0);
 	}
 
 	if (sizes.rightSize > 0 && sizes.bottomSize > 0)
@@ -527,7 +534,7 @@ void panelItemExport(Item* item)
 		end[1] = sizes.bottomSize;
 		PanelItemDef* b = &border[PANEL_ITEM_ID_BOTTOM_RIGHT];
 		PanelItemDef* b2 = &border[PANEL_ITEM_ID_BOTTOM_LEFT];
-		addBrush(entity, start, end, b->exportMaterial, zTex, transform, b->texSize, b2->exportMaterial, b2->texSize);
+		addBrush(entity, start, end, b->exportMaterial, zTex, item, b->texSize, b2->exportMaterial, b2->texSize);
 	}
 
 	if (sizes.rightSize > 0 && sizes.centerHeight > 0)
@@ -538,7 +545,7 @@ void panelItemExport(Item* item)
 		end[1] = sizes.bottomSize + sizes.centerHeight;
 		PanelItemDef* b = &border[PANEL_ITEM_ID_RIGHT];
 		PanelItemDef* b2 = &border[PANEL_ITEM_ID_LEFT];
-		addBrush(entity, start, end, b->exportMaterial, zTex, transform, b->texSize, b2->exportMaterial, b2->texSize);
+		addBrush(entity, start, end, b->exportMaterial, zTex, item, b->texSize, b2->exportMaterial, b2->texSize);
 	}
 
 	if (sizes.rightSize > 0 && sizes.topSize > 0)
@@ -549,7 +556,7 @@ void panelItemExport(Item* item)
 		end[1] = data->size[1];
 		PanelItemDef* b = &border[PANEL_ITEM_ID_TOP_RIGHT];
 		PanelItemDef* b2 = &border[PANEL_ITEM_ID_TOP_LEFT];
-		addBrush(entity, start, end, b->exportMaterial, zTex, transform, b->texSize, b2->exportMaterial, b2->texSize);
+		addBrush(entity, start, end, b->exportMaterial, zTex, item, b->texSize, b2->exportMaterial, b2->texSize);
 	}
 }
 

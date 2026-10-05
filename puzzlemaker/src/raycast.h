@@ -1,10 +1,12 @@
 #include <cglm/cglm.h>
+#include "antline/antline.h"
 #include "voxel/voxel.h"
 #include "item/item.h"
 
 #define RAYCAST_NONE 0
 #define RAYCAST_VOXEL 1
 #define RAYCAST_ITEM 2
+#define RAYCAST_ANTLINE 4
 
 typedef struct
 {
@@ -13,6 +15,8 @@ typedef struct
 	int type;
 	Item* item;
 	Voxel* voxel;
+	Antline* antline;
+	AntlineSegment* antlineSeg;
 	char dir;
 } RaycastHit;
 

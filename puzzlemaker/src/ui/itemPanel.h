@@ -1,7 +1,12 @@
 #include "item/item.h"
 
+void itemPanelStub();
+void antlinePanelStub();
+
 void initItemPanel();
 void itemListRender();
+void renderEditorPanel();
+void antlinePanelRender();
 void itemPanelRender();
 void updateCompilePopup();
 

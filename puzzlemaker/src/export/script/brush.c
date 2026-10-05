@@ -3,6 +3,7 @@
 #include "lua/lua.h"
 #include <string.h>
 #include "api.h"
+#include "utils.h"
 
 static int brushNew(lua_State* l);
 static int brushSetTexture(lua_State* l);
@@ -146,6 +147,11 @@ static int brushTransform(lua_State* l)
 
 	glm_mat4_mul(transform, rotMat, transform);
 
+	vec3 entPos;
+	memcpy(entPos, brush->pos, sizeof(vec3));
+	glm_mat4_mulv3(transform, entPos, 1, entPos);
+	memcpy(brush->pos, entPos, sizeof(vec3));
+
 	for (int i = 0; i < 6; i++)
 	{
 		Side* side = &brush->sides[i];
@@ -159,6 +165,21 @@ static int brushTransform(lua_State* l)
 			memcpy(side->verts[j], res, sizeof(vec3));
 		}
 	}
+
+	vec3 entRot;
+	memcpy(entRot, brush->rot, sizeof(vec3));
+	entRot[0] = glm_rad(entRot[0]);
+	entRot[1] = glm_rad(entRot[1]);
+	entRot[2] = glm_rad(entRot[2]);
+	mat4 rotMat2;
+	glm_euler_yzx(entRot, rotMat2);
+
+	glm_mat4_mul(rotMat, rotMat2, rotMat);
+	getEulerAngles(rotMat, rot);
+	rot[0] = glm_deg(rot[0]);
+	rot[1] = glm_deg(rot[1]);
+	rot[2] = glm_deg(rot[2]);
+	memcpy(brush->rot, rot, sizeof(vec3));
 
 	return 0;
 }

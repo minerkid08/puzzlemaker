@@ -1,4 +1,5 @@
 #include "renderer/renderer.h"
+#include "selection.h"
 #include "utils.h"
 #include "voxel/voxel.h"
 #include "voxel/voxelConfig.h"
@@ -10,7 +11,7 @@ void getTint(char isSelected, char is2d, char dir, vec4 tint)
 	tint[1] = 1;
 	tint[2] = 1;
 	tint[3] = 1;
-	if (!isSelected)
+	if (!isSelected || selection.type != SELECTION_VOXEL)
 		return;
 	if (!is2d)
 	{
@@ -20,7 +21,7 @@ void getTint(char isSelected, char is2d, char dir, vec4 tint)
 		tint[3] = 1;
 		return;
 	}
-	if (currentDir == dir)
+	if (selection.voxelDir == dir)
 	{
 		tint[0] = 0;
 		tint[1] = 1;
@@ -45,7 +46,7 @@ void drawVoxels(vec3 cameraPos, vec3 cameraRot)
 
 	setCamMat(camMat);
 
-	char multiselect = (currentVoxel2Pos[0] != -1 && currentVoxel2Pos[1] != -1 && currentVoxel2Pos[2] != -1);
+	char multiselect = (selection.voxel2Pos[0] != -1 && selection.voxel2Pos[1] != -1 && selection.voxel2Pos[2] != -1);
 	char not2d = 0;
 	if (multiselect)
 		not2d = !isSelection2d();
@@ -64,9 +65,9 @@ void drawVoxels(vec3 cameraPos, vec3 cameraRot)
 					vec4 tint = {1, 1, 1, 1};
 					char selected;
 					if (multiselect)
-						selected = pointInRange(pos, currentVoxelPos, currentVoxel2Pos);
+						selected = pointInRange(pos, selection.voxelPos, selection.voxel2Pos);
 					else
-						selected = (voxel == currentVoxel);
+						selected = (voxel == selection.voxel);
 					if (selected)
 					{
 						tint[0] = 0;

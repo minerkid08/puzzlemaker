@@ -1,3 +1,4 @@
+#include "antline/antline.h"
 #include "cjson.h"
 #include "dynList.h"
 #include "item/item.h"
@@ -6,6 +7,8 @@
 #include "voxel/voxel.h"
 #include <stdio.h>
 #include <string.h>
+
+extern Antline* antlines;
 
 void save()
 {
@@ -134,6 +137,7 @@ void save()
 			cJSON_AddItemToArray(output, outputJson);
 
 			cJSON_AddNumberToObject(outputJson, "ent", outputItem->entity);
+			cJSON_AddNumberToObject(outputJson, "antline", outputItem->antline);
 			cJSON_AddBoolToObject(outputJson, "inverted", outputItem->inverted);
 			cJSON_AddStringToObject(outputJson, "input", outputItem->input->name);
 			cJSON_AddStringToObject(outputJson, "output", outputItem->def->name);
@@ -162,6 +166,31 @@ void save()
 				item = cJSON_CreateNumber(kv->value.i);
 			cJSON_AddItemToObject(kvList, kv->def->name, item);
 		}
+	}
+	cJSON* antlineList = cJSON_CreateArray();
+
+	cJSON_AddItemToObject(json, "antlines", antlineList);
+
+	len = dynList_size(antlines);
+	for (int i = 0; i < len; i++)
+	{
+		cJSON* antlineJson = cJSON_CreateObject();
+		cJSON_AddItemToArray(antlineList, antlineJson);
+		Antline* antline = &antlines[i];
+
+		cJSON* pos = cJSON_CreateArray();
+		cJSON_AddItemToObject(antlineJson, "pos", pos);
+		jsonArrSetFloat(pos, antline->baseSegment.pos[0]);
+		jsonArrSetFloat(pos, antline->baseSegment.pos[1]);
+		jsonArrSetFloat(pos, antline->baseSegment.pos[2]);
+
+		cJSON* rot = cJSON_CreateArray();
+		cJSON_AddItemToObject(antlineJson, "rot", rot);
+		jsonArrSetFloat(rot, antline->baseSegment.rot[0]);
+		jsonArrSetFloat(rot, antline->baseSegment.rot[1]);
+		jsonArrSetFloat(rot, antline->baseSegment.rot[2]);
+
+		cJSON_AddBoolToObject(antlineJson, "hasCheck", antline->hasCheck);
 	}
 
 	cJSON* settings = cJSON_CreateObject();

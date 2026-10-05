@@ -300,8 +300,8 @@
     "snapMode": "mini-corner",
 		"deleteIntersectingVoxels": true,
     "transform": {
-      "position": [0, -0.25, 0],
-      "rotation": [0, 0, -90]
+      "position": [-0.25, 0, 0],
+      "rotation": [0, 0, 0]
     },
     "keyvalues": [
       {

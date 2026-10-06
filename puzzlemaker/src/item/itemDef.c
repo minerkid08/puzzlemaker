@@ -29,7 +29,7 @@ void loadItemDefinitions()
 {
 	const char** files = dynList_new(0, sizeof(const char*));
 
-	listFiles("items", 0, &files, 0);
+	listFiles("items", 0, &files, ".json");
 
 	definitions = dynList_new(0, sizeof(ItemDefinition));
 	groups = dynList_new(0, sizeof(ItemGroup));

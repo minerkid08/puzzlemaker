@@ -195,6 +195,37 @@ void load()
 			}
 		}
 	}
+
+	cJSON* antlineList = cJSON_GetObjectItem(json, "antlines");
+	if (antlineList)
+	{
+		cJSON* antlineJson;
+		cJSON_ArrayForEach(antlineJson, antlineList)
+		{
+			Antline* antline = addAntline();
+			antline->prevId = jsonGetInt(antlineJson, "id");
+			jsonGetVec3(antlineJson, "pos", antline->baseSegment.pos);
+			jsonGetVec3(antlineJson, "rot", antline->baseSegment.rot);
+			antline->hasCheck = jsonGetBool(antlineJson, "hasCheck");
+			antlineUpdateTransformRot(&antline->baseSegment);
+
+			cJSON* segments = cJSON_GetObjectItem(antlineJson, "segments");
+			cJSON* segmentJson;
+			int l = cJSON_GetArraySize(segments);
+			int i = 0;
+			dynList_resize((void**)&antline->segments, l);
+			cJSON_ArrayForEach(segmentJson, segments)
+			{
+				AntlineSegment* seg = &antline->segments[i];
+				i++;
+				jsonGetVec3(segmentJson, "pos", seg->pos);
+				jsonGetVec3(segmentJson, "rot", seg->rot);
+				seg->len = jsonGetInt(segmentJson, "length");
+				antlineUpdateTransformRot(seg);
+			}
+		}
+	}
+
 	for (int i = 0; i < itemCount; i++)
 	{
 		Item* item = getItem(i);
@@ -224,6 +255,20 @@ void load()
 					output->input = &inputs[k];
 			}
 			free(inputName);
+
+			if (output->antline != -1)
+			{
+				int antlineCount = dynList_size(antlines);
+				for (int k = 0; k < antlineCount; k++)
+				{
+					Antline* antline = &antlines[k];
+					if (output->antline == antline->prevId)
+					{
+						output->antline = antline->id;
+						break;
+					}
+				}
+			}
 		}
 
 		len = dynList_size(item->def->kvs);
@@ -247,19 +292,6 @@ void load()
 					break;
 				}
 			}
-		}
-	}
-	cJSON* antlines = cJSON_GetObjectItem(json, "antlines");
-	if (antlines)
-	{
-		cJSON* antlineJson;
-		cJSON_ArrayForEach(antlineJson, antlines)
-		{
-			Antline* antline = addAntline();
-			jsonGetVec3(antlineJson, "pos", antline->baseSegment.pos);
-			jsonGetVec3(antlineJson, "rot", antline->baseSegment.rot);
-			antline->hasCheck = jsonGetBool(antlineJson, "hasCheck");
-			antlineUpdateTransformRot(&antline->baseSegment);
 		}
 	}
 

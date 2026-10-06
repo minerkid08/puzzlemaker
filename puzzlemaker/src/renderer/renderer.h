@@ -4,6 +4,7 @@
 #include "renderer/mesh.h"
 
 void initRenderer();
+void rendererCleanup();
 void endFrame();
 void drawVerts(vec3* verts, vec4 tint, char portalable);
 void drawMesh(Mesh* mesh, unsigned int texture, mat4 transform);

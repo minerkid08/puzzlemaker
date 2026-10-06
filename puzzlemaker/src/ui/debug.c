@@ -12,7 +12,6 @@
 #include "ui/itemPanel.h"
 
 static bool open = 0;
-extern Item* selectedItem;
 
 void openItemDebug()
 {
@@ -30,15 +29,15 @@ void itemDebugRender()
 
 	igBegin("Item Debug", &open, 0);
 
-	if (selectedItem == 0)
+	if (selection.type != SELECTION_ITEM)
 	{
 		igText("no item selected");
 		igEnd();
 		return;
 	}
 
-	ItemDefinition* def = selectedItem->def;
-	int itemType = selectedItem->def->type;
+	ItemDefinition* def = selection.item->def;
+	int itemType = selection.item->def->type;
 
 	igSeparatorText("General Options");
 	int snapMode = def->snapMode;

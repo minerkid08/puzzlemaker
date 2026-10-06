@@ -1,3 +1,4 @@
+#include "antline/antline.h"
 #include "item/panel.h"
 #include "item/volumeItem.h"
 #include <stdbool.h>
@@ -7,16 +8,18 @@
 #include "item/item.h"
 
 #include "camera.h"
-#include "selection.h"
 #include "cimgui.h"
 #include "dynList.h"
 #include "picker.h"
 #include "save.h"
+#include "selection.h"
 #include "ui/itemPanel.h"
 
 #define PICK_OUTPUT 0
 #define PICK_KV 1
 #define PICK_ANTLINE 2
+
+extern Antline* antlines;
 
 extern ImVec2 zero;
 
@@ -191,6 +194,11 @@ void itemPanelRender()
 					Item* item = getItem(kv->value.i);
 					snprintf(msg, sizeof(msg), "entity: %s %d", item->def->name, kv->value.i);
 					pressed = igButton(msg, zero);
+
+					if (igIsItemHovered(0))
+						item->highlighted = 1;
+					else
+						item->highlighted = 0;
 				}
 				else if (picker.active)
 					pressed = igButton("entity: picking", zero);
@@ -259,12 +267,12 @@ void itemPanelRender()
 			for (long long i = 0; i < l; i++)
 			{
 				ItemOutput* output = &outputs[i];
-				if (igTreeNode_Ptr((void*)i, output->def->name))
+				if (igTreeNodeEx_Ptr((void*)i, ImGuiTreeNodeFlags_DefaultOpen, output->def->name))
 				{
-					if(igButton("remove", zero))
+					if (igButton("remove", zero))
 					{
-						for(long long j = i; j < l - 1; j++)
-							memcpy(&outputs[j] , &outputs[j + 1], sizeof(ItemOutput));
+						for (long long j = i; j < l - 1; j++)
+							memcpy(&outputs[j], &outputs[j + 1], sizeof(ItemOutput));
 						l--;
 						dynList_resize((void**)&outputs, l);
 					}
@@ -291,6 +299,11 @@ void itemPanelRender()
 						Item* item = getItem(output->entity);
 						snprintf(msg, sizeof(msg), "entity: %s %d", item->def->name, output->entity);
 						pressed = igButton(msg, zero);
+
+						if (igIsItemHovered(0))
+							item->highlighted = 1;
+						else
+							item->highlighted = 0;
 					}
 					else if (picker.active == PICKER_ITEM)
 						pressed = igButton("entity: picking", zero);
@@ -314,34 +327,44 @@ void itemPanelRender()
 						pickEntity = 0;
 					}
 
+					igBeginDisabled(output->entity == -1);
+					const char* inputName = "none";
 					if (output->entity != -1)
 					{
 						Item* entity = getItem(output->entity);
-						const char* inputName = (output->input == 0 ? "none" : output->input->name);
-						if (igBeginCombo("input", inputName, 0))
-						{
-							InputDef* inputs = entity->def->inputs;
-							int len = dynList_size(inputs);
-							for (int i = 0; i < len; i++)
-							{
-								InputDef* def = &inputs[i];
-								char selected = (output->input == def);
-								if (igSelectable_Bool(def->name, selected, 0, zero))
-									output->input = def;
-								if (selected)
-									igSetItemDefaultFocus();
-							}
-							igEndCombo();
-						}
+						if (output->input)
+							inputName = output->input->name;
 					}
+					if (igBeginCombo("input", inputName, 0))
+					{
+						Item* entity = getItem(output->entity);
+						InputDef* inputs = entity->def->inputs;
+						int len = dynList_size(inputs);
+						for (int i = 0; i < len; i++)
+						{
+							InputDef* def = &inputs[i];
+							char selected = (output->input == def);
+							if (igSelectable_Bool(def->name, selected, 0, zero))
+								output->input = def;
+							if (selected)
+								igSetItemDefaultFocus();
+						}
+						igEndCombo();
+					}
+					igEndDisabled();
 
 					pressed = 0;
 					if (output->antline != -1)
 					{
 						char msg[32];
-						Item* item = getItem(output->entity);
+						Antline* antline = &antlines[output->antline];
 						snprintf(msg, sizeof(msg), "antline: antline %d", output->antline);
 						pressed = igButton(msg, zero);
+
+						if (igIsItemHovered(0))
+							antline->hovered = 1;
+						else
+							antline->hovered = 0;
 					}
 					else if (picker.active == PICKER_ANTLINE)
 						pressed = igButton("antline: picking", zero);

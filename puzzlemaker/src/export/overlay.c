@@ -32,6 +32,11 @@ Overlay* exportCreateOverlay()
 	dynList_resize((void**)&overlays, len + 1);
 	Overlay* overlay = &overlays[len];
 
+	overlay->tint[0] = 255;
+	overlay->tint[1] = 255;
+	overlay->tint[2] = 255;
+	overlay->tint[3] = 255;
+
 	return overlay;
 }
 
@@ -47,17 +52,17 @@ void exportEndOverlays(FILE* file)
 
 		fprintf(file, "  \"id\" \"%d\"\n", i + startId);
 		fprintf(file, "  \"classname\" \"info_overlay\"\n");
-		fprintf(file, "  \"origin\" \"%f %f %f\"\n", -overlay->pos[0] * 64, overlay->pos[2] * 64, overlay->pos[1] * 64);
+		fprintf(file, "  \"origin\" \"%f %f %f\"\n", overlay->pos[2] * 64, overlay->pos[0] * 64, overlay->pos[1] * 64);
 		fprintf(file, "  \"angles\" \"0 0 0\"\n");
 		fprintf(file, "  \"targetname\" \"%s\"\n", overlay->name);
-		fprintf(file, "  \"BasisOrigin\" \"%f %f %f\"\n", -overlay->pos[0] * 64, overlay->pos[2] * 64,
+		fprintf(file, "  \"BasisOrigin\" \"%f %f %f\"\n", overlay->pos[2] * 64, overlay->pos[0] * 64,
 				overlay->pos[1] * 64);
 
 		free((char*)overlay->name);
 
-		vec3 normDir = {0, 0, 1};
-		vec3 uDir = {1, 0, 0};
-		vec3 vDir = {0, -1, 0};
+		vec3 normDir = {0, 1, 0};
+		vec3 uDir = {0, 0, 1};
+		vec3 vDir = {1, 0, 0};
 
 		vec3 rot;
 		memcpy(rot, overlay->rotation, sizeof(vec3));
@@ -65,12 +70,24 @@ void exportEndOverlays(FILE* file)
 		rot[1] = glm_rad(rot[1]);
 		rot[2] = glm_rad(rot[2]);
 		mat4 rotMat;
-    vec4 quat;
-    glm_euler_yzx_quat(rot, quat);
+		vec4 quat;
+		glm_euler_yzx_quat(rot, quat);
 		glm_quat_mat4(quat, rotMat);
 		glm_mat4_mulv3(rotMat, normDir, 1, normDir);
 		glm_mat4_mulv3(rotMat, uDir, 1, uDir);
 		glm_mat4_mulv3(rotMat, vDir, 1, vDir);
+		float tmp = normDir[0];
+		normDir[0] = normDir[2];
+		normDir[2] = normDir[1];
+		normDir[1] = tmp;
+		tmp = uDir[0];
+		uDir[0] = uDir[2];
+		uDir[2] = uDir[1];
+		uDir[1] = tmp;
+		tmp = vDir[0];
+		vDir[0] = vDir[2];
+		vDir[2] = vDir[1];
+		vDir[1] = tmp;
 		fprintf(file, "  \"BasisNormal\" \"%f %f %f\"\n", normDir[0], normDir[1], normDir[2]);
 		fprintf(file, "  \"BasisU\" \"%f %f %f\"\n", uDir[0], uDir[1], uDir[2]);
 		fprintf(file, "  \"BasisV\" \"%f %f %f\"\n", vDir[0], vDir[1], vDir[2]);
@@ -100,6 +117,12 @@ void exportEndOverlays(FILE* file)
 		max[0] = overlay->size[0] / 128.0f;
 		max[1] = 0.125;
 		max[2] = overlay->size[1] / 128.0f;
+		min[0] += 0.01;
+		min[1] += 0.01;
+		min[2] += 0.01;
+		max[0] -= 0.01;
+		max[1] -= 0.01;
+		max[2] -= 0.01;
 		normDir[0] *= -1;
 		normDir[1] *= -1;
 		normDir[2] *= -1;
@@ -128,7 +151,7 @@ void exportEndOverlays(FILE* file)
 					glm_euler_yzx(rot, rotMat);
 					genOBB(brush->bound1, brush->bound2, rotMat, brush->pos, &obb);
 					if (getCollision(&overlayObb, &obb))
-						bufLen += snprintf(buf + bufLen, 256 - bufLen, "%d ", side->id);  
+						bufLen += snprintf(buf + bufLen, 256 - bufLen, "%d ", side->id);
 				}
 			}
 		}

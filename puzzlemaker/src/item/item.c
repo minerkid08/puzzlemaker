@@ -6,8 +6,8 @@
 #include "jsonUtils.h"
 #include "raycast.h"
 #include "renderer/debug.h"
-#include "utils.h"
 #include "selection.h"
+#include "utils.h"
 
 #include <cjson.h>
 #include <dynList.h>
@@ -24,12 +24,15 @@ char isItemValid(Item* item)
 
 void drawItems()
 {
+	Item* highlightedItem = 0;
 	int len = dynList_size(itemList);
 	for (int i = 0; i < len; i++)
 	{
 		Item* item = &itemList[i];
 		if (!isItemValid(item))
 			continue;
+		if (item->highlighted)
+			highlightedItem = item;
 		if (item->def->transparent)
 			continue;
 		item->def->callbacks->render(item);
@@ -45,13 +48,21 @@ void drawItems()
 		item->def->callbacks->render(item);
 	}
 
+	if (highlightedItem)
+	{
+		vec3 a;
+		vec3 b;
+		highlightedItem->def->callbacks->getBoundingBox(highlightedItem, a, b);
+		drawDebugRect(a, b, highlightedItem->transform, 1);
+	}
+
 	if (selection.type == SELECTION_ITEM)
 	{
 		vec3 a;
 		vec3 b;
 		Item* item = selection.item;
 		item->def->callbacks->getBoundingBox(item, a, b);
-		drawDebugRect(a, b, item->transform);
+		drawDebugRect(a, b, item->transform, 0);
 	}
 }
 

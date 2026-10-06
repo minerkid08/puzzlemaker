@@ -45,6 +45,7 @@ char raycast(vec3 start, vec3 dir, float len, int flags, RaycastHit* hit, Item**
 				}
 				hit->type = RAYCAST_ANTLINE;
 				hit->antline = antline;
+				hit->antlineSeg = &antline->baseSegment;
 				hit->voxel = 0;
 				hit->item = 0;
 				hit->dir = 0;

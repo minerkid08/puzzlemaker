@@ -103,8 +103,8 @@
 		"model": "door.obj",
 		"mat": "door.png",
     "instance": "door",
-    "bound1": [0, 0, -1],
-    "bound2": [0.5, 2, 1],
+    "bound1": [-1, 0, 0],
+    "bound2": [1, 2, 0.5],
     "snapMode": "mini-corner",
 		"keyvalues": [
 			{
@@ -300,8 +300,11 @@
     "snapMode": "mini-corner",
 		"deleteIntersectingVoxels": true,
     "transform": {
-      "position": [-0.25, 0, 0],
-      "rotation": [0, 0, 0]
+      "position": [0, -0.25, 0],
+      "rotation": [0, 0, -90]
+    },
+    "editorTransform": {
+      "rotation": [-90, 0, 0]
     },
     "keyvalues": [
       {

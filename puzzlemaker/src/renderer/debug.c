@@ -32,7 +32,15 @@ void initDebug()
 	glLineWidth(10);
 }
 
-void drawDebugRect(vec3 a, vec3 b, mat4 transform)
+void debugCleanup()
+{
+	glDeleteBuffers(1, &vb);
+	glDeleteBuffers(1, &ib);
+	glDeleteVertexArrays(1, &va);
+	glDeleteProgram(shader);
+}
+
+void drawDebugRect(vec3 a, vec3 b, mat4 transform, char color)
 {
   glBindVertexArray(va);
 	glBindBuffer(GL_ARRAY_BUFFER, vb);
@@ -42,6 +50,7 @@ void drawDebugRect(vec3 a, vec3 b, mat4 transform)
 	setUniformMat4(shader, "cam", *getCamMat());
 	setUniformMat4(shader, "mat", *getProjMat());
 	setUniformMat4(shader, "transform", transform);
+	setUniformi(shader, "c", color);
 
 	vec3 verts[] = {
     {a[0], a[1], a[2]},
@@ -67,7 +76,7 @@ void drawDebugRect(vec3 a, vec3 b, mat4 transform)
   glBindVertexArray(0);
 }
 
-void drawDebugRectAntline(vec3 a, vec3 b, mat4 transform)
+void drawDebugRectAntline(vec3 a, vec3 b, mat4 transform, char color)
 {
   glBindVertexArray(va);
 	glBindBuffer(GL_ARRAY_BUFFER, vb);

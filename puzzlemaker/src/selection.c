@@ -72,6 +72,7 @@ void beginSelection(vec3 mouseDir)
 				if (hit.antlineSeg)
 				{
 					selection.type = SELECTION_ANTLINE;
+					selection.antline = hit.antline;
 					selection.antlineSeg = hit.antlineSeg;
 					picker.active = 0;
 				}
@@ -88,6 +89,7 @@ void beginSelection(vec3 mouseDir)
 	}
 	else
 	{
+		selection.type = SELECTION_NONE;
 		picker.active = 0;
 		selection.voxel = 0;
 	}

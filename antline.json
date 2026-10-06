@@ -1,12 +1,14 @@
 {
 	"editorAntlineTex": "antline.png",
+	"editorAntlineActiveTex": "antline-active.png",
 	"editorCheckTex": "check.png",
+	"editorCheckActiveTex": "check-active.png",
 
 	"dotSize": 16,
 	"checkSize": 32,
 
 	"lineTex": "signage/indicator_lights/indicator_lights_floor",
-	"cornerTex": "check.png",
+	"cornerTex": "signage/indicator_lights/indicator_lights_corner_floor",
 	"checkTex": "signage/signage_doorstate",
 	"lineDotCountx": 4,
 	"lineDotCounty": 1,

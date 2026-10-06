@@ -89,39 +89,39 @@ void updateGrab(vec3 cameraPos, vec3 mouseDir)
 
 			if (hit.dir == DIR_POS_Y)
 			{
-				newRot[0] = -90;
+				newRot[0] = 0;
 				newRot[1] = 0;
 				newRot[2] = 0;
 			}
 			else if (hit.dir == DIR_NEG_Y)
 			{
-				newRot[0] = 90;
+				newRot[0] = 180;
 				newRot[1] = 0;
 				newRot[2] = 0;
 			}
 			else if (hit.dir == DIR_POS_X)
 			{
 				newRot[0] = 0;
-				newRot[1] = 90;
-				newRot[2] = 0;
+				newRot[1] = 180;
+				newRot[2] = 90;
 			}
 			else if (hit.dir == DIR_NEG_X)
 			{
 				newRot[0] = 0;
-				newRot[1] = -90;
-				newRot[2] = 0;
+				newRot[1] = 0;
+				newRot[2] = 90;
 			}
 			else if (hit.dir == DIR_POS_Z)
 			{
 				newRot[0] = 0;
-				newRot[1] = 0;
-				newRot[2] = 0;
+				newRot[1] = 90;
+				newRot[2] = 90;
 			}
 			else if (hit.dir == DIR_NEG_Z)
 			{
 				newRot[0] = 0;
-				newRot[1] = 180;
-				newRot[2] = 0;
+				newRot[1] = -90;
+				newRot[2] = 90;
 			}
 			if (selection.type == SELECTION_ITEM)
 			{

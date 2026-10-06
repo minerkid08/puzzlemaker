@@ -1,4 +1,5 @@
 #include "antline/antline.h"
+#include "assetManager.h"
 #include "grab.h"
 #include "mapsettings.h"
 #include "renderer/framebuffer.h"
@@ -70,7 +71,6 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 void mouseCallback(GLFWwindow* window, int button, int action, int mods);
 void mouseMoveCallback(GLFWwindow* window, double x, double y);
 void mouseZoomCallback(GLFWwindow* window, double x, double y);
-void closeCallback(GLFWwindow* window);
 
 extern float uiScale;
 static char snapRotation;
@@ -105,7 +105,6 @@ int main()
 	glfwSetMouseButtonCallback(window, mouseCallback);
 	glfwSetCursorPosCallback(window, mouseMoveCallback);
 	glfwSetScrollCallback(window, mouseZoomCallback);
-	glfwSetWindowCloseCallback(window, closeCallback);
 
 	glfwSwapInterval(1);
 
@@ -122,7 +121,7 @@ int main()
 	double now = glfwGetTime();
 	double dt;
 	double lastTime = now;
-	while (!glfwWindowShouldClose(window))
+	while (!glfwWindowShouldClose(window) && 0)
 	{
 		framebufferBind(&framebuffer);
 
@@ -188,12 +187,12 @@ int main()
 		glfwPollEvents();
 	}
 
-	glfwTerminate();
-}
-
-void closeCallback(GLFWwindow* window)
-{
 	saveEditorSettings();
+	rendererCleanup();
+	debugCleanup();
+	assetManagerCleanup();
+
+	glfwTerminate();
 }
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)

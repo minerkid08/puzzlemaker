@@ -126,6 +126,16 @@ void initRenderer()
 	}
 }
 
+void rendererCleanup()
+{
+	free(vertBase);
+	glDeleteBuffers(1, &vb);
+	glDeleteBuffers(1, &ib);
+	glDeleteVertexArrays(1, &va);
+	glDeleteProgram(panelShader);
+	glDeleteProgram(prgmId);
+}
+
 void bindVoxelTextures(unsigned int black, unsigned int white, unsigned int miniBlack, unsigned int miniWhite)
 {
 	glActiveTexture(GL_TEXTURE0);
@@ -152,10 +162,10 @@ void endFrame()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib);
 	glUseProgram(prgmId);
 
-	setUndformi(prgmId, "blackTex", 0);
-	setUndformi(prgmId, "whiteTex", 1);
-	setUndformi(prgmId, "blackMiniTex", 2);
-	setUndformi(prgmId, "whiteMiniTex", 3);
+	setUniformi(prgmId, "blackTex", 0);
+	setUniformi(prgmId, "whiteTex", 1);
+	setUniformi(prgmId, "blackMiniTex", 2);
+	setUniformi(prgmId, "whiteMiniTex", 3);
 	setUniformMat4(prgmId, "cam", camMat);
 	setUniformMat4(prgmId, "mat", projMat);
 
@@ -341,7 +351,7 @@ void drawMesh(Mesh* mesh, unsigned int texture, mat4 transform)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->indexBuffer);
 	glUseProgram(mesh->shader);
 
-	setUndformi(mesh->shader, "tex", 0);
+	setUniformi(mesh->shader, "tex", 0);
 	setUniformMat4(mesh->shader, "cam", camMat);
 	setUniformMat4(mesh->shader, "mat", projMat);
 	setUniformMat4(mesh->shader, "trans", transform);

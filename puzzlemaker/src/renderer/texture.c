@@ -5,7 +5,7 @@
 
 unsigned int loadTexture(const char* filename)
 {
-  stbi_set_flip_vertically_on_load(1);
+	stbi_set_flip_vertically_on_load(1);
 	int l = strlen(filename) + 17;
 	char* buf = malloc(l + 1);
 
@@ -19,10 +19,9 @@ unsigned int loadTexture(const char* filename)
 	if (data == 0)
 	{
 		printf("failed to load image: '%s'\n", buf);
+		free(buf);
 		return 0;
 	}
-
-  free(buf);
 
 	int format = (channels == 4 ? GL_RGBA : GL_RGB);
 	int intFormat = (channels == 4 ? GL_RGBA8 : GL_RGBA8);
@@ -32,7 +31,8 @@ unsigned int loadTexture(const char* filename)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+	glTexImage2D(GL_TEXTURE_2D, 0, intFormat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 	stbi_image_free(data);
-  return id;
+	free(buf);
+	return id;
 }

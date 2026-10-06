@@ -18,13 +18,12 @@ typedef struct
 
 unsigned int meshShader = -1;
 
-Mesh loadMesh(const char* filename)
+void loadMesh(const char* filename, Mesh* mesh)
 {
-	Mesh mesh;
 	if (meshShader == -1)
 		meshShader = makeShader("mesh");
 
-	mesh.shader = meshShader;
+	mesh->shader = meshShader;
 
 	int l = strlen(filename) + 14;
 	char* buf = malloc(l + 1);
@@ -54,18 +53,18 @@ Mesh loadMesh(const char* filename)
 	for (int i = 0; i < m->index_count; i++)
 		indices[i] = i;
 
-	mesh.vertCount = m->index_count;
+	mesh->vertCount = m->index_count;
 
-  glCreateVertexArrays(1, &mesh.vertexArray);
-  glBindVertexArray(mesh.vertexArray);
+  glCreateVertexArrays(1, &mesh->vertexArray);
+  glBindVertexArray(mesh->vertexArray);
 
-	glCreateBuffers(1, &mesh.vertBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, mesh.vertBuffer);
+	glCreateBuffers(1, &mesh->vertBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, mesh->vertBuffer);
 	unsigned int sizeBytes = sizeof(Vertex) * m->index_count;
 	glBufferData(GL_ARRAY_BUFFER, sizeBytes, vertices, GL_STATIC_DRAW);
 
-	glCreateBuffers(1, &mesh.indexBuffer);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.indexBuffer);
+	glCreateBuffers(1, &mesh->indexBuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->indexBuffer);
 	sizeBytes = m->index_count * sizeof(int);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeBytes, indices, GL_STATIC_DRAW);
 
@@ -79,6 +78,4 @@ Mesh loadMesh(const char* filename)
   free(vertices);
   free(indices);
   fast_obj_destroy(m);
-
-	return mesh;
 }

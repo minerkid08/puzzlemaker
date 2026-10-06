@@ -12,7 +12,7 @@ extern Antline* antlines;
 
 void save()
 {
-  char filename[256];
+	char filename[256];
 	snprintf(filename, 256, "maps/%s.chamb", mapSettings.name);
 	printf("saving '%s'\n", filename);
 	cJSON* json = cJSON_CreateObject();
@@ -121,7 +121,7 @@ void save()
 		jsonArrSetFloat(rot, item->dir[1]);
 		jsonArrSetFloat(rot, item->dir[2]);
 
-    cJSON_AddNumberToObject(itemJson, "snapDir", item->snapDir);
+		cJSON_AddNumberToObject(itemJson, "snapDir", item->snapDir);
 
 		item->def->callbacks->save(item, itemJson);
 
@@ -131,8 +131,8 @@ void save()
 		for (int i = 0; i < outputLen; i++)
 		{
 			ItemOutput* outputItem = &item->outputs[i];
-      if(outputItem->input == 0)
-        continue;
+			if (outputItem->input == 0)
+				continue;
 			cJSON* outputJson = cJSON_CreateObject();
 			cJSON_AddItemToArray(output, outputJson);
 
@@ -150,8 +150,8 @@ void save()
 		{
 			ItemKv* kv = &item->kv[i];
 			cJSON* item;
-      int type = kv->def->type;
-      type &= ~(TYPE_INSTANCE);
+			int type = kv->def->type;
+			type &= ~(TYPE_INSTANCE);
 			if (type == TYPE_INT)
 				item = cJSON_CreateNumber(kv->value.i);
 			if (type == TYPE_FLOAT)
@@ -174,10 +174,13 @@ void save()
 	len = dynList_size(antlines);
 	for (int i = 0; i < len; i++)
 	{
+		Antline* antline = &antlines[i];
+		if (!isAntlineValid(antline))
+			continue;
 		cJSON* antlineJson = cJSON_CreateObject();
 		cJSON_AddItemToArray(antlineList, antlineJson);
-		Antline* antline = &antlines[i];
 
+		cJSON_AddNumberToObject(antlineJson, "id", antline->id);
 		cJSON* pos = cJSON_CreateArray();
 		cJSON_AddItemToObject(antlineJson, "pos", pos);
 		jsonArrSetFloat(pos, antline->baseSegment.pos[0]);
@@ -191,6 +194,30 @@ void save()
 		jsonArrSetFloat(rot, antline->baseSegment.rot[2]);
 
 		cJSON_AddBoolToObject(antlineJson, "hasCheck", antline->hasCheck);
+
+		cJSON* segments = cJSON_CreateArray();
+		cJSON_AddItemToObject(antlineJson, "segments", segments);
+
+		int segCount = dynList_size(antline->segments);
+		for (int j = 0; j < segCount; j++)
+		{
+			cJSON* segJson = cJSON_CreateObject();
+			cJSON_AddItemToArray(segments, segJson);
+			AntlineSegment* antlineSeg = &antline->segments[j];
+
+			cJSON* pos = cJSON_CreateArray();
+			cJSON_AddItemToObject(segJson, "pos", pos);
+			jsonArrSetFloat(pos, antlineSeg->pos[0]);
+			jsonArrSetFloat(pos, antlineSeg->pos[1]);
+			jsonArrSetFloat(pos, antlineSeg->pos[2]);
+
+			cJSON* rot = cJSON_CreateArray();
+			cJSON_AddItemToObject(segJson, "rot", rot);
+			jsonArrSetFloat(rot, antlineSeg->rot[0]);
+			jsonArrSetFloat(rot, antlineSeg->rot[1]);
+			jsonArrSetFloat(rot, antlineSeg->rot[2]);
+			cJSON_AddNumberToObject(segJson, "length", antlineSeg->len);
+		}
 	}
 
 	cJSON* settings = cJSON_CreateObject();
@@ -221,6 +248,6 @@ void save()
 	fclose(file);
 
 	free(str);
-  cJSON_Delete(json);
+	cJSON_Delete(json);
 	printf("saved\n");
 }

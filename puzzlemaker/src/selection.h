@@ -7,7 +7,6 @@
 #define SELECTION_VOXEL 1
 #define SELECTION_ITEM 2
 #define SELECTION_ANTLINE 3
-#define SELECTION_ANTLINE_SEG 4
 
 typedef struct
 {

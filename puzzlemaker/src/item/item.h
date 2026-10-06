@@ -113,6 +113,7 @@ struct Item
 	int index;
 	int loadIndex;
 	int id;
+	char highlighted;
 	vec3 pos;
 	vec3 dir;
 	vec4 quat;

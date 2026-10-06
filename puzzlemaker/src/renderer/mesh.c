@@ -55,15 +55,15 @@ void loadMesh(const char* filename, Mesh* mesh)
 
 	mesh->vertCount = m->index_count;
 
-  glCreateVertexArrays(1, &mesh->vertexArray);
+  glGenVertexArrays(1, &mesh->vertexArray);
   glBindVertexArray(mesh->vertexArray);
 
-	glCreateBuffers(1, &mesh->vertBuffer);
+	glGenBuffers(1, &mesh->vertBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, mesh->vertBuffer);
 	unsigned int sizeBytes = sizeof(Vertex) * m->index_count;
 	glBufferData(GL_ARRAY_BUFFER, sizeBytes, vertices, GL_STATIC_DRAW);
 
-	glCreateBuffers(1, &mesh->indexBuffer);
+	glGenBuffers(1, &mesh->indexBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->indexBuffer);
 	sizeBytes = m->index_count * sizeof(int);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeBytes, indices, GL_STATIC_DRAW);

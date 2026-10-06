@@ -83,6 +83,9 @@ int main()
 
 	startCompileThread();
 	glfwInit();
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	GLFWwindow* window = glfwCreateWindow(1920, 1080, "puzzlemaker", 0, 0);
 	glfwMakeContextCurrent(window);
 
@@ -121,7 +124,7 @@ int main()
 	double now = glfwGetTime();
 	double dt;
 	double lastTime = now;
-	while (!glfwWindowShouldClose(window) && 0)
+	while (!glfwWindowShouldClose(window))
 	{
 		framebufferBind(&framebuffer);
 

@@ -1,16 +1,21 @@
 #include "texture.h"
 #include "glad/glad.h"
+#include <string.h>
 
 #include "stb/stbimage.h"
 
-unsigned int loadTexture(const char* filename)
+static __attribute__((constructor)) void init()
 {
 	stbi_set_flip_vertically_on_load(1);
-	int l = strlen(filename) + 17;
-	char* buf = malloc(l + 1);
+}
 
-	sprintf(buf, "assets/materials/%s\n", filename);
-	buf[l] = 0;
+unsigned int loadTexture(const char* filename)
+{
+	int l = strlen(filename) + 18;
+	char* buf = malloc(l);
+
+	snprintf(buf, l, "assets/materials/%s\n", filename);
+	buf[l - 1] = 0;
 
 	int channels;
 	int width;

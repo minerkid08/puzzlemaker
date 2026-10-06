@@ -12,10 +12,10 @@ void initDebug()
 {
 	shader = makeShader("outline");
 
-	glCreateVertexArrays(1, &va);
+	glGenVertexArrays(1, &va);
 	glBindVertexArray(va);
 
-	glCreateBuffers(1, &vb);
+	glGenBuffers(1, &vb);
 	glBindBuffer(GL_ARRAY_BUFFER, vb);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * 8, 0, GL_DYNAMIC_DRAW);
 
@@ -25,7 +25,7 @@ void initDebug()
   //int inds[] = {0, 1};
   int inds[] = {2, 3, 1, 0, 4, 5, 7, 6, 6, 7, 3, 2, 0, 1, 5, 4, 4, 6, 2, 0, 1, 3, 7, 5};
 
-	glCreateBuffers(1, &ib);
+	glGenBuffers(1, &ib);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(inds), inds, GL_STATIC_DRAW);
 

@@ -69,10 +69,10 @@ void initRenderer()
 	prgmId = makeShader("voxel");
 	panelShader = makeShader("panel");
 
-	glCreateVertexArrays(1, &va);
+	glGenVertexArrays(1, &va);
 	glBindVertexArray(va);
 
-	glCreateBuffers(1, &vb);
+	glGenBuffers(1, &vb);
 	glBindBuffer(GL_ARRAY_BUFFER, vb);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * NUM_VERTS, 0, GL_DYNAMIC_DRAW);
 
@@ -99,7 +99,7 @@ void initRenderer()
 		v += 4;
 	}
 
-	glCreateBuffers(1, &ib);
+	glGenBuffers(1, &ib);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indsSize, inds, GL_STATIC_DRAW);
 

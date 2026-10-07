@@ -3,6 +3,7 @@
 #include "debug.h"
 #include "glad/glad.h"
 #include "renderer/shader.h"
+#include <GL/gl.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -321,7 +322,7 @@ void drawRect(vec3 v1, vec3 v2, vec3 v3, vec3 v4, unsigned int texture)
 	quadCount++;
 }
 
-void panelEndFrame(mat4 transform, char backfaceCull)
+void panelEndFrame(mat4 transform, char backfaceCull, char depthTest)
 {
 	glBindVertexArray(va);
 	glBindBuffer(GL_ARRAY_BUFFER, vb);
@@ -330,6 +331,8 @@ void panelEndFrame(mat4 transform, char backfaceCull)
 	glUseProgram(panelShader);
 	if (backfaceCull == 0)
 		glDisable(GL_CULL_FACE);
+	if (depthTest== 0)
+		glDisable(GL_DEPTH_TEST);
 
 	setUniformMat4(panelShader, "cam", camMat);
 	setUniformMat4(panelShader, "mat", projMat);
@@ -337,6 +340,7 @@ void panelEndFrame(mat4 transform, char backfaceCull)
 
 	glDrawElements(GL_TRIANGLES, quadCount * 6, GL_UNSIGNED_INT, 0);
 	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
 
 	verts = vertBase;
 	vertCount = 0;

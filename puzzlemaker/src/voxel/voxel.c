@@ -1,20 +1,18 @@
 #include "voxel.h"
 
 #include "utils.h"
+#include "selection.h"
 #include "voxel/voxelConfig.h"
 #include <string.h>
 
 Voxel voxels[MAP_SIZE * MAP_SIZE * MAP_SIZE];
 
-ivec3 currentVoxelPos;
-ivec3 currentVoxel2Pos;
-Voxel* currentVoxel;
-char currentDir;
 
 char isSelection2d()
 {
-	return currentVoxelPos[0] == currentVoxel2Pos[0] || currentVoxelPos[1] == currentVoxel2Pos[1] ||
-		   currentVoxelPos[2] == currentVoxel2Pos[2];
+	return selection.voxelDir != DIR_NONE;
+	//return currentVoxelPos[0] == currentVoxel2Pos[0] || currentVoxelPos[1] == currentVoxel2Pos[1] ||
+	//	   currentVoxelPos[2] == currentVoxel2Pos[2];
 }
 
 char pointInRange(ivec3 point, ivec3 boundA, ivec3 boundB)
@@ -67,7 +65,7 @@ Voxel* getVoxelv(ivec3 pos)
 	return getVoxel(pos[0], pos[1], pos[2]);
 }
 
-int getVoxelSide(vec3 start, ivec3 pos2, vec3 dir, vec3* pos)
+int getVoxelSide(vec3 start, ivec3 pos2, vec3 dir, vec3 pos)
 {
 	int x = pos2[0];
 	int y = pos2[1];
@@ -92,21 +90,21 @@ int getVoxelSide(vec3 start, ivec3 pos2, vec3 dir, vec3* pos)
 	tmin = max(tmin, min(tx1, tx2));
 	tmax = min(tmax, max(tx1, tx2));
 
-	(*pos)[0] = (tmin * dir[0]) + start[0];
-	(*pos)[1] = (tmin * dir[1]) + start[1];
-	(*pos)[2] = (tmin * dir[2]) + start[2];
+	pos[0] = (tmin * dir[0]) + start[0];
+	pos[1] = (tmin * dir[1]) + start[1];
+	pos[2] = (tmin * dir[2]) + start[2];
 
-	if (absf((*pos)[0] - x) < 0.0001f)
+	if (absf(pos[0] - x) < 0.0001f)
 		return DIR_NEG_X;
-	if (absf((*pos)[0] - x) > 0.9999f)
+	if (absf(pos[0] - x) > 0.9999f)
 		return DIR_POS_X;
-	if (absf((*pos)[1] - y) < 0.0001f)
+	if (absf(pos[1] - y) < 0.0001f)
 		return DIR_NEG_Y;
-	if (absf((*pos)[1] - y) > 0.9999f)
+	if (absf(pos[1] - y) > 0.9999f)
 		return DIR_POS_Y;
-	if (absf((*pos)[2] - z) < 0.0001f)
+	if (absf(pos[2] - z) < 0.0001f)
 		return DIR_NEG_Z;
-	if (absf((*pos)[2] - z) > 0.9999f)
+	if (absf(pos[2] - z) > 0.9999f)
 		return DIR_POS_Z;
 	return 0;
 }

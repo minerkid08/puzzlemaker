@@ -111,12 +111,12 @@ void exportEndOverlays(FILE* file)
 		OBB overlayObb;
 		vec3 min;
 		vec3 max;
-		min[0] = -overlay->size[0] / 128.0f;
+		min[0] = -overlay->size[1] / 128.0f;
 		min[1] = -0.125;
-		min[2] = -overlay->size[1] / 128.0f;
-		max[0] = overlay->size[0] / 128.0f;
+		min[2] = -overlay->size[0] / 128.0f;
+		max[0] = overlay->size[1] / 128.0f;
 		max[1] = 0.125;
-		max[2] = overlay->size[1] / 128.0f;
+		max[2] = overlay->size[0] / 128.0f;
 		min[0] += 0.01;
 		min[1] += 0.01;
 		min[2] += 0.01;

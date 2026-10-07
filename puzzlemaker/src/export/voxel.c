@@ -40,7 +40,7 @@ const char* getMat(Voxel* voxel, int dir, char forceMini)
 			return voxelConfig.whiteCeilingMini;
 		return voxelConfig.whiteWallMini;
 	}
-	case 4:
+	default:
 		return voxelConfig.backstage;
 	}
 	return 0;

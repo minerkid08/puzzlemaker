@@ -118,6 +118,7 @@ void* loadEntityItemDef(cJSON* item, ItemDefinition* itemDef)
 
 void entityItemInit(Item* item)
 {
+	item->data = 0;
 }
 
 void entityItemRender(Item* item)

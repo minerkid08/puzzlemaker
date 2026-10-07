@@ -25,4 +25,5 @@ char isSelection2d();
 Voxel* getVoxel(int x, int y, int z);
 Voxel* getVoxelv(ivec3 pos);
 
-int getVoxelSide(vec3 start, ivec3 pos, vec3 dir, vec3* pos2);
+int getVoxelSide(vec3 start, ivec3 pos, vec3 dir, vec3 pos2);
+char voxelRaycast(vec3 pos, vec3 dir, ivec3 out);

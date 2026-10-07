@@ -16,6 +16,11 @@ extern Antline* antlines;
 static char buf[64];
 void itemListRender()
 {
+
+	ImVec2 buttonSize;
+	buttonSize.x = 15;
+	buttonSize.y = igGetTextLineHeight();
+
 	igBegin("Item List", 0, 0);
 
 	int flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed;
@@ -30,18 +35,26 @@ void itemListRender()
 			if (!isItemValid(item))
 				continue;
 			igPushID_Int(i);
-			snprintf(buf, 64, "%s%d", item->def->name, item->index);
+			snprintf(buf, 64, "%s: %d", item->def->name, item->index);
 			char selected = 0;
 			if (selection.type == SELECTION_ITEM)
 				selected = (item == selection.item);
 			ImVec2 zero;
 			zero.x = 0;
 			zero.y = 0;
-			if (igSelectable_Bool(buf, selected, 0, zero))
+			if (igSelectable_Bool(buf, selected, ImGuiSelectableFlags_AllowOverlap, zero))
 			{
 				selection.type = SELECTION_ITEM;
 				selection.item = item;
 			}
+			igSameLine(0, -1);
+			char pressed;
+			if (item->hidden)
+				pressed = igButton("v", buttonSize);
+			else
+				pressed = igButton("h", buttonSize);
+			if (pressed)
+				item->hidden = !item->hidden;
 			igPopID();
 		}
 		igTreePop();

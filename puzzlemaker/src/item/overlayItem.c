@@ -56,7 +56,7 @@ void overlayItemRender(Item* item)
 	vec2 start = {-def->size[0] / 128.0f, -def->size[1] / 128.0f};
 	vec2 end = {def->size[0] / 128.0f, def->size[1] / 128.0f};
 	overlayDrawRect(start, end, def->texture, 1);
-	panelEndFrame(item->transform, 1);
+	panelEndFrame(item->transform, 1, 1);
 }
 void overlayItemGetBoundingBox(Item* item, vec3 min, vec3 max)
 {

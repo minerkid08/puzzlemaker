@@ -83,9 +83,9 @@ int main()
 
 	startCompileThread();
 	glfwInit();
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	GLFWwindow* window = glfwCreateWindow(1920, 1080, "puzzlemaker", 0, 0);
 	glfwMakeContextCurrent(window);
 
@@ -172,6 +172,7 @@ int main()
 
 		renderAntlines();
 		drawItems();
+		renderAntlineHover();
 		framebufferUnbind(&framebuffer);
 
 		uiNewFrame();
@@ -208,13 +209,32 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 		if (key == GLFW_KEY_F9)
 			queueCompile = 1;
 		if (key == GLFW_KEY_2)
-			voxelPush();
+		{
+			if (selection.type == SELECTION_VOXEL)
+				voxelPush();
+			if (selection.type == SELECTION_ANTLINE)
+				selection.antlineSeg->len++;
+		}
 		if (key == GLFW_KEY_3)
-			voxelPull();
+		{
+			if (selection.type == SELECTION_VOXEL)
+				voxelPull();
+			if (selection.type == SELECTION_ANTLINE)
+			{
+				if (selection.antlineSeg->len > 1)
+					selection.antlineSeg->len--;
+			}
+		}
 		if (key == GLFW_KEY_R)
-			voxelTogglePortal();
+		{
+			if (selection.type == SELECTION_VOXEL)
+				voxelTogglePortal();
+		}
 		if (key == GLFW_KEY_Z)
-			voxelToggleSize();
+		{
+			if (selection.type == SELECTION_VOXEL)
+				voxelToggleSize();
+		}
 		if (key == GLFW_KEY_G)
 		{
 			if (selection.type == SELECTION_VOXEL)
@@ -239,7 +259,7 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 		{
 			if (selection.type == SELECTION_VOXEL)
 				return;
-			rotateSelection(90);
+			rotateSelection(-90);
 		}
 	}
 }

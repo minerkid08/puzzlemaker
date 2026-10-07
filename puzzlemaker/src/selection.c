@@ -6,6 +6,7 @@
 #include "raycast.h"
 #include "ui/itemPanel.h"
 #include "utils.h"
+#include <stdio.h>
 
 Selection selection;
 extern Picker picker;
@@ -36,14 +37,18 @@ void beginSelection(vec3 mouseDir)
 		{
 		case RAYCAST_VOXEL:
 			selection.type = SELECTION_VOXEL;
-			selection.voxel = hit.voxel;
+			selection.voxel = 0;
 			selection.voxelDir = hit.dir;
 			selection.voxelPos[0] = hit.ipos[0];
 			selection.voxelPos[1] = hit.ipos[1];
 			selection.voxelPos[2] = hit.ipos[2];
-			selection.voxel2Pos[0] = -1;
-			selection.voxel2Pos[1] = -1;
-			selection.voxel2Pos[2] = -1;
+			ivec3* offset = &dirs[hit.dir];
+			selection.voxelPos[0] += (*offset)[0];
+			selection.voxelPos[1] += (*offset)[1];
+			selection.voxelPos[2] += (*offset)[2];
+			selection.voxel2Pos[0] = selection.voxelPos[0];
+			selection.voxel2Pos[1] = selection.voxelPos[1];
+			selection.voxel2Pos[2] = selection.voxelPos[2];
 			mode = 1;
 			picker.active = 0;
 			break;
@@ -84,7 +89,7 @@ void beginSelection(vec3 mouseDir)
 					picker.active = 0;
 				}
 			}
-      break;
+			break;
 		}
 	}
 	else
@@ -102,6 +107,14 @@ void updateSelection(vec3 mouseDir)
 	RaycastHit hit;
 	if (raycast(cameraPos, mouseDir, RAY_LEN, flags, &hit, 0))
 	{
+		if (selection.voxelDir != hit.dir)
+			selection.voxelDir = DIR_NONE;
+		printf("hit dir: %d, vox dir %d\n", selection.voxelDir, hit.dir);
+		ivec3* offset = &dirs[hit.dir];
+		hit.ipos[0] += (*offset)[0];
+		hit.ipos[1] += (*offset)[1];
+		hit.ipos[2] += (*offset)[2];
+
 		int zmin = min(selection.voxelPos[2], hit.ipos[2]);
 		int zmax = max(hit.ipos[2], selection.voxel2Pos[2]);
 		int ymin = min(selection.voxelPos[1], hit.ipos[1]);
@@ -117,8 +130,6 @@ void updateSelection(vec3 mouseDir)
 		selection.voxel2Pos[1] = ymax;
 		selection.voxel2Pos[2] = zmax;
 	}
-	else
-		selection.voxel = 0;
 }
 
 void endSelection()

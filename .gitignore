@@ -4,3 +4,8 @@ imgui.ini
 compileSteps.json
 captureSettings.cap
 *.exe
+
+items/Crazy's Customs.json
+items/P1 Enhanced.json
+assets/materials/crazy
+assets/models/crazy

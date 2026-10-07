@@ -327,7 +327,7 @@ void panelItemRender(Item* item)
 				panelDrawRect(start, end, border[PANEL_ITEM_ID_TOP_RIGHT].material);
 			}
 
-			panelEndFrame(item->transform, 0);
+			panelEndFrame(item->transform, 0, 1);
 		}
 	}
 }

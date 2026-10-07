@@ -1,10 +1,12 @@
 #include "antline/antline.h"
+#include "camera.h"
 #include "dynList.h"
 #include <stdbool.h>
 #include <string.h>
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 
 #include "cimgui.h"
+#include "grab.h"
 #include "save.h"
 #include "selection.h"
 #include "ui/itemPanel.h"
@@ -18,6 +20,7 @@ void antlinePanelStub()
 		selection.type = SELECTION_ANTLINE;
 		selection.antline = addAntline();
 		selection.antlineSeg = &selection.antline->baseSegment;
+		updateGrab(cameraPos, forward);
 	}
 }
 
@@ -25,10 +28,13 @@ void antlinePanelRender()
 {
 	igSeparatorText("Antline");
 	int segmentCount = dynList_size(selection.antline->segments);
-	if(!selection.antline->hasCheck && segmentCount == 0)
+	if (!selection.antline->hasCheck && segmentCount == 0)
 		igText("warning: antline has no visible component");
 	if (igButton("remove", zero))
 		removeAntline(selection.antline);
+	igSameLine(0, -1);
+	if(igButton("select", zero))
+		selection.antlineSeg = &selection.antline->baseSegment;
 	igCheckbox("check enable", (bool*)&selection.antline->hasCheck);
 	igBeginDisabled(!selection.antline->hasCheck);
 	if (igDragFloat3("position", selection.antline->baseSegment.pos, 0.01f, 0.0f, 0.0f, "%.3f", 0))
@@ -46,6 +52,7 @@ void antlinePanelRender()
 		antlineUpdateTransformRot(&selection.antline->segments[segmentCount]);
 		selection.antlineSeg = &selection.antline->segments[segmentCount];
 		selection.antlineSeg->len = 1;
+		updateGrab(cameraPos, forward);
 		segmentCount++;
 	}
 

@@ -187,6 +187,39 @@ void antlineUpdateTransformRot(AntlineSegment* antline)
 	memcpy(antline->invTransform, invTransform, sizeof(mat4));
 }
 
+static void drawAntline(Antline* antline)
+{
+	if (antline->hasCheck)
+	{
+		int tex = 0;
+		if (antline->hovered)
+			tex = config.editorCheckActiveTex;
+		else
+			tex = config.editorCheckTex;
+		vec3 start = {-config.editorCheckSize, -config.editorCheckSize, -0.125f};
+		vec3 end = {config.editorCheckSize, config.editorCheckSize, 0.125f};
+		overlayDrawRect(start, end, tex, 1);
+		panelEndFrame(antline->baseSegment.transform, antline->hovered == 0, antline->hovered == 0);
+	}
+
+	int tex = 0;
+	if (antline->hovered)
+		tex = config.editorAntlineActiveTex;
+	else
+		tex = config.editorAntlineTex;
+	int l = dynList_size(antline->segments);
+	for (int j = 0; j < l; j++)
+	{
+		AntlineSegment* segment = &antline->segments[j];
+
+		vec3 start = {-config.editorDotSize, -config.editorDotSize, -0.125f};
+		vec3 end = {config.editorDotSize, config.editorDotSize, 0.125f};
+		end[0] *= 2.0f * segment->len - 1;
+		overlayDrawRect(start, end, tex, segment->len);
+		panelEndFrame(segment->transform, antline->hovered == 0, antline->hovered == 0);
+	}
+}
+
 void renderAntlines()
 {
 	int len = dynList_size(antlines);
@@ -195,38 +228,42 @@ void renderAntlines()
 		Antline* antline = &antlines[i];
 		if (!isAntlineValid(antline))
 			continue;
-		if (antline->hasCheck)
+		if (antline->hovered)
+			continue;
+
+		drawAntline(antline);
+	}
+}
+
+void renderAntlineHover()
+{
+	int len = dynList_size(antlines);
+	for (int i = 0; i < len; i++)
+	{
+		Antline* antline = &antlines[i];
+		if (!isAntlineValid(antline))
+			continue;
+		if (antline->hovered == 0)
+			continue;
+		drawAntline(antline);
+	}
+	if (selection.type == SELECTION_ANTLINE)
+	{
+
+		if (&selection.antline->baseSegment == selection.antlineSeg)
 		{
-			int tex = 0;
-			if (antline->hovered)
-				tex = config.editorCheckActiveTex;
-			else
-				tex = config.editorCheckTex;
+			AntlineSegment* segment = &selection.antline->baseSegment;
 			vec3 start = {-config.editorCheckSize, -config.editorCheckSize, -0.125f};
 			vec3 end = {config.editorCheckSize, config.editorCheckSize, 0.125f};
-			overlayDrawRect(start, end, tex, 1);
-			panelEndFrame(antline->baseSegment.transform, antline->hovered == 0);
-			if (selection.type == SELECTION_ANTLINE && &antline->baseSegment == selection.antlineSeg)
-				drawDebugRectAntline(start, end, antline->baseSegment.transform);
+			drawDebugRectAntline(start, end, segment->transform);
 		}
-
-		int tex = 0;
-		if (antline->hovered)
-			tex = config.editorAntlineActiveTex;
 		else
-			tex = config.editorAntlineTex;
-		int l = dynList_size(antline->segments);
-		for (int j = 0; j < l; j++)
 		{
-			AntlineSegment* segment = &antline->segments[j];
-
+			AntlineSegment* segment = selection.antlineSeg;
 			vec3 start = {-config.editorDotSize, -config.editorDotSize, -0.125f};
 			vec3 end = {config.editorDotSize, config.editorDotSize, 0.125f};
 			end[0] *= 2.0f * segment->len - 1;
-			overlayDrawRect(start, end, tex, segment->len);
-			panelEndFrame(segment->transform, antline->hovered);
-			if (selection.type == SELECTION_ANTLINE && segment == selection.antlineSeg)
-				drawDebugRectAntline(start, end, segment->transform);
+			drawDebugRectAntline(start, end, segment->transform);
 		}
 	}
 }
@@ -291,6 +328,9 @@ void antlineExport()
 		Antline* antline = &antlines[i];
 		if (!isAntlineValid(antline))
 			continue;
+		int segmentCount = dynList_size(antline->segments);
+		if (segmentCount == 0 && !antline->hasCheck)
+			continue;
 
 		char buf[64];
 		snprintf(buf, 64, "antline%d", antline->id);
@@ -307,7 +347,6 @@ void antlineExport()
 			overlay->size[0] = config.checkSize;
 			overlay->size[1] = config.checkSize;
 		}
-		int segmentCount = dynList_size(antline->segments);
 		for (int i = 0; i < segmentCount; i++)
 		{
 			char addCorner = 1;

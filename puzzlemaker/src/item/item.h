@@ -114,6 +114,7 @@ struct Item
 	int loadIndex;
 	int id;
 	char highlighted;
+	char hidden;
 	vec3 pos;
 	vec3 dir;
 	vec4 quat;

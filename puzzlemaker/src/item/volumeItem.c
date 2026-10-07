@@ -127,7 +127,7 @@ void volumeItemRender(Item* item)
 	drawRect(verts[5], verts[1], verts[7], verts[3], def->material);
 	drawRect(verts[0], verts[1], verts[4], verts[5], def->material);
 	drawRect(verts[2], verts[6], verts[3], verts[7], def->material);
-	panelEndFrame(transform, 1);
+	panelEndFrame(transform, 1, 1);
 }
 
 void volumeItemExport(Item* item)

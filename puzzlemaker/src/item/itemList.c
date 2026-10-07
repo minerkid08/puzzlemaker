@@ -68,7 +68,8 @@ void removeItem(Item* item)
 
 	dynList_free(item->kv);
 	dynList_free(item->outputs);
-	free(item->data);
+	if (item->data)
+		free(item->data);
 
 	item->id = -1;
 	item->index = -1;
@@ -119,6 +120,9 @@ Item* addItem(int defId, ivec3 position)
 	item->dir[0] = 0;
 	item->dir[1] = 0;
 	item->dir[2] = 0;
+
+	item->highlighted = 0;
+	item->hidden = 0;
 
 	if (position == 0)
 	{

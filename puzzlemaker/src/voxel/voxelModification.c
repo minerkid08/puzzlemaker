@@ -1,7 +1,7 @@
 #include "voxelModification.h"
 
-#include "utils.h"
 #include "selection.h"
+#include "utils.h"
 #include "voxel.h"
 #include <string.h>
 
@@ -18,9 +18,6 @@ void modify2dSelection(int action)
 	int dir = (selection.voxelDir == DIR_POS_X || selection.voxelDir == DIR_POS_Y || selection.voxelDir == DIR_POS_Z);
 	if (dir == 0)
 		dir = -1;
-
-	if (action == ACTION_PULL)
-		dir *= -1;
 
 	if (selection.voxelDir == DIR_POS_X || selection.voxelDir == DIR_NEG_X)
 	{
@@ -43,15 +40,21 @@ void modify2dSelection(int action)
 		axis3 = 2;
 	}
 
-	int x = selection.voxelPos[axis3] - dir;
-	if (action == ACTION_PUSH)
-	{
-		if (x < 0 || x >= MAP_SIZE)
-			return;
-	}
+	int x = selection.voxelPos[axis3];
 	if (action == ACTION_PULL)
 	{
-		if (x < 1 || x >= MAP_SIZE - 1)
+		if (dir > 0 && x >= MAP_SIZE - 1)
+			return;
+
+		if (dir < 0 && x <= 0)
+			return;
+	}
+	if (action == ACTION_PUSH)
+	{
+		if (dir > 0 && x <= 1)
+			return;
+
+		if (dir < 0 && x >= MAP_SIZE - 2)
 			return;
 	}
 
@@ -62,16 +65,16 @@ void modify2dSelection(int action)
 			ivec3 pos;
 			pos[axis1] = x;
 			pos[axis2] = y;
-			pos[axis3] = selection.voxelPos[axis3];
+			pos[axis3] = selection.voxelPos[axis3] - dir;
 
 			if (action == ACTION_PUSH)
 			{
-				if (canPush(x, y, selection.voxelPos[axis3]))
+				if (canPush(x, y, selection.voxelPos[axis3] - dir))
 					getVoxelv(pos)->solid = 0;
 			}
 			else if (action == ACTION_PULL)
 			{
-				pos[axis3] -= dir;
+				pos[axis3] += dir;
 				getVoxelv(pos)->solid = 1;
 			}
 			else if (action == ACTION_PORT)
@@ -88,8 +91,16 @@ void modify2dSelection(int action)
 	}
 	if (action == ACTION_PORT || action == ACTION_SIZE)
 		return;
-	selection.voxelPos[axis3] -= dir;
-	selection.voxel2Pos[axis3] -= dir;
+	if (action == ACTION_PULL)
+	{
+		selection.voxelPos[axis3] += dir;
+		selection.voxel2Pos[axis3] += dir;
+	}
+	else
+	{
+		selection.voxelPos[axis3] -= dir;
+		selection.voxel2Pos[axis3] -= dir;
+	}
 }
 
 void modify3dSelection(int action)
@@ -113,7 +124,6 @@ void modify3dSelection(int action)
 					v->portalability[0] ^= 1;
 					v->portalability[1] ^= 1;
 					v->portalability[2] ^= 1;
-					v->portalability[3] ^= 1;
 					v->portalability[4] ^= 1;
 					v->portalability[5] ^= 1;
 				}
@@ -134,111 +144,22 @@ void modify3dSelection(int action)
 
 void voxelPush()
 {
-	if (selection.voxel == 0)
-		return;
-
-	if (selection.voxel2Pos[0] >= 0)
-	{
-		if (isSelection2d())
-			modify2dSelection(ACTION_PUSH);
-		else
-			modify3dSelection(ACTION_PUSH);
-		return;
-	}
-
-	if (selection.voxelPos[0] == 0 || selection.voxelPos[0] == MAP_SIZE - 1)
-		return;
-	if (selection.voxelPos[1] == 0 || selection.voxelPos[1] == MAP_SIZE - 1)
-		return;
-	if (selection.voxelPos[2] == 0 || selection.voxelPos[2] == MAP_SIZE - 1)
-		return;
-
-	selection.voxel->solid = 0;
-
-	ivec3 dir;
-	memcpy(dir, dirs[selection.voxelDir], sizeof(int) * 3);
-
-	if (!inRange(selection.voxelPos[0] - dir[0], selection.voxelPos[1] - dir[1], selection.voxelPos[2] - dir[2]))
-	{
-		selection.voxel = 0;
-		return;
-	}
-
-	selection.voxelPos[0] -= dir[0];
-	selection.voxelPos[1] -= dir[1];
-	selection.voxelPos[2] -= dir[2];
-
-	selection.voxel = getVoxelv(selection.voxelPos);
+	if (isSelection2d())
+		modify2dSelection(ACTION_PUSH);
+	else
+		modify3dSelection(ACTION_PUSH);
 }
 
 void voxelPull()
 {
-	if (selection.voxel == 0)
-		return;
-
-	if (selection.voxel2Pos[0] >= 0)
-	{
-		if (isSelection2d())
-			modify2dSelection(ACTION_PULL);
-		else
-			modify3dSelection(ACTION_PULL);
-		return;
-	}
-
-	ivec3 newPos = {selection.voxelPos[0], selection.voxelPos[1], selection.voxelPos[2]};
-
-	ivec3 dir;
-	memcpy(dir, dirs[selection.voxelDir], sizeof(int) * 3);
-
-	newPos[0] += dirs[selection.voxelDir][0];
-	newPos[1] += dirs[selection.voxelDir][1];
-	newPos[2] += dirs[selection.voxelDir][2];
-
-	if (!inRange(newPos[0], newPos[1], newPos[2]))
-	{
-		selection.voxel = 0;
-		return;
-	}
-
-	Voxel* v = getVoxelv(newPos);
-
-	if (v->solid == 1)
-	{
-		selection.voxel = 0;
-		return;
-	}
-
-	v->solid = 1;
-
-	newPos[0] += dirs[selection.voxelDir][0];
-	newPos[1] += dirs[selection.voxelDir][1];
-	newPos[2] += dirs[selection.voxelDir][2];
-
-	if (!inRange(newPos[0], newPos[1], newPos[2]))
-	{
-		selection.voxel = 0;
-		return;
-	}
-
-	v = getVoxelv(newPos);
-
-	if (v->solid == 1)
-	{
-		selection.voxel = 0;
-		return;
-	}
-
-	selection.voxelPos[0] += dir[0];
-	selection.voxelPos[1] += dir[1];
-	selection.voxelPos[2] += dir[2];
-	selection.voxel = getVoxelv(selection.voxelPos);
+	if (isSelection2d())
+		modify2dSelection(ACTION_PULL);
+	else
+		modify3dSelection(ACTION_PULL);
 }
 
 void voxelTogglePortal()
 {
-	if (selection.voxel == 0)
-		return;
-
 	if (selection.voxel2Pos[0] >= 0)
 	{
 		if (isSelection2d())

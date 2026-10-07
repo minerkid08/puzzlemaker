@@ -51,6 +51,7 @@ Antline* addAntline();
 void removeAntline(Antline* antline);
 char isAntlineValid(Antline* antline);
 void renderAntlines();
+void renderAntlineHover();
 void antlineUpdateTransformRot(AntlineSegment* antline);
 void antlineUpdateTransform(AntlineSegment* antline);
 Antline* getIntersectingAntline(vec3 pos, AntlineSegment** seg);

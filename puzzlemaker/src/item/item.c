@@ -1,5 +1,4 @@
 #include "item.h"
-#include "cglm/euler.h"
 #include "cglm/mat4.h"
 #include "cglm/quat.h"
 #include "cglm/util.h"
@@ -35,6 +34,8 @@ void drawItems()
 			highlightedItem = item;
 		if (item->def->transparent)
 			continue;
+		if (item->hidden)
+			continue;
 		item->def->callbacks->render(item);
 	}
 
@@ -44,6 +45,8 @@ void drawItems()
 		if (!isItemValid(item))
 			continue;
 		if (item->def->transparent == 0)
+			continue;
+		if (item->hidden)
 			continue;
 		item->def->callbacks->render(item);
 	}
@@ -129,6 +132,8 @@ Item* getIntersectingItem(vec3 pos, Item** ignore)
 	{
 		Item* item = &itemList[j];
 		if (!isItemValid(item))
+			continue;
+		if (item->hidden)
 			continue;
 		if (ignore)
 		{

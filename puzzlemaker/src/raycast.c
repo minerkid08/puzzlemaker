@@ -6,8 +6,9 @@
 
 char raycast(vec3 start, vec3 dir, float len, int flags, RaycastHit* hit, Item** ignore)
 {
+	float itemDist = 9999;
 	vec3 end = {start[0] + dir[0] * len, start[1] + dir[1] * len, start[2] + dir[2] * len};
-	char hitAir = 0;
+	char rtn = 0;
 	for (float i = 0; i < 1.0f; i += 0.001f)
 	{
 		vec3 out;
@@ -22,7 +23,9 @@ char raycast(vec3 start, vec3 dir, float len, int flags, RaycastHit* hit, Item**
 				hit->voxel = 0;
 				hit->dir = 0;
 				memcpy(hit->pos, item->pos, sizeof(vec3));
-				return 1;
+				rtn = 1;
+				itemDist = i * len;
+				goto end;
 			}
 		}
 
@@ -41,7 +44,9 @@ char raycast(vec3 start, vec3 dir, float len, int flags, RaycastHit* hit, Item**
 					hit->item = 0;
 					hit->dir = 0;
 					memcpy(hit->pos, antline->baseSegment.pos, sizeof(vec3));
-					return 1;
+					rtn = 1;
+					itemDist = i * len;
+					goto end;
 				}
 				hit->type = RAYCAST_ANTLINE;
 				hit->antline = antline;
@@ -50,45 +55,40 @@ char raycast(vec3 start, vec3 dir, float len, int flags, RaycastHit* hit, Item**
 				hit->item = 0;
 				hit->dir = 0;
 				memcpy(hit->pos, antline->baseSegment.pos, sizeof(vec3));
-				return 1;
+				rtn = 1;
+				itemDist = i * len;
+				goto end;
 			}
 		}
-
-		if (flags & RAYCAST_VOXEL)
+	}
+end:
+	itemDist = itemDist * itemDist;
+	if (flags & RAYCAST_VOXEL)
+	{
+		ivec3 ipos;
+		if (voxelRaycast(start, dir, ipos))
 		{
-			int x = floorf(out[0]);
-			int y = floorf(out[1]);
-			int z = floorf(out[2]);
-			if (x < 0 || x >= MAP_SIZE)
-				continue;
-			if (y < 0 || y >= MAP_SIZE)
-				continue;
-			if (z < 0 || z >= MAP_SIZE)
-				continue;
-
-			Voxel* v = getVoxel(x, y, z);
-			if (!v->solid)
-			{
-				hitAir = 1;
-				continue;
-			}
-			if (!hitAir)
-				continue;
-
+			vec3 pos2;
+			hit->dir = getVoxelSide(start, ipos, dir, pos2);
+			float x = pos2[0] - start[0];
+			float y = pos2[1] - start[1];
+			float z = pos2[2] - start[2];
+			float voxelDist = x * x + y * y + z * z;
+			if(itemDist < voxelDist && rtn)
+				return 1;
 			hit->type = RAYCAST_VOXEL;
 			hit->item = 0;
-			hit->voxel = v;
-			ivec3 ipos = {x, y, z};
-			vec3 pos2;
-			hit->dir = getVoxelSide(start, ipos, dir, &pos2);
+			hit->voxel = getVoxel(ipos[0], ipos[1], ipos[2]);
 			hit->pos[0] = pos2[0];
 			hit->pos[1] = pos2[1];
 			hit->pos[2] = pos2[2];
-			hit->ipos[0] = x;
-			hit->ipos[1] = y;
-			hit->ipos[2] = z;
+			hit->ipos[0] = ipos[0];
+			hit->ipos[1] = ipos[1];
+			hit->ipos[2] = ipos[2];
 			return 1;
 		}
+		return rtn;
 	}
-	return 0;
+	else
+		return rtn;
 }

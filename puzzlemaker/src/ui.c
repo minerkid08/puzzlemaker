@@ -166,6 +166,7 @@ void uiMenuBar()
 	}
 
 	updateCompilePopup();
+	renderErrorPopup();
 	igEndMenuBar();
 
 	renderMapSettingsUi();

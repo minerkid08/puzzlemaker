@@ -47,17 +47,17 @@ void loadMapSettingsPresets()
 	const char* err = cJSON_GetErrorPtr();
 	free(data);
 	if (err)
-		errorf("failed to parse postProcess.json\n%s\n", err);
+		jsonParseError(data, err, "postProcess.json");
+
+	jsonResetStack("postProcess.json");
 
 	int arrSize = cJSON_GetArraySize(json);
 	postProcessPresets = dynList_new(arrSize, sizeof(PostProcessData));
 
-	cJSON* item;
-	int i = 0;
-	cJSON_ArrayForEach(item, json)
+	for (int i = 0; i < arrSize; i++)
 	{
+		cJSON* item = jsonArrGetObject(json, i);
 		PostProcessData* data = &postProcessPresets[i];
-		i++;
 
 		data->name = jsonGetStr(item, "name");
 
@@ -77,6 +77,7 @@ void loadMapSettingsPresets()
 		data->fogStart = jsonGetFloat(item, "fogStart");
 		data->fogEnd = jsonGetFloat(item, "fogEnd");
 		data->fogDensity = jsonGetFloat(item, "fogDensity");
+		jsonPop();
 	}
 	if (arrSize == 0)
 		errorf("no post processing presets set\n");

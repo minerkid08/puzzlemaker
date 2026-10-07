@@ -16,7 +16,7 @@
 #define DIR_NEG_Z 5
 #define DIR_NONE 6
 
-#define errorf(...) { printf(__VA_ARGS__); exit(1); }
+void errorf(const char* fmt, ...);
 
 extern ivec3 dirs[6];
 

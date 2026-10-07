@@ -1,7 +1,25 @@
 #include "utils.h"
+#include "ui/itemPanel.h"
 #include <math.h>
+#include <stdarg.h>
+#include <string.h>
 
 ivec3 dirs[] = {{1, 0, 0}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}, {0, 0, 1}, {0, 0, -1}};
+
+extern char** stackTrace;
+extern char* err;
+extern char errorState;
+
+void errorf(const char* fmt, ...)
+{
+	va_list va;
+	va_start(va, fmt);
+	char buf[256];
+	vsnprintf(buf, 256, fmt, va);
+	err = strdup(buf);
+	errorState = 1;
+	startErrorLoop();
+}
 
 void getEulerAngles(mat4 mat, vec3 out)
 {

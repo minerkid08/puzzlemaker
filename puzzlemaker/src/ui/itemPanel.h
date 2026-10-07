@@ -19,3 +19,7 @@ void openMapSettingsUi();
 void renderMapSettingsUi();
 void openEditorSettingsUi();
 void renderEditorSettingsUi();
+void openErrorPopup();
+void renderErrorPopup();
+void openErrorPopup();
+void startErrorLoop();

@@ -17,6 +17,7 @@ void load()
 	char filename[256];
 	snprintf(filename, 256, "maps/%s.chamb", mapSettings.name);
 	printf("loading '%s'\n", filename);
+	jsonResetStack(filename);
 
 	for (int i = 0; i < dynList_size(itemList); i++)
 	{

@@ -87,7 +87,7 @@
 			{
 				"kv": "startdisabled",
 				"type": "bool",
-				"defaultValue": false 
+				"defaultValue": false
 			}
 		],
     "statickvs": {
@@ -132,8 +132,14 @@
 		"model": "dropper.obj",
 		"mat": "dropper.png",
     "instance": "dropper",
-    "bound1": [0, 0, -1],
-    "bound2": [0.5, 2, 1],
+    "bound1": [-1, 0, -1],
+    "bound2": [1, 1.25, 1],
+		"editorTransform": {
+			"rotation": [180, 0, 0]
+		},
+		"transform": {
+			"rotation": [180, 0, 0]
+		},
 		"keyvalues": [
 			{
 				"kv": "dontautorespawn",
@@ -250,7 +256,11 @@
     "mat": "laser.png",
     "entity": "prop_button",
     "bound1": [-0.125, 0, -0.125],
-    "bound2": [0.125, 0.4, 0.125],
+    "bound2": [0.125, 0.75, 0.125],
+		"snapMode": "mini-corner",
+		"transform": {
+			"rotation": [0, 90, 0]
+		},
     "keyvalues": [
     	{
     	  "kv": "skin",

@@ -75,18 +75,17 @@ void mouseZoomCallback(GLFWwindow* window, double x, double y);
 extern float uiScale;
 static char snapRotation;
 
+GLFWwindow* window;
+
 int main()
 {
-	loadMapSettingsPresets();
-	loadEditorSettings();
 	makeDir("maps");
 
-	startCompileThread();
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	GLFWwindow* window = glfwCreateWindow(1920, 1080, "puzzlemaker", 0, 0);
+	window = glfwCreateWindow(1920, 1080, "puzzlemaker", 0, 0);
 	glfwMakeContextCurrent(window);
 
 	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
@@ -94,15 +93,6 @@ int main()
 	uiScale *= 1.4;
 
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-
-	initVoxels();
-	loadAntlineConfig();
-
-	initRenderer();
-	aspect = (float)width / (float)height;
-	initCamera();
-
-	loadItemDefinitions();
 
 	glfwSetKeyCallback(window, keyCallback);
 	glfwSetMouseButtonCallback(window, mouseCallback);
@@ -112,6 +102,19 @@ int main()
 	glfwSwapInterval(1);
 
 	initUi(window);
+
+	loadMapSettingsPresets();
+	loadEditorSettings();
+	startCompileThread();
+	initVoxels();
+	loadAntlineConfig();
+
+	initRenderer();
+	aspect = (float)width / (float)height;
+	initCamera();
+
+	loadItemDefinitions();
+
 	initItemPanel();
 
 	glClearColor(0.7f, 0.7f, 0.7f, 1.0f);

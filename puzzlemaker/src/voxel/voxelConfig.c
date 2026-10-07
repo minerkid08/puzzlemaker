@@ -2,19 +2,10 @@
 #include "assetManager.h"
 #include "cjson.h"
 #include "utils.h"
+#include "jsonUtils.h"
 #include <stdio.h>
-#include <string.h>
 
 VoxelConfig voxelConfig;
-
-static char* loadField(cJSON* json, const char* name)
-{
-	cJSON* item = cJSON_GetObjectItem(json, name);
-	if (item == 0)
-		errorf("undefined field %s in voxel.json\n", name);
-	const char* v = cJSON_GetStringValue(item);
-	return strdup(v);
-}
 
 void loadVoxelConfig()
 {
@@ -35,35 +26,37 @@ void loadVoxelConfig()
 	const char* err = cJSON_GetErrorPtr();
 	free(data);
 	if (err)
-		errorf("failed to parse voxel.json\n%s\n", err);
+		jsonParseError(data, err, "voxel.json");
 
-	voxelConfig.nodraw = loadField(json, "nodraw");
-	voxelConfig.backstage = loadField(json, "backstage");
+	jsonResetStack("voxel.json");
 
-	voxelConfig.blackFloor = loadField(json, "blackFloor");
-	voxelConfig.blackWall = loadField(json, "blackWall");
-	voxelConfig.blackCeiling = loadField(json, "blackCeiling");
-	voxelConfig.whiteFloor = loadField(json, "whiteFloor");
-	voxelConfig.whiteWall = loadField(json, "whiteWall");
-	voxelConfig.whiteCeiling = loadField(json, "whiteCeiling");
+	voxelConfig.nodraw = jsonGetStr(json, "nodraw");
+	voxelConfig.backstage = jsonGetStr(json, "backstage");
 
-	voxelConfig.blackFloorMini = loadField(json, "blackFloorMini");
-	voxelConfig.blackWallMini = loadField(json, "blackWallMini");
-	voxelConfig.blackCeilingMini = loadField(json, "blackCeilingMini");
-	voxelConfig.whiteFloorMini = loadField(json, "whiteFloorMini");
-	voxelConfig.whiteWallMini = loadField(json, "whiteWallMini");
-	voxelConfig.whiteCeilingMini = loadField(json, "whiteCeilingMini");
+	voxelConfig.blackFloor = jsonGetStr(json, "blackFloor");
+	voxelConfig.blackWall = jsonGetStr(json, "blackWall");
+	voxelConfig.blackCeiling = jsonGetStr(json, "blackCeiling");
+	voxelConfig.whiteFloor = jsonGetStr(json, "whiteFloor");
+	voxelConfig.whiteWall = jsonGetStr(json, "whiteWall");
+	voxelConfig.whiteCeiling = jsonGetStr(json, "whiteCeiling");
 
-	char* blackEditor = loadField(json, "blackEditor");
+	voxelConfig.blackFloorMini = jsonGetStr(json, "blackFloorMini");
+	voxelConfig.blackWallMini = jsonGetStr(json, "blackWallMini");
+	voxelConfig.blackCeilingMini = jsonGetStr(json, "blackCeilingMini");
+	voxelConfig.whiteFloorMini = jsonGetStr(json, "whiteFloorMini");
+	voxelConfig.whiteWallMini = jsonGetStr(json, "whiteWallMini");
+	voxelConfig.whiteCeilingMini = jsonGetStr(json, "whiteCeilingMini");
+
+	char* blackEditor = jsonGetStr(json, "blackEditor");
 	voxelConfig.blackEditor = assetManagerLoadTexture(blackEditor);
 
-	char* whiteEditor = loadField(json, "whiteEditor");
+	char* whiteEditor = jsonGetStr(json, "whiteEditor");
 	voxelConfig.whiteEditor = assetManagerLoadTexture(whiteEditor);
 
-	char* blackMiniEditor = loadField(json, "blackMiniEditor");
+	char* blackMiniEditor = jsonGetStr(json, "blackMiniEditor");
 	voxelConfig.blackMiniEditor = assetManagerLoadTexture(blackMiniEditor);
 
-	char* whiteMiniEditor = loadField(json, "whiteMiniEditor");
+	char* whiteMiniEditor = jsonGetStr(json, "whiteMiniEditor");
 	voxelConfig.whiteMiniEditor = assetManagerLoadTexture(whiteMiniEditor);
 
 	free(blackEditor);

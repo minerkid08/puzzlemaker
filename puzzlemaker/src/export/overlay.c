@@ -99,6 +99,9 @@ void exportEndOverlays(FILE* file)
 		fprintf(file, "  \"endu\" \"%f\"\n", overlay->tile[1]);
 		fprintf(file, "  \"endv\" \"0\"\n");
 
+		if(overlay->script)
+			free((char*)overlay->texture);
+
 		float halfWidth = overlay->size[0] / 2.0f;
 		float halfHeight = overlay->size[1] / 2.0f;
 

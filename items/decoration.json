@@ -6,8 +6,11 @@
 		"mat": "light.png",
     "instance": "light",
     "snapMode": "mini-center",
-    "bound1": [-0.25, 0, -1],
-    "bound2": [0.25, 0.1, 1]
+    "bound1": [-0.25, 0, -1.25],
+    "bound2": [0.25, 0.1, 0.75],
+		"transform": {
+			"rotation": [0, -90, 0]
+		}
 	},
   {
     "type": "volume",
@@ -42,9 +45,29 @@
   },
 	{
     "type": "overlay",
-		"name": "doorstate",
-		"texture": "light.png",
+		"name": "indicatorShapes",
+		"texture": "arrow.png",
 		"size": [32, 32],
-		"exportTexture": "signage/signage_overlay_fling2"
+		"exportTexture": "signage/{texture}",
+		"snapMode": "mini-center",
+		"keyvalues": [
+			{
+				"type": "drop-string",
+				"kv": "texture",
+				"defaultValue": 0,
+				"options": {
+					"arrow": "signage_arrow",
+					"dot": "shape01",
+					"moon": "shape02",
+					"triangle": "shape03",
+					"cross": "shape04",
+					"square": "shape05",
+					"dots1": "signage_overlay_dots1",
+					"dots2": "signage_overlay_dots2",
+					"dots3": "signage_overlay_dots3",
+					"dots4": "signage_overlay_dots4"
+				}
+			}
+		]
 	}
 ]

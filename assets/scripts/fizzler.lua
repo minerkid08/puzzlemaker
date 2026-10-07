@@ -57,13 +57,13 @@ for i = 1, tile[2] do
 		ent:attachBrush(brush);
 	end
 
-	local leftProp = Entity.new("leftProp" .. postfix, "prop_dynamic", { 0, 1 + yMin, 0 }, { 0, 90, 0 });
+	local leftProp = Entity.new("leftProp" .. postfix, "prop_dynamic", { 0, 1 + yMin, 0 }, { 0, 0, 0 });
 
 	leftProp:setKv("model", "models/props/fizzler_dynamic.mdl");
 	leftProp:setKv("holdanimation", true);
 	leftProp:transform(pos, rot);
 
-	local rightProp = Entity.new("rightProp" .. postfix, "prop_dynamic", { size[1], 1 + yMin, 0 }, { 0, -90, 0 });
+	local rightProp = Entity.new("rightProp" .. postfix, "prop_dynamic", { size[1], 1 + yMin, 0 }, { 0, 180, 0 });
 
 	rightProp:setKv("model", "models/props/fizzler_dynamic.mdl");
 	rightProp:setKv("holdanimation", true);

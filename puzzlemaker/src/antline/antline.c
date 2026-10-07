@@ -2,6 +2,7 @@
 #include "assetManager.h"
 #include "cglm/cglm.h"
 #include "cjson.h"
+#include "jsonUtils.h"
 #include "dynList.h"
 #include "export/entity.h"
 #include "export/overlay.h"
@@ -16,24 +17,6 @@
 
 Antline* antlines;
 static AntlineConfig config;
-
-static char* loadFields(cJSON* json, const char* name)
-{
-	cJSON* item = cJSON_GetObjectItem(json, name);
-	if (item == 0)
-		errorf("undefined field %s in antline.json\n", name);
-	const char* v = cJSON_GetStringValue(item);
-	return strdup(v);
-}
-
-static int loadFieldi(cJSON* json, const char* name)
-{
-	cJSON* item = cJSON_GetObjectItem(json, name);
-	if (item == 0)
-		errorf("undefined field %s in antline.json\n", name);
-	int v = cJSON_GetNumberValue(item);
-	return v;
-}
 
 static __attribute__((constructor)) void init()
 {
@@ -59,28 +42,30 @@ void loadAntlineConfig()
 	const char* err = cJSON_GetErrorPtr();
 	free(data);
 	if (err)
-		errorf("failed to parse antline.json\n%s\n", err);
+		jsonParseError(data, err, "antline.json");
 
-	config.dotSize = loadFieldi(json, "dotSize");
-	config.checkSize = loadFieldi(json, "checkSize");
+	jsonResetStack("antline.json");
 
-	config.antlineTex = loadFields(json, "lineTex");
-	config.antlineCornerTex = loadFields(json, "cornerTex");
-	config.antlineCheckTex = loadFields(json, "checkTex");
+	config.dotSize = jsonGetInt(json, "dotSize");
+	config.checkSize = jsonGetInt(json, "checkSize");
 
-	config.antlineWidth = loadFieldi(json, "lineDotCountx");
-	config.antlineHeight = loadFieldi(json, "lineDotCounty");
-	config.antlineCornerWidth = loadFieldi(json, "cornerDotCountx");
-	config.antlineCornerHeight = loadFieldi(json, "cornerDotCounty");
+	config.antlineTex = jsonGetStr(json, "lineTex");
+	config.antlineCornerTex = jsonGetStr(json, "cornerTex");
+	config.antlineCheckTex = jsonGetStr(json, "checkTex");
 
-	char* antlineTex = loadFields(json, "editorAntlineTex");
+	config.antlineWidth = jsonGetInt(json, "lineDotCountx");
+	config.antlineHeight = jsonGetInt(json, "lineDotCounty");
+	config.antlineCornerWidth = jsonGetInt(json, "cornerDotCountx");
+	config.antlineCornerHeight = jsonGetInt(json, "cornerDotCounty");
+
+	char* antlineTex = jsonGetStr(json, "editorAntlineTex");
 	config.editorAntlineTex = assetManagerLoadTexture(antlineTex);
-	char* antlineActiveTex = loadFields(json, "editorAntlineActiveTex");
+	char* antlineActiveTex = jsonGetStr(json, "editorAntlineActiveTex");
 	config.editorAntlineActiveTex = assetManagerLoadTexture(antlineActiveTex);
 
-	char* checkTex = loadFields(json, "editorCheckTex");
+	char* checkTex = jsonGetStr(json, "editorCheckTex");
 	config.editorCheckTex = assetManagerLoadTexture(checkTex);
-	char* checkActiveTex = loadFields(json, "editorCheckActiveTex");
+	char* checkActiveTex = jsonGetStr(json, "editorCheckActiveTex");
 	config.editorCheckActiveTex = assetManagerLoadTexture(checkActiveTex);
 
 	free(antlineTex);

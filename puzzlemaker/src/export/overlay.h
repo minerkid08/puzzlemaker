@@ -5,6 +5,7 @@
 typedef struct
 {
 	const char* name;
+	char script;
 	vec3 pos;
 	vec3 rotation;
 	vec2 size;

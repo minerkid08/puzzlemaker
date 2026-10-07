@@ -28,8 +28,8 @@
 		"model": "cube.obj",
 		"mat": "end.png",
     "entity": "point_clientcommand",
-    "bound1": [-0.5, 0, -0.5],
-    "bound2": [0.5, 1, 0.5],
+    "bound1": [-0.5, -0.5, -0.5],
+    "bound2": [0.5, 0.5, 0.5],
 		"inputs": [
 			{
 				"name": "trigger",
@@ -44,8 +44,8 @@
 		"model": "cube.obj",
 		"mat": "start.png",
     "entity": "info_player_start",
-    "bound1": [-0.5, 0, -0.5],
-    "bound2": [0.5, 1, 0.5]
+    "bound1": [-0.5, -0.5, -0.5],
+    "bound2": [0.5, 0.5, 0.5]
 	},
 	{
     "type": "entity",

@@ -1,5 +1,3 @@
-#include "voxel.h"
-
 #include "utils.h"
 #include "selection.h"
 #include "voxel/voxelConfig.h"

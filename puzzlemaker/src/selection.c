@@ -109,7 +109,6 @@ void updateSelection(vec3 mouseDir)
 	{
 		if (selection.voxelDir != hit.dir)
 			selection.voxelDir = DIR_NONE;
-		printf("hit dir: %d, vox dir %d\n", selection.voxelDir, hit.dir);
 		ivec3* offset = &dirs[hit.dir];
 		hit.ipos[0] += (*offset)[0];
 		hit.ipos[1] += (*offset)[1];

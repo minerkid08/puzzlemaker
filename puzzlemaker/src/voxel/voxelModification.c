@@ -2,8 +2,6 @@
 
 #include "selection.h"
 #include "utils.h"
-#include "voxel.h"
-#include <string.h>
 
 #define ACTION_PUSH 1
 #define ACTION_PULL 2
@@ -112,30 +110,56 @@ void modify3dSelection(int action)
 			for (int x = selection.voxelPos[0]; x <= selection.voxel2Pos[0]; x++)
 			{
 				if (action == ACTION_PUSH)
-				{
-					if (canPush(x, y, z))
-						getVoxel(x, y, z)->solid = 0;
-				}
+					getVoxel(x, y, z)->solid = 0;
 				else if (action == ACTION_PULL)
 					getVoxel(x, y, z)->solid = 1;
 				else if (action == ACTION_PORT)
 				{
 					Voxel* v = getVoxel(x, y, z);
-					v->portalability[0] ^= 1;
-					v->portalability[1] ^= 1;
-					v->portalability[2] ^= 1;
-					v->portalability[4] ^= 1;
-					v->portalability[5] ^= 1;
+					if (v->solid)
+					{
+						v->portalability[0] ^= 1;
+						v->portalability[1] ^= 1;
+						v->portalability[2] ^= 1;
+						v->portalability[3] ^= 1;
+						v->portalability[4] ^= 1;
+						v->portalability[5] ^= 1;
+					}
+					else
+					{
+						for (int i = 0; i < 6; i++)
+						{
+							ivec3* dir = &dirs[i];
+							ivec3 pos = {x - (*dir)[0], y - (*dir)[1], z - (*dir)[2]};
+							Voxel* v2 = getVoxelv(pos);
+							if (v2->solid)
+								v2->portalability[i] ^= 1;
+						}
+					}
 				}
 				else if (action == ACTION_SIZE)
 				{
 					Voxel* v = getVoxel(x, y, z);
-					v->portalability[0] ^= 2;
-					v->portalability[1] ^= 2;
-					v->portalability[2] ^= 2;
-					v->portalability[3] ^= 2;
-					v->portalability[4] ^= 2;
-					v->portalability[5] ^= 2;
+					if (v->solid)
+					{
+						v->portalability[0] ^= 2;
+						v->portalability[1] ^= 2;
+						v->portalability[2] ^= 2;
+						v->portalability[3] ^= 2;
+						v->portalability[4] ^= 2;
+						v->portalability[5] ^= 2;
+					}
+					else
+					{
+						for (int i = 0; i < 6; i++)
+						{
+							ivec3* dir = &dirs[i];
+							ivec3 pos = {x - (*dir)[0], y - (*dir)[1], z - (*dir)[2]};
+							Voxel* v2 = getVoxelv(pos);
+							if (v2->solid)
+								v2->portalability[i] ^= 2;
+						}
+					}
 				}
 			}
 		}

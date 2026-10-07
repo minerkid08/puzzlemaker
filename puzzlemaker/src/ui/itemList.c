@@ -16,7 +16,6 @@ extern Antline* antlines;
 static char buf[64];
 void itemListRender()
 {
-
 	ImVec2 buttonSize;
 	buttonSize.x = 15;
 	buttonSize.y = igGetTextLineHeight();

@@ -5,7 +5,7 @@
     "editorTexture": "trigger.png",
     "entity": "trigger_once",
     "texture": "TOOLS/TOOLSTRIGGER",
-    "snapMode": "mini-center",
+    "snapMode": "mini-corner",
 		"transparent": true,
     "bound1": [0, 0, 0],
     "bound2": [0.5, 0.5, 0.5],

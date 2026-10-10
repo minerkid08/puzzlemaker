@@ -18,3 +18,5 @@ extern vec4 right;
 
 void initCamera();
 void updateCamera();
+void cameraMoveForward(float forward);
+void cameraMoveRight(float right);

@@ -1,9 +1,9 @@
 #include "camera.h"
-#include <cglm/cglm.h>
 #include "cglm/cam.h"
 #include "cglm/mat4.h"
 #include "renderer/renderer.h"
 #include "settings.h"
+#include <cglm/cglm.h>
 
 float fovx;
 float fovy;
@@ -29,6 +29,7 @@ void initCamera()
 
 	glm_perspective(fovy, aspect, near, far, projMat);
 	setProjMat(projMat);
+	glm_mat4_inv(projMat, projMatInv);
 }
 
 void updateCamera()
@@ -42,10 +43,34 @@ void updateCamera()
 
 	vec4 forward2 = {0, 0, -1, 1};
 	vec4 up2 = {0, 1, 0, 1};
-	vec4 right2 = {1, 0, 0, 1};
+	vec4 right2= {1, 0, 0, 1};
 
 	glm_mat4_mulv(rotMat, forward2, forward);
 	glm_mat4_mulv(rotMat, up2, up);
 	glm_mat4_mulv(rotMat, right2, right);
-	glm_mat4_inv(projMat, projMatInv);
+
+	mat4 camMat;
+	glm_mat4_identity(camMat);
+	glm_translate(camMat, cameraPos);
+	glm_rotate_z(camMat, cameraRot[2], camMat);
+	glm_rotate_y(camMat, cameraRot[1], camMat);
+	glm_rotate_x(camMat, cameraRot[0], camMat);
+
+	glm_mat4_inv_fast(camMat, camMat);
+
+	setCamMat(camMat);
+}
+
+void cameraMoveForward(float moveForward)
+{
+	cameraPos[0] += forward[0] * moveForward;
+	cameraPos[1] += forward[1] * moveForward;
+	cameraPos[2] += forward[2] * moveForward;
+}
+
+void cameraMoveRight(float moveRight)
+{
+	cameraPos[0] += right[0] * moveRight;
+	cameraPos[1] += right[1] * moveRight;
+	cameraPos[2] += right[2] * moveRight;
 }

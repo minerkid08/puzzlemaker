@@ -89,39 +89,39 @@ void updateGrab(vec3 cameraPos, vec3 mouseDir)
 
 			if (hit.dir == DIR_POS_Y)
 			{
-				newRot[0] = 0;
+				newRot[0] = -90;
 				newRot[1] = 0;
 				newRot[2] = 0;
 			}
 			else if (hit.dir == DIR_NEG_Y)
 			{
-				newRot[0] = 180;
+				newRot[0] = 90;
 				newRot[1] = 0;
 				newRot[2] = 0;
 			}
 			else if (hit.dir == DIR_POS_X)
 			{
 				newRot[0] = 0;
-				newRot[1] = 180;
-				newRot[2] = 90;
+				newRot[1] = 90;
+				newRot[2] = 0;
 			}
 			else if (hit.dir == DIR_NEG_X)
 			{
 				newRot[0] = 0;
-				newRot[1] = 0;
-				newRot[2] = 90;
+				newRot[1] = -90;
+				newRot[2] = 0;
 			}
 			else if (hit.dir == DIR_POS_Z)
 			{
 				newRot[0] = 0;
-				newRot[1] = 90;
-				newRot[2] = 90;
+				newRot[1] = 0;
+				newRot[2] = 0;
 			}
 			else if (hit.dir == DIR_NEG_Z)
 			{
 				newRot[0] = 0;
-				newRot[1] = -90;
-				newRot[2] = 90;
+				newRot[1] = 180;
+				newRot[2] = 0;
 			}
 			if (selection.type == SELECTION_ITEM)
 			{
@@ -169,7 +169,7 @@ void updateRotate(int mouseX)
 	rotStep *= 90.0f;
 	rotStep = glm_rad(rotStep);
 
-	vec3 axis = {0, 1, 0};
+	vec3 axis = {0, 0, 1};
 
 	vec4 newQuat;
 
@@ -197,7 +197,7 @@ void rotateSelection(float amount)
 	if (selection.type == SELECTION_ANTLINE)
 		memcpy(itemQuat, selection.antlineSeg->quat, sizeof(vec4));
 	vec4 quat2;
-	vec3 axis = {0, 1, 0};
+	vec3 axis = {0, 0, 1};
 
 	glm_quatv(quat2, glm_rad(amount), axis);
 

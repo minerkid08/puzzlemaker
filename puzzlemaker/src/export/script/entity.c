@@ -145,7 +145,7 @@ int entityTransform(lua_State* l)
 	vec4 quat;
 	glm_mat4_identity(transform);
 	glm_translate(transform, pos);
-	glm_euler_yzx_quat(rot, quat);
+	glm_euler_yxz_quat(rot, quat);
 	glm_quat_mat4(quat, rotMat);
 	glm_mat4_mul(transform, rotMat, transform);
 
@@ -160,7 +160,7 @@ int entityTransform(lua_State* l)
 	entRot[1] = glm_rad(entRot[1]);
 	entRot[2] = glm_rad(entRot[2]);
 	mat4 rotMat2;
-	glm_euler_yzx(entRot, rotMat2);
+	glm_euler_yxz(entRot, rotMat2);
 
 	glm_mat4_mul(rotMat, rotMat2, rotMat);
 	getEulerAngles(rotMat, rot);
@@ -216,9 +216,9 @@ int entitySetKv(lua_State* l)
 
 int entityAddOutput(lua_State* l)
 {
-	if(lua_gettop(l) == 4)
+	if (lua_gettop(l) == 4)
 		lua_pushnil(l);
-	if(lua_gettop(l) == 5)
+	if (lua_gettop(l) == 5)
 		lua_pushnil(l);
 	Entity* entity = luaGetEntity(l, 1, "bad arg 1");
 	if (lua_type(l, 2) != LUA_TSTRING)

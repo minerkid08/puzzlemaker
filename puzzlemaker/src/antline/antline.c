@@ -2,11 +2,11 @@
 #include "assetManager.h"
 #include "cglm/cglm.h"
 #include "cjson.h"
-#include "jsonUtils.h"
 #include "dynList.h"
 #include "export/entity.h"
 #include "export/overlay.h"
 #include "item/item.h"
+#include "jsonUtils.h"
 #include "renderer/debug.h"
 #include "renderer/renderer.h"
 #include "selection.h"
@@ -181,8 +181,8 @@ static void drawAntline(Antline* antline)
 			tex = config.editorCheckActiveTex;
 		else
 			tex = config.editorCheckTex;
-		vec3 start = {-config.editorCheckSize, -config.editorCheckSize, -0.125f};
-		vec3 end = {config.editorCheckSize, config.editorCheckSize, 0.125f};
+		vec2 start = {-config.editorCheckSize, -config.editorCheckSize};
+		vec2 end = {config.editorCheckSize, config.editorCheckSize};
 		overlayDrawRect(start, end, tex, 1);
 		panelEndFrame(antline->baseSegment.transform, antline->hovered == 0, antline->hovered == 0);
 	}
@@ -197,9 +197,9 @@ static void drawAntline(Antline* antline)
 	{
 		AntlineSegment* segment = &antline->segments[j];
 
-		vec3 start = {-config.editorDotSize, -config.editorDotSize, -0.125f};
-		vec3 end = {config.editorDotSize, config.editorDotSize, 0.125f};
-		end[0] *= 2.0f * segment->len - 1;
+		vec3 start = {-config.editorDotSize, -config.editorDotSize};
+		vec3 end = {config.editorDotSize, config.editorDotSize};
+		end[1] *= 2.0f * segment->len - 1;
 		overlayDrawRect(start, end, tex, segment->len);
 		panelEndFrame(segment->transform, antline->hovered == 0, antline->hovered == 0);
 	}
@@ -238,16 +238,16 @@ void renderAntlineHover()
 		if (&selection.antline->baseSegment == selection.antlineSeg)
 		{
 			AntlineSegment* segment = &selection.antline->baseSegment;
-			vec3 start = {-config.editorCheckSize, -config.editorCheckSize, -0.125f};
-			vec3 end = {config.editorCheckSize, config.editorCheckSize, 0.125f};
+			vec3 start = {-config.editorCheckSize, -0.125f, -config.editorCheckSize};
+			vec3 end = {config.editorCheckSize, 0.125f, config.editorCheckSize};
 			drawDebugRectAntline(start, end, segment->transform);
 		}
 		else
 		{
 			AntlineSegment* segment = selection.antlineSeg;
-			vec3 start = {-config.editorDotSize, -config.editorDotSize, -0.125f};
-			vec3 end = {config.editorDotSize, config.editorDotSize, 0.125f};
-			end[0] *= 2.0f * segment->len - 1;
+			vec3 start = {-config.editorDotSize, -0.125f, -config.editorDotSize};
+			vec3 end = {config.editorDotSize, 0.125f, config.editorDotSize};
+			end[2] *= 2.0f * segment->len - 1;
 			drawDebugRectAntline(start, end, segment->transform);
 		}
 	}
@@ -290,7 +290,7 @@ Antline* getIntersectingAntline(vec3 pos, AntlineSegment** seg)
 			glm_mat4_mulv(transform, pos2, pos2);
 			vec3 bound1 = {-config.editorDotSize, -config.editorDotSize, -0.125f};
 			vec3 bound2 = {config.editorDotSize, config.editorDotSize, 0.125f};
-			bound2[0] *= 2.0f * segment->len - 1;
+			bound2[1] *= 2.0f * segment->len - 1;
 
 			if (pos2[0] < bound1[0] || pos2[0] > bound2[0])
 				continue;
@@ -337,13 +337,13 @@ void antlineExport()
 			char addCorner = 1;
 			AntlineSegment* segment = &antline->segments[i];
 
-			vec3 start = {-config.editorDotSize, -config.editorDotSize, -0.125f};
-			vec3 end = {config.editorDotSize, config.editorDotSize, 0.125f};
+			vec3 start = {-config.editorDotSize, -0.125f, -config.editorDotSize};
+			vec3 end = {config.editorDotSize, 0.125f, config.editorDotSize};
 			OBB a;
 			start[0] += 0.01;
-			start[1] += 0.01;
+			start[2] += 0.01;
 			end[0] -= 0.01;
-			end[1] -= 0.01;
+			end[2] -= 0.01;
 
 			vec3 rot;
 			memcpy(rot, segment->rot, sizeof(vec3));
@@ -351,7 +351,7 @@ void antlineExport()
 			rot[1] = glm_rad(rot[1]);
 			rot[2] = glm_rad(rot[2]);
 			mat4 rotMat;
-			glm_euler_yzx(rot, rotMat);
+			glm_euler_yxz(rot, rotMat);
 			genOBB(start, end, rotMat, segment->pos, &a);
 
 			for (int j = 0; j < segmentCount; j++)
@@ -359,13 +359,13 @@ void antlineExport()
 				if (i == j)
 					continue;
 				AntlineSegment* segment2 = &antline->segments[j];
-				vec3 start = {-config.editorDotSize, -config.editorDotSize, -0.125f};
-				vec3 end = {config.editorDotSize, config.editorDotSize, 0.125f};
-				end[0] *= 2.0f * segment2->len - 1;
+				vec3 start = {-config.editorDotSize, -0.125f, -config.editorDotSize};
+				vec3 end = {config.editorDotSize, 0.125f, config.editorDotSize};
+				end[2] *= 2.0f * segment2->len - 1;
 				start[0] += 0.01;
-				start[1] += 0.01;
+				start[2] += 0.01;
 				end[0] -= 0.01;
-				end[1] -= 0.01;
+				end[2] -= 0.01;
 				OBB b;
 
 				vec3 rot;
@@ -374,7 +374,7 @@ void antlineExport()
 				rot[1] = glm_rad(rot[1]);
 				rot[2] = glm_rad(rot[2]);
 				mat4 rotMat;
-				glm_euler_yzx(rot, rotMat);
+				glm_euler_yxz(rot, rotMat);
 				genOBB(start, end, rotMat, segment2->pos, &b);
 				if (getCollision(&a, &b))
 				{
@@ -386,8 +386,8 @@ void antlineExport()
 			if (!(addCorner && segment->len == 1))
 			{
 				Overlay* overlay = exportCreateOverlay();
-				vec3 bound1 = {-config.editorDotSize, -config.editorDotSize, 0};
-				vec3 bound2 = {config.editorDotSize, config.editorDotSize, 0};
+				vec3 bound1 = {-config.editorDotSize, 0, -config.editorDotSize};
+				vec3 bound2 = {config.editorDotSize, 0, config.editorDotSize};
 				bound2[0] *= 2.0f * segment->len - 1;
 				if (addCorner)
 					bound1[0] = config.editorDotSize;

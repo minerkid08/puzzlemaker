@@ -160,17 +160,14 @@ int main()
 
 		updateCamera();
 
-		cameraPos[0] += forward[0] * moveForward * dt * moveSpeed;
-		cameraPos[1] += forward[1] * moveForward * dt * moveSpeed;
-		cameraPos[2] += forward[2] * moveForward * dt * moveSpeed;
+		cameraMoveForward(moveForward * dt * moveSpeed);
+		cameraMoveRight(moveRight * dt * moveSpeed);
 
-		cameraPos[0] += right[0] * moveRight * dt * moveSpeed;
-		cameraPos[1] += right[1] * moveRight * dt * moveSpeed;
-		cameraPos[2] += right[2] * moveRight * dt * moveSpeed;
+
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		drawVoxels(cameraPos, cameraRot);
+		drawVoxels();
 		endFrame();
 
 		renderAntlines();

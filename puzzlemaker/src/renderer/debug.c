@@ -1,8 +1,10 @@
+#include "cglm/mat4.h"
 #include "cglm/types.h"
 #include "renderer/renderer.h"
 #include "renderer/shader.h"
 #include <glad/glad.h>
 #include <stdio.h>
+#include <string.h>
 
 #define glErrCheck()                                                                                                   \
 	{                                                                                                                  \
@@ -40,6 +42,7 @@ void initDebug()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(inds), inds, GL_STATIC_DRAW);
 
 	glLineWidth(10);
+	glPointSize(10);
 }
 
 void debugCleanup()
@@ -99,6 +102,7 @@ void drawDebugRectAntline(vec3 a, vec3 b, mat4 transform, char color)
 	setUniformMat4(shader, "cam", *getCamMat());
 	setUniformMat4(shader, "mat", *getProjMat());
 	setUniformMat4(shader, "transform", transform);
+	setUniformi(shader, "c", color);
 
 	glDisable(GL_DEPTH_TEST);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -109,6 +113,40 @@ void drawDebugRectAntline(vec3 a, vec3 b, mat4 transform, char color)
 	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, (void*)(4*12));
 	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, (void*)(4*16));
 	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, (void*)(4*20));
+
+	glEnable(GL_DEPTH_TEST);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	glBindVertexArray(0);
+}
+
+void drawDebugPoint(vec3 a, vec3 b, char col)
+{
+	glBindVertexArray(va);
+	glBindBuffer(GL_ARRAY_BUFFER, vb);
+
+	vec3 v = {a[0] + b[0], a[1] + b[1], a[2] + b[2]};
+	vec3 verts[2];
+	memcpy(verts[0], v, sizeof(vec3));
+	memcpy(verts[1], b, sizeof(vec3));
+
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vec3) * 4, verts);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib);
+	glUseProgram(shader);
+
+	mat4 mat;
+	glm_mat4_identity(mat);
+
+	setUniformMat4(shader, "cam", *getCamMat());
+	setUniformMat4(shader, "mat", *getProjMat());
+	setUniformMat4(shader, "transform", mat);
+	setUniformi(shader, "c", col);
+
+	glDisable(GL_DEPTH_TEST);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	glDrawArrays(GL_LINES, 0, 2);
 
 	glEnable(GL_DEPTH_TEST);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

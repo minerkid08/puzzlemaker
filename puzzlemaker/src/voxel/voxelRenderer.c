@@ -1,3 +1,4 @@
+#include "cglm/types.h"
 #include "renderer/renderer.h"
 #include "selection.h"
 #include "utils.h"
@@ -13,21 +14,10 @@ static inline char isSelected(int x, int y, int z, char dir)
 	return 0;
 }
 
-void drawVoxels(vec3 cameraPos, vec3 cameraRot)
+void drawVoxels()
 {
 	bindVoxelTextures(voxelConfig.blackEditor, voxelConfig.whiteEditor, voxelConfig.blackMiniEditor,
 					  voxelConfig.whiteMiniEditor);
-
-	mat4 camMat;
-	glm_mat4_identity(camMat);
-	glm_translate(camMat, cameraPos);
-	glm_rotate_z(camMat, cameraRot[2], camMat);
-	glm_rotate_y(camMat, cameraRot[1], camMat);
-	glm_rotate_x(camMat, cameraRot[0], camMat);
-
-	glm_mat4_inv_fast(camMat, camMat);
-
-	setCamMat(camMat);
 
 	for (int z = 0; z < MAP_SIZE; z++)
 	{

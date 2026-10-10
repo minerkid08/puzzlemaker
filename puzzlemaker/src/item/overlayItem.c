@@ -118,11 +118,11 @@ void overlayItemGetBoundingBox(Item* item, vec3 min, vec3 max)
 {
 	OverlayItemDef* def = item->def->data;
 	min[0] = -def->size[0] / 128.0f;
-	min[1] = -0.125;
-	min[2] = -def->size[1] / 128.0f;
+	min[1] = -def->size[1] / 128.0f;
+	min[2] = -0.125;
 	max[0] = def->size[0] / 128.0f;
-	max[1] = 0.125;
-	max[2] = def->size[1] / 128.0f;
+	max[1] = def->size[1] / 128.0f;
+	max[2] = 0.125;
 }
 void overlayItemSave(Item* item, cJSON* json)
 {

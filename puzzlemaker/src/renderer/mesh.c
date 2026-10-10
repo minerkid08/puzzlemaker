@@ -1,3 +1,4 @@
+#include "utils.h"
 #define FAST_OBJ_IMPLEMENTATION
 
 #include "mesh.h"
@@ -33,10 +34,7 @@ void loadMesh(const char* filename, Mesh* mesh)
 
 	fastObjMesh* m = fast_obj_read(buf);
 	if (m == 0)
-	{
-		printf("failed to load mesh '%s'\n", buf);
-		exit(1);
-	}
+		errorf("failed to load mesh '%s'\n", buf);
 	free(buf);
 
 	Vertex* vertices = malloc(sizeof(Vertex) * m->index_count);

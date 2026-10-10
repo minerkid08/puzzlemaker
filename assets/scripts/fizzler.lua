@@ -53,6 +53,7 @@ for i = 1, tile[2] do
 		brush:setTexture(Direction.POS_Y, "TOOLS/TOOLSTRIGGER");
 		brush:setTexture(Direction.NEG_Y, "TOOLS/TOOLSTRIGGER");
 
+		brush:transform({0, 0, 0}, {90, 0, 0});
 		brush:transform(pos, rot);
 		ent:attachBrush(brush);
 	end
@@ -61,12 +62,14 @@ for i = 1, tile[2] do
 
 	leftProp:setKv("model", "models/props/fizzler_dynamic.mdl");
 	leftProp:setKv("holdanimation", true);
+	leftProp:transform({0, 0, 0}, {90, 0, 0});
 	leftProp:transform(pos, rot);
 
 	local rightProp = Entity.new("rightProp" .. postfix, "prop_dynamic", { size[1], 1 + yMin, 0 }, { 0, 180, 0 });
 
 	rightProp:setKv("model", "models/props/fizzler_dynamic.mdl");
 	rightProp:setKv("holdanimation", true);
+	rightProp:transform({0, 0, 0}, {90, 0, 0});
 	rightProp:transform(pos, rot);
 
 	if (startDisabled) then

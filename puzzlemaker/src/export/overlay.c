@@ -60,9 +60,9 @@ void exportEndOverlays(FILE* file)
 
 		free((char*)overlay->name);
 
-		vec3 normDir = {0, 1, 0};
-		vec3 uDir = {0, 0, 1};
-		vec3 vDir = {1, 0, 0};
+		vec3 normDir = {0, 0, 1};
+		vec3 uDir = {1, 0, 0};
+		vec3 vDir = {0, 1, 0};
 
 		vec3 rot;
 		memcpy(rot, overlay->rotation, sizeof(vec3));

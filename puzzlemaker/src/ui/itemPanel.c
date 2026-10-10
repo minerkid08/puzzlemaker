@@ -80,7 +80,8 @@ void itemPanelStub()
 					ipos[0] = floorf(pos[0]);
 					ipos[1] = floorf(pos[1]);
 					ipos[2] = floorf(pos[2]);
-
+					
+					selection.type = SELECTION_ITEM;
 					selection.item = addItemFromDef(def, ipos);
 				}
 			}

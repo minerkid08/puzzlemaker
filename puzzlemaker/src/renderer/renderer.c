@@ -214,20 +214,20 @@ void panelDrawRect(vec2 start, vec2 end, unsigned int texture)
 	}
 
 	verts[0].pos[0] = start[0];
-	verts[0].pos[1] = start[1];
-	verts[0].pos[2] = 0;
+	verts[0].pos[1] = 0;
+	verts[0].pos[2] = start[1];
 
 	verts[1].pos[0] = end[0];
-	verts[1].pos[1] = start[1];
-	verts[1].pos[2] = 0;
+	verts[1].pos[1] = 0;
+	verts[1].pos[2] = start[1];
 
 	verts[2].pos[0] = start[0];
-	verts[2].pos[1] = end[1];
-	verts[2].pos[2] = 0;
+	verts[2].pos[1] = 0;
+	verts[2].pos[2] = end[1];
 
 	verts[3].pos[0] = end[0];
-	verts[3].pos[1] = end[1];
-	verts[3].pos[2] = 0;
+	verts[3].pos[1] = 0;
+	verts[3].pos[2] = end[1];
 
 	verts[0].uv[0] = 0;
 	verts[0].uv[1] = 0;
@@ -257,20 +257,20 @@ void overlayDrawRect(vec2 start, vec2 end, unsigned int texture, int tile)
 	}
 
 	verts[0].pos[0] = start[0];
-	verts[0].pos[1] = 0.01;
-	verts[0].pos[2] = start[1];
+	verts[0].pos[1] = start[1];
+	verts[0].pos[2] = 0.01;
 
-	verts[2].pos[0] = end[0];
-	verts[2].pos[1] = 0.01;
-	verts[2].pos[2] = start[1];
+	verts[1].pos[0] = end[0];
+	verts[1].pos[1] = start[1];
+	verts[1].pos[2] = 0.01;
 
-	verts[1].pos[0] = start[0];
-	verts[1].pos[1] = 0.01;
-	verts[1].pos[2] = end[1];
+	verts[2].pos[0] = start[0];
+	verts[2].pos[1] = end[1];
+	verts[2].pos[2] = 0.01;
 
 	verts[3].pos[0] = end[0];
-	verts[3].pos[1] = 0.01;
-	verts[3].pos[2] = end[1];
+	verts[3].pos[1] = end[1];
+	verts[3].pos[2] = 0.01;
 
 	verts[0].uv[0] = 0;
 	verts[0].uv[1] = 0;

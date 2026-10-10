@@ -41,7 +41,7 @@ void exportMapSettings()
 	char buf[32];
 	snprintf(buf, 32, "%d", mapSettings.regen);
 	exportEntityAddKvss(ent, "enableregen", buf);
-	snprintf(buf, 32, "%d", mapSettings.boots);
+	snprintf(buf, 32, "%d", !mapSettings.boots);
 	exportEntityAddKvss(ent, "equipboots", buf);
 	snprintf(buf, 32, "%d", mapSettings.maxHealth);
 	exportEntityAddKvss(ent, "maxhealth", buf);

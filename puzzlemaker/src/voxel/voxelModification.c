@@ -198,9 +198,6 @@ void voxelTogglePortal()
 
 void voxelToggleSize()
 {
-	if (selection.voxel == 0)
-		return;
-
 	if (selection.voxel2Pos[0] >= 0)
 	{
 		if (isSelection2d())

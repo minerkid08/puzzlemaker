@@ -207,7 +207,7 @@ void updateItemTransformRot(Item* item)
 	dir[0] = glm_rad(item->dir[0]);
 	dir[1] = glm_rad(item->dir[1]);
 	dir[2] = glm_rad(item->dir[2]);
-	glm_euler_yzx_quat_rh(dir, itemQuat);
+	glm_euler_yxz_quat(dir, itemQuat);
 	mat4 rotMat;
 	glm_quat_mat4(itemQuat, rotMat);
 

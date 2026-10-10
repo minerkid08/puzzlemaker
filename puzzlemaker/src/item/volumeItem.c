@@ -1,5 +1,7 @@
 #include "item/volumeItem.h"
 #include "assetManager.h"
+#include "cglm/affine-pre.h"
+#include "cglm/mat4.h"
 #include "cglm/types.h"
 #include "cjson.h"
 #include "dynList.h"
@@ -127,6 +129,13 @@ void volumeItemRender(Item* item)
 	drawRect(verts[5], verts[1], verts[7], verts[3], def->material);
 	drawRect(verts[0], verts[1], verts[4], verts[5], def->material);
 	drawRect(verts[2], verts[6], verts[3], verts[7], def->material);
+	
+	mat4 t;
+	glm_mat4_identity(t);
+	glm_rotate_x(t, GLM_PI_2, t);
+
+	glm_mat4_mul(transform, t, transform);
+	
 	panelEndFrame(transform, 1, 1);
 }
 
@@ -136,7 +145,8 @@ void volumeItemExport(Item* item)
 	VolumeItemData* data = item->data;
 
 	vec3 start = {0, 0, 0};
-	Brush* brush = exportCreateBrush(start, data->size);
+	vec3 size2 = {data->size[0], data->size[2], -data->size[1]};
+	Brush* brush = exportCreateBrush(start, size2);
 
 	if (def->entity)
 		brush->ent = 1;
@@ -219,9 +229,9 @@ void volumeItemGetBoundingBox(Item* item, vec3 min, vec3 max)
 {
 	VolumeItemData* data = item->data;
 	min[0] = 0;
-	min[1] = 0;
+	min[1] = -data->size[2];
 	min[2] = 0;
 	max[0] = data->size[0];
-	max[1] = data->size[1];
-	max[2] = data->size[2];
+	max[1] = 0;
+	max[2] = data->size[1];
 }

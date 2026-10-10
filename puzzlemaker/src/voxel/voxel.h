@@ -18,7 +18,7 @@ typedef struct
 
 void initVoxels();
 void initVoxelRenderer();
-void drawVoxels(vec3 pos, vec3 rot);
+void drawVoxels();
 char pointInRange(ivec3 point, ivec3 boundA, ivec3 boundB);
 char isSelection2d();
 

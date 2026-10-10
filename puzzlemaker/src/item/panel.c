@@ -332,10 +332,13 @@ void panelItemRender(Item* item)
 	}
 }
 
-static void addBrush(Entity* entity, vec3 start, vec3 end, const char* mat, const char* zTex, Item* item,
-					 int texSize, const char* altTex, int altSize)
+static void addBrush(Entity* entity, vec3 start, vec3 end, const char* mat, const char* zTex, Item* item, int texSize,
+					 const char* altTex, int altSize)
 {
-	Brush* brush = exportCreateBrush(start, end);
+	vec3 start2 = {start[0], start[2], start[1]};
+	vec3 end2 = {end[0], end[2], end[1]};
+
+	Brush* brush = exportCreateBrush(start2, end2);
 	brush->pos[0] = item->pos[0];
 	brush->pos[1] = item->pos[1];
 	brush->pos[2] = item->pos[2];
@@ -350,22 +353,14 @@ static void addBrush(Entity* entity, vec3 start, vec3 end, const char* mat, cons
 	{
 		Side* side = &brush->sides[i];
 
-		for (int j = 0; j < 4; j++)
-		{
-			vec3 res;
-			vec3 vert;
-			memcpy(vert, side->verts[j], sizeof(vec3));
-			glm_mat4_mulv3(transform, vert, 1, res);
-			memcpy(side->verts[j], res, sizeof(vec3));
-		}
-		if (side->id == DIR_POS_Z || (side->id == DIR_NEG_Z && altTex == 0))
+		if (i == DIR_POS_Y || (i == DIR_NEG_Y && altTex == 0))
 		{
 			side->material = mat;
 			side->fit = 1;
 			side->texWidth = texSize;
 			side->texHeight = texSize;
 		}
-		else if (side->id == DIR_NEG_Z && altTex)
+		else if (i == DIR_NEG_Y && altTex)
 		{
 			side->material = altTex;
 			side->fit = 1;
@@ -374,6 +369,15 @@ static void addBrush(Entity* entity, vec3 start, vec3 end, const char* mat, cons
 		}
 		else
 			side->material = zTex;
+
+		for (int j = 0; j < 4; j++)
+		{
+			vec3 res;
+			vec3 vert;
+			memcpy(vert, side->verts[j], sizeof(vec3));
+			glm_mat4_mulv3(transform, vert, 1, res);
+			memcpy(side->verts[j], res, sizeof(vec3));
+		}
 	}
 	if (entity)
 		exportEntityAddBrush(entity, brush);
@@ -565,9 +569,9 @@ void panelItemGetBoundingBox(Item* item, vec3 min, vec3 max)
 	PanelData* data = item->data;
 
 	min[0] = 0;
-	min[1] = 0;
-	min[2] = -0.125;
+	min[1] = -0.125;
+	min[2] = 0;
 	max[0] = data->size[0] * data->tile[0];
-	max[1] = data->size[1] * data->tile[1];
-	max[2] = 0.125;
+	max[1] = 0.125;
+	max[2] = data->size[1] * data->tile[1];
 }

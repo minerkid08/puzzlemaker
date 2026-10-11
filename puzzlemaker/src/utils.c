@@ -23,25 +23,18 @@ void errorf(const char* fmt, ...)
 	startErrorLoop();
 }
 
-void getEulerAngles(mat4 mat, vec3 out)
+void getEulerAngles(mat4 matrix, vec3 out)
 {
-	glm_euler_angles(mat, out);
-	return;
-	float forward[3];
-	float left[3];
-	float up[3];
+	mat4 mat;
+	memcpy(mat, matrix, sizeof(mat4));
+	mat4 m2;
+	glm_mat4_identity(m2);
+	glm_rotate_y(m2, glm_rad(90), m2);
+	glm_mat4_mul(mat, m2, mat);
 
-	//
-	// Extract the basis vectors from the matrix. Since we only need the Z
-	// component of the up vector, we don't get X and Y.
-	//
-	forward[0] = mat[0][0];
-	forward[1] = mat[1][0];
-	forward[2] = mat[2][0];
-	left[0] = mat[0][1];
-	left[1] = mat[1][1];
-	left[2] = mat[2][1];
-	up[2] = mat[2][2];
+	vec3 forward = {-mat[0][2], -mat[0][0], -mat[0][1]};
+	vec3 up = {mat[1][2], mat[1][0], mat[1][1]};
+	vec3 left = {mat[2][2], mat[2][0], mat[2][1]};
 
 	float xyDist = sqrtf(forward[0] * forward[0] + forward[1] * forward[1]);
 
@@ -49,7 +42,7 @@ void getEulerAngles(mat4 mat, vec3 out)
 	if (xyDist > 0.001f)
 	{
 		// (yaw)	y = ATAN( forward.y, forward.x );		-- in our space, forward is the X axis
-		out[1] = -(atan2f(forward[1], forward[0]));
+		out[1] = (atan2f(forward[1], forward[0]));
 
 		// (pitch)	x = ATAN( -forward.z, sqrt(forward.x*forward.x+forward.y*forward.y) );
 		out[0] = (atan2f(-forward[2], xyDist));
@@ -60,7 +53,7 @@ void getEulerAngles(mat4 mat, vec3 out)
 	else // forward is mostly Z, gimbal lock-
 	{
 		// (yaw)	y = ATAN( -left.x, left.y );			-- forward is mostly z, so use right for yaw
-		out[1] = -(atan2f(-left[0], left[1]));
+		out[1] = (atan2f(-left[0], left[1]));
 
 		// (pitch)	x = ATAN( -forward.z, sqrt(forward.x*forward.x+forward.y*forward.y) );
 		out[0] = (atan2f(-forward[2], xyDist));
@@ -68,14 +61,4 @@ void getEulerAngles(mat4 mat, vec3 out)
 		// Assume no roll in this case as one degree of freedom has been lost (i.e. yaw == roll)
 		out[2] = 0;
 	}
-
-	// float  T1 = atan2(mat[2][0], mat[2][2]);
-	// float  C2 = sqrt(mat[0][1] * mat[0][1] + mat[1][1] * mat[1][1]);
-	// float  T2 = atan2(-mat[2][1], C2);
-	// float  S1 = sin(T1);
-	// float  C1 = cos(T1);
-	// float  T3 = atan2(S1 * mat[1][2] - C1 * mat[1][0], C1 * mat[0][0] - S1 * mat[0][2]);
-	// out[1] = T1;
-	// out[0] = T2;
-	// out[2] = T3;
 }

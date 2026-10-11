@@ -1,6 +1,8 @@
 #include "jsonUtils.h"
+#include "assetManager.h"
 #include "cjson.h"
 #include "dynList.h"
+#include "renderer/texture.h"
 #include "ui/itemPanel.h"
 
 #include <stdarg.h>
@@ -24,9 +26,9 @@ void jsonParseError(const char* data, const char* inErr, const char* filename)
 	int offset = inErr - data;
 	int line = 0;
 	int lineIndex = 0;
-	for(int i = 0; i < offset; i++)
+	for (int i = 0; i < offset; i++)
 	{
-		if(data[i] == '\n')
+		if (data[i] == '\n')
 		{
 			line++;
 			lineIndex = i + 1;
@@ -260,6 +262,77 @@ void jsonGetVec3(const cJSON* json, const char* name, vec3 out)
 	out[0] = jsonArrGetFloat(j, 0);
 	out[1] = jsonArrGetFloat(j, 1);
 	out[2] = jsonArrGetFloat(j, 2);
+}
+
+void jsonGetTex(const cJSON* json, const char* name, Texture* out)
+{
+	cJSON* tex = cJSON_GetObjectItem(json, name);
+	out->alignment = TEX_ALIGNMENT_FIT;
+	out->size = 512;
+	if (tex == 0)
+		jsonError("unknown key '%s'\n", name);
+	if (cJSON_IsString(tex))
+	{
+		out->filename = strdup(tex->valuestring);
+		return;
+	}
+
+	int len = dynList_size(jsonStack);
+	dynList_resize((void**)&jsonStack, len + 1);
+	jsonStack[len] = strdup(name);
+
+	out->filename = jsonGetStr(tex, "filename");
+	char* alignment = jsonGetStrC(tex, "alignment", 0);
+	if (alignment)
+	{
+		if (strcmp(alignment, "none") == 0)
+			out->alignment = TEX_ALIGNMENT_NONE;
+		else if (strcmp(alignment, "fit") == 0)
+			out->alignment = TEX_ALIGNMENT_FIT;
+		else
+			jsonError("invalid alignment mode\n");
+
+		free(alignment);
+	}
+	out->size = jsonGetFloatC(tex, "size", 512);
+	jsonPop();
+}
+
+void jsonGetEditorTex(const cJSON* json, const char* name, Texture* out)
+{
+	cJSON* tex = cJSON_GetObjectItem(json, name);
+	out->alignment = TEX_ALIGNMENT_FIT;
+	out->size = 1;
+	if (tex == 0)
+		jsonError("unknown key '%s'\n", name);
+
+	if (cJSON_IsString(tex))
+	{
+		out->tex = assetManagerLoadTexture(tex->valuestring);
+		return;
+	}
+
+	int len = dynList_size(jsonStack);
+	dynList_resize((void**)&jsonStack, len + 1);
+	jsonStack[len] = strdup(name);
+
+	out->filename = jsonGetStr(tex, "filename");
+	out->tex = assetManagerLoadTexture(out->filename);
+	free((char*)out->filename);
+	char* alignment = jsonGetStrC(tex, "alignment", 0);
+	if (alignment)
+	{
+		if (strcmp(alignment, "none") == 0)
+			out->alignment = TEX_ALIGNMENT_NONE;
+		else if (strcmp(alignment, "fit") == 0)
+			out->alignment = TEX_ALIGNMENT_FIT;
+		else
+			jsonError("invalid alignment mode\n");
+
+		free(alignment);
+	}
+	out->size = jsonGetFloatC(tex, "size", 1);
+	jsonPop();
 }
 
 char* jsonGetStrC(const cJSON* json, const char* name, char* def)

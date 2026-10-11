@@ -1,6 +1,7 @@
 #pragma once
 
 #include "item/item.h"
+#include "renderer/texture.h"
 
 #include <cjson.h>
 #include <cglm/cglm.h>
@@ -17,9 +18,18 @@
 
 typedef struct
 {
-	unsigned int material;
-  const char* exportMaterial;
-  int texSize;
+  const char* model;
+  Mesh* mesh;
+  unsigned int tex;
+  mat4 transform;
+  mat4 editorTransform;
+} Prop;
+
+typedef struct
+{
+  Texture editorTexture;
+  Texture texture;
+  //Prop prop;
 	float minSize;
 	float maxSize;
 } PanelItemDef;
@@ -27,12 +37,12 @@ typedef struct
 typedef struct
 {
   PanelItemDef items[8];
-  unsigned int centerMat;
 
-  const char* exportCetnerMat;
-  const char* exportZMat;
+  Texture editorCenterTexture;
+  Texture centerTexture;
+  Texture zTexture;
+
   int exportThickness;
-  int texSize;
   const char* classname;
 
   vec2 minSize;

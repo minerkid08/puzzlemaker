@@ -3,7 +3,10 @@
 #include "debug.h"
 #include "glad/glad.h"
 #include "renderer/shader.h"
+#include "renderer/texture.h"
 #include <GL/gl.h>
+#include <math.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -185,7 +188,7 @@ void drawVerts(vec3* positions, vec4 tint, char portalable)
 		memcpy(verts[i].pos, positions[i], sizeof(float) * 3);
 		memcpy(verts[i].tint, tint, sizeof(float) * 4);
 		verts[i].pos[3] = 1.0f;
-    verts[i].mat = portalable;
+		verts[i].mat = portalable;
 	}
 
 	verts[0].uv[0] = 0;
@@ -205,7 +208,7 @@ void drawVerts(vec3* positions, vec4 tint, char portalable)
 		endFrame();
 }
 
-void panelDrawRect(vec2 start, vec2 end, unsigned int texture)
+void panelDrawRect(vec2 start, vec2 end, Texture* texture)
 {
 	for (int i = 0; i < 4; i++)
 	{
@@ -229,18 +232,35 @@ void panelDrawRect(vec2 start, vec2 end, unsigned int texture)
 	verts[3].pos[1] = 0;
 	verts[3].pos[2] = end[1];
 
-	verts[0].uv[0] = 0;
-	verts[0].uv[1] = 0;
-	verts[1].uv[0] = 1;
-	verts[1].uv[1] = 0;
-	verts[2].uv[0] = 0;
-	verts[2].uv[1] = 1;
-	verts[3].uv[0] = 1;
-	verts[3].uv[1] = 1;
+	if (texture->alignment == TEX_ALIGNMENT_NONE)
+	{
+		float width = end[0] - start[0];
+		float height = end[1] - start[1];
+
+		verts[0].uv[0] = 0;
+		verts[0].uv[1] = 0;
+		verts[1].uv[0] = width / texture->size;
+		verts[1].uv[1] = 0;
+		verts[2].uv[0] = 0;
+		verts[2].uv[1] = height / texture->size;
+		verts[3].uv[0] = width / texture->size;
+		verts[3].uv[1] = height / texture->size;
+	}
+	else
+	{
+		verts[0].uv[0] = 0;
+		verts[0].uv[1] = 0;
+		verts[1].uv[0] = 1;
+		verts[1].uv[1] = 0;
+		verts[2].uv[0] = 0;
+		verts[2].uv[1] = 1;
+		verts[3].uv[0] = 1;
+		verts[3].uv[1] = 1;
+	}
 
 	glUseProgram(panelShader);
 	glActiveTexture(GL_TEXTURE0 + quadCount);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(GL_TEXTURE_2D, texture->tex);
 
 	verts += 4;
 
@@ -291,7 +311,7 @@ void overlayDrawRect(vec2 start, vec2 end, unsigned int texture, int tile)
 	quadCount++;
 }
 
-void drawRect(vec3 v1, vec3 v2, vec3 v3, vec3 v4, unsigned int texture)
+void drawRect(vec3 v1, vec3 v2, vec3 v3, vec3 v4, Texture* texture)
 {
 	for (int i = 0; i < 4; i++)
 	{
@@ -303,18 +323,37 @@ void drawRect(vec3 v1, vec3 v2, vec3 v3, vec3 v4, unsigned int texture)
 	memcpy(verts[2].pos, v3, sizeof(vec3));
 	memcpy(verts[3].pos, v4, sizeof(vec3));
 
-	verts[0].uv[0] = 0;
-	verts[0].uv[1] = 0;
-	verts[1].uv[0] = 1;
-	verts[1].uv[1] = 0;
-	verts[2].uv[0] = 0;
-	verts[2].uv[1] = 1;
-	verts[3].uv[0] = 1;
-	verts[3].uv[1] = 1;
+	if (texture->alignment == TEX_ALIGNMENT_NONE)
+	{
+		vec3 horiz = {v1[0] - v2[0], v1[1] - v2[1], v1[2] - v2[2]};
+		vec3 vert = {v4[0] - v2[0], v4[1] - v2[1], v4[2] - v2[2]};
+		float width = sqrtf(horiz[0] * horiz[0] + horiz[1] * horiz[1] + horiz[2] * horiz[2]);
+		float height = sqrtf(vert[0] * vert[0] + vert[1] * vert[1] + vert[2] * vert[2]);
+
+		verts[0].uv[0] = 0;
+		verts[0].uv[1] = 0;
+		verts[1].uv[0] = width / texture->size;
+		verts[1].uv[1] = 0;
+		verts[2].uv[0] = 0;
+		verts[2].uv[1] = height / texture->size;
+		verts[3].uv[0] = width / texture->size;
+		verts[3].uv[1] = height / texture->size;
+	}
+	else
+	{
+		verts[0].uv[0] = 0;
+		verts[0].uv[1] = 0;
+		verts[1].uv[0] = 1;
+		verts[1].uv[1] = 0;
+		verts[2].uv[0] = 0;
+		verts[2].uv[1] = 1;
+		verts[3].uv[0] = 1;
+		verts[3].uv[1] = 1;
+	}
 
 	glUseProgram(panelShader);
 	glActiveTexture(GL_TEXTURE0 + quadCount);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(GL_TEXTURE_2D, texture->tex);
 
 	verts += 4;
 
@@ -331,7 +370,7 @@ void panelEndFrame(mat4 transform, char backfaceCull, char depthTest)
 	glUseProgram(panelShader);
 	if (backfaceCull == 0)
 		glDisable(GL_CULL_FACE);
-	if (depthTest== 0)
+	if (depthTest == 0)
 		glDisable(GL_DEPTH_TEST);
 
 	setUniformMat4(panelShader, "cam", camMat);

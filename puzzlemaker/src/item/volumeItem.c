@@ -1,5 +1,4 @@
 #include "item/volumeItem.h"
-#include "assetManager.h"
 #include "cglm/affine-pre.h"
 #include "cglm/mat4.h"
 #include "cglm/types.h"
@@ -8,7 +7,6 @@
 #include "export/brush.h"
 #include "export/entity.h"
 #include "item/item.h"
-#include "jsonUtils.h"
 #include "renderer/renderer.h"
 #include "utils.h"
 #include <math.h>
@@ -56,24 +54,28 @@ void* loadVolumeItemDef(cJSON* item, ItemDefinition* itemDef)
 		data->defaultSize[2] = 4;
 	}
 
-	const char* filename = cJSON_GetObjectItem(item, "editorTexture")->valuestring;
-	data->material = assetManagerLoadTexture(filename);
+	jsonGetEditorTex(item, "editorTexture", &data->material);
 
-	cJSON* textureJson = cJSON_GetObjectItem(item, "texture");
-	if (cJSON_IsString(textureJson))
+	if (cJSON_GetObjectItem(item, "texture"))
 	{
-		const char* exportMaterial = strdup(cJSON_GetStringValue(textureJson));
-		for (int i = 0; i < 6; i++)
-			data->exportMaterial[i] = exportMaterial;
+		jsonGetTex(item, "texture", &data->exportMaterial[0]);
+		for (int i = 0; i < 5; i++)
+			memcpy(&data->exportMaterial[i + 1], &data->exportMaterial[0], sizeof(Texture));
 	}
 	else
 	{
-		data->exportMaterial[DIR_POS_X] = jsonGetStr(textureJson, "right");
-		data->exportMaterial[DIR_NEG_X] = jsonGetStr(textureJson, "left");
-		data->exportMaterial[DIR_POS_Y] = jsonGetStr(textureJson, "top");
-		data->exportMaterial[DIR_NEG_Y] = jsonGetStr(textureJson, "bottom");
-		data->exportMaterial[DIR_POS_Z] = jsonGetStr(textureJson, "back");
-		data->exportMaterial[DIR_NEG_Z] = jsonGetStr(textureJson, "front");
+		cJSON* textureJson = cJSON_GetObjectItem(item, "textures");
+		if (textureJson)
+		{
+			jsonGetTex(textureJson, "right", &data->exportMaterial[DIR_POS_Y]);
+			jsonGetTex(textureJson, "left", &data->exportMaterial[DIR_NEG_Y]);
+			jsonGetTex(textureJson, "top", &data->exportMaterial[DIR_POS_Z]);
+			jsonGetTex(textureJson, "bottom", &data->exportMaterial[DIR_NEG_Z]);
+			jsonGetTex(textureJson, "back", &data->exportMaterial[DIR_POS_X]);
+			jsonGetTex(textureJson, "front", &data->exportMaterial[DIR_NEG_X]);
+		}
+		else
+			jsonError("no textures defined\n");
 	}
 
 	if (cJSON_GetObjectItem(item, "entity"))
@@ -123,19 +125,19 @@ void volumeItemRender(Item* item)
 	setVec(verts[6], 0, y, z);
 	setVec(verts[7], x, y, z);
 
-	drawRect(verts[1], verts[0], verts[3], verts[2], def->material);
-	drawRect(verts[4], verts[5], verts[6], verts[7], def->material);
-	drawRect(verts[0], verts[4], verts[2], verts[6], def->material);
-	drawRect(verts[5], verts[1], verts[7], verts[3], def->material);
-	drawRect(verts[0], verts[1], verts[4], verts[5], def->material);
-	drawRect(verts[2], verts[6], verts[3], verts[7], def->material);
-	
+	drawRect(verts[1], verts[0], verts[3], verts[2], &def->material);
+	drawRect(verts[4], verts[5], verts[6], verts[7], &def->material);
+	drawRect(verts[0], verts[4], verts[2], verts[6], &def->material);
+	drawRect(verts[5], verts[1], verts[7], verts[3], &def->material);
+	drawRect(verts[0], verts[1], verts[4], verts[5], &def->material);
+	drawRect(verts[2], verts[6], verts[3], verts[7], &def->material);
+
 	mat4 t;
 	glm_mat4_identity(t);
 	glm_rotate_x(t, GLM_PI_2, t);
 
 	glm_mat4_mul(transform, t, transform);
-	
+
 	panelEndFrame(transform, 1, 1);
 }
 
@@ -145,7 +147,7 @@ void volumeItemExport(Item* item)
 	VolumeItemData* data = item->data;
 
 	vec3 start = {0, 0, 0};
-	vec3 size2 = {data->size[0], data->size[2], -data->size[1]};
+	vec3 size2 = {data->size[0], -data->size[2], data->size[1]};
 	Brush* brush = exportCreateBrush(start, size2);
 
 	if (def->entity)
@@ -164,7 +166,7 @@ void volumeItemExport(Item* item)
 	{
 		Side* side = &brush->sides[i];
 
-		side->material = def->exportMaterial[i];
+		side->material = def->exportMaterial[i].filename;
 		for (int j = 0; j < 4; j++)
 		{
 			vec3 res;
@@ -181,7 +183,6 @@ void volumeItemExport(Item* item)
 		char buf[20];
 		snprintf(buf, 20, "%s%d", item->def->name, item->index);
 		memcpy(ent->pos, item->pos, sizeof(vec3));
-		memcpy(ent->rotation, item->dir, sizeof(vec3));
 		ent->name = strdup(buf);
 		ent->className = def->entity;
 		exportEntityAddBrush(ent, brush);

@@ -45,7 +45,13 @@
 		"mat": "start.png",
     "entity": "info_player_start",
     "bound1": [-0.5, -0.5, -0.5],
-    "bound2": [0.5, 0.5, 0.5]
+    "bound2": [0.5, 0.5, 0.5],
+    "editorTransform": {
+      "rotation": [90, 0, 0]
+    },
+    "transform": {
+      "rotation": [90, 0, 0]
+    }
 	},
 	{
     "type": "entity",

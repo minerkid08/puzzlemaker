@@ -6,17 +6,24 @@
 		"mat": "light.png",
     "instance": "light",
     "snapMode": "mini-center",
-    "bound1": [-0.25, 0, -1.25],
-    "bound2": [0.25, 0.1, 0.75],
+    "bound1": [-1.25, -0.25, 0],
+    "bound2": [0.75, 0.25, 0.1],
+		"editorTransform": {
+			"rotation": [90, 0, 90]
+		},
 		"transform": {
-			"rotation": [0, -90, 0]
+			"rotation": [90, 0, 0]
 		}
 	},
   {
     "type": "volume",
     "name": "small-blocks",
-    "editorTexture": "blackVoxel.png",
-    "texture": {
+    "editorTexture": {
+      "filename": "blackVoxel.png",
+      "size": 0.5,
+      "alignment": "none"
+    },
+    "textures": {
       "top": "METAL/BLACK_FLOOR_METAL_001C",
       "bottom": "METAL/BLACK_CEILING_METAL_001A",
       "left": "METAL/BLACK_WALL_METAL_002B",

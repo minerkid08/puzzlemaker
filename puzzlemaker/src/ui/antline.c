@@ -30,17 +30,26 @@ void antlinePanelRender()
 	int segmentCount = dynList_size(selection.antline->segments);
 	if (!selection.antline->hasCheck && segmentCount == 0)
 		igText("warning: antline has no visible component");
+
 	if (igButton("remove", zero))
 		removeAntline(selection.antline);
+
 	igSameLine(0, -1);
-	if(igButton("select", zero))
-		selection.antlineSeg = &selection.antline->baseSegment;
-	igCheckbox("check enable", (bool*)&selection.antline->hasCheck);
+
 	igBeginDisabled(!selection.antline->hasCheck);
+	if (igButton("select", zero))
+		selection.antlineSeg = &selection.antline->baseSegment;
+	igEndDisabled();
+	igCheckbox("check enable", (bool*)&selection.antline->hasCheck);
+
+	igBeginDisabled(!selection.antline->hasCheck);
+
 	if (igDragFloat3("position", selection.antline->baseSegment.pos, 0.01f, 0.0f, 0.0f, "%.3f", 0))
 		antlineUpdateTransform(&selection.antline->baseSegment);
+
 	if (igDragFloat3("rotation", selection.antline->baseSegment.rot, 0.01f, 0.0f, 0.0f, "%.3f", 0))
 		antlineUpdateTransformRot(&selection.antline->baseSegment);
+
 	igEndDisabled();
 
 	igSeparatorText("segments");

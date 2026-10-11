@@ -12,6 +12,13 @@
 extern Item* itemList;
 extern Antline* antlines;
 
+#define errf(fmt, ...)                                                                                                 \
+	{                                                                                                                  \
+		errorf(fmt, __VA_ARGS__);                                                                                      \
+		cJSON_Delete(json);                                                                                            \
+		return;                                                                                                        \
+	}
+
 void load()
 {
 	char filename[256];
@@ -117,7 +124,7 @@ void load()
 				item = addItem(i, 0);
 		}
 		if (item == 0)
-			errorf("failed to load item, item definition not found for item '%s'\n", id);
+			errf("failed to load item, item definition not found for item '%s'\n", id);
 		item->loadIndex = index;
 
 		jsonGetVec3(itemJson, "pos", item->pos);
@@ -155,7 +162,7 @@ void load()
 					output->def = &outputs[j];
 			}
 			if (output->def == 0)
-				errorf("failed to load item def %s, %d\n", item->def->name, i);
+				errf("failed to load item def %s, %d\n", item->def->name, i);
 
 			const char* inputName = jsonGetStr(outputJson, "input");
 			output->input = (InputDef*)inputName;

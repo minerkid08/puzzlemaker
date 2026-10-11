@@ -1,4 +1,5 @@
 #include "cglm/types.h"
+#include "renderer/texture.h"
 #include <cjson.h>
 
 void jsonParseError(const char* data, const char* err, const char* filename);
@@ -20,6 +21,8 @@ float jsonGetFloat(const cJSON* json, const char* name);
 int jsonGetInt(const cJSON* json, const char* name);
 void jsonGetVec2(const cJSON* json, const char* name, vec2 out);
 void jsonGetVec3(const cJSON* json, const char* name, vec3 out);
+void jsonGetTex(const cJSON* json, const char* name, Texture* out);
+void jsonGetEditorTex(const cJSON* json, const char* name, Texture* out);
 
 char* jsonGetStrC(const cJSON* json, const char* name, char* def);
 char jsonGetBoolC(const cJSON* json, const char* name, char def);

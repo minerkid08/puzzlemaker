@@ -46,6 +46,7 @@ typedef struct
 	AntlineSegment baseSegment;
 } Antline;
 
+AntlineConfig* getAntlineConfig();
 void loadAntlineConfig();
 Antline* addAntline();
 void removeAntline(Antline* antline);

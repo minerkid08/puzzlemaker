@@ -80,7 +80,11 @@ void itemListRender()
 			{
 				selection.type = SELECTION_ANTLINE;
 				selection.antline = antline;
-				selection.antlineSeg = &antline->baseSegment;
+				int l = dynList_size(antline->segments);
+				if (antline->hasCheck || l == 0)
+					selection.antlineSeg = &antline->baseSegment;
+				else
+					selection.antlineSeg = &antline->segments[0];
 			}
 			igPopID();
 		}

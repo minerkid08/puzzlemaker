@@ -16,9 +16,13 @@ char errorState = 0;
 static char open = 0;
 static char wasOpen = 0;
 extern GLFWwindow* window;
+extern char running;
 
 void startErrorLoop()
 {
+  printf("err: %s\n", err);
+  if(running)
+    return;
 	while (!glfwWindowShouldClose(window))
 	{
 		uiNewFrame();
@@ -36,12 +40,23 @@ void openErrorPopup()
 	igOpenPopup_Str("error", 0);
 }
 
+void openRuntimeErrorPopup()
+{
+	open = 1;
+	igOpenPopup_Str("error", 0);
+}
+
 void renderErrorPopup()
 {
 	ImVec2 zero = {0, 0};
 
 	if (open == 0 && wasOpen)
-		exit(1);
+	{
+    wasOpen = 0;
+    errorState = 0;
+		if (running == 0)
+			exit(1);
+	}
 
 	if (errorState && open == 0)
 	{

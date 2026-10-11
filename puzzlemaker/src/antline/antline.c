@@ -23,6 +23,11 @@ static __attribute__((constructor)) void init()
 	antlines = dynList_new(0, sizeof(Antline));
 }
 
+AntlineConfig* getAntlineConfig()
+{
+	return &config;
+}
+
 void loadAntlineConfig()
 {
 	FILE* file = fopen("antline.json", "rb");
@@ -359,13 +364,13 @@ void antlineExport()
 				if (i == j)
 					continue;
 				AntlineSegment* segment2 = &antline->segments[j];
-				vec3 start = {-config.editorDotSize, -0.125f, -config.editorDotSize};
-				vec3 end = {config.editorDotSize, 0.125f, config.editorDotSize};
-				end[2] *= 2.0f * segment2->len - 1;
+				vec3 start = {-config.editorDotSize, -config.editorDotSize, -0.125f};
+				vec3 end = {config.editorDotSize, config.editorDotSize, 0.125f};
+				end[1] *= 2.0f * segment2->len - 1;
 				start[0] += 0.01;
-				start[2] += 0.01;
+				start[1] += 0.01;
 				end[0] -= 0.01;
-				end[2] -= 0.01;
+				end[1] -= 0.01;
 				OBB b;
 
 				vec3 rot;
@@ -394,7 +399,7 @@ void antlineExport()
 
 				float x = (bound1[0] + bound2[0]) / 2.0f;
 
-				vec4 pos = {x, 0, 0, 1};
+				vec4 pos = {0, x, 0, 1};
 				mat4 transform;
 				memcpy(transform, segment->transform, sizeof(mat4));
 				glm_mat4_mulv(transform, pos, pos);
@@ -428,7 +433,10 @@ void antlineExport()
 		}
 		Entity* entity = exportCreateEntity();
 
-		memcpy(entity->pos, antline->baseSegment.pos, sizeof(vec3));
+		if (antline->hasCheck)
+			memcpy(entity->pos, antline->baseSegment.pos, sizeof(vec3));
+		else
+			memcpy(entity->pos, antline->segments[0].pos, sizeof(vec3));
 		memcpy(entity->rotation, antline->baseSegment.rot, sizeof(vec3));
 		entity->className = "env_texturetoggle";
 		exportEntityAddKvss(entity, "target", buf);

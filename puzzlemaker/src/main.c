@@ -76,6 +76,7 @@ extern float uiScale;
 static char snapRotation;
 
 GLFWwindow* window;
+char running = 0;
 
 int main()
 {
@@ -127,6 +128,7 @@ int main()
 	double now = glfwGetTime();
 	double dt;
 	double lastTime = now;
+  running = 1;
 	while (!glfwWindowShouldClose(window))
 	{
 		framebufferBind(&framebuffer);
@@ -162,8 +164,6 @@ int main()
 
 		cameraMoveForward(moveForward * dt * moveSpeed);
 		cameraMoveRight(moveRight * dt * moveSpeed);
-
-
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

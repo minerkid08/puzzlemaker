@@ -27,6 +27,8 @@ void updateGrab(vec3 cameraPos, vec3 mouseDir)
 		{
 			if (&selection.antline->baseSegment != selection.antlineSeg)
 				snapMode = 5;
+      else
+       snapMode = 6;
 		}
 		if (selection.type == SELECTION_ITEM)
 			snapMode = selection.item->def->snapMode;
@@ -52,11 +54,22 @@ void updateGrab(vec3 cameraPos, vec3 mouseDir)
 			newPos[1] = round(hit.pos[1] * 2 - 0.25) / 2 + 0.25;
 			newPos[2] = round(hit.pos[2] * 2 - 0.25) / 2 + 0.25;
 			break;
-		case 5:
-			newPos[0] = round(hit.pos[0] * 4 - 0.125) / 4 + 0.125;
-			newPos[1] = round(hit.pos[1] * 4 - 0.125) / 4 + 0.125;
-			newPos[2] = round(hit.pos[2] * 4 - 0.125) / 4 + 0.125;
-			break;
+		case 5: {
+			AntlineConfig* cfg = getAntlineConfig();
+			float a = 64.0f / cfg->dotSize;
+			newPos[0] = round(hit.pos[0] * a - cfg->editorDotSize) / a + cfg->editorDotSize;
+			newPos[1] = round(hit.pos[1] * a - cfg->editorDotSize) / a + cfg->editorDotSize;
+			newPos[2] = round(hit.pos[2] * a - cfg->editorDotSize) / a + cfg->editorDotSize;
+		break;
+		}
+		case 6: {
+			AntlineConfig* cfg = getAntlineConfig();
+			float a = 64.0f / cfg->checkSize;
+			newPos[0] = round(hit.pos[0] * a - cfg->editorCheckSize) / a + cfg->editorCheckSize;
+			newPos[1] = round(hit.pos[1] * a - cfg->editorCheckSize) / a + cfg->editorCheckSize;
+			newPos[2] = round(hit.pos[2] * a - cfg->editorCheckSize) / a + cfg->editorCheckSize;
+		break;
+		}
 		}
 		char snapDir;
 		if (selection.type == SELECTION_ITEM)

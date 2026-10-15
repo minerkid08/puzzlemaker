@@ -1,7 +1,7 @@
 #include "cjson.h"
 #include "dynList.h"
-#include "item/entityItem.h"
 #include "item/item.h"
+#include "item/entityItem.h"
 #include "item/overlayItem.h"
 #include "item/panel.h"
 #include "item/volumeItem.h"
@@ -140,9 +140,11 @@ void loadItemDefinitionFile(const char* filename)
 			jsonError("invalid value for key type type\n");
 
 		def->deleteIntersectingVoxels = jsonGetBoolC(item, "deleteIntersectingVoxels", 0);
+		def->deleteIntersectingVoxelsEditor = jsonGetBoolC(item, "deleteIntersectingVoxelsEditor", def->deleteIntersectingVoxels);
 		def->genMissingVoxels = jsonGetBoolC(item, "genMissingVoxels", 1);
 		def->exportScript = jsonGetStrC(item, "exportScript", 0);
 		def->transparent = jsonGetBoolC(item, "transparent", 0);
+		def->requiresPaint = jsonGetBoolC(item, "requiresPaint", 0);
 
 		cJSON* keyValues = jsonGetArrayC(item, "keyvalues");
 		len = cJSON_GetArraySize(keyValues);
@@ -184,6 +186,31 @@ void loadItemDefinitionFile(const char* filename)
 			{
 				kvDef->type = TYPE_PICKER;
 				kvDef->defaultValue.i = -1;
+			}
+			if (strcmp(type->valuestring, "bitfield") == 0)
+			{
+				kvDef->type = TYPE_BITFIELD;
+				kvDef->defaultValue.i = jsonGetInt(kv, "defaultValue");
+
+				cJSON* options = jsonGetObject(kv, "options");
+				cJSON* opt = options->child;
+				int len = cJSON_GetArraySize(options);
+
+				kvDef->dropNames = dynList_new(len, sizeof(char*));
+				kvDef->dropValues = dynList_new(len, sizeof(V));
+				int i = 0;
+				while (1)
+				{
+					if (opt == 0)
+						break;
+					if (!cJSON_IsNumber(opt))
+						jsonError("bad type for kv value %d\n", i);
+					kvDef->dropNames[i] = strdup(opt->string);
+					kvDef->dropValues[i].i = opt->valueint;
+					opt = opt->next;
+					i++;
+				}
+				jsonPop();
 			}
 			if (strcmp(type->valuestring, "drop-string") == 0)
 			{

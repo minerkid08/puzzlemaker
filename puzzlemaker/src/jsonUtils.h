@@ -23,6 +23,7 @@ void jsonGetVec2(const cJSON* json, const char* name, vec2 out);
 void jsonGetVec3(const cJSON* json, const char* name, vec3 out);
 void jsonGetTex(const cJSON* json, const char* name, Texture* out);
 void jsonGetEditorTex(const cJSON* json, const char* name, Texture* out);
+void jsonGetTransform(const cJSON* json, const char* name, vec3 pos, vec3 dir, mat4 transform);
 
 char* jsonGetStrC(const cJSON* json, const char* name, char* def);
 char jsonGetBoolC(const cJSON* json, const char* name, char def);

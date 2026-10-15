@@ -208,6 +208,33 @@ void drawVerts(vec3* positions, vec4 tint, char portalable)
 		endFrame();
 }
 
+void drawVerts2(vec3* positions, vec4 tint, char portalable)
+{
+	for (int i = 0; i < 4; i++)
+	{
+		memcpy(verts[i].pos, positions[i], sizeof(float) * 3);
+		memcpy(verts[i].tint, tint, sizeof(float) * 4);
+		verts[i].pos[3] = 1.0f;
+		verts[i].mat = portalable;
+	}
+
+	verts[0].uv[0] = 0;
+	verts[0].uv[1] = 0;
+	verts[1].uv[0] = 0;
+	verts[1].uv[1] = 0.5;
+	verts[2].uv[0] = 0.5;
+	verts[2].uv[1] = 0;
+	verts[3].uv[0] = 0.5;
+	verts[3].uv[1] = 0.5;
+
+	verts += 4;
+
+	vertCount += 4;
+	quadCount++;
+	if (quadCount >= NUM_QUADS)
+		endFrame();
+}
+
 void panelDrawRect(vec2 start, vec2 end, Texture* texture)
 {
 	for (int i = 0; i < 4; i++)

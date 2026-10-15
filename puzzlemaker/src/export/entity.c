@@ -2,6 +2,7 @@
 #include "dynList.h"
 #include "export/brush.h"
 #include "item/item.h"
+#include "utils.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -46,71 +47,93 @@ void exportEntityAddKv(Entity* ent, ItemKv* kv)
 		ent->kvs = dynList_new(0, sizeof(const char*));
 
 	int len = dynList_size(ent->kvs);
-	char buf[128];
+	char* buf;
 
 	ItemKvDef* def = kv->def;
 	if (def->type & TYPE_INSTANCE)
 	{
 		int type = def->type & ~(TYPE_INSTANCE);
 		if (type == TYPE_INT)
-			snprintf(buf, 128, "\"replace%d\" \"$%s %d\"", len, def->name, kv->value.i);
+			buf = strdupf("\"replace%d\" \"$%s %d\"", len, def->name, kv->value.i);
 		if (type == TYPE_BOOL)
-			snprintf(buf, 128, "\"replace%d\" \"$%s %d\"", len, def->name, (int)kv->value.b);
+			buf = strdupf("\"replace%d\" \"$%s %d\"", len, def->name, (int)kv->value.b);
 		if (type == TYPE_FLOAT)
-			snprintf(buf, 128, "\"replace%d\" \"$%s %.2f\"", len, def->name, kv->value.f);
+			buf = strdupf("\"replace%d\" \"$%s %.2f\"", len, def->name, kv->value.f);
 		if (type == TYPE_STRING)
-			snprintf(buf, 128, "\"replace%d\" \"$%s %s\"", len, def->name, kv->value.s);
+			buf = strdupf("\"replace%d\" \"$%s %s\"", len, def->name, kv->value.s);
+		if (type == TYPE_BITFIELD)
+		{
+			int value = 0;
+			int len = dynList_size(kv->def->dropNames);
+			for (int j = 0; j < len; j++)
+			{
+				if (kv->value.s[j])
+					value |= 1 << kv->def->dropValues[j].i;
+			}
+			buf = strdupf("\"replace%d\" \"$%s %d\"", len, def->name, value);
+		}
 		if (type == TYPE_PICKER)
 		{
 			if (kv->value.i == -1)
-				snprintf(buf, 128, "\"replace%d\" \"$%s (none)\"", len, def->name);
+				buf = strdupf("\"replace%d\" \"$%s (none)\"", len, def->name);
 			else
 			{
 				Item* target = getItem(kv->value.i);
-				snprintf(buf, 128, "\"replace%d\" \"$%s %s%d\"", len, def->name, target->def->name, target->index);
+				buf = strdupf("\"replace%d\" \"$%s %s%d\"", len, def->name, target->def->name, target->index);
 			}
 		}
 		if (type & TYPE_DROPDOWN)
 		{
 			type &= ~(TYPE_DROPDOWN);
 			if (type == TYPE_STRING)
-				snprintf(buf, 128, "\"replace%d\" \"$%s %s\"", len, def->name, kv->def->dropValues[kv->value.i].s);
+				buf = strdupf("\"replace%d\" \"$%s %s\"", len, def->name, kv->def->dropValues[kv->value.i].s);
 			if (type == TYPE_INT)
-				snprintf(buf, 128, "\"replace%d\" \"$%s %d\"", len, def->name, kv->def->dropValues[kv->value.i].i);
+				buf = strdupf("\"replace%d\" \"$%s %d\"", len, def->name, kv->def->dropValues[kv->value.i].i);
 		}
 	}
 	else
 	{
 		if (def->type == TYPE_INT)
-			snprintf(buf, 128, "\"%s\" \"%d\"", def->name, kv->value.i);
+			buf = strdupf("\"%s\" \"%d\"", def->name, kv->value.i);
 		if (def->type == TYPE_FLOAT)
-			snprintf(buf, 128, "\"%s\" \"%.2f\"", def->name, kv->value.f);
+			buf = strdupf("\"%s\" \"%.2f\"", def->name, kv->value.f);
 		if (def->type == TYPE_BOOL)
-			snprintf(buf, 128, "\"%s\" \"%d\"", def->name, (int)kv->value.b);
+			buf = strdupf("\"%s\" \"%d\"", def->name, (int)kv->value.b);
 		if (def->type == TYPE_STRING)
-			snprintf(buf, 128, "\"%s\" \"%s\"", def->name, kv->value.s);
+			buf = strdupf("\"%s\" \"%s\"", def->name, kv->value.s);
+		if (def->type == TYPE_BITFIELD)
+		{
+			int value = 0;
+			int len = dynList_size(kv->def->dropNames);
+			for (int j = 0; j < len; j++)
+			{
+				if (kv->value.s[j])
+					value |= 1 << kv->def->dropValues[j].i;
+			}
+			buf = strdupf("\"%s\" \"%d\"", def->name, value);
+		}
 		if (def->type & TYPE_DROPDOWN)
 		{
 			int type = (def->type & (~TYPE_DROPDOWN));
 			if (type == TYPE_STRING)
-				snprintf(buf, 128, "\"%s\" \"%s\"", def->name, kv->def->dropValues[kv->value.i].s);
+				buf = strdupf("\"%s\" \"%s\"", def->name, kv->def->dropValues[kv->value.i].s);
 			if (type == TYPE_INT)
-				snprintf(buf, 128, "\"%s\" \"%d\"", def->name, kv->def->dropValues[kv->value.i].i);
+				buf = strdupf("\"%s\" \"%d\"", def->name, kv->def->dropValues[kv->value.i].i);
 		}
 		if (def->type == TYPE_PICKER)
 		{
 			if (kv->value.i == -1)
-				snprintf(buf, 128, "\"%s\" \"(none)\"", def->name);
+				buf = strdupf("\"%s\" \"(none)\"", def->name);
 			else
 			{
 				Item* target = getItem(kv->value.i);
-				snprintf(buf, 128, "\"%s\" \"%s%d\"", def->name, target->def->name, target->index);
+				buf = strdupf("\"%s\" \"%s%d\"", def->name, target->def->name, target->index);
 			}
 		}
 	}
 
 	dynList_resize((void**)&ent->kvs, len + 1);
-	ent->kvs[len] = strdup(buf);
+	ent->kvs[len] = buf;
 }
 
 void exportEntityAddKvs(Entity* ent, const char* kv)
@@ -125,14 +148,13 @@ void exportEntityAddKvs(Entity* ent, const char* kv)
 
 void exportEntityAddKvss(Entity* ent, const char* key, const char* value)
 {
-	char buf[50];
-	snprintf(buf, 50, "\"%s\" \"%s\"", key, value);
+	char* kv = strdupf("\"%s\" \"%s\"", key, value);
 	if (ent->kvs == 0)
 		ent->kvs = dynList_new(0, sizeof(const char*));
 
 	int len = dynList_size(ent->kvs);
 	dynList_resize((void**)&ent->kvs, len + 1);
-	ent->kvs[len] = strdup(buf);
+	ent->kvs[len] = kv;
 }
 
 void exportEntityAddBrush(Entity* ent, Brush* brush)
@@ -245,6 +267,8 @@ void exportEntitiesProcessOutputs()
 		for (int j = 0; j < outputCount; j++)
 		{
 			ItemOutput* output = &outputArr[j];
+			if (output->entity == -1)
+				continue;
 			char relayName[128];
 			snprintf(relayName, 128, "%s_%s", entName, output->def->name);
 

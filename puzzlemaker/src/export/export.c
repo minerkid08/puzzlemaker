@@ -22,10 +22,13 @@ int exportMap()
 	int len = dynList_size(items);
 	if (len == 0)
 		return 1;
+	char requiresPaint = 0;
 	for (int i = 0; i < len; i++)
 	{
 		Item* item = &items[i];
 		item->ioEnt = 0;
+		if (item->def->requiresPaint)
+			requiresPaint = 1;
 		if (item->def == 0)
 			continue;
 		if (item->def->exportScript)
@@ -78,6 +81,8 @@ viewsettings
 	"detailmaterial" "detail/detailsprites"
 	"maxblobcount" "250"
 	"maxprojectedtextures" "8")");
+
+  fprintf(file, "  \"paintinmap\" \"%d\"\n", requiresPaint);
 
 	exportEndBrushes(file);
 	fprintf(file, "\n}\n");

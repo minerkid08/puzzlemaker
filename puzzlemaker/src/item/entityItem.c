@@ -8,7 +8,6 @@
 #include "export/entity.h"
 #include "item/item.h"
 #include "jsonUtils.h"
-#include "renderer/debug.h"
 #include "renderer/renderer.h"
 #include "utils.h"
 #include <math.h>
@@ -46,60 +45,8 @@ void* loadEntityItemDef(cJSON* item, ItemDefinition* itemDef)
 	def->bound2[1] = fmaxf(bound1[1], bound2[1]);
 	def->bound2[2] = fmaxf(bound1[2], bound2[2]);
 
-	cJSON* transform = jsonGetObjectC(item, "transform");
-	def->positionOffset[0] = 0;
-	def->positionOffset[1] = 0;
-	def->positionOffset[2] = 0;
-
-	def->rotationOffset[0] = 0;
-	def->rotationOffset[1] = 0;
-	def->rotationOffset[2] = 0;
-	if (transform)
-	{
-		cJSON* position = cJSON_GetObjectItem(transform, "position");
-		cJSON* rotation = cJSON_GetObjectItem(transform, "rotation");
-		if (position)
-			jsonGetVec3(transform, "position", def->positionOffset);
-		if (rotation)
-			jsonGetVec3(transform, "rotation", def->rotationOffset);
-		jsonPop();
-	}
-
-	cJSON* editorTransformJson = jsonGetObjectC(item, "editorTransform");
-	mat4 editorTransform;
-	def->editorPos[0] = 0;
-	def->editorPos[1] = 0;
-	def->editorPos[2] = 0;
-	def->editorRot[0] = 0;
-	def->editorRot[1] = 0;
-	def->editorRot[2] = 0;
-	glm_mat4_identity(editorTransform);
-	if (editorTransformJson)
-	{
-		vec3 pos = {0, 0, 0};
-		vec3 rot = {0, 0, 0};
-		cJSON* position = cJSON_GetObjectItem(editorTransformJson, "position");
-		cJSON* rotation = cJSON_GetObjectItem(editorTransformJson, "rotation");
-		if (position)
-			jsonGetVec3(editorTransformJson, "position", pos);
-		if (rotation)
-			jsonGetVec3(editorTransformJson, "rotation", rot);
-		jsonPop();
-
-		memcpy(def->editorPos, pos, sizeof(vec3));
-		memcpy(def->editorRot, rot, sizeof(vec3));
-
-		mat4 rotMat;
-		vec4 quat;
-		rot[0] = glm_rad(rot[0]);
-		rot[1] = glm_rad(rot[1]);
-		rot[2] = glm_rad(rot[2]);
-		glm_translate(editorTransform, pos);
-		glm_euler_yzx_quat(rot, quat);
-		glm_quat_mat4(quat, rotMat);
-		glm_mat4_mul(editorTransform, rotMat, editorTransform);
-	}
-	memcpy(def->editorTransform, editorTransform, sizeof(mat4));
+  jsonGetTransform(item, "transform", def->positionOffset, def->rotationOffset, 0);
+  jsonGetTransform(item, "editorTransform", def->editorPos, def->editorRot, def->editorTransform);
 
 	if (cJSON_HasObjectItem(item, "instance"))
 	{
@@ -159,7 +106,6 @@ void entityItemExport(Item* item)
 	entPos[2] = defData->positionOffset[0] / 64.0f;
 	entPos[0] = defData->positionOffset[1] / 64.0f;
 	entPos[1] = defData->positionOffset[2] / 64.0f;
-	memcpy(entPos, defData->positionOffset, sizeof(vec3));
 
 	glm_mat4_mulv3(transform, entPos, 1, entPos);
 	memcpy(entity->pos, entPos, sizeof(vec3));
@@ -174,23 +120,10 @@ void entityItemExport(Item* item)
 	glm_euler_yxz_quat(entRot, quat);
 
 	vec4 newRot;
-	glm_quat_norm(itemRot);
-	glm_quat_norm(quat);
 	glm_quat_mul(itemRot, quat, newRot);
-	glm_quat_norm(newRot);
 	glm_quat_mat4(newRot, rotMat);
 
-	// vec3 eye = {0, 0, 0};
-	// vec3 up = {0, 1, 0};
-	// vec3 forward = {-1, 0, 0};
-	// glm_mat4_mulv3(rotMat, up, 1, up);
-	// glm_mat4_mulv3(rotMat, forward, 1, forward);
-	// glm_lookat(eye, forward, up, rotMat);
-
 	getEulerAngles(rotMat, entRot);
-	// entRot[0] = asin(-rotMat[0][1]);
-	// entRot[1] = atan2(rotMat[2][1], rotMat[1][1]);
-	// entRot[2] = atan2(rotMat[0][2], rotMat[0][0]);
 	entRot[0] = glm_deg(entRot[0]);
 	entRot[1] = glm_deg(entRot[1]);
 	entRot[2] = glm_deg(entRot[2]);
@@ -200,8 +133,9 @@ void entityItemExport(Item* item)
 	if (defData->instanceName)
 	{
 		entity->className = "func_instance";
-		snprintf(buf, sizeof(buf), "puzzlemakerInstances/%s", defData->instanceName);
-		exportEntityAddKvss(entity, "file", buf);
+    char* instanceName = itemProcessString(defData->instanceName, item->kv);
+		exportEntityAddKvss(entity, "file", instanceName);
+    free(instanceName);
 	}
 	else
 		entity->className = defData->entityName;

@@ -86,6 +86,8 @@ void antlinePanelRender()
 					memcpy(&(*segList)[j], &(*segList)[j + 1], sizeof(AntlineSegment));
 				segmentCount--;
 				dynList_resize((void**)segList, segmentCount);
+				if (i == segmentCount)
+					selection.antlineSeg = &selection.antline->segments[segmentCount - 1];
 			}
 			if (igDragFloat3("position", segment->pos, 0.01f, 0.0f, 0.0f, "%.3f", 0))
 				antlineUpdateTransform(segment);

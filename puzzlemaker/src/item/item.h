@@ -9,6 +9,7 @@
 #define TYPE_STRING 3
 #define TYPE_FLOAT 4
 #define TYPE_PICKER 5
+#define TYPE_BITFIELD 6
 #define TYPE_INSTANCE 64
 #define TYPE_DROPDOWN 128
 
@@ -84,9 +85,11 @@ typedef struct
 	ItemKvDef* kvs;
 	char** staticKvs;
 
-  char snapMode;
-  char transparent;
+	char snapMode;
+	char requiresPaint;
+	char transparent;
 	char deleteIntersectingVoxels;
+	char deleteIntersectingVoxelsEditor;
 	char genMissingVoxels;
 
 	ItemCallbacks* callbacks;
@@ -97,7 +100,6 @@ typedef struct
 	ItemKvDef* def;
 	V value;
 } ItemKv;
-
 
 typedef struct
 {
@@ -120,8 +122,8 @@ struct Item
 	vec4 quat;
 	mat4 transform;
 	mat4 invTransform;
-  char snapDir;
-  const char* ioEnt;
+	char snapDir;
+	const char* ioEnt;
 
 	ItemKv* kv;
 	ItemOutput* outputs;
@@ -135,7 +137,7 @@ typedef struct
 {
 	const char* name;
 	int size;
-  int startInd;
+	int startInd;
 } ItemGroup;
 
 void loadItemDefinitions();
@@ -153,5 +155,10 @@ ItemDefinition* getItemDefinitions();
 Item* getItemList();
 Item* addItem(int id, ivec3 position);
 Item* addItemFromDef(ItemDefinition* def, ivec3 position);
+Item* addItemFromDefName(const char* name, ivec3 position);
 void removeItem(Item* item);
 char isItemValid(Item* item);
+char* itemProcessString(const char* str, ItemKv* kvs);
+
+void copyItem(Item* item);
+Item* pasteItem();

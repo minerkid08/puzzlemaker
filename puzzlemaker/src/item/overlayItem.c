@@ -1,7 +1,7 @@
 #include "overlayItem.h"
 #include "assetManager.h"
-#include "dynList.h"
 #include "export/overlay.h"
+#include "item.h"
 #include "item/item.h"
 #include "jsonUtils.h"
 #include "renderer/renderer.h"
@@ -23,9 +23,9 @@ void* loadOverlayItemDef(cJSON* item, ItemDefinition* itemDef)
 {
 	itemDef->callbacks = &callbacks;
 	OverlayItemDef* def = malloc(sizeof(OverlayItemDef));
-	const char* textureName = cJSON_GetObjectItem(item, "texture")->valuestring;
+	const char* textureName = cJSON_GetObjectItem(item, "editorTexture")->valuestring;
 	def->texture = assetManagerLoadTexture(textureName);
-	def->exportTexture = jsonGetStr(item, "exportTexture");
+	def->exportTexture = jsonGetStr(item, "texture");
 	jsonGetVec2(item, "size", def->size);
 	return def;
 }
@@ -34,65 +34,17 @@ void overlayItemInit(Item* item)
 {
 }
 
-char startsWith(const char* a, const char* b)
-{
-	int l = strlen(b);
-	for (int i = 0; i < l; i++)
-	{
-		if (a[i] == 0)
-			return 0;
-		if (a[i] != b[i])
-			return 0;
-	}
-	return 1;
-}
 
 void overlayItemExport(Item* item)
 {
 	OverlayItemDef* def = item->def->data;
-	char buf[256];
-	int len = strlen(def->exportTexture);
-	int k = 0;
-	for (int i = 0; i < len; i++)
-	{
-		char c = def->exportTexture[i];
-		if (c == '{')
-		{
-			int l = dynList_size(item->def->kvs);
-			for (int j = 0; j < l; j++)
-			{
-				const char* b = item->def->kvs[j].name;
-				if (startsWith(def->exportTexture + i + 1, b))
-				{
-					int t = item->def->kvs[j].type;
-					V* values = item->def->kvs[j].dropValues;
-					int v = item->kv[j].value.i;
-					if (t == (TYPE_DROPDOWN | TYPE_STRING))
-					{
-						i += strlen(b);
-						b = values[v].s;
-						strcpy(buf + k, b);
-						k += strlen(b);
-					}
-					if (t == (TYPE_DROPDOWN | TYPE_INT))
-					{
-						i += strlen(b);
-						int m = sprintf(buf + k, "%d", values[v].i);
-						k += m;
-					}
-					i++;
-					break;
-				}
-			}
-		}
-		else
-			buf[k++] = c;
-	}
-	buf[k] = 0;
+
+  char* str = itemProcessString(def->exportTexture, item->kv); 
 
 	Overlay* overlay = exportCreateOverlay();
-	overlay->texture = strdup(buf);
+	overlay->texture = str;
 	overlay->script = 1;
+  char buf[256];
 	snprintf(buf, 256, "%s%d", item->def->name, item->index);
 
 	overlay->name = strdup(buf);

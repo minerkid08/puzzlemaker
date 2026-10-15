@@ -1,4 +1,5 @@
 #include "antline/antline.h"
+#include "camera.h"
 #include "cjson.h"
 #include "dynList.h"
 #include "item/item.h"
@@ -36,7 +37,7 @@ void load()
 	for (int i = 0; i < dynList_size(antlines); i++)
 	{
 		Antline* antline = &antlines[i];
-		free(antline->segments);
+		dynList_free(antline->segments);
 	}
 	dynList_resize((void**)&antlines, 0);
 
@@ -78,24 +79,27 @@ void load()
 
 		v->solid = jsonGetBool(voxel, "solid");
 
-		cJSON* portal = cJSON_GetObjectItem(voxel, "portal0");
-		if (cJSON_IsBool(portal))
+		if (v->solid)
 		{
-			v->portalability[0] = jsonGetBool(voxel, "portal0");
-			v->portalability[1] = jsonGetBool(voxel, "portal1");
-			v->portalability[2] = jsonGetBool(voxel, "portal2");
-			v->portalability[3] = jsonGetBool(voxel, "portal3");
-			v->portalability[4] = jsonGetBool(voxel, "portal4");
-			v->portalability[5] = jsonGetBool(voxel, "portal5");
-		}
-		else
-		{
-			v->portalability[0] = jsonGetInt(voxel, "portal0");
-			v->portalability[1] = jsonGetInt(voxel, "portal1");
-			v->portalability[2] = jsonGetInt(voxel, "portal2");
-			v->portalability[3] = jsonGetInt(voxel, "portal3");
-			v->portalability[4] = jsonGetInt(voxel, "portal4");
-			v->portalability[5] = jsonGetInt(voxel, "portal5");
+			cJSON* portal = cJSON_GetObjectItem(voxel, "portal0");
+			if (cJSON_IsBool(portal))
+			{
+				v->portalability[0] = jsonGetBool(voxel, "portal0");
+				v->portalability[1] = jsonGetBool(voxel, "portal1");
+				v->portalability[2] = jsonGetBool(voxel, "portal2");
+				v->portalability[3] = jsonGetBool(voxel, "portal3");
+				v->portalability[4] = jsonGetBool(voxel, "portal4");
+				v->portalability[5] = jsonGetBool(voxel, "portal5");
+			}
+			else
+			{
+				v->portalability[0] = jsonGetInt(voxel, "portal0");
+				v->portalability[1] = jsonGetInt(voxel, "portal1");
+				v->portalability[2] = jsonGetInt(voxel, "portal2");
+				v->portalability[3] = jsonGetInt(voxel, "portal3");
+				v->portalability[4] = jsonGetInt(voxel, "portal4");
+				v->portalability[5] = jsonGetInt(voxel, "portal5");
+			}
 		}
 	}
 
@@ -129,6 +133,7 @@ void load()
 
 		jsonGetVec3(itemJson, "pos", item->pos);
 		jsonGetVec3(itemJson, "rot", item->dir);
+		item->hidden = jsonGetBoolC(itemJson, "hidden", 0);
 		cJSON* snapDir = cJSON_GetObjectItem(json, "snapDir");
 		if (snapDir)
 			item->snapDir = cJSON_GetNumberValue(snapDir);
@@ -190,6 +195,18 @@ void load()
 				{
 					char* str = cJSON_GetObjectItem(kvJson, def->name)->valuestring;
 					strncpy(kv->value.s, str, 256);
+				}
+				if (type == TYPE_BITFIELD)
+				{
+					int value = jsonGetInt(kvJson, def->name);
+					int len = dynList_size(kv->def->dropNames);
+					for (int j = 0; j < len; j++)
+					{
+						if (value & (1 << kv->def->dropValues[j].i))
+							kv->value.s[j] = 1;
+						else
+							kv->value.s[j] = 0;
+					}
 				}
 				if (type & TYPE_DROPDOWN)
 				{
@@ -328,6 +345,14 @@ void load()
 		}
 	}
 
+	cJSON* editor = cJSON_GetObjectItem(json, "editor");
+	if (editor)
+	{
+		jsonGetVec3(editor, "cameraPos", cameraPos);
+		jsonGetVec3(editor, "cameraRot", cameraRot);
+	}
+
+	updateVoxelFaces();
 	printf("done\n");
 	cJSON_Delete(json);
 }

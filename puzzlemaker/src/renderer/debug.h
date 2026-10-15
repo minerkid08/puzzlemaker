@@ -1,3 +1,5 @@
+#pragma once
+
 #include "cglm/types.h"
 
 void initDebug();

@@ -64,6 +64,8 @@ void removeItem(Item* item)
 		type &= ~(TYPE_INSTANCE);
 		if (type == TYPE_STRING)
 			free(item->kv[i].value.s);
+		if (type == TYPE_BITFIELD)
+			free(item->kv[i].value.s);
 	}
 
 	dynList_free(item->kv);
@@ -80,6 +82,17 @@ void removeItem(Item* item)
 Item* getItem(int i)
 {
 	return &itemList[i];
+}
+
+Item* addItemFromDefName(const char* name, ivec3 position)
+{
+	ItemDefinition* definitions = getItemDefinitions();
+	for (int i = 0; i < dynList_size(definitions); i++)
+	{
+		if (strcmp(definitions[i].name, name) == 0)
+			return addItem(i, position);
+	}
+	return 0;
 }
 
 Item* addItemFromDef(ItemDefinition* def, ivec3 position)
@@ -153,13 +166,25 @@ Item* addItem(int defId, ivec3 position)
 	{
 		ItemKvDef* kvDef = &def->kvs[i];
 		ItemKv* kv = &item->kv[i];
-		item->kv[i].def = &def->kvs[i];
-		int type = def->kvs[i].type;
+		kv->def = &def->kvs[i];
+		int type = kv->def->type;
 		type &= ~(TYPE_INSTANCE);
 		if (type == TYPE_STRING)
 		{
 			item->kv[i].value.s = malloc(256);
 			strncpy(item->kv[i].value.s, def->kvs[i].defaultValue.s, 256);
+		}
+		else if (type == TYPE_BITFIELD)
+		{
+			int len = dynList_size(kv->def->dropNames);
+			kv->value.s = malloc(len);
+      for(int j = 0; j < len; j++)
+      {
+        if(kv->def->defaultValue.i & (1 << kv->def->dropValues[j].i))
+          kv->value.s[j] = 1;
+        else
+          kv->value.s[j] = 0;
+      }
 		}
 		else
 			item->kv[i].value = def->kvs[i].defaultValue;

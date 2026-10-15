@@ -1,4 +1,5 @@
 #include "antline/antline.h"
+#include "camera.h"
 #include "cjson.h"
 #include "dynList.h"
 #include "item/item.h"
@@ -27,51 +28,7 @@ void save()
 			{
 				char shouldSave = 0;
 				Voxel* v = getVoxel(x, y, z);
-				if (v->solid)
-				{
-					if (z + 1 < MAP_SIZE)
-					{
-						Voxel* v2 = getVoxel(x, y, z + 1);
-						if (!v2->solid)
-							shouldSave = 1;
-					}
-
-					if (z - 1 >= 0)
-					{
-						Voxel* v2 = getVoxel(x, y, z - 1);
-						if (!v2->solid)
-							shouldSave = 1;
-					}
-
-					if (x + 1 < MAP_SIZE)
-					{
-						Voxel* v2 = getVoxel(x + 1, y, z);
-						if (!v2->solid)
-							shouldSave = 1;
-					}
-
-					if (x - 1 >= 0)
-					{
-						Voxel* v2 = getVoxel(x - 1, y, z);
-						if (!v2->solid)
-							shouldSave = 1;
-					}
-
-					if (y + 1 < MAP_SIZE)
-					{
-						Voxel* v2 = getVoxel(x, y + 1, z);
-						if (!v2->solid)
-							shouldSave = 1;
-					}
-
-					if (y - 1 >= 0)
-					{
-						Voxel* v2 = getVoxel(x, y - 1, z);
-						if (!v2->solid)
-							shouldSave = 1;
-					}
-				}
-				else
+				if (v->solid == 0 || (v->solid && v->faces))
 					shouldSave = 1;
 
 				if (shouldSave == 0)
@@ -84,12 +41,15 @@ void save()
 				cJSON_AddNumberToObject(voxel, "z", z);
 				cJSON_AddBoolToObject(voxel, "solid", v->solid);
 
-				cJSON_AddNumberToObject(voxel, "portal0", v->portalability[0]);
-				cJSON_AddNumberToObject(voxel, "portal1", v->portalability[1]);
-				cJSON_AddNumberToObject(voxel, "portal2", v->portalability[2]);
-				cJSON_AddNumberToObject(voxel, "portal3", v->portalability[3]);
-				cJSON_AddNumberToObject(voxel, "portal4", v->portalability[4]);
-				cJSON_AddNumberToObject(voxel, "portal5", v->portalability[5]);
+				if (v->solid)
+				{
+					cJSON_AddNumberToObject(voxel, "portal0", v->portalability[0]);
+					cJSON_AddNumberToObject(voxel, "portal1", v->portalability[1]);
+					cJSON_AddNumberToObject(voxel, "portal2", v->portalability[2]);
+					cJSON_AddNumberToObject(voxel, "portal3", v->portalability[3]);
+					cJSON_AddNumberToObject(voxel, "portal4", v->portalability[4]);
+					cJSON_AddNumberToObject(voxel, "portal5", v->portalability[5]);
+				}
 			}
 		}
 	}
@@ -108,6 +68,7 @@ void save()
 		cJSON_AddItemToArray(items, itemJson);
 		cJSON_AddNumberToObject(itemJson, "index", item->index);
 		cJSON_AddStringToObject(itemJson, "id", item->def->name);
+		cJSON_AddBoolToObject(itemJson, "hidden", item->hidden);
 
 		cJSON* pos = cJSON_CreateArray();
 		cJSON_AddItemToObject(itemJson, "pos", pos);
@@ -160,6 +121,17 @@ void save()
 				item = cJSON_CreateBool(kv->value.b);
 			if (type == TYPE_STRING)
 				item = cJSON_CreateString(kv->value.s);
+			if (type == TYPE_BITFIELD)
+			{
+				int value = 0;
+				int len = dynList_size(kv->def->dropNames);
+				for (int j = 0; j < len; j++)
+				{
+					if (kv->value.s[j])
+						value |= 1 << kv->def->dropValues[j].i;
+				}
+				item = cJSON_CreateNumber(value);
+			}
 			if (type == TYPE_PICKER)
 				item = cJSON_CreateNumber(kv->value.i);
 			if (type & TYPE_DROPDOWN)
@@ -240,6 +212,11 @@ void save()
 	cJSON_AddNumberToObject(settings, "fogStart", data->fogStart);
 	cJSON_AddNumberToObject(settings, "fogEnd", data->fogEnd);
 	cJSON_AddNumberToObject(settings, "fogDensity", data->fogDensity);
+
+	cJSON* editor = cJSON_CreateObject();
+	cJSON_AddItemToObject(json, "editor", editor);
+	jsonSetVec3(editor, "cameraPos", cameraPos);
+	jsonSetVec3(editor, "cameraRot", cameraRot);
 
 	char* str = cJSON_Print(json);
 

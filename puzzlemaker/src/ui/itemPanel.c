@@ -1,6 +1,7 @@
 #include "antline/antline.h"
 #include "item/panel.h"
 #include "item/volumeItem.h"
+#include "voxel/voxel.h"
 #include <stdbool.h>
 #include <string.h>
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
@@ -80,7 +81,7 @@ void itemPanelStub()
 					ipos[0] = floorf(pos[0]);
 					ipos[1] = floorf(pos[1]);
 					ipos[2] = floorf(pos[2]);
-					
+
 					selection.type = SELECTION_ITEM;
 					selection.item = addItemFromDef(def, ipos);
 				}
@@ -105,16 +106,25 @@ void itemPanelRender()
 			removeItem(selection.item);
 			selection.item = 0;
 			selection.type = SELECTION_NONE;
+			updateCulledVoxels();
 			goto end;
 		}
 
+		char updateVoxel = 0;
 		if (igDragFloat3("position", selection.item->pos, 0.01f, 0.0f, 0.0f, "%.3f", 0))
+		{
+			updateVoxel = 1;
 			updateItemTransform(selection.item);
+		}
 		if (igDragFloat3("rotation", selection.item->dir, 0.01f, 0.0f, 0.0f, "%.3f", 0))
+		{
+			updateVoxel = 1;
 			updateItemTransformRot(selection.item);
+		}
 
 		if (selection.item->def->type == ITEM_TYPE_PANEL)
 		{
+			updateVoxel = 1;
 			PanelData* data = selection.item->data;
 			PanelDefData* def = selection.item->def->data;
 			if (igDragFloat2("size", data->size, 0.01f, 0.0f, 9999.0f, "%.3f", 0))
@@ -133,6 +143,7 @@ void itemPanelRender()
 			{
 				if (igInputInt("horiz tile", &data->tile[0], 1, 1, 0))
 				{
+					updateVoxel = 1;
 					if (data->tile[0] < 1)
 						data->tile[0] = 1;
 				}
@@ -141,10 +152,16 @@ void itemPanelRender()
 			{
 				if (igInputInt("vert tile", &data->tile[1], 1, 1, 0))
 				{
+					updateVoxel = 1;
 					if (data->tile[1] < 1)
 						data->tile[1] = 1;
 				}
 			}
+		}
+		if (updateVoxel)
+		{
+			if (selection.item->def->deleteIntersectingVoxels)
+				updateCulledVoxels();
 		}
 
 		if (selection.item->def->type == ITEM_TYPE_VOLUME)
@@ -153,6 +170,7 @@ void itemPanelRender()
 			VolumeItemDef* def = selection.item->def->data;
 			if (igDragFloat3("size", data->size, 0.01f, 0.0f, 9999.0f, "%.3f", 0))
 			{
+				updateVoxel = 1;
 				if (data->size[0] > def->maxSize[0])
 					data->size[0] = def->maxSize[0];
 				if (data->size[0] < def->minSize[0])
@@ -224,6 +242,17 @@ void itemPanelRender()
 
 				igSameLine(0, -1);
 				igText("%s", kv->def->displayName);
+			}
+
+			if (type == TYPE_BITFIELD)
+			{
+				if (igTreeNodeEx_Str(kv->def->displayName, ImGuiTreeNodeFlags_Framed))
+				{
+					int len = dynList_size(kv->def->dropNames);
+					for (int i = 0; i < len; i++)
+						igCheckbox(kv->def->dropNames[i], (bool*)&kv->value.s[i]);
+					igTreePop();
+				}
 			}
 
 			if (type & TYPE_DROPDOWN)
@@ -352,7 +381,6 @@ void itemPanelRender()
 						}
 						igEndCombo();
 					}
-					igEndDisabled();
 
 					pressed = 0;
 					if (output->antline != -1)
@@ -389,6 +417,7 @@ void itemPanelRender()
 					}
 
 					igCheckbox("inverted", (bool*)&output->inverted);
+					igEndDisabled();
 
 					igTreePop();
 				}

@@ -32,6 +32,7 @@ Overlay* exportCreateOverlay()
 	dynList_resize((void**)&overlays, len + 1);
 	Overlay* overlay = &overlays[len];
 
+  overlay->script = 0;
 	overlay->tint[0] = 255;
 	overlay->tint[1] = 255;
 	overlay->tint[2] = 255;
@@ -71,7 +72,7 @@ void exportEndOverlays(FILE* file)
 		rot[2] = glm_rad(rot[2]);
 		mat4 rotMat;
 		vec4 quat;
-		glm_euler_yzx_quat(rot, quat);
+		glm_euler_yxz_quat(rot, quat);
 		glm_quat_mat4(quat, rotMat);
 		glm_mat4_mulv3(rotMat, normDir, 1, normDir);
 		glm_mat4_mulv3(rotMat, uDir, 1, uDir);

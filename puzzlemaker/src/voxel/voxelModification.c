@@ -2,6 +2,7 @@
 
 #include "selection.h"
 #include "utils.h"
+#include "voxel/voxel.h"
 
 #define ACTION_PUSH 1
 #define ACTION_PULL 2
@@ -89,6 +90,16 @@ void modify2dSelection(int action)
 	}
 	if (action == ACTION_PORT || action == ACTION_SIZE)
 		return;
+
+	if (action == ACTION_PUSH)
+	{
+		float x = selection.voxelPos[axis3] - dir;
+		if (mapReigonStart[axis3] >= x)
+			mapReigonStart[axis3]--;
+		if (mapReigonEnd[axis3] - 1 <= x)
+			mapReigonEnd[axis3]++;
+	}
+
 	if (action == ACTION_PULL)
 	{
 		selection.voxelPos[axis3] += dir;
@@ -172,6 +183,7 @@ void voxelPush()
 		modify2dSelection(ACTION_PUSH);
 	else
 		modify3dSelection(ACTION_PUSH);
+	updateVoxelFaces();
 }
 
 void voxelPull()
@@ -180,6 +192,7 @@ void voxelPull()
 		modify2dSelection(ACTION_PULL);
 	else
 		modify3dSelection(ACTION_PULL);
+	updateVoxelFaces();
 }
 
 void voxelTogglePortal()

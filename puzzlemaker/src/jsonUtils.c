@@ -335,6 +335,40 @@ void jsonGetEditorTex(const cJSON* json, const char* name, Texture* out)
 	jsonPop();
 }
 
+void jsonGetTransform(const cJSON* json, const char* name, vec3 pos, vec3 rot, mat4 mat)
+{
+	cJSON* transform = jsonGetObjectC(json, name);
+	pos[0] = 0;
+	pos[1] = 0;
+	pos[2] = 0;
+
+	rot[0] = 0;
+	rot[1] = 0;
+	rot[2] = 0;
+	if (transform)
+	{
+		cJSON* position = cJSON_GetObjectItem(transform, "position");
+		cJSON* rotation = cJSON_GetObjectItem(transform, "rotation");
+		if (position)
+			jsonGetVec3(transform, "position", pos);
+		if (rotation)
+			jsonGetVec3(transform, "rotation", rot);
+		jsonPop();
+	}
+	if (mat)
+	{
+		vec3 r2;
+		glm_mat4_identity(mat);
+		mat4 rotMat;
+		r2[0] = glm_rad(rot[0]);
+		r2[1] = glm_rad(rot[1]);
+		r2[2] = glm_rad(rot[2]);
+		glm_translate(mat, pos);
+		glm_euler_yzx(r2, rotMat);
+		glm_mat4_mul(mat, rotMat, mat);
+	}
+}
+
 char* jsonGetStrC(const cJSON* json, const char* name, char* def)
 {
 	cJSON* j = cJSON_GetObjectItem(json, name);

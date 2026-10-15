@@ -1,5 +1,6 @@
 #include "cglm/mat4.h"
 #include "item/entityItem.h"
+#include "item/panel.h"
 #include <stdbool.h>
 #include <string.h>
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
@@ -12,6 +13,31 @@
 #include "ui/itemPanel.h"
 
 static bool open = 0;
+
+void drawTransform(vec3 pos, vec3 rot, mat4 transform)
+{
+	char update = 0;
+	update |= igDragFloat3("position", pos, 0.25, -9999, 9999, "%.3f", 0);
+	update |= igDragFloat3("rotation", rot, 0.25, -9999, 9999, "%.3f", 0);
+	if (update && transform)
+	{
+		mat4 trans;
+		vec3 pos2;
+		vec3 rot2;
+		glm_mat4_identity(trans);
+		memcpy(pos2, pos, sizeof(vec3));
+		memcpy(rot2, pos, sizeof(vec3));
+
+		mat4 rotMat;
+		rot2[0] = glm_rad(rot[0]);
+		rot2[1] = glm_rad(rot[1]);
+		rot2[2] = glm_rad(rot[2]);
+		glm_translate(trans, pos);
+		glm_euler_yxz(rot2, rotMat);
+		glm_mat4_mul(trans, rotMat, trans);
+		memcpy(transform, trans, sizeof(mat4));
+	}
+}
 
 void openItemDebug()
 {
@@ -53,36 +79,68 @@ void itemDebugRender()
 		igDragFloat3("bound2", data->bound2, 0.25, -9999, 9999, "%.3f", 0);
 		if (igTreeNode_Str("editor transform"))
 		{
-			char update = 0;
-			update |= igDragFloat3("position", data->editorPos, 0.25, -9999, 9999, "%.3f", 0);
-			update |= igDragFloat3("rotation", data->editorRot, 0.25, -9999, 9999, "%.3f", 0);
-			if (update)
-			{
-				vec3 pos;
-				vec3 rot;
-				mat4 transform;
-				glm_mat4_identity(transform);
-				memcpy(pos, data->editorPos, sizeof(vec3));
-				memcpy(rot, data->editorRot, sizeof(vec3));
-
-				mat4 rotMat;
-				vec4 quat;
-				rot[0] = glm_rad(rot[0]);
-				rot[1] = glm_rad(rot[1]);
-				rot[2] = glm_rad(rot[2]);
-				glm_translate(transform, pos);
-				glm_euler_yzx_quat(rot, quat);
-				glm_quat_mat4(quat, rotMat);
-				glm_mat4_mul(transform, rotMat, transform);
-				memcpy(data->editorTransform, transform, sizeof(mat4));
-			}
+			drawTransform(data->editorPos, data->editorRot, data->editorTransform);
 			igTreePop();
 		}
+
 		if (igTreeNode_Str("export transform"))
 		{
-			igDragFloat3("position", data->positionOffset, 0.25, -9999, 9999, "%.3f", 0);
-			igDragFloat3("rotation", data->rotationOffset, 0.25, -9999, 9999, "%.3f", 0);
+			drawTransform(data->positionOffset, data->rotationOffset, 0);
 			igTreePop();
+		}
+	}
+
+	if (itemType == ITEM_TYPE_PANEL)
+	{
+		PanelDefData* data = def->data;
+		igSeparatorText("Entity Item Options");
+		for (int i = 0; i < 8; i++)
+		{
+			Prop* prop = &data->props[i];
+			if (prop->mesh == 0)
+				continue;
+			const char* name = 0;
+			switch (i)
+			{
+			case PANEL_ITEM_ID_BOTTOM_LEFT:
+				name = "bottom left prop";
+				break;
+			case PANEL_ITEM_ID_BOTTOM:
+				name = "bottom prop";
+				break;
+			case PANEL_ITEM_ID_BOTTOM_RIGHT:
+				name = "bottom right prop";
+				break;
+			case PANEL_ITEM_ID_LEFT:
+				name = "left prop";
+				break;
+			case PANEL_ITEM_ID_RIGHT:
+				name = "right prop";
+				break;
+			case PANEL_ITEM_ID_TOP_LEFT:
+				name = "top left prop";
+				break;
+			case PANEL_ITEM_ID_TOP:
+				name = "top prop";
+				break;
+			case PANEL_ITEM_ID_TOP_RIGHT:
+				name = "top right prop";
+				break;
+			}
+			if (igTreeNode_Str(name))
+			{
+				if (igTreeNode_Str("editor transform"))
+				{
+					drawTransform(prop->editorPos, prop->editorRot, prop->editorTransform);
+					igTreePop();
+				}
+				if (igTreeNode_Str("export transform"))
+				{
+					drawTransform(prop->pos, prop->rot, prop->transform);
+					igTreePop();
+				}
+				igTreePop();
+			}
 		}
 	}
 

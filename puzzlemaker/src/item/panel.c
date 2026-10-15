@@ -111,61 +111,55 @@ void* loadPanelItemDef(cJSON* item, ItemDefinition* itemDef)
 
 			jsonGetTex(border, "texture", &item->texture);
 
-			//cJSON* prop = jsonGetObjectC(border, "prop");
-			//if (prop)
-			//{
-			//	item->prop.model = jsonGetStr(prop, "model");
-			//	char* modelName = jsonGetStr(prop, "editorModel");
-			//	char* texName = jsonGetStr(prop, "editorTex");
-			//	item->prop.mesh = assetManagerLoadMesh(modelName);
-			//	item->prop.tex = assetManagerLoadTexture(texName);
-			//	free(modelName);
-			//	free(texName);
-			//	mat4 m;
-			//	glm_mat4_identity(m);
-			//	memcpy(item->prop.editorTransform, m, sizeof(mat4));
-			//	memcpy(item->prop.transform, m, sizeof(mat4));
+			jsonPop();
+		}
+		jsonPop();
+	}
 
-			//	cJSON* transform = jsonGetObjectC(prop, "transform");
-			//	if (transform)
-			//	{
-			//		vec3 pos = {0, 0, 0};
-			//		vec3 rot = {0, 0, 0};
-			//		cJSON* position = cJSON_GetObjectItem(transform, "position");
-			//		cJSON* rotation = cJSON_GetObjectItem(transform, "rotation");
-			//		if (position)
-			//			jsonGetVec3(transform, "position", pos);
-			//		if (rotation)
-			//			jsonGetVec3(transform, "rotation", rot);
-			//		jsonPop();
-			//		mat4 rotMat;
-			//		glm_translate(m, pos);
-			//		glm_euler_yzx(rot, rotMat);
-			//		glm_mat4_mul(m, rotMat, m);
-			//		memcpy(item->prop.transform, m, sizeof(mat4));
-			//	}
-			//	transform = jsonGetObjectC(prop, "editorTransform");
-			//	if (transform)
-			//	{
-			//		glm_mat4_identity(m);
-			//		vec3 pos = {0, 0, 0};
-			//		vec3 rot = {0, 0, 0};
-			//		cJSON* position = cJSON_GetObjectItem(transform, "position");
-			//		cJSON* rotation = cJSON_GetObjectItem(transform, "rotation");
-			//		if (position)
-			//			jsonGetVec3(transform, "position", pos);
-			//		if (rotation)
-			//			jsonGetVec3(transform, "rotation", rot);
-			//		jsonPop();
-			//		mat4 rotMat;
-			//		glm_translate(m, pos);
-			//		glm_euler_yzx(rot, rotMat);
-			//		glm_mat4_mul(m, rotMat, m);
-			//		memcpy(item->prop.editorTransform, m, sizeof(mat4));
-			//	}
+	for (int i = 0; i < 8; i++)
+		data->props[i].mesh = 0;
 
-			//	jsonPop();
-			//}
+	cJSON* propArr = jsonGetArrayC(item, "props");
+	if (propArr)
+	{
+		int size = cJSON_GetArraySize(propArr);
+		for (int i = 0; i < size; i++)
+		{
+			cJSON* propJson = jsonArrGetObject(propArr, i);
+			int index = 0;
+			const char* id = jsonGetStr(propJson, "id");
+			if (strcmp(id, "top") == 0)
+				index = PANEL_ITEM_ID_TOP;
+			else if (strcmp(id, "bottom") == 0)
+				index = PANEL_ITEM_ID_BOTTOM;
+			else if (strcmp(id, "left") == 0)
+				index = PANEL_ITEM_ID_LEFT;
+			else if (strcmp(id, "right") == 0)
+				index = PANEL_ITEM_ID_RIGHT;
+			else if (strcmp(id, "top-left") == 0)
+				index = PANEL_ITEM_ID_TOP_LEFT;
+			else if (strcmp(id, "top-right") == 0)
+				index = PANEL_ITEM_ID_TOP_RIGHT;
+			else if (strcmp(id, "bottom-left") == 0)
+				index = PANEL_ITEM_ID_BOTTOM_LEFT;
+			else if (strcmp(id, "bottom-right") == 0)
+				index = PANEL_ITEM_ID_BOTTOM_RIGHT;
+			else
+				errorf("bad id '%s'\n", id);
+
+			Prop* prop = &data->props[index];
+
+			prop->model = jsonGetStr(propJson, "model");
+			char* meshName = jsonGetStr(propJson, "editorModel");
+			prop->mesh = assetManagerLoadMesh(meshName);
+			char* textureName = jsonGetStr(propJson, "editorTexture");
+			prop->tex = assetManagerLoadTexture(textureName);
+
+			free(meshName);
+			free(textureName);
+
+			jsonGetTransform(propJson, "transform", prop->pos, prop->rot, prop->transform);
+			jsonGetTransform(propJson, "editorTransform", prop->editorPos, prop->editorRot, prop->editorTransform);
 
 			jsonPop();
 		}
@@ -387,6 +381,66 @@ void panelItemRender(Item* item)
 			}
 
 			panelEndFrame(item->transform, 0, 1);
+
+			for (int i = 0; i < 8; i++)
+			{
+				Prop* prop = &def->props[i];
+				if (prop->mesh == 0)
+					continue;
+				vec3 pos;
+				pos[2] = 0;
+				switch (i)
+				{
+				case PANEL_ITEM_ID_BOTTOM_LEFT:
+					pos[0] = 0;
+					pos[1] = 0;
+					break;
+				case PANEL_ITEM_ID_BOTTOM:
+					pos[0] = data->size[0] / 2.0f;
+					pos[1] = 0;
+					break;
+				case PANEL_ITEM_ID_BOTTOM_RIGHT:
+					pos[0] = data->size[0];
+					pos[1] = 0;
+					break;
+				case PANEL_ITEM_ID_LEFT:
+					pos[0] = 0;
+					pos[1] = data->size[1] / 2.0f;
+					break;
+				case PANEL_ITEM_ID_RIGHT:
+					pos[0] = data->size[0];
+					pos[1] = data->size[1] / 2.0f;
+					break;
+				case PANEL_ITEM_ID_TOP_LEFT:
+					pos[0] = 0;
+					pos[1] = data->size[1];
+					break;
+				case PANEL_ITEM_ID_TOP:
+					pos[0] = data->size[0] / 2.0f;
+					pos[1] = data->size[1];
+					break;
+				case PANEL_ITEM_ID_TOP_RIGHT:
+					pos[0] = data->size[0];
+					pos[1] = data->size[1];
+					break;
+				}
+				pos[0] += xOff;
+				pos[1] += yOff;
+				float tmp = pos[1];
+				pos[1] = pos[2];
+				pos[2] = tmp;
+
+				mat4 transform;
+				mat4 mat2;
+				memcpy(transform, prop->editorTransform, sizeof(mat4));
+				glm_mat4_identity(mat2);
+				glm_translate(mat2, pos);
+				glm_mat4_mul(mat2, transform, transform);
+				memcpy(mat2, item->transform, sizeof(mat4));
+				glm_mat4_mul(mat2, transform, transform);
+
+				drawMesh(prop->mesh, prop->tex, transform);
+			}
 		}
 	}
 }

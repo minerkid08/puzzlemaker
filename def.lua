@@ -57,7 +57,7 @@ function Entity:transform(pos, rot) end
 function Entity:attachBrush(brush) end
 
 ---@param key string
----@param value (number|string|boolean) 
+---@param value (number|string|boolean|Entity) 
 function Entity:setKv(key, value) end
 
 ---@param output string

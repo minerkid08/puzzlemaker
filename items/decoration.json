@@ -4,7 +4,7 @@
 		"name": "light",
 		"model": "light.obj",
 		"mat": "light.png",
-    "instance": "light",
+    "instance": "puzzlemakerInstances/light",
     "snapMode": "mini-center",
     "bound1": [-1.25, -0.25, 0],
     "bound2": [0.75, 0.25, 0.1],
@@ -53,9 +53,9 @@
 	{
     "type": "overlay",
 		"name": "indicatorShapes",
-		"texture": "arrow.png",
+		"editorTexture": "arrow.png",
 		"size": [32, 32],
-		"exportTexture": "signage/{texture}",
+		"texture": "signage/{texture}",
 		"snapMode": "mini-center",
 		"keyvalues": [
 			{

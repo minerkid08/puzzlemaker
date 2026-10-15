@@ -1,8 +1,8 @@
 #pragma once
 
+#include "cglm/types.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "cglm/types.h"
 
 #define min(x, y) ((x) > (y) ? (y) : (x))
 #define max(x, y) ((x) < (y) ? (y) : (x))
@@ -17,6 +17,9 @@
 #define DIR_NONE 6
 
 void errorf(const char* fmt, ...);
+int strncatf(char* buf, int size, const char* fmt, ...);
+char* strdupf(const char* fmt, ...);
+char startsWith(const char* a, const char* b);
 
 extern ivec3 dirs[6];
 

@@ -3,13 +3,13 @@
 #include "grab.h"
 #include "mapsettings.h"
 #include "renderer/framebuffer.h"
+#include "save.h"
 #include "settings.h"
 #include "ui/fileBrowser.h"
 #include "utils.h"
 #include <dirent.h>
 #include <math.h>
 #include <sys/stat.h>
-#define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 
 #include "cglm/mat4.h"
 #include "cglm/types.h"
@@ -24,7 +24,6 @@
 
 #include "camera.h"
 #include "compile/compileThread.h"
-#include "item/item.h"
 #include "picker.h"
 #include "raycast.h"
 #include "selection.h"
@@ -60,8 +59,8 @@ vec3 tempRot;
 vec4 mouseDir;
 
 char viewportHovered = 0;
-char mouseOffsetX = 0;
-char mouseOffsetY = 0;
+unsigned int mouseOffsetX = 0;
+unsigned int mouseOffsetY = 0;
 
 Item** pickPtr = 0;
 
@@ -128,7 +127,7 @@ int main()
 	double now = glfwGetTime();
 	double dt;
 	double lastTime = now;
-  running = 1;
+	running = 1;
 	while (!glfwWindowShouldClose(window))
 	{
 		framebufferBind(&framebuffer);
@@ -261,6 +260,35 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 				return;
 			rotateSelection(-90);
 		}
+		if (key == GLFW_KEY_C && mods & GLFW_MOD_CONTROL)
+		{
+			if (selection.type != SELECTION_ITEM)
+				return;
+			copyItem(selection.item);
+		}
+		if (key == GLFW_KEY_V && mods & GLFW_MOD_CONTROL)
+		{
+			vec3 offset;
+			vec3 pos;
+			ivec3 ipos;
+
+			glm_vec3_scale(forward, 5, offset);
+
+			pos[0] = offset[0] + cameraPos[0];
+			pos[1] = offset[1] + cameraPos[1];
+			pos[2] = offset[2] + cameraPos[2];
+
+			selection.type = SELECTION_ITEM;
+			selection.item = pasteItem();
+
+			selection.item->pos[0] = pos[0];
+			selection.item->pos[1] = pos[1];
+			selection.item->pos[2] = pos[2];
+			updateItemTransform(selection.item);
+			mouseMode = MODE_GRAB;
+		}
+		if (key == GLFW_KEY_S && mods & GLFW_MOD_CONTROL)
+			save();
 	}
 }
 

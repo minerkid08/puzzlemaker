@@ -20,7 +20,7 @@ static int entitySetRotation(lua_State* l);
 static int entityTransform(lua_State* l);
 // Entity:attachBrush(Brush brush);
 static int entityAttachBrush(lua_State* l);
-// Entity:setKv(string k, (string|number|boolean) v);
+// Entity:setKv(string k, (string|number|boolean|Entity) v);
 static int entitySetKv(lua_State* l);
 // Entity:addOutput(string output, string entity, string input, string? arg, number? delay);
 static int entityAddOutput(lua_State* l);
@@ -186,8 +186,8 @@ int entitySetKv(lua_State* l)
 	if (lua_type(l, 2) != LUA_TSTRING)
 		luaL_error(l, "bad arg 2, expected string");
 	char t = lua_type(l, 3);
-	if (t != LUA_TSTRING && t != LUA_TNUMBER && t != LUA_TBOOLEAN)
-		luaL_error(l, "bad arg 3, expected (string|number|boolean)");
+	if (t != LUA_TSTRING && t != LUA_TNUMBER && t != LUA_TBOOLEAN && t != LUA_TTABLE)
+		luaL_error(l, "bad arg 3, expected (string|number|boolean|Entity)");
 
 	const char* key = lua_tostring(l, 2);
 
@@ -207,6 +207,11 @@ int entitySetKv(lua_State* l)
 	case LUA_TBOOLEAN: {
 		char v = lua_toboolean(l, 3);
 		snprintf(value, 50, "%d", v);
+		break;
+	}
+	case LUA_TTABLE: {
+    Entity* ent = luaGetEntity(l, 3, "bad arg 3");
+		snprintf(value, 50, "%s", ent->name);
 		break;
 	}
 	}

@@ -8,6 +8,7 @@ void initRenderer();
 void rendererCleanup();
 void endFrame();
 void drawVerts(vec3* verts, vec4 tint, char portalable);
+void drawVerts2(vec3* verts, vec4 tint, char portalable);
 void drawMesh(Mesh* mesh, unsigned int texture, mat4 transform);
 void setProjMat(mat4 mat);
 void setCamMat(mat4 mat);

@@ -22,14 +22,17 @@ typedef struct
   Mesh* mesh;
   unsigned int tex;
   mat4 transform;
+  vec3 pos;
+  vec3 rot;
   mat4 editorTransform;
+  vec3 editorPos;
+  vec3 editorRot;
 } Prop;
 
 typedef struct
 {
   Texture editorTexture;
   Texture texture;
-  //Prop prop;
 	float minSize;
 	float maxSize;
 } PanelItemDef;
@@ -37,6 +40,7 @@ typedef struct
 typedef struct
 {
   PanelItemDef items[8];
+  Prop props[8];
 
   Texture editorCenterTexture;
   Texture centerTexture;

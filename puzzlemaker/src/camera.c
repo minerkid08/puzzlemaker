@@ -3,6 +3,7 @@
 #include "cglm/mat4.h"
 #include "renderer/renderer.h"
 #include "settings.h"
+#include "voxel/voxel.h"
 #include <cglm/cglm.h>
 
 float fovx;
@@ -10,7 +11,7 @@ float fovy;
 
 mat4 projMat;
 mat4 projMatInv;
-vec4 cameraPos = {3, 3, -2, 1};
+vec4 cameraPos = {MAP_SIZE / 2.0f, MAP_SIZE / 2.0f, MAP_SIZE / 2.0f, 1};
 vec4 cameraRot = {0, GLM_PI, 0, 1};
 
 vec4 forward;

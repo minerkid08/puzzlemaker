@@ -437,7 +437,7 @@ void antlineExport()
 			memcpy(entity->pos, antline->baseSegment.pos, sizeof(vec3));
 		else
 			memcpy(entity->pos, antline->segments[0].pos, sizeof(vec3));
-		memcpy(entity->rotation, antline->baseSegment.rot, sizeof(vec3));
+		memset(entity->rotation, 0, sizeof(vec3));
 		entity->className = "env_texturetoggle";
 		exportEntityAddKvss(entity, "target", buf);
 		snprintf(buf, 64, "antline%d-tex", antline->id);

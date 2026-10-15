@@ -1,9 +1,9 @@
 #include "utils.h"
-#include "cglm/euler.h"
 #include "cglm/types.h"
 #include "ui/itemPanel.h"
 #include <math.h>
 #include <stdarg.h>
+#include <stdio.h>
 #include <string.h>
 
 ivec3 dirs[] = {{1, 0, 0}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}, {0, 0, 1}, {0, 0, -1}};
@@ -21,6 +21,40 @@ void errorf(const char* fmt, ...)
 	err = strdup(buf);
 	errorState = 1;
 	startErrorLoop();
+}
+
+char startsWith(const char* a, const char* b)
+{
+	int l = strlen(b);
+	for (int i = 0; i < l; i++)
+	{
+		if (a[i] == 0)
+			return 0;
+		if (a[i] != b[i])
+			return 0;
+	}
+	return 1;
+}
+
+int strncatf(char* buf, int size, const char* fmt, ...)
+{
+	va_list va;
+	va_start(va, fmt);
+	int len = strlen(buf);
+	if (len >= size)
+		return 0;
+	return vsnprintf(buf + len, size - len, fmt, va);
+}
+
+char* strdupf(const char* fmt, ...)
+{
+	va_list va;
+	va_start(va, fmt);
+	int len = vsnprintf(0, 0, fmt, va);
+	char* buf = malloc(len + 1);
+	va_start(va, fmt);
+	vsnprintf(buf, len + 1, fmt, va);
+	return buf;
 }
 
 void getEulerAngles(mat4 matrix, vec3 out)

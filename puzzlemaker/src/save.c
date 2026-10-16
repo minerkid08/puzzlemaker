@@ -1,4 +1,5 @@
 #include "antline/antline.h"
+#include "camera.h"
 #include "cjson.h"
 #include "dynList.h"
 #include "item/item.h"
@@ -12,7 +13,7 @@ extern Antline* antlines;
 
 void save()
 {
-  char filename[256];
+	char filename[256];
 	snprintf(filename, 256, "maps/%s.chamb", mapSettings.name);
 	printf("saving '%s'\n", filename);
 	cJSON* json = cJSON_CreateObject();
@@ -27,51 +28,7 @@ void save()
 			{
 				char shouldSave = 0;
 				Voxel* v = getVoxel(x, y, z);
-				if (v->solid)
-				{
-					if (z + 1 < MAP_SIZE)
-					{
-						Voxel* v2 = getVoxel(x, y, z + 1);
-						if (!v2->solid)
-							shouldSave = 1;
-					}
-
-					if (z - 1 >= 0)
-					{
-						Voxel* v2 = getVoxel(x, y, z - 1);
-						if (!v2->solid)
-							shouldSave = 1;
-					}
-
-					if (x + 1 < MAP_SIZE)
-					{
-						Voxel* v2 = getVoxel(x + 1, y, z);
-						if (!v2->solid)
-							shouldSave = 1;
-					}
-
-					if (x - 1 >= 0)
-					{
-						Voxel* v2 = getVoxel(x - 1, y, z);
-						if (!v2->solid)
-							shouldSave = 1;
-					}
-
-					if (y + 1 < MAP_SIZE)
-					{
-						Voxel* v2 = getVoxel(x, y + 1, z);
-						if (!v2->solid)
-							shouldSave = 1;
-					}
-
-					if (y - 1 >= 0)
-					{
-						Voxel* v2 = getVoxel(x, y - 1, z);
-						if (!v2->solid)
-							shouldSave = 1;
-					}
-				}
-				else
+				if (v->solid == 0 || (v->solid && v->faces))
 					shouldSave = 1;
 
 				if (shouldSave == 0)
@@ -84,12 +41,15 @@ void save()
 				cJSON_AddNumberToObject(voxel, "z", z);
 				cJSON_AddBoolToObject(voxel, "solid", v->solid);
 
-				cJSON_AddNumberToObject(voxel, "portal0", v->portalability[0]);
-				cJSON_AddNumberToObject(voxel, "portal1", v->portalability[1]);
-				cJSON_AddNumberToObject(voxel, "portal2", v->portalability[2]);
-				cJSON_AddNumberToObject(voxel, "portal3", v->portalability[3]);
-				cJSON_AddNumberToObject(voxel, "portal4", v->portalability[4]);
-				cJSON_AddNumberToObject(voxel, "portal5", v->portalability[5]);
+				if (v->solid)
+				{
+					cJSON_AddNumberToObject(voxel, "portal0", v->portalability[0]);
+					cJSON_AddNumberToObject(voxel, "portal1", v->portalability[1]);
+					cJSON_AddNumberToObject(voxel, "portal2", v->portalability[2]);
+					cJSON_AddNumberToObject(voxel, "portal3", v->portalability[3]);
+					cJSON_AddNumberToObject(voxel, "portal4", v->portalability[4]);
+					cJSON_AddNumberToObject(voxel, "portal5", v->portalability[5]);
+				}
 			}
 		}
 	}
@@ -108,6 +68,7 @@ void save()
 		cJSON_AddItemToArray(items, itemJson);
 		cJSON_AddNumberToObject(itemJson, "index", item->index);
 		cJSON_AddStringToObject(itemJson, "id", item->def->name);
+		cJSON_AddBoolToObject(itemJson, "hidden", item->hidden);
 
 		cJSON* pos = cJSON_CreateArray();
 		cJSON_AddItemToObject(itemJson, "pos", pos);
@@ -121,7 +82,7 @@ void save()
 		jsonArrSetFloat(rot, item->dir[1]);
 		jsonArrSetFloat(rot, item->dir[2]);
 
-    cJSON_AddNumberToObject(itemJson, "snapDir", item->snapDir);
+		cJSON_AddNumberToObject(itemJson, "snapDir", item->snapDir);
 
 		item->def->callbacks->save(item, itemJson);
 
@@ -131,14 +92,15 @@ void save()
 		for (int i = 0; i < outputLen; i++)
 		{
 			ItemOutput* outputItem = &item->outputs[i];
-      if(outputItem->input == 0)
-        continue;
+			if (outputItem->input == 0)
+				continue;
 			cJSON* outputJson = cJSON_CreateObject();
 			cJSON_AddItemToArray(output, outputJson);
 
 			cJSON_AddNumberToObject(outputJson, "ent", outputItem->entity);
 			cJSON_AddNumberToObject(outputJson, "antline", outputItem->antline);
 			cJSON_AddBoolToObject(outputJson, "inverted", outputItem->inverted);
+			cJSON_AddBoolToObject(outputJson, "onlyPrimary", outputItem->onlyPrimary);
 			cJSON_AddStringToObject(outputJson, "input", outputItem->input->name);
 			cJSON_AddStringToObject(outputJson, "output", outputItem->def->name);
 		}
@@ -150,8 +112,8 @@ void save()
 		{
 			ItemKv* kv = &item->kv[i];
 			cJSON* item;
-      int type = kv->def->type;
-      type &= ~(TYPE_INSTANCE);
+			int type = kv->def->type;
+			type &= ~(TYPE_INSTANCE);
 			if (type == TYPE_INT)
 				item = cJSON_CreateNumber(kv->value.i);
 			if (type == TYPE_FLOAT)
@@ -160,6 +122,17 @@ void save()
 				item = cJSON_CreateBool(kv->value.b);
 			if (type == TYPE_STRING)
 				item = cJSON_CreateString(kv->value.s);
+			if (type == TYPE_BITFIELD)
+			{
+				int value = 0;
+				int len = dynList_size(kv->def->dropNames);
+				for (int j = 0; j < len; j++)
+				{
+					if (kv->value.s[j])
+						value |= 1 << kv->def->dropValues[j].i;
+				}
+				item = cJSON_CreateNumber(value);
+			}
 			if (type == TYPE_PICKER)
 				item = cJSON_CreateNumber(kv->value.i);
 			if (type & TYPE_DROPDOWN)
@@ -174,10 +147,13 @@ void save()
 	len = dynList_size(antlines);
 	for (int i = 0; i < len; i++)
 	{
+		Antline* antline = &antlines[i];
+		if (!isAntlineValid(antline))
+			continue;
 		cJSON* antlineJson = cJSON_CreateObject();
 		cJSON_AddItemToArray(antlineList, antlineJson);
-		Antline* antline = &antlines[i];
 
+		cJSON_AddNumberToObject(antlineJson, "id", antline->id);
 		cJSON* pos = cJSON_CreateArray();
 		cJSON_AddItemToObject(antlineJson, "pos", pos);
 		jsonArrSetFloat(pos, antline->baseSegment.pos[0]);
@@ -191,6 +167,30 @@ void save()
 		jsonArrSetFloat(rot, antline->baseSegment.rot[2]);
 
 		cJSON_AddBoolToObject(antlineJson, "hasCheck", antline->hasCheck);
+
+		cJSON* segments = cJSON_CreateArray();
+		cJSON_AddItemToObject(antlineJson, "segments", segments);
+
+		int segCount = dynList_size(antline->segments);
+		for (int j = 0; j < segCount; j++)
+		{
+			cJSON* segJson = cJSON_CreateObject();
+			cJSON_AddItemToArray(segments, segJson);
+			AntlineSegment* antlineSeg = &antline->segments[j];
+
+			cJSON* pos = cJSON_CreateArray();
+			cJSON_AddItemToObject(segJson, "pos", pos);
+			jsonArrSetFloat(pos, antlineSeg->pos[0]);
+			jsonArrSetFloat(pos, antlineSeg->pos[1]);
+			jsonArrSetFloat(pos, antlineSeg->pos[2]);
+
+			cJSON* rot = cJSON_CreateArray();
+			cJSON_AddItemToObject(segJson, "rot", rot);
+			jsonArrSetFloat(rot, antlineSeg->rot[0]);
+			jsonArrSetFloat(rot, antlineSeg->rot[1]);
+			jsonArrSetFloat(rot, antlineSeg->rot[2]);
+			cJSON_AddNumberToObject(segJson, "length", antlineSeg->len);
+		}
 	}
 
 	cJSON* settings = cJSON_CreateObject();
@@ -214,6 +214,11 @@ void save()
 	cJSON_AddNumberToObject(settings, "fogEnd", data->fogEnd);
 	cJSON_AddNumberToObject(settings, "fogDensity", data->fogDensity);
 
+	cJSON* editor = cJSON_CreateObject();
+	cJSON_AddItemToObject(json, "editor", editor);
+	jsonSetVec3(editor, "cameraPos", cameraPos);
+	jsonSetVec3(editor, "cameraRot", cameraRot);
+
 	char* str = cJSON_Print(json);
 
 	FILE* file = fopen(filename, "wb");
@@ -221,6 +226,6 @@ void save()
 	fclose(file);
 
 	free(str);
-  cJSON_Delete(json);
+	cJSON_Delete(json);
 	printf("saved\n");
 }

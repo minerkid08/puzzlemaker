@@ -92,8 +92,8 @@ void uiEndFrame()
 
 extern char viewportHovered;
 
-extern char mouseOffsetX;
-extern char mouseOffsetY;
+extern unsigned int mouseOffsetX;
+extern unsigned int mouseOffsetY;
 
 extern int width;
 extern int height;
@@ -157,6 +157,7 @@ void uiMenuBar()
 		openEditorSettingsUi();
 	if (igMenuItem_Bool("debug", 0, 0, 1))
 		openItemDebug();
+	igSeparator();
 	igText("%s", mapSettings.name);
 
 	if (queueCompile)
@@ -166,6 +167,7 @@ void uiMenuBar()
 	}
 
 	updateCompilePopup();
+	renderErrorPopup();
 	igEndMenuBar();
 
 	renderMapSettingsUi();

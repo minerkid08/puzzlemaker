@@ -39,14 +39,14 @@ for i = 1, tile[2] do
 	laser:transform(pos, rot);
 	laserEnt:attachBrush(laser);
 
-	local leftProp = Entity.new("leftProp" .. postFix, "prop_dynamic", { 0, tile[2] * 2 + 1, 0 }, { 0, 90, 0 });
+	local leftProp = Entity.new("leftProp" .. postFix, "prop_dynamic", { 0, tile[2] * 2 + 1, 0 }, { 0, 0, 0 });
 
 	leftProp:setKv("model", "models/props/fizzler_dynamic.mdl");
 	leftProp:setKv("holdanimation", true);
 	leftProp:setKv("skin", 2);
 	leftProp:transform(pos, rot);
 
-	local rightProp = Entity.new("rightProp" .. postFix, "prop_dynamic", { size[1], tile[2] * 1 + 1, 0 }, { 0, -90, 0 });
+	local rightProp = Entity.new("rightProp" .. postFix, "prop_dynamic", { size[1], tile[2] * 1 + 1, 0 }, { 0, 180, 0 });
 
 	rightProp:setKv("model", "models/props/fizzler_dynamic.mdl");
 	rightProp:setKv("holdanimation", true);

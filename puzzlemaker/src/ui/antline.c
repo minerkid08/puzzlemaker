@@ -1,10 +1,12 @@
 #include "antline/antline.h"
+#include "camera.h"
 #include "dynList.h"
 #include <stdbool.h>
 #include <string.h>
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 
 #include "cimgui.h"
+#include "grab.h"
 #include "save.h"
 #include "selection.h"
 #include "ui/itemPanel.h"
@@ -18,34 +20,64 @@ void antlinePanelStub()
 		selection.type = SELECTION_ANTLINE;
 		selection.antline = addAntline();
 		selection.antlineSeg = &selection.antline->baseSegment;
+		updateGrab(cameraPos, forward);
 	}
 }
 
 void antlinePanelRender()
 {
+	igSeparatorText("Antline");
+	int segmentCount = dynList_size(selection.antline->segments);
+	if (!selection.antline->hasCheck && segmentCount == 0)
+		igText("warning: antline has no visible component");
+
+	if (igButton("remove", zero))
+		removeAntline(selection.antline);
+
+	igSameLine(0, -1);
+
+	igBeginDisabled(!selection.antline->hasCheck);
+	if (igButton("select", zero))
+		selection.antlineSeg = &selection.antline->baseSegment;
+	igEndDisabled();
 	igCheckbox("check enable", (bool*)&selection.antline->hasCheck);
+
+	igBeginDisabled(!selection.antline->hasCheck);
+
 	if (igDragFloat3("position", selection.antline->baseSegment.pos, 0.01f, 0.0f, 0.0f, "%.3f", 0))
 		antlineUpdateTransform(&selection.antline->baseSegment);
+
 	if (igDragFloat3("rotation", selection.antline->baseSegment.rot, 0.01f, 0.0f, 0.0f, "%.3f", 0))
 		antlineUpdateTransformRot(&selection.antline->baseSegment);
 
+	igEndDisabled();
+
 	igSeparatorText("segments");
 
-	int segmentCount = dynList_size(selection.antline->segments);
 	if (igButton("add", zero))
 	{
 		dynList_resize((void**)&selection.antline->segments, segmentCount + 1);
 		memset(&selection.antline->segments[segmentCount], 0, sizeof(AntlineSegment));
 		antlineUpdateTransformRot(&selection.antline->segments[segmentCount]);
 		selection.antlineSeg = &selection.antline->segments[segmentCount];
-    selection.antlineSeg->len = 1;
+		selection.antlineSeg->len = 1;
+		updateGrab(cameraPos, forward);
 		segmentCount++;
 	}
 
 	for (int i = 0; i < segmentCount; i++)
 	{
+		int flags =
+			ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_DefaultOpen;
 		AntlineSegment* segment = &selection.antline->segments[i];
-		if (igTreeNode_Ptr(segment, "segment %d", i))
+		if (segment == selection.antlineSeg)
+			flags |= ImGuiTreeNodeFlags_Selected;
+		char open = igTreeNodeEx_Ptr(segment, flags, "segment %d", i);
+
+		if (igIsItemClicked(0))
+			selection.antlineSeg = segment;
+
+		if (open)
 		{
 			AntlineSegment** segList = &selection.antline->segments;
 			if (igButton("remove", zero))
@@ -54,6 +86,8 @@ void antlinePanelRender()
 					memcpy(&(*segList)[j], &(*segList)[j + 1], sizeof(AntlineSegment));
 				segmentCount--;
 				dynList_resize((void**)segList, segmentCount);
+				if (i == segmentCount)
+					selection.antlineSeg = &selection.antline->segments[segmentCount - 1];
 			}
 			if (igDragFloat3("position", segment->pos, 0.01f, 0.0f, 0.0f, "%.3f", 0))
 				antlineUpdateTransform(segment);

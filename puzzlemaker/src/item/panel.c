@@ -8,6 +8,7 @@
 #include "item/item.h"
 #include "jsonUtils.h"
 #include "renderer/renderer.h"
+#include "renderer/texture.h"
 #include "utils.h"
 #include <stdio.h>
 #include <string.h>
@@ -63,53 +64,106 @@ void* loadPanelItemDef(cJSON* item, ItemDefinition* itemDef)
 
 	for (int i = 0; i < 8; i++)
 	{
-		data->items[i].material = 0;
 		data->items[i].maxSize = 0;
 		data->items[i].minSize = 0;
 	}
 
-	const char* filename = cJSON_GetObjectItem(item, "editorCenterTexture")->valuestring;
-	data->centerMat = assetManagerLoadTexture(filename);
+	jsonGetEditorTex(item, "editorCenterTexture", &data->editorCenterTexture);
 
-	cJSON* arr = cJSON_GetObjectItem(item, "borders");
-	cJSON* border;
-	cJSON_ArrayForEach(border, arr)
+	cJSON* arr = jsonGetArrayC(item, "borders");
+	if (arr)
 	{
-		int index = 0;
-		const char* id = cJSON_GetObjectItem(border, "id")->valuestring;
-		if (strcmp(id, "top") == 0)
-			index = PANEL_ITEM_ID_TOP;
-		else if (strcmp(id, "bottom") == 0)
-			index = PANEL_ITEM_ID_BOTTOM;
-		else if (strcmp(id, "left") == 0)
-			index = PANEL_ITEM_ID_LEFT;
-		else if (strcmp(id, "right") == 0)
-			index = PANEL_ITEM_ID_RIGHT;
-		else if (strcmp(id, "top-left") == 0)
-			index = PANEL_ITEM_ID_TOP_LEFT;
-		else if (strcmp(id, "top-right") == 0)
-			index = PANEL_ITEM_ID_TOP_RIGHT;
-		else if (strcmp(id, "bottom-left") == 0)
-			index = PANEL_ITEM_ID_BOTTOM_LEFT;
-		else if (strcmp(id, "bottom-right") == 0)
-			index = PANEL_ITEM_ID_BOTTOM_RIGHT;
-		else
-			errorf("bad id '%s'\n", id);
+		int size = cJSON_GetArraySize(arr);
+		for (int i = 0; i < size; i++)
+		{
+			cJSON* border = jsonArrGetObject(arr, i);
+			int index = 0;
+			const char* id = jsonGetStr(border, "id");
+			if (strcmp(id, "top") == 0)
+				index = PANEL_ITEM_ID_TOP;
+			else if (strcmp(id, "bottom") == 0)
+				index = PANEL_ITEM_ID_BOTTOM;
+			else if (strcmp(id, "left") == 0)
+				index = PANEL_ITEM_ID_LEFT;
+			else if (strcmp(id, "right") == 0)
+				index = PANEL_ITEM_ID_RIGHT;
+			else if (strcmp(id, "top-left") == 0)
+				index = PANEL_ITEM_ID_TOP_LEFT;
+			else if (strcmp(id, "top-right") == 0)
+				index = PANEL_ITEM_ID_TOP_RIGHT;
+			else if (strcmp(id, "bottom-left") == 0)
+				index = PANEL_ITEM_ID_BOTTOM_LEFT;
+			else if (strcmp(id, "bottom-right") == 0)
+				index = PANEL_ITEM_ID_BOTTOM_RIGHT;
+			else
+				errorf("bad id '%s'\n", id);
 
-		PanelItemDef* item = &data->items[index];
-		const char* filename = cJSON_GetObjectItem(border, "editorTexture")->valuestring;
-		item->material = assetManagerLoadTexture(filename);
+			PanelItemDef* item = &data->items[index];
+			jsonGetEditorTex(border, "editorTexture", &item->editorTexture);
 
-		item->maxSize = 9999;
-		if (cJSON_GetObjectItem(border, "maxSize"))
-			item->maxSize = jsonGetFloat(border, "maxSize");
+			item->maxSize = 9999;
+			if (cJSON_GetObjectItem(border, "maxSize"))
+				item->maxSize = jsonGetFloat(border, "maxSize");
 
-		item->minSize = 0;
-		if (cJSON_GetObjectItem(border, "minSize"))
-			item->minSize = jsonGetFloat(border, "minSize");
+			item->minSize = 0;
+			if (cJSON_GetObjectItem(border, "minSize"))
+				item->minSize = jsonGetFloat(border, "minSize");
 
-		item->exportMaterial = jsonGetStr(border, "texture");
-		item->texSize = jsonGetInt(border, "texSize");
+			jsonGetTex(border, "texture", &item->texture);
+
+			jsonPop();
+		}
+		jsonPop();
+	}
+
+	for (int i = 0; i < 8; i++)
+		data->props[i].mesh = 0;
+
+	cJSON* propArr = jsonGetArrayC(item, "props");
+	if (propArr)
+	{
+		int size = cJSON_GetArraySize(propArr);
+		for (int i = 0; i < size; i++)
+		{
+			cJSON* propJson = jsonArrGetObject(propArr, i);
+			int index = 0;
+			const char* id = jsonGetStr(propJson, "id");
+			if (strcmp(id, "top") == 0)
+				index = PANEL_ITEM_ID_TOP;
+			else if (strcmp(id, "bottom") == 0)
+				index = PANEL_ITEM_ID_BOTTOM;
+			else if (strcmp(id, "left") == 0)
+				index = PANEL_ITEM_ID_LEFT;
+			else if (strcmp(id, "right") == 0)
+				index = PANEL_ITEM_ID_RIGHT;
+			else if (strcmp(id, "top-left") == 0)
+				index = PANEL_ITEM_ID_TOP_LEFT;
+			else if (strcmp(id, "top-right") == 0)
+				index = PANEL_ITEM_ID_TOP_RIGHT;
+			else if (strcmp(id, "bottom-left") == 0)
+				index = PANEL_ITEM_ID_BOTTOM_LEFT;
+			else if (strcmp(id, "bottom-right") == 0)
+				index = PANEL_ITEM_ID_BOTTOM_RIGHT;
+			else
+				errorf("bad id '%s'\n", id);
+
+			Prop* prop = &data->props[index];
+
+			prop->model = jsonGetStr(propJson, "model");
+			char* meshName = jsonGetStr(propJson, "editorModel");
+			prop->mesh = assetManagerLoadMesh(meshName);
+			char* textureName = jsonGetStr(propJson, "editorTexture");
+			prop->tex = assetManagerLoadTexture(textureName);
+
+			free(meshName);
+			free(textureName);
+
+			jsonGetTransform(propJson, "transform", prop->pos, prop->rot, prop->transform);
+			jsonGetTransform(propJson, "editorTransform", prop->editorPos, prop->editorRot, prop->editorTransform);
+
+			jsonPop();
+		}
+		jsonPop();
 	}
 
 	float size1 = data->items[PANEL_ITEM_ID_RIGHT].minSize;
@@ -122,10 +176,9 @@ void* loadPanelItemDef(cJSON* item, ItemDefinition* itemDef)
 	if (data->minSize[1] < size1 + size2)
 		data->minSize[1] = size1 + size2;
 
-	data->exportCetnerMat = jsonGetStr(item, "centerTexture");
-	data->exportZMat = jsonGetStr(item, "zTexture");
+	jsonGetTex(item, "centerTexture", &data->centerTexture);
+	jsonGetTex(item, "zTexture", &data->zTexture);
 	data->exportThickness = jsonGetInt(item, "thickness");
-	data->texSize = jsonGetInt(item, "texSize");
 
 	if (cJSON_GetObjectItem(item, "entity"))
 		data->classname = jsonGetStr(item, "entity");
@@ -252,7 +305,7 @@ void panelItemRender(Item* item)
 				start[1] = yOff;
 				end[0] = sizes.leftSize + xOff;
 				end[1] = sizes.bottomSize + yOff;
-				panelDrawRect(start, end, border[PANEL_ITEM_ID_BOTTOM_LEFT].material);
+				panelDrawRect(start, end, &border[PANEL_ITEM_ID_BOTTOM_LEFT].editorTexture);
 			}
 
 			if (sizes.leftSize > 0 && sizes.centerHeight > 0)
@@ -261,7 +314,7 @@ void panelItemRender(Item* item)
 				start[1] = sizes.bottomSize + yOff;
 				end[0] = sizes.leftSize + xOff;
 				end[1] = sizes.bottomSize + sizes.centerHeight + yOff;
-				panelDrawRect(start, end, border[PANEL_ITEM_ID_LEFT].material);
+				panelDrawRect(start, end, &border[PANEL_ITEM_ID_LEFT].editorTexture);
 			}
 
 			if (sizes.leftSize > 0 && sizes.topSize > 0)
@@ -270,7 +323,7 @@ void panelItemRender(Item* item)
 				start[1] = sizes.bottomSize + sizes.centerHeight + yOff;
 				end[0] = sizes.leftSize + xOff;
 				end[1] = data->size[1] + yOff;
-				panelDrawRect(start, end, border[PANEL_ITEM_ID_TOP_LEFT].material);
+				panelDrawRect(start, end, &border[PANEL_ITEM_ID_TOP_LEFT].editorTexture);
 			}
 
 			if (sizes.centerWidth > 0 && sizes.bottomSize > 0)
@@ -279,7 +332,7 @@ void panelItemRender(Item* item)
 				start[1] = yOff;
 				end[0] = sizes.leftSize + sizes.centerWidth + xOff;
 				end[1] = sizes.bottomSize + yOff;
-				panelDrawRect(start, end, border[PANEL_ITEM_ID_BOTTOM].material);
+				panelDrawRect(start, end, &border[PANEL_ITEM_ID_BOTTOM].editorTexture);
 			}
 
 			if (sizes.centerWidth > 0 && sizes.centerHeight > 0)
@@ -288,7 +341,7 @@ void panelItemRender(Item* item)
 				start[1] = sizes.bottomSize + yOff;
 				end[0] = sizes.leftSize + sizes.centerWidth + xOff;
 				end[1] = sizes.bottomSize + sizes.centerHeight + yOff;
-				panelDrawRect(start, end, def->centerMat);
+				panelDrawRect(start, end, &def->editorCenterTexture);
 			}
 
 			if (sizes.centerWidth > 0 && sizes.topSize > 0)
@@ -297,7 +350,7 @@ void panelItemRender(Item* item)
 				start[1] = sizes.bottomSize + sizes.centerHeight + yOff;
 				end[0] = sizes.leftSize + sizes.centerWidth + xOff;
 				end[1] = data->size[1] + yOff;
-				panelDrawRect(start, end, border[PANEL_ITEM_ID_TOP].material);
+				panelDrawRect(start, end, &border[PANEL_ITEM_ID_TOP].editorTexture);
 			}
 
 			if (sizes.rightSize > 0 && sizes.bottomSize > 0)
@@ -306,7 +359,7 @@ void panelItemRender(Item* item)
 				start[1] = yOff;
 				end[0] = data->size[0] + xOff;
 				end[1] = sizes.bottomSize + yOff;
-				panelDrawRect(start, end, border[PANEL_ITEM_ID_BOTTOM_RIGHT].material);
+				panelDrawRect(start, end, &border[PANEL_ITEM_ID_BOTTOM_RIGHT].editorTexture);
 			}
 
 			if (sizes.rightSize > 0 && sizes.centerHeight > 0)
@@ -315,7 +368,7 @@ void panelItemRender(Item* item)
 				start[1] = sizes.bottomSize + yOff;
 				end[0] = data->size[0] + xOff;
 				end[1] = sizes.bottomSize + sizes.centerHeight + yOff;
-				panelDrawRect(start, end, border[PANEL_ITEM_ID_RIGHT].material);
+				panelDrawRect(start, end, &border[PANEL_ITEM_ID_RIGHT].editorTexture);
 			}
 
 			if (sizes.rightSize > 0 && sizes.topSize > 0)
@@ -324,18 +377,80 @@ void panelItemRender(Item* item)
 				start[1] = sizes.bottomSize + sizes.centerHeight + yOff;
 				end[0] = data->size[0] + xOff;
 				end[1] = data->size[1] + yOff;
-				panelDrawRect(start, end, border[PANEL_ITEM_ID_TOP_RIGHT].material);
+				panelDrawRect(start, end, &border[PANEL_ITEM_ID_TOP_RIGHT].editorTexture);
 			}
 
-			panelEndFrame(item->transform, 0);
+			panelEndFrame(item->transform, 0, 1);
+
+			for (int i = 0; i < 8; i++)
+			{
+				Prop* prop = &def->props[i];
+				if (prop->mesh == 0)
+					continue;
+				vec3 pos;
+				pos[2] = 0;
+				switch (i)
+				{
+				case PANEL_ITEM_ID_BOTTOM_LEFT:
+					pos[0] = 0;
+					pos[1] = 0;
+					break;
+				case PANEL_ITEM_ID_BOTTOM:
+					pos[0] = data->size[0] / 2.0f;
+					pos[1] = 0;
+					break;
+				case PANEL_ITEM_ID_BOTTOM_RIGHT:
+					pos[0] = data->size[0];
+					pos[1] = 0;
+					break;
+				case PANEL_ITEM_ID_LEFT:
+					pos[0] = 0;
+					pos[1] = data->size[1] / 2.0f;
+					break;
+				case PANEL_ITEM_ID_RIGHT:
+					pos[0] = data->size[0];
+					pos[1] = data->size[1] / 2.0f;
+					break;
+				case PANEL_ITEM_ID_TOP_LEFT:
+					pos[0] = 0;
+					pos[1] = data->size[1];
+					break;
+				case PANEL_ITEM_ID_TOP:
+					pos[0] = data->size[0] / 2.0f;
+					pos[1] = data->size[1];
+					break;
+				case PANEL_ITEM_ID_TOP_RIGHT:
+					pos[0] = data->size[0];
+					pos[1] = data->size[1];
+					break;
+				}
+				pos[0] += xOff;
+				pos[1] += yOff;
+				float tmp = pos[1];
+				pos[1] = pos[2];
+				pos[2] = tmp;
+
+				mat4 transform;
+				mat4 mat2;
+				memcpy(transform, prop->editorTransform, sizeof(mat4));
+				glm_mat4_identity(mat2);
+				glm_translate(mat2, pos);
+				glm_mat4_mul(mat2, transform, transform);
+				memcpy(mat2, item->transform, sizeof(mat4));
+				glm_mat4_mul(mat2, transform, transform);
+
+				drawMesh(prop->mesh, prop->tex, transform);
+			}
 		}
 	}
 }
 
-static void addBrush(Entity* entity, vec3 start, vec3 end, const char* mat, const char* zTex, Item* item,
-					 int texSize, const char* altTex, int altSize)
+static void addBrush(Entity* entity, vec3 start, vec3 end, Texture* mat, Texture* zTex, Item* item, Texture* altTex)
 {
-	Brush* brush = exportCreateBrush(start, end);
+	vec3 start2 = {start[0], start[2], start[1]};
+	vec3 end2 = {end[0], end[2], end[1]};
+
+	Brush* brush = exportCreateBrush(start2, end2);
 	brush->pos[0] = item->pos[0];
 	brush->pos[1] = item->pos[1];
 	brush->pos[2] = item->pos[2];
@@ -350,6 +465,25 @@ static void addBrush(Entity* entity, vec3 start, vec3 end, const char* mat, cons
 	{
 		Side* side = &brush->sides[i];
 
+		if (i == DIR_NEG_Y || (i == DIR_POS_Y && altTex == 0))
+		{
+			char fit = (mat->alignment == TEX_ALIGNMENT_FIT);
+			side->material = mat->filename;
+			side->fit = fit;
+			side->texWidth = mat->size;
+			side->texHeight = mat->size;
+		}
+		else if (i == DIR_POS_Y && altTex)
+		{
+			char fit = (altTex->alignment == TEX_ALIGNMENT_FIT);
+			side->material = altTex->filename;
+			side->fit = fit;
+			side->texWidth = altTex->size;
+			side->texHeight = altTex->size;
+		}
+		else
+			side->material = zTex->filename;
+
 		for (int j = 0; j < 4; j++)
 		{
 			vec3 res;
@@ -358,22 +492,6 @@ static void addBrush(Entity* entity, vec3 start, vec3 end, const char* mat, cons
 			glm_mat4_mulv3(transform, vert, 1, res);
 			memcpy(side->verts[j], res, sizeof(vec3));
 		}
-		if (side->id == DIR_POS_Z || (side->id == DIR_NEG_Z && altTex == 0))
-		{
-			side->material = mat;
-			side->fit = 1;
-			side->texWidth = texSize;
-			side->texHeight = texSize;
-		}
-		else if (side->id == DIR_NEG_Z && altTex)
-		{
-			side->material = altTex;
-			side->fit = 1;
-			side->texWidth = altSize;
-			side->texHeight = altSize;
-		}
-		else
-			side->material = zTex;
 	}
 	if (entity)
 		exportEntityAddBrush(entity, brush);
@@ -462,7 +580,7 @@ void panelItemExport(Item* item)
 
 	getPanelSizes(item, &sizes);
 
-	const char* zTex = defData->exportZMat;
+	Texture* zTex = &defData->zTexture;
 
 	if (sizes.leftSize > 0 && sizes.bottomSize > 0)
 	{
@@ -472,7 +590,7 @@ void panelItemExport(Item* item)
 		end[1] = sizes.bottomSize;
 		PanelItemDef* b = &border[PANEL_ITEM_ID_BOTTOM_LEFT];
 		PanelItemDef* b2 = &border[PANEL_ITEM_ID_BOTTOM_RIGHT];
-		addBrush(entity, start, end, b->exportMaterial, zTex, item, b->texSize, b2->exportMaterial, b2->texSize);
+		addBrush(entity, start, end, &b->texture, zTex, item, &b2->texture);
 	}
 
 	if (sizes.leftSize > 0 && sizes.centerHeight > 0)
@@ -483,7 +601,7 @@ void panelItemExport(Item* item)
 		end[1] = sizes.bottomSize + sizes.centerHeight;
 		PanelItemDef* b = &border[PANEL_ITEM_ID_LEFT];
 		PanelItemDef* b2 = &border[PANEL_ITEM_ID_RIGHT];
-		addBrush(entity, start, end, b->exportMaterial, zTex, item, b->texSize, b2->exportMaterial, b2->texSize);
+		addBrush(entity, start, end, &b->texture, zTex, item, &b2->texture);
 	}
 
 	if (sizes.leftSize > 0 && sizes.topSize > 0)
@@ -494,7 +612,7 @@ void panelItemExport(Item* item)
 		end[1] = data->size[1];
 		PanelItemDef* b = &border[PANEL_ITEM_ID_TOP_LEFT];
 		PanelItemDef* b2 = &border[PANEL_ITEM_ID_TOP_RIGHT];
-		addBrush(entity, start, end, b->exportMaterial, zTex, item, b->texSize, b2->exportMaterial, b2->texSize);
+		addBrush(entity, start, end, &b->texture, zTex, item, &b2->texture);
 	}
 
 	if (sizes.centerWidth > 0 && sizes.bottomSize > 0)
@@ -504,7 +622,7 @@ void panelItemExport(Item* item)
 		end[0] = sizes.leftSize + sizes.centerWidth;
 		end[1] = sizes.bottomSize;
 		PanelItemDef* b = &border[PANEL_ITEM_ID_BOTTOM];
-		addBrush(entity, start, end, b->exportMaterial, zTex, item, b->texSize, 0, 0);
+		addBrush(entity, start, end, &b->texture, zTex, item, 0);
 	}
 
 	if (sizes.centerWidth > 0 && sizes.centerHeight > 0)
@@ -513,7 +631,7 @@ void panelItemExport(Item* item)
 		start[1] = sizes.bottomSize;
 		end[0] = sizes.leftSize + sizes.centerWidth;
 		end[1] = sizes.bottomSize + sizes.centerHeight;
-		addBrush(entity, start, end, defData->exportCetnerMat, zTex, item, defData->texSize, 0, 0);
+		addBrush(entity, start, end, &defData->centerTexture, zTex, item, 0);
 	}
 
 	if (sizes.centerWidth > 0 && sizes.topSize > 0)
@@ -523,7 +641,7 @@ void panelItemExport(Item* item)
 		end[0] = sizes.leftSize + sizes.centerWidth;
 		end[1] = data->size[1];
 		PanelItemDef* b = &border[PANEL_ITEM_ID_TOP];
-		addBrush(entity, start, end, b->exportMaterial, zTex, item, b->texSize, 0, 0);
+		addBrush(entity, start, end, &b->texture, zTex, item, 0);
 	}
 
 	if (sizes.rightSize > 0 && sizes.bottomSize > 0)
@@ -534,7 +652,7 @@ void panelItemExport(Item* item)
 		end[1] = sizes.bottomSize;
 		PanelItemDef* b = &border[PANEL_ITEM_ID_BOTTOM_RIGHT];
 		PanelItemDef* b2 = &border[PANEL_ITEM_ID_BOTTOM_LEFT];
-		addBrush(entity, start, end, b->exportMaterial, zTex, item, b->texSize, b2->exportMaterial, b2->texSize);
+		addBrush(entity, start, end, &b->texture, zTex, item, &b2->texture);
 	}
 
 	if (sizes.rightSize > 0 && sizes.centerHeight > 0)
@@ -545,7 +663,7 @@ void panelItemExport(Item* item)
 		end[1] = sizes.bottomSize + sizes.centerHeight;
 		PanelItemDef* b = &border[PANEL_ITEM_ID_RIGHT];
 		PanelItemDef* b2 = &border[PANEL_ITEM_ID_LEFT];
-		addBrush(entity, start, end, b->exportMaterial, zTex, item, b->texSize, b2->exportMaterial, b2->texSize);
+		addBrush(entity, start, end, &b->texture, zTex, item, &b2->texture);
 	}
 
 	if (sizes.rightSize > 0 && sizes.topSize > 0)
@@ -556,7 +674,7 @@ void panelItemExport(Item* item)
 		end[1] = data->size[1];
 		PanelItemDef* b = &border[PANEL_ITEM_ID_TOP_RIGHT];
 		PanelItemDef* b2 = &border[PANEL_ITEM_ID_TOP_LEFT];
-		addBrush(entity, start, end, b->exportMaterial, zTex, item, b->texSize, b2->exportMaterial, b2->texSize);
+		addBrush(entity, start, end, &b->texture, zTex, item, &b2->texture);
 	}
 }
 
@@ -565,9 +683,9 @@ void panelItemGetBoundingBox(Item* item, vec3 min, vec3 max)
 	PanelData* data = item->data;
 
 	min[0] = 0;
-	min[1] = 0;
-	min[2] = -0.125;
+	min[1] = -0.125;
+	min[2] = 0;
 	max[0] = data->size[0] * data->tile[0];
-	max[1] = data->size[1] * data->tile[1];
-	max[2] = 0.125;
+	max[1] = 0.125;
+	max[2] = data->size[1] * data->tile[1];
 }

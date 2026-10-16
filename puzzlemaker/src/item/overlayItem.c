@@ -1,8 +1,10 @@
 #include "overlayItem.h"
-#include "export/overlay.h"
-#include "renderer/renderer.h"
 #include "assetManager.h"
+#include "export/overlay.h"
+#include "item.h"
+#include "item/item.h"
 #include "jsonUtils.h"
+#include "renderer/renderer.h"
 #include <string.h>
 
 static ItemCallbacks callbacks;
@@ -21,9 +23,9 @@ void* loadOverlayItemDef(cJSON* item, ItemDefinition* itemDef)
 {
 	itemDef->callbacks = &callbacks;
 	OverlayItemDef* def = malloc(sizeof(OverlayItemDef));
-	const char* textureName = cJSON_GetObjectItem(item, "texture")->valuestring;
+	const char* textureName = jsonGetStr(item, "editorTexture");
 	def->texture = assetManagerLoadTexture(textureName);
-	def->exportTexture = jsonGetStr(item, "exportTexture");
+	def->exportTexture = jsonGetStr(item, "texture");
 	jsonGetVec2(item, "size", def->size);
 	return def;
 }
@@ -31,15 +33,21 @@ void* loadOverlayItemDef(cJSON* item, ItemDefinition* itemDef)
 void overlayItemInit(Item* item)
 {
 }
+
+
 void overlayItemExport(Item* item)
 {
-	char buf[100];
-	snprintf(buf, 100, "%s%d", item->def->name, item->index);
-
 	OverlayItemDef* def = item->def->data;
+
+  char* str = itemProcessString(def->exportTexture, item->kv); 
+
 	Overlay* overlay = exportCreateOverlay();
+	overlay->texture = str;
+	overlay->script = 1;
+  char buf[256];
+	snprintf(buf, 256, "%s%d", item->def->name, item->index);
+
 	overlay->name = strdup(buf);
-	overlay->texture = def->exportTexture;
 	memcpy(overlay->pos, item->pos, sizeof(vec3));
 	memcpy(overlay->rotation, item->dir, sizeof(vec3));
 	memcpy(overlay->size, def->size, sizeof(vec3));
@@ -56,17 +64,17 @@ void overlayItemRender(Item* item)
 	vec2 start = {-def->size[0] / 128.0f, -def->size[1] / 128.0f};
 	vec2 end = {def->size[0] / 128.0f, def->size[1] / 128.0f};
 	overlayDrawRect(start, end, def->texture, 1);
-	panelEndFrame(item->transform, 1);
+	panelEndFrame(item->transform, 1, 1);
 }
 void overlayItemGetBoundingBox(Item* item, vec3 min, vec3 max)
 {
 	OverlayItemDef* def = item->def->data;
 	min[0] = -def->size[0] / 128.0f;
-	min[1] = -0.125;
-	min[2] = -def->size[1] / 128.0f;
+	min[1] = -def->size[1] / 128.0f;
+	min[2] = -0.125;
 	max[0] = def->size[0] / 128.0f;
-	max[1] = 0.125;
-	max[2] = def->size[1] / 128.0f;
+	max[1] = def->size[1] / 128.0f;
+	max[2] = 0.125;
 }
 void overlayItemSave(Item* item, cJSON* json)
 {

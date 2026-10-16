@@ -11,4 +11,4 @@ typedef struct
   unsigned int vertCount;
 } Mesh;
 
-Mesh loadMesh(const char* filename);
+void loadMesh(const char* filename, Mesh* mesh);

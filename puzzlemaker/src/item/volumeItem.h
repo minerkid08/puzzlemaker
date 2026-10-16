@@ -1,11 +1,12 @@
 #include "cglm/types.h"
 #include "cjson.h"
+#include "jsonUtils.h"
 #include "item/item.h"
 
 typedef struct
 {
-	unsigned int material;
-	const char* exportMaterial[6];
+	Texture material;
+	Texture exportMaterial[6];
 	const char* entity;
 	vec3 minSize;
 	vec3 maxSize;

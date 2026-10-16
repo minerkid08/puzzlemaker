@@ -4,16 +4,26 @@
 		"name": "light",
 		"model": "light.obj",
 		"mat": "light.png",
-    "instance": "light",
+    "instance": "puzzlemakerInstances/light",
     "snapMode": "mini-center",
-    "bound1": [-0.25, 0, -1],
-    "bound2": [0.25, 0.1, 1]
+    "bound1": [-1.25, -0.25, 0],
+    "bound2": [0.75, 0.25, 0.1],
+		"editorTransform": {
+			"rotation": [90, 0, 90]
+		},
+		"transform": {
+			"rotation": [90, 0, 0]
+		}
 	},
   {
     "type": "volume",
     "name": "small-blocks",
-    "editorTexture": "blackVoxel.png",
-    "texture": {
+    "editorTexture": {
+      "filename": "blackVoxel.png",
+      "size": 0.5,
+      "alignment": "none"
+    },
+    "textures": {
       "top": "METAL/BLACK_FLOOR_METAL_001C",
       "bottom": "METAL/BLACK_CEILING_METAL_001A",
       "left": "METAL/BLACK_WALL_METAL_002B",
@@ -42,9 +52,56 @@
   },
 	{
     "type": "overlay",
-		"name": "doorstate",
-		"texture": "light.png",
+		"name": "indicatorSignage",
+		"editorTexture": "arrow.png",
 		"size": [32, 32],
-		"exportTexture": "signage/signage_overlay_fling2"
+		"texture": "signage/{texture}",
+		"snapMode": "mini-center",
+		"keyvalues": [
+			{
+				"type": "drop-string",
+				"kv": "texture",
+				"defaultValue": 0,
+				"options": {
+					"arrow": "signage_arrow",
+					"dot": "shape01",
+					"moon": "shape02",
+					"triangle": "shape03",
+					"cross": "shape04",
+					"square": "shape05",
+					"dots1": "signage_overlay_dots1",
+					"dots2": "signage_overlay_dots2",
+					"dots3": "signage_overlay_dots3",
+					"dots4": "signage_overlay_dots4"
+				}
+			}
+		]
+  },
+  {
+    "type": "overlay",
+		"name": "itemSignage",
+		"editorTexture": "exitSign.png",
+		"size": [32, 32],
+		"texture": "signage/{texture}",
+		"snapMode": "mini-center",
+		"keyvalues": [
+			{
+				"type": "drop-string",
+				"kv": "texture",
+				"defaultValue": 0,
+				"options": {
+					"door": "signage_exit",
+					"button": "signage_box_button",
+					"cube-dropper": "signage_overlay_boxdispensor",
+					"cube-hurt": "signage_overlay_box_hurt",
+					"laser-cube": "signage_laser_cube",
+					"laser-catcher": "signage_laser_catcher",
+					"funnel": "signage_tractor_beam",
+					"funnel-polarity": "signage_tractor_polarity",
+					"fling1": "signage_overlay_fling1",
+					"fling2": "signage_overlay_fling2"
+				}
+			}
+		]
 	}
 ]

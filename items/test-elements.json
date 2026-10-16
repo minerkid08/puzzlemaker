@@ -3,31 +3,41 @@
     "type": "panel",
     "name": "fizzler",
     "editorCenterTexture": "fizzler-center.png",
-    "centerTexture": "EFFECTS/FIZZLER_CENTER",
+    "centerTexture": {
+      "filename": "EFFECTS/FIZZLER_CENTER",
+      "size": 1024,
+      "alignment": "fit"
+    },
     "zTexture": "TOOLS/TOOLSTRIGGER",
     "entity": "trigger_portal_cleanser",
-    "texSize": 1024,
+    "exportScript": "fizzler.lua",
     "thickness": 2,
     "minSize": [0, 2],
     "maxSize": [99999, 2],
     "snapMode": "mini-center",
     "defaultSize": [4, 2],
 		"vertTile": true,
-		"exportScript": "fizzler.lua",
 		"transparent": true,
     "borders": [
       {
         "id": "left",
         "editorTexture": "fizzler-left.png",
-        "texture": "EFFECTS/FIZZLER_L",
-        "texSize": 1024,
+        "texture": {
+          "filename": "EFFECTS/FIZZLER_L",
+          "size": 1024,
+          "alignment": "fit"
+        },
         "minSize": 1,
         "maxSize": 1
       },
       {
         "id": "right",
         "editorTexture": "fizzler-right.png",
-        "texture": "EFFECTS/FIZZLER_R",
+        "texture": {
+          "filename": "EFFECTS/FIZZLER_R",
+          "size": 1024,
+          "alignment": "fit"
+        },
         "texSize": 1024,
         "minSize": 1,
         "maxSize": 1
@@ -64,10 +74,13 @@
     "type": "panel",
     "name": "laser-panel",
     "editorCenterTexture": "laserfield.png",
-    "centerTexture": "TOOLS/TOOLSTRIGGER",
+    "centerTexture": {
+      "filename": "TOOLS/TOOLSTRIGGER",
+      "size": 1024,
+      "alignment": "fit"
+    },
     "zTexture": "TOOLS/TOOLSTRIGGER",
     "entity": "trigger_hurt",
-    "texSize": 1024,
     "thickness": 2,
     "minSize": [2, 2],
     "maxSize": [99999, 2],
@@ -87,7 +100,7 @@
 			{
 				"kv": "startdisabled",
 				"type": "bool",
-				"defaultValue": false 
+				"defaultValue": false
 			}
 		],
     "statickvs": {
@@ -102,11 +115,26 @@
 		"name": "door",
 		"model": "door.obj",
 		"mat": "door.png",
-    "instance": "door",
-    "bound1": [0, 0, -1],
-    "bound2": [0.5, 2, 1],
+    "instance": "puzzlemakerInstances/door-{portalability}",
+    "bound1": [-1, -0.5, 0],
+    "bound2": [1, 0, 2],
+    "editorTransform": {
+      "rotation": [90, 0, 0]
+    },
+    "transform": {
+      "rotation": [-90, 180, 0]
+    },
     "snapMode": "mini-corner",
 		"keyvalues": [
+      {
+        "kv": "portalability",
+        "type": "bitfield",
+        "defaultValue": 0,
+        "options": {
+          "front": 0,
+          "back": 1
+        }
+      },
 			{
 				"kv": "open",
 				"type": "bool",
@@ -131,9 +159,15 @@
 		"name": "dropper",
 		"model": "dropper.obj",
 		"mat": "dropper.png",
-    "instance": "dropper",
-    "bound1": [0, 0, -1],
-    "bound2": [0.5, 2, 1],
+    "instance": "puzzlemakerInstances/dropper",
+    "bound1": [-1, -1, 0],
+    "bound2": [1, 1, 1],
+		"editorTransform": {
+			"rotation": [-90, 0, 0]
+		},
+		"transform": {
+			"rotation": [-90, 0, 0]
+		},
 		"keyvalues": [
 			{
 				"kv": "dontautorespawn",
@@ -177,10 +211,14 @@
 		"mat": "cube.png",
     "entity": "prop_weighted_cube",
 		"transform": {
-			"position": [0, 0.5, 0]
+			"position": [32, 0, 0],
+			"rotation": [90, 0, 0]
 		},
-    "bound1": [-0.5, 0, -0.5],
-    "bound2": [0.5, 1, 0.5],
+		"editorTransform": {
+			"rotation": [90, 0, 0]
+		},
+    "bound1": [-0.5, -0.5, 0],
+    "bound2": [0.5, 0.5, 1],
 		"keyvalues": [
 			{
     	  "kv": "CubeBehavior",
@@ -229,9 +267,15 @@
     "name": "button",
     "model": "button.obj",
     "mat": "button.png",
-    "instance": "button",
-    "bound1": [-1, 0, -1],
-    "bound2": [1, 0.3, 1],
+    "instance": "puzzlemakerInstances/button",
+    "bound1": [-1, -1, 0],
+    "bound2": [1, 1, 0.3],
+    "editorTransform": {
+      "rotation": [90, 0, 0]
+    },
+    "transform": {
+      "rotation": [90, 0, 0]
+    },
     "keyvalues": [],
     "inputs": [],
     "snapMode": "corner",
@@ -250,7 +294,14 @@
     "mat": "laser.png",
     "entity": "prop_button",
     "bound1": [-0.125, 0, -0.125],
-    "bound2": [0.125, 0.4, 0.125],
+    "bound2": [0.125, 0.75, 0.125],
+		"snapMode": "mini-corner",
+		"transform": {
+			"rotation": [90, 0, -90]
+		},
+		"transform": {
+			"rotation": [90, 0, 0]
+		},
     "keyvalues": [
     	{
     	  "kv": "skin",
@@ -296,12 +347,11 @@
 		"mat": "laser.png",
     "entity": "env_portal_laser",
     "bound1": [-0.5, -0.5, -0.5],
-    "bound2": [0.5, 0.01, 0.5],
+    "bound2": [0.5, 0.5, 0.1],
     "snapMode": "mini-corner",
 		"deleteIntersectingVoxels": true,
     "transform": {
-      "position": [-0.25, 0, 0],
-      "rotation": [0, 0, 0]
+      "position": [-16, 0, 0]
     },
     "keyvalues": [
       {
@@ -334,12 +384,14 @@
 		"mat": "laser-catcher.png",
     "entity": "prop_laser_catcher",
     "bound1": [-0.5, -0.5, -0.5],
-    "bound2": [0.5, 0.01, 0.5],
+    "bound2": [0.5, 0.5, 0.1],
     "snapMode": "mini-corner",
 		"deleteIntersectingVoxels": true,
+    "editorTransform": {
+      "rotation": [90, 0, 0]
+    },
     "transform": {
-      "position": [0, -0.25, 0],
-      "rotation": [0, 0, -90]
+      "position": [-16, 0, 0]
     },
     "keyvalues": [
       {
@@ -365,9 +417,15 @@
 		"name": "funnel",
 		"model": "funnel.obj",
 		"mat": "funnel.png",
-    "instance": "funnel",
+    "instance": "puzzlemakerInstances/funnel",
     "bound1": [-1, -1, -1],
-    "bound2": [1, 0, 1],
+    "bound2": [1, 1, 0],
+    "transform": {
+      "rotation": [90, 0, 0]
+    },
+    "editorTransform": {
+      "rotation": [90, 0, 0]
+    },
 		"deleteIntersectingVoxels": true,
     "keyvalues": [
       {

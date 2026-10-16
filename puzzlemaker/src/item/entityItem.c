@@ -35,15 +35,8 @@ void* loadEntityItemDef(cJSON* item, ItemDefinition* itemDef)
 	vec3 bound1;
 	vec3 bound2;
 
-	cJSON* bound = cJSON_GetObjectItem(item, "bound1");
-	bound1[0] = jsonArrGetFloat(bound, 0);
-	bound1[1] = jsonArrGetFloat(bound, 1);
-	bound1[2] = jsonArrGetFloat(bound, 2);
-
-	bound = cJSON_GetObjectItem(item, "bound2");
-	bound2[0] = jsonArrGetFloat(bound, 0);
-	bound2[1] = jsonArrGetFloat(bound, 1);
-	bound2[2] = jsonArrGetFloat(bound, 2);
+	jsonGetVec3(item, "bound1", bound1);
+	jsonGetVec3(item, "bound2", bound2);
 
 	def->bound1[0] = fminf(bound1[0], bound2[0]);
 	def->bound1[1] = fminf(bound1[1], bound2[1]);
@@ -52,52 +45,8 @@ void* loadEntityItemDef(cJSON* item, ItemDefinition* itemDef)
 	def->bound2[1] = fmaxf(bound1[1], bound2[1]);
 	def->bound2[2] = fmaxf(bound1[2], bound2[2]);
 
-	cJSON* transform = cJSON_GetObjectItem(item, "transform");
-	def->positionOffset[0] = 0;
-	def->positionOffset[1] = 0;
-	def->positionOffset[2] = 0;
-
-	def->rotationOffset[0] = 0;
-	def->rotationOffset[1] = 0;
-	def->rotationOffset[2] = 0;
-	if (transform)
-	{
-		cJSON* position = cJSON_GetObjectItem(transform, "position");
-		cJSON* rotation = cJSON_GetObjectItem(transform, "rotation");
-		if (position)
-			jsonGetVec3(transform, "position", def->positionOffset);
-		if (rotation)
-			jsonGetVec3(transform, "rotation", def->rotationOffset);
-	}
-
-	cJSON* editorTransformJson = cJSON_GetObjectItem(item, "editorTransform");
-	mat4 editorTransform;
-	glm_mat4_identity(editorTransform);
-	if (editorTransformJson)
-	{
-		vec3 pos = {0, 0, 0};
-		vec3 rot = {0, 0, 0};
-		cJSON* position = cJSON_GetObjectItem(editorTransformJson, "position");
-		cJSON* rotation = cJSON_GetObjectItem(editorTransformJson, "rotation");
-		if (position)
-			jsonGetVec3(editorTransformJson, "position", pos);
-		if (rotation)
-			jsonGetVec3(editorTransformJson, "rotation", rot);
-
-		memcpy(def->editorPos, pos, sizeof(vec3));
-		memcpy(def->editorRot, rot, sizeof(vec3));
-
-		mat4 rotMat;
-		vec4 quat;
-		rot[0] = glm_rad(rot[0]);
-		rot[1] = glm_rad(rot[1]);
-		rot[2] = glm_rad(rot[2]);
-		glm_translate(editorTransform, pos);
-		glm_euler_yzx_quat(rot, quat);
-		glm_quat_mat4(quat, rotMat);
-		glm_mat4_mul(editorTransform, rotMat, editorTransform);
-	}
-	memcpy(def->editorTransform, editorTransform, sizeof(mat4));
+  jsonGetTransform(item, "transform", def->positionOffset, def->rotationOffset, 0);
+  jsonGetTransform(item, "editorTransform", def->editorPos, def->editorRot, def->editorTransform);
 
 	if (cJSON_HasObjectItem(item, "instance"))
 	{
@@ -118,6 +67,7 @@ void* loadEntityItemDef(cJSON* item, ItemDefinition* itemDef)
 
 void entityItemInit(Item* item)
 {
+	item->data = 0;
 }
 
 void entityItemRender(Item* item)
@@ -153,7 +103,10 @@ void entityItemExport(Item* item)
 	Entity* entity = exportCreateEntity();
 
 	vec3 entPos;
-	memcpy(entPos, defData->positionOffset, sizeof(vec3));
+	entPos[2] = defData->positionOffset[0] / 64.0f;
+	entPos[0] = defData->positionOffset[1] / 64.0f;
+	entPos[1] = defData->positionOffset[2] / 64.0f;
+
 	glm_mat4_mulv3(transform, entPos, 1, entPos);
 	memcpy(entity->pos, entPos, sizeof(vec3));
 
@@ -162,12 +115,14 @@ void entityItemExport(Item* item)
 	entRot[0] = glm_rad(entRot[0]);
 	entRot[1] = glm_rad(entRot[1]);
 	entRot[2] = glm_rad(entRot[2]);
-	mat4 rotMat2;
 	vec4 quat;
-	glm_euler_yzx_quat(entRot, quat);
-	glm_quat_mat4(quat, rotMat2);
+	glm_quat_identity(quat);
+	glm_euler_yxz_quat(entRot, quat);
 
-	glm_mat4_mul(rotMat, rotMat2, rotMat);
+	vec4 newRot;
+	glm_quat_mul(itemRot, quat, newRot);
+	glm_quat_mat4(newRot, rotMat);
+
 	getEulerAngles(rotMat, entRot);
 	entRot[0] = glm_deg(entRot[0]);
 	entRot[1] = glm_deg(entRot[1]);
@@ -178,8 +133,9 @@ void entityItemExport(Item* item)
 	if (defData->instanceName)
 	{
 		entity->className = "func_instance";
-		snprintf(buf, sizeof(buf), "puzzlemakerInstances/%s", defData->instanceName);
-		exportEntityAddKvss(entity, "file", buf);
+    char* instanceName = itemProcessString(defData->instanceName, item->kv);
+		exportEntityAddKvss(entity, "file", instanceName);
+    free(instanceName);
 	}
 	else
 		entity->className = defData->entityName;

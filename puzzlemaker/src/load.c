@@ -1,4 +1,5 @@
 #include "antline/antline.h"
+#include "camera.h"
 #include "cjson.h"
 #include "dynList.h"
 #include "item/item.h"
@@ -12,11 +13,19 @@
 extern Item* itemList;
 extern Antline* antlines;
 
+#define errf(fmt, ...)                                                                                                 \
+	{                                                                                                                  \
+		errorf(fmt, __VA_ARGS__);                                                                                      \
+		cJSON_Delete(json);                                                                                            \
+		return;                                                                                                        \
+	}
+
 void load()
 {
 	char filename[256];
 	snprintf(filename, 256, "maps/%s.chamb", mapSettings.name);
 	printf("loading '%s'\n", filename);
+	jsonResetStack(filename);
 
 	for (int i = 0; i < dynList_size(itemList); i++)
 	{
@@ -28,7 +37,7 @@ void load()
 	for (int i = 0; i < dynList_size(antlines); i++)
 	{
 		Antline* antline = &antlines[i];
-		free(antline->segments);
+		dynList_free(antline->segments);
 	}
 	dynList_resize((void**)&antlines, 0);
 
@@ -59,6 +68,13 @@ void load()
 		}
 	}
 
+	mapReigonStart[0] = 9999;
+	mapReigonStart[1] = 9999;
+	mapReigonStart[2] = 9999;
+	mapReigonEnd[0] = -1;
+	mapReigonEnd[1] = -1;
+	mapReigonEnd[2] = -1;
+
 	cJSON* voxelArr = cJSON_GetObjectItem(json, "voxels");
 	cJSON* voxel;
 	cJSON_ArrayForEach(voxel, voxelArr)
@@ -70,24 +86,36 @@ void load()
 
 		v->solid = jsonGetBool(voxel, "solid");
 
-		cJSON* portal = cJSON_GetObjectItem(voxel, "portal0");
-		if (cJSON_IsBool(portal))
+		if (v->solid)
 		{
-			v->portalability[0] = jsonGetBool(voxel, "portal0");
-			v->portalability[1] = jsonGetBool(voxel, "portal1");
-			v->portalability[2] = jsonGetBool(voxel, "portal2");
-			v->portalability[3] = jsonGetBool(voxel, "portal3");
-			v->portalability[4] = jsonGetBool(voxel, "portal4");
-			v->portalability[5] = jsonGetBool(voxel, "portal5");
+			cJSON* portal = cJSON_GetObjectItem(voxel, "portal0");
+			if (cJSON_IsBool(portal))
+			{
+				v->portalability[0] = jsonGetBool(voxel, "portal0");
+				v->portalability[1] = jsonGetBool(voxel, "portal1");
+				v->portalability[2] = jsonGetBool(voxel, "portal2");
+				v->portalability[3] = jsonGetBool(voxel, "portal3");
+				v->portalability[4] = jsonGetBool(voxel, "portal4");
+				v->portalability[5] = jsonGetBool(voxel, "portal5");
+			}
+			else
+			{
+				v->portalability[0] = jsonGetInt(voxel, "portal0");
+				v->portalability[1] = jsonGetInt(voxel, "portal1");
+				v->portalability[2] = jsonGetInt(voxel, "portal2");
+				v->portalability[3] = jsonGetInt(voxel, "portal3");
+				v->portalability[4] = jsonGetInt(voxel, "portal4");
+				v->portalability[5] = jsonGetInt(voxel, "portal5");
+			}
 		}
 		else
 		{
-			v->portalability[0] = jsonGetInt(voxel, "portal0");
-			v->portalability[1] = jsonGetInt(voxel, "portal1");
-			v->portalability[2] = jsonGetInt(voxel, "portal2");
-			v->portalability[3] = jsonGetInt(voxel, "portal3");
-			v->portalability[4] = jsonGetInt(voxel, "portal4");
-			v->portalability[5] = jsonGetInt(voxel, "portal5");
+			mapReigonStart[0] = min(mapReigonStart[0], x);
+			mapReigonStart[1] = min(mapReigonStart[1], y);
+			mapReigonStart[2] = min(mapReigonStart[2], z);
+			mapReigonEnd[0] = max(mapReigonEnd[0], x);
+			mapReigonEnd[1] = max(mapReigonEnd[1], y);
+			mapReigonEnd[2] = max(mapReigonEnd[2], z);
 		}
 	}
 
@@ -116,11 +144,12 @@ void load()
 				item = addItem(i, 0);
 		}
 		if (item == 0)
-			errorf("failed to load item, item definition not found for item '%s'\n", id);
+			errf("failed to load item, item definition not found for item '%s'\n", id);
 		item->loadIndex = index;
 
 		jsonGetVec3(itemJson, "pos", item->pos);
 		jsonGetVec3(itemJson, "rot", item->dir);
+		item->hidden = jsonGetBoolC(itemJson, "hidden", 0);
 		cJSON* snapDir = cJSON_GetObjectItem(json, "snapDir");
 		if (snapDir)
 			item->snapDir = cJSON_GetNumberValue(snapDir);
@@ -140,6 +169,7 @@ void load()
 			int itemIndex = jsonGetInt(outputJson, "ent");
 			output->entity = itemIndex;
 			output->inverted = jsonGetBool(outputJson, "inverted");
+			output->onlyPrimary = jsonGetBoolC(outputJson, "onlyPrimary", 0);
 			output->def = 0;
 			if (cJSON_GetObjectItem(outputJson, "antline"))
 				output->antline = jsonGetInt(outputJson, "antline");
@@ -154,7 +184,7 @@ void load()
 					output->def = &outputs[j];
 			}
 			if (output->def == 0)
-				errorf("failed to load item def %s, %d\n", item->def->name, i);
+				errf("failed to load item def %s, %d\n", item->def->name, i);
 
 			const char* inputName = jsonGetStr(outputJson, "input");
 			output->input = (InputDef*)inputName;
@@ -183,6 +213,18 @@ void load()
 					char* str = cJSON_GetObjectItem(kvJson, def->name)->valuestring;
 					strncpy(kv->value.s, str, 256);
 				}
+				if (type == TYPE_BITFIELD)
+				{
+					int value = jsonGetInt(kvJson, def->name);
+					int len = dynList_size(kv->def->dropNames);
+					for (int j = 0; j < len; j++)
+					{
+						if (value & (1 << kv->def->dropValues[j].i))
+							kv->value.s[j] = 1;
+						else
+							kv->value.s[j] = 0;
+					}
+				}
 				if (type & TYPE_DROPDOWN)
 				{
 					int v = jsonGetInt(kvJson, def->name);
@@ -195,6 +237,37 @@ void load()
 			}
 		}
 	}
+
+	cJSON* antlineList = cJSON_GetObjectItem(json, "antlines");
+	if (antlineList)
+	{
+		cJSON* antlineJson;
+		cJSON_ArrayForEach(antlineJson, antlineList)
+		{
+			Antline* antline = addAntline();
+			antline->prevId = jsonGetInt(antlineJson, "id");
+			jsonGetVec3(antlineJson, "pos", antline->baseSegment.pos);
+			jsonGetVec3(antlineJson, "rot", antline->baseSegment.rot);
+			antline->hasCheck = jsonGetBool(antlineJson, "hasCheck");
+			antlineUpdateTransformRot(&antline->baseSegment);
+
+			cJSON* segments = cJSON_GetObjectItem(antlineJson, "segments");
+			cJSON* segmentJson;
+			int l = cJSON_GetArraySize(segments);
+			int i = 0;
+			dynList_resize((void**)&antline->segments, l);
+			cJSON_ArrayForEach(segmentJson, segments)
+			{
+				AntlineSegment* seg = &antline->segments[i];
+				i++;
+				jsonGetVec3(segmentJson, "pos", seg->pos);
+				jsonGetVec3(segmentJson, "rot", seg->rot);
+				seg->len = jsonGetInt(segmentJson, "length");
+				antlineUpdateTransformRot(seg);
+			}
+		}
+	}
+
 	for (int i = 0; i < itemCount; i++)
 	{
 		Item* item = getItem(i);
@@ -224,6 +297,20 @@ void load()
 					output->input = &inputs[k];
 			}
 			free(inputName);
+
+			if (output->antline != -1)
+			{
+				int antlineCount = dynList_size(antlines);
+				for (int k = 0; k < antlineCount; k++)
+				{
+					Antline* antline = &antlines[k];
+					if (output->antline == antline->prevId)
+					{
+						output->antline = antline->id;
+						break;
+					}
+				}
+			}
 		}
 
 		len = dynList_size(item->def->kvs);
@@ -247,19 +334,6 @@ void load()
 					break;
 				}
 			}
-		}
-	}
-	cJSON* antlines = cJSON_GetObjectItem(json, "antlines");
-	if (antlines)
-	{
-		cJSON* antlineJson;
-		cJSON_ArrayForEach(antlineJson, antlines)
-		{
-			Antline* antline = addAntline();
-			jsonGetVec3(antlineJson, "pos", antline->baseSegment.pos);
-			jsonGetVec3(antlineJson, "rot", antline->baseSegment.rot);
-			antline->hasCheck = jsonGetBool(antlineJson, "hasCheck");
-			antlineUpdateTransformRot(&antline->baseSegment);
 		}
 	}
 
@@ -288,6 +362,22 @@ void load()
 		}
 	}
 
+	cJSON* editor = cJSON_GetObjectItem(json, "editor");
+	if (editor)
+	{
+		jsonGetVec3(editor, "cameraPos", cameraPos);
+		jsonGetVec3(editor, "cameraRot", cameraRot);
+	}
+
+	mapReigonStart[0]--;
+	mapReigonStart[1]--;
+	mapReigonStart[2]--;
+
+	mapReigonEnd[0] += 2;
+	mapReigonEnd[1] += 2;
+	mapReigonEnd[2] += 2;
+
+	updateVoxelFaces();
 	printf("done\n");
 	cJSON_Delete(json);
 }

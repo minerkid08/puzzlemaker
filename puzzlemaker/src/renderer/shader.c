@@ -57,7 +57,7 @@ void setUniformMat4(unsigned int id, const char* name, mat4 value)
 	glUniformMatrix4fv(loc, 1, GL_FALSE, (float*)value);
 }
 
-void setUndformi(unsigned int id, const char* name, int value)
+void setUniformi(unsigned int id, const char* name, int value)
 {
 	int loc = glGetUniformLocation(id, name);
 	if (loc == -1)

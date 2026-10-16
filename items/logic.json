@@ -5,7 +5,7 @@
     "editorTexture": "trigger.png",
     "entity": "trigger_once",
     "texture": "TOOLS/TOOLSTRIGGER",
-    "snapMode": "mini-center",
+    "snapMode": "mini-corner",
 		"transparent": true,
     "bound1": [0, 0, 0],
     "bound2": [0.5, 0.5, 0.5],
@@ -28,8 +28,8 @@
 		"model": "cube.obj",
 		"mat": "end.png",
     "entity": "point_clientcommand",
-    "bound1": [-0.5, 0, -0.5],
-    "bound2": [0.5, 1, 0.5],
+    "bound1": [-0.5, -0.5, -0.5],
+    "bound2": [0.5, 0.5, 0.5],
 		"inputs": [
 			{
 				"name": "trigger",
@@ -44,8 +44,14 @@
 		"model": "cube.obj",
 		"mat": "start.png",
     "entity": "info_player_start",
-    "bound1": [-0.5, 0, -0.5],
-    "bound2": [0.5, 1, 0.5]
+    "bound1": [-0.5, -0.5, -0.5],
+    "bound2": [0.5, 0.5, 0.5],
+    "editorTransform": {
+      "rotation": [90, 0, 0]
+    },
+    "transform": {
+      "rotation": [90, 0, 0]
+    }
 	},
 	{
     "type": "entity",

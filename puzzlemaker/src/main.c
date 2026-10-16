@@ -1,14 +1,15 @@
 #include "antline/antline.h"
+#include "assetManager.h"
 #include "grab.h"
 #include "mapsettings.h"
 #include "renderer/framebuffer.h"
+#include "save.h"
 #include "settings.h"
 #include "ui/fileBrowser.h"
 #include "utils.h"
 #include <dirent.h>
 #include <math.h>
 #include <sys/stat.h>
-#define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 
 #include "cglm/mat4.h"
 #include "cglm/types.h"
@@ -23,7 +24,6 @@
 
 #include "camera.h"
 #include "compile/compileThread.h"
-#include "item/item.h"
 #include "picker.h"
 #include "raycast.h"
 #include "selection.h"
@@ -59,8 +59,8 @@ vec3 tempRot;
 vec4 mouseDir;
 
 char viewportHovered = 0;
-char mouseOffsetX = 0;
-char mouseOffsetY = 0;
+unsigned int mouseOffsetX = 0;
+unsigned int mouseOffsetY = 0;
 
 Item** pickPtr = 0;
 
@@ -70,20 +70,22 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 void mouseCallback(GLFWwindow* window, int button, int action, int mods);
 void mouseMoveCallback(GLFWwindow* window, double x, double y);
 void mouseZoomCallback(GLFWwindow* window, double x, double y);
-void closeCallback(GLFWwindow* window);
 
 extern float uiScale;
 static char snapRotation;
 
+GLFWwindow* window;
+char running = 0;
+
 int main()
 {
-	loadMapSettingsPresets();
-	loadEditorSettings();
 	makeDir("maps");
 
-	startCompileThread();
 	glfwInit();
-	GLFWwindow* window = glfwCreateWindow(1920, 1080, "puzzlemaker", 0, 0);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	window = glfwCreateWindow(1920, 1080, "puzzlemaker", 0, 0);
 	glfwMakeContextCurrent(window);
 
 	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
@@ -92,6 +94,18 @@ int main()
 
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
+	glfwSetKeyCallback(window, keyCallback);
+	glfwSetMouseButtonCallback(window, mouseCallback);
+	glfwSetCursorPosCallback(window, mouseMoveCallback);
+	glfwSetScrollCallback(window, mouseZoomCallback);
+
+	glfwSwapInterval(1);
+
+	initUi(window);
+
+	loadMapSettingsPresets();
+	loadEditorSettings();
+	startCompileThread();
 	initVoxels();
 	loadAntlineConfig();
 
@@ -101,15 +115,6 @@ int main()
 
 	loadItemDefinitions();
 
-	glfwSetKeyCallback(window, keyCallback);
-	glfwSetMouseButtonCallback(window, mouseCallback);
-	glfwSetCursorPosCallback(window, mouseMoveCallback);
-	glfwSetScrollCallback(window, mouseZoomCallback);
-	glfwSetWindowCloseCallback(window, closeCallback);
-
-	glfwSwapInterval(1);
-
-	initUi(window);
 	initItemPanel();
 
 	glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
@@ -122,6 +127,7 @@ int main()
 	double now = glfwGetTime();
 	double dt;
 	double lastTime = now;
+	running = 1;
 	while (!glfwWindowShouldClose(window))
 	{
 		framebufferBind(&framebuffer);
@@ -155,21 +161,17 @@ int main()
 
 		updateCamera();
 
-		cameraPos[0] += forward[0] * moveForward * dt * moveSpeed;
-		cameraPos[1] += forward[1] * moveForward * dt * moveSpeed;
-		cameraPos[2] += forward[2] * moveForward * dt * moveSpeed;
-
-		cameraPos[0] += right[0] * moveRight * dt * moveSpeed;
-		cameraPos[1] += right[1] * moveRight * dt * moveSpeed;
-		cameraPos[2] += right[2] * moveRight * dt * moveSpeed;
+		cameraMoveForward(moveForward * dt * moveSpeed);
+		cameraMoveRight(moveRight * dt * moveSpeed);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		drawVoxels(cameraPos, cameraRot);
+		drawVoxels();
 		endFrame();
 
 		renderAntlines();
 		drawItems();
+		renderAntlineHover();
 		framebufferUnbind(&framebuffer);
 
 		uiNewFrame();
@@ -188,12 +190,12 @@ int main()
 		glfwPollEvents();
 	}
 
-	glfwTerminate();
-}
-
-void closeCallback(GLFWwindow* window)
-{
 	saveEditorSettings();
+	rendererCleanup();
+	debugCleanup();
+	assetManagerCleanup();
+
+	glfwTerminate();
 }
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -206,13 +208,32 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 		if (key == GLFW_KEY_F9)
 			queueCompile = 1;
 		if (key == GLFW_KEY_2)
-			voxelPush();
+		{
+			if (selection.type == SELECTION_VOXEL)
+				voxelPush();
+			if (selection.type == SELECTION_ANTLINE)
+				selection.antlineSeg->len++;
+		}
 		if (key == GLFW_KEY_3)
-			voxelPull();
+		{
+			if (selection.type == SELECTION_VOXEL)
+				voxelPull();
+			if (selection.type == SELECTION_ANTLINE)
+			{
+				if (selection.antlineSeg->len > 1)
+					selection.antlineSeg->len--;
+			}
+		}
 		if (key == GLFW_KEY_R)
-			voxelTogglePortal();
+		{
+			if (selection.type == SELECTION_VOXEL)
+				voxelTogglePortal();
+		}
 		if (key == GLFW_KEY_Z)
-			voxelToggleSize();
+		{
+			if (selection.type == SELECTION_VOXEL)
+				voxelToggleSize();
+		}
 		if (key == GLFW_KEY_G)
 		{
 			if (selection.type == SELECTION_VOXEL)
@@ -237,8 +258,37 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 		{
 			if (selection.type == SELECTION_VOXEL)
 				return;
-			rotateSelection(90);
+			rotateSelection(-90);
 		}
+		if (key == GLFW_KEY_C && mods & GLFW_MOD_CONTROL)
+		{
+			if (selection.type != SELECTION_ITEM)
+				return;
+			copyItem(selection.item);
+		}
+		if (key == GLFW_KEY_V && mods & GLFW_MOD_CONTROL)
+		{
+			vec3 offset;
+			vec3 pos;
+			ivec3 ipos;
+
+			glm_vec3_scale(forward, 5, offset);
+
+			pos[0] = offset[0] + cameraPos[0];
+			pos[1] = offset[1] + cameraPos[1];
+			pos[2] = offset[2] + cameraPos[2];
+
+			selection.type = SELECTION_ITEM;
+			selection.item = pasteItem();
+
+			selection.item->pos[0] = pos[0];
+			selection.item->pos[1] = pos[1];
+			selection.item->pos[2] = pos[2];
+			updateItemTransform(selection.item);
+			mouseMode = MODE_GRAB;
+		}
+		if (key == GLFW_KEY_S && mods & GLFW_MOD_CONTROL)
+			save();
 	}
 }
 

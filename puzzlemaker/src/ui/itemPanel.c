@@ -1,5 +1,11 @@
+#include "antline/antline.h"
+#include "cglm/cam.h"
+#include "cglm/vec3.h"
 #include "item/panel.h"
 #include "item/volumeItem.h"
+#include "utils.h"
+#include "voxel/voxel.h"
+#include <math.h>
 #include <stdbool.h>
 #include <string.h>
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
@@ -7,16 +13,19 @@
 #include "item/item.h"
 
 #include "camera.h"
-#include "selection.h"
 #include "cimgui.h"
 #include "dynList.h"
 #include "picker.h"
 #include "save.h"
+#include "selection.h"
 #include "ui/itemPanel.h"
 
 #define PICK_OUTPUT 0
 #define PICK_KV 1
 #define PICK_ANTLINE 2
+#define PICK_POINT_AT 3
+
+extern Antline* antlines;
 
 extern ImVec2 zero;
 
@@ -78,6 +87,7 @@ void itemPanelStub()
 					ipos[1] = floorf(pos[1]);
 					ipos[2] = floorf(pos[2]);
 
+					selection.type = SELECTION_ITEM;
 					selection.item = addItemFromDef(def, ipos);
 				}
 			}
@@ -101,16 +111,75 @@ void itemPanelRender()
 			removeItem(selection.item);
 			selection.item = 0;
 			selection.type = SELECTION_NONE;
+			updateCulledVoxels();
 			goto end;
 		}
 
+		char updateVoxel = 0;
 		if (igDragFloat3("position", selection.item->pos, 0.01f, 0.0f, 0.0f, "%.3f", 0))
+		{
+			updateVoxel = 1;
 			updateItemTransform(selection.item);
+		}
 		if (igDragFloat3("rotation", selection.item->dir, 0.01f, 0.0f, 0.0f, "%.3f", 0))
+		{
+			updateVoxel = 1;
 			updateItemTransformRot(selection.item);
+		}
+
+		char pressed;
+		if (picker.active && pickType == PICK_POINT_AT)
+			pressed = igButton("picking item", zero);
+		else
+			pressed = igButton("point at item", zero);
+
+		if (pressed)
+		{
+			picker.active = 1;
+			picker.ptr = &pickEntity;
+			pickEntity = 0;
+			pickType = PICK_POINT_AT;
+		}
+
+		if (picker.active == 0 && pickEntity && pickType == PICK_POINT_AT)
+		{
+			vec3 src;
+			vec3 dest;
+			memcpy(src, selection.item->pos, sizeof(vec3));
+			memcpy(dest, pickEntity->pos, sizeof(vec3));
+			vec3 f;
+			f[0] = dest[0] - src[0];
+			f[1] = dest[1] - src[1];
+			f[2] = dest[2] - src[2];
+			glm_normalize(f);
+
+			vec3 angles;
+
+			float xyDist = sqrtf(f[0] * f[0] + f[2] * f[2]);
+			angles[0] = -atan2f(f[1], xyDist);
+			if (xyDist > 0.001f)
+				angles[1] = (atan2f(f[0], f[2]));
+			else
+			{
+				vec3 left;
+				float f2 = modff(fabsf(f[2] + 0.5f), &left[0]);
+				left[0] = -f[1];
+				left[1] = f[0] - f2 * f[2];
+				angles[1] = atan2f(-left[0], left[1]);
+			}
+
+			angles[0] = glm_deg(angles[0]);
+			angles[1] = glm_deg(angles[1]);
+			angles[2] = 0.0f;
+			memcpy(selection.item->dir, angles, sizeof(vec3));
+			updateItemTransformRot(selection.item);
+
+			pickEntity = 0;
+		}
 
 		if (selection.item->def->type == ITEM_TYPE_PANEL)
 		{
+			updateVoxel = 1;
 			PanelData* data = selection.item->data;
 			PanelDefData* def = selection.item->def->data;
 			if (igDragFloat2("size", data->size, 0.01f, 0.0f, 9999.0f, "%.3f", 0))
@@ -129,6 +198,7 @@ void itemPanelRender()
 			{
 				if (igInputInt("horiz tile", &data->tile[0], 1, 1, 0))
 				{
+					updateVoxel = 1;
 					if (data->tile[0] < 1)
 						data->tile[0] = 1;
 				}
@@ -137,10 +207,16 @@ void itemPanelRender()
 			{
 				if (igInputInt("vert tile", &data->tile[1], 1, 1, 0))
 				{
+					updateVoxel = 1;
 					if (data->tile[1] < 1)
 						data->tile[1] = 1;
 				}
 			}
+		}
+		if (updateVoxel)
+		{
+			if (selection.item->def->deleteIntersectingVoxels)
+				updateCulledVoxels();
 		}
 
 		if (selection.item->def->type == ITEM_TYPE_VOLUME)
@@ -149,6 +225,7 @@ void itemPanelRender()
 			VolumeItemDef* def = selection.item->def->data;
 			if (igDragFloat3("size", data->size, 0.01f, 0.0f, 9999.0f, "%.3f", 0))
 			{
+				updateVoxel = 1;
 				if (data->size[0] > def->maxSize[0])
 					data->size[0] = def->maxSize[0];
 				if (data->size[0] < def->minSize[0])
@@ -191,6 +268,11 @@ void itemPanelRender()
 					Item* item = getItem(kv->value.i);
 					snprintf(msg, sizeof(msg), "entity: %s %d", item->def->name, kv->value.i);
 					pressed = igButton(msg, zero);
+
+					if (igIsItemHovered(0))
+						item->highlighted = 1;
+					else
+						item->highlighted = 0;
 				}
 				else if (picker.active)
 					pressed = igButton("entity: picking", zero);
@@ -215,6 +297,17 @@ void itemPanelRender()
 
 				igSameLine(0, -1);
 				igText("%s", kv->def->displayName);
+			}
+
+			if (type == TYPE_BITFIELD)
+			{
+				if (igTreeNodeEx_Str(kv->def->displayName, ImGuiTreeNodeFlags_Framed))
+				{
+					int len = dynList_size(kv->def->dropNames);
+					for (int i = 0; i < len; i++)
+						igCheckbox(kv->def->dropNames[i], (bool*)&kv->value.s[i]);
+					igTreePop();
+				}
 			}
 
 			if (type & TYPE_DROPDOWN)
@@ -259,12 +352,12 @@ void itemPanelRender()
 			for (long long i = 0; i < l; i++)
 			{
 				ItemOutput* output = &outputs[i];
-				if (igTreeNode_Ptr((void*)i, output->def->name))
+				if (igTreeNodeEx_Ptr((void*)i, ImGuiTreeNodeFlags_DefaultOpen, output->def->name))
 				{
-					if(igButton("remove", zero))
+					if (igButton("remove", zero))
 					{
-						for(long long j = i; j < l - 1; j++)
-							memcpy(&outputs[j] , &outputs[j + 1], sizeof(ItemOutput));
+						for (long long j = i; j < l - 1; j++)
+							memcpy(&outputs[j], &outputs[j + 1], sizeof(ItemOutput));
 						l--;
 						dynList_resize((void**)&outputs, l);
 					}
@@ -291,6 +384,11 @@ void itemPanelRender()
 						Item* item = getItem(output->entity);
 						snprintf(msg, sizeof(msg), "entity: %s %d", item->def->name, output->entity);
 						pressed = igButton(msg, zero);
+
+						if (igIsItemHovered(0))
+							item->highlighted = 1;
+						else
+							item->highlighted = 0;
 					}
 					else if (picker.active == PICKER_ITEM)
 						pressed = igButton("entity: picking", zero);
@@ -314,34 +412,43 @@ void itemPanelRender()
 						pickEntity = 0;
 					}
 
+					igBeginDisabled(output->entity == -1);
+					const char* inputName = "none";
 					if (output->entity != -1)
 					{
 						Item* entity = getItem(output->entity);
-						const char* inputName = (output->input == 0 ? "none" : output->input->name);
-						if (igBeginCombo("input", inputName, 0))
+						if (output->input)
+							inputName = output->input->name;
+					}
+					if (igBeginCombo("input", inputName, 0))
+					{
+						Item* entity = getItem(output->entity);
+						InputDef* inputs = entity->def->inputs;
+						int len = dynList_size(inputs);
+						for (int i = 0; i < len; i++)
 						{
-							InputDef* inputs = entity->def->inputs;
-							int len = dynList_size(inputs);
-							for (int i = 0; i < len; i++)
-							{
-								InputDef* def = &inputs[i];
-								char selected = (output->input == def);
-								if (igSelectable_Bool(def->name, selected, 0, zero))
-									output->input = def;
-								if (selected)
-									igSetItemDefaultFocus();
-							}
-							igEndCombo();
+							InputDef* def = &inputs[i];
+							char selected = (output->input == def);
+							if (igSelectable_Bool(def->name, selected, 0, zero))
+								output->input = def;
+							if (selected)
+								igSetItemDefaultFocus();
 						}
+						igEndCombo();
 					}
 
 					pressed = 0;
 					if (output->antline != -1)
 					{
 						char msg[32];
-						Item* item = getItem(output->entity);
+						Antline* antline = &antlines[output->antline];
 						snprintf(msg, sizeof(msg), "antline: antline %d", output->antline);
 						pressed = igButton(msg, zero);
+
+						if (igIsItemHovered(0))
+							antline->hovered = 1;
+						else
+							antline->hovered = 0;
 					}
 					else if (picker.active == PICKER_ANTLINE)
 						pressed = igButton("antline: picking", zero);
@@ -365,6 +472,8 @@ void itemPanelRender()
 					}
 
 					igCheckbox("inverted", (bool*)&output->inverted);
+					igCheckbox("only primary output", (bool*)&output->onlyPrimary);
+					igEndDisabled();
 
 					igTreePop();
 				}

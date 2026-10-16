@@ -1,13 +1,12 @@
-#include "item.h"
-#include "cglm/euler.h"
+#include "item/item.h"
 #include "cglm/mat4.h"
 #include "cglm/quat.h"
 #include "cglm/util.h"
 #include "jsonUtils.h"
 #include "raycast.h"
 #include "renderer/debug.h"
-#include "utils.h"
 #include "selection.h"
+#include "utils.h"
 
 #include <cjson.h>
 #include <dynList.h>
@@ -24,13 +23,18 @@ char isItemValid(Item* item)
 
 void drawItems()
 {
+	Item* highlightedItem = 0;
 	int len = dynList_size(itemList);
 	for (int i = 0; i < len; i++)
 	{
 		Item* item = &itemList[i];
 		if (!isItemValid(item))
 			continue;
+		if (item->highlighted)
+			highlightedItem = item;
 		if (item->def->transparent)
+			continue;
+		if (item->hidden)
 			continue;
 		item->def->callbacks->render(item);
 	}
@@ -42,7 +46,17 @@ void drawItems()
 			continue;
 		if (item->def->transparent == 0)
 			continue;
+		if (item->hidden)
+			continue;
 		item->def->callbacks->render(item);
+	}
+
+	if (highlightedItem)
+	{
+		vec3 a;
+		vec3 b;
+		highlightedItem->def->callbacks->getBoundingBox(highlightedItem, a, b);
+		drawDebugRect(a, b, highlightedItem->transform, 1);
 	}
 
 	if (selection.type == SELECTION_ITEM)
@@ -51,7 +65,7 @@ void drawItems()
 		vec3 b;
 		Item* item = selection.item;
 		item->def->callbacks->getBoundingBox(item, a, b);
-		drawDebugRect(a, b, item->transform);
+		drawDebugRect(a, b, item->transform, 0);
 	}
 }
 
@@ -118,6 +132,8 @@ Item* getIntersectingItem(vec3 pos, Item** ignore)
 	{
 		Item* item = &itemList[j];
 		if (!isItemValid(item))
+			continue;
+		if (item->hidden)
 			continue;
 		if (ignore)
 		{
@@ -191,7 +207,7 @@ void updateItemTransformRot(Item* item)
 	dir[0] = glm_rad(item->dir[0]);
 	dir[1] = glm_rad(item->dir[1]);
 	dir[2] = glm_rad(item->dir[2]);
-	glm_euler_yzx_quat_rh(dir, itemQuat);
+	glm_euler_yxz_quat(dir, itemQuat);
 	mat4 rotMat;
 	glm_quat_mat4(itemQuat, rotMat);
 

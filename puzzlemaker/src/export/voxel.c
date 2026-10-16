@@ -40,7 +40,7 @@ const char* getMat(Voxel* voxel, int dir, char forceMini)
 			return voxelConfig.whiteCeilingMini;
 		return voxelConfig.whiteWallMini;
 	}
-	case 4:
+	default:
 		return voxelConfig.backstage;
 	}
 	return 0;
@@ -243,15 +243,6 @@ void scanZ(Voxel* voxel, int x, int y, int z, int* width, ivec2 tile)
 
 char itemIntersectsVoxel(Item* item, vec3 pos, float size);
 
-#define SUBVOXEL_xyz 0
-#define SUBVOXEL_Xyz 1
-#define SUBVOXEL_xYz 2
-#define SUBVOXEL_XYz 3
-#define SUBVOXEL_xyZ 4
-#define SUBVOXEL_XyZ 5
-#define SUBVOXEL_xYZ 6
-#define SUBVOXEL_XYZ 7
-
 void checkSubVoxel(Item* item, vec3 pos, float xoff, float yoff, float zoff, Voxel* voxel, char genMissingVoxels)
 {
 	vec3 newPos = {pos[0] + xoff / 2.0f, pos[1] + yoff / 2.0f, pos[2] + zoff / 2.0f};
@@ -260,17 +251,17 @@ void checkSubVoxel(Item* item, vec3 pos, float xoff, float yoff, float zoff, Vox
 		if (genMissingVoxels)
 		{
 			if (xoff == 0 && !(voxel->faces & (1 << DIR_NEG_X)))
-				voxel->portalability[DIR_NEG_X] = 1;
+				voxel->portalability[DIR_NEG_X] = 5;
 			if (xoff == 1 && !(voxel->faces & (1 << DIR_POS_X)))
-				voxel->portalability[DIR_POS_X] = 1;
+				voxel->portalability[DIR_POS_X] = 5;
 			if (yoff == 0 && !(voxel->faces & (1 << DIR_NEG_Y)))
-				voxel->portalability[DIR_NEG_Y] = 1;
+				voxel->portalability[DIR_NEG_Y] = 5;
 			if (yoff == 1 && !(voxel->faces & (1 << DIR_POS_Y)))
-				voxel->portalability[DIR_POS_Y] = 1;
+				voxel->portalability[DIR_POS_Y] = 5;
 			if (zoff == 0 && !(voxel->faces & (1 << DIR_NEG_Z)))
-				voxel->portalability[DIR_NEG_Z] = 1;
+				voxel->portalability[DIR_NEG_Z] = 5;
 			if (zoff == 1 && !(voxel->faces & (1 << DIR_POS_Z)))
-				voxel->portalability[DIR_POS_Z] = 1;
+				voxel->portalability[DIR_POS_Z] = 5;
 		}
 		if (xoff == 0 && yoff == 0 && zoff == 0)
 			voxel->subVoxels |= (1 << SUBVOXEL_xyz);
@@ -460,7 +451,7 @@ void exportVoxels()
 							subVoxels[SUBVOXEL_XYZ])
 						{
 							v2->portalability[DIR_NEG_Z] = 4;
-							if (voxel->portalability[DIR_POS_Z])
+							if (voxel->portalability[DIR_POS_Z] == 5)
 								v2->faces |= (1 << DIR_NEG_Z);
 						}
 					}
@@ -475,7 +466,7 @@ void exportVoxels()
 							subVoxels[SUBVOXEL_XYz])
 						{
 							v2->portalability[DIR_POS_Z] = 4;
-							if (voxel->portalability[DIR_NEG_Z])
+							if (voxel->portalability[DIR_NEG_Z] == 5)
 								v2->faces |= (1 << DIR_POS_Z);
 						}
 					}
@@ -490,7 +481,7 @@ void exportVoxels()
 							subVoxels[SUBVOXEL_XYZ])
 						{
 							v2->portalability[DIR_NEG_X] = 4;
-							if (voxel->portalability[DIR_POS_X])
+							if (voxel->portalability[DIR_POS_X] == 5)
 								v2->faces |= (1 << DIR_NEG_X);
 						}
 					}
@@ -505,7 +496,7 @@ void exportVoxels()
 							subVoxels[SUBVOXEL_xYZ])
 						{
 							v2->portalability[DIR_POS_X] = 4;
-							if (voxel->portalability[DIR_NEG_X])
+							if (voxel->portalability[DIR_NEG_X] == 5)
 								v2->faces |= (1 << DIR_POS_X);
 						}
 					}
@@ -520,7 +511,7 @@ void exportVoxels()
 							subVoxels[SUBVOXEL_XYZ])
 						{
 							v2->portalability[DIR_NEG_Y] = 4;
-							if (voxel->portalability[DIR_POS_Y])
+							if (voxel->portalability[DIR_POS_Y] == 5)
 								v2->faces |= (1 << DIR_NEG_Y);
 						}
 					}
@@ -535,7 +526,7 @@ void exportVoxels()
 							subVoxels[SUBVOXEL_XyZ])
 						{
 							v2->portalability[DIR_POS_Y] = 4;
-							if (voxel->portalability[DIR_NEG_Y])
+							if (voxel->portalability[DIR_NEG_Y] == 5)
 								v2->faces |= (1 << DIR_POS_Y);
 						}
 					}
@@ -698,6 +689,13 @@ void exportVoxels()
 			}
 		}
 	}
+	mapReigonStart[0] = 9999;
+	mapReigonStart[1] = 9999;
+	mapReigonStart[2] = 9999;
+	mapReigonEnd[0] = -1;
+	mapReigonEnd[1] = -1;
+	mapReigonEnd[2] = -1;
+
 	for (int z = 0; z < MAP_SIZE; z++)
 	{
 		for (int y = 0; y < MAP_SIZE; y++)
@@ -705,6 +703,15 @@ void exportVoxels()
 			for (int x = 0; x < MAP_SIZE; x++)
 			{
 				Voxel* v = getVoxel(x, y, z);
+				if (!v->solid)
+				{
+					mapReigonStart[0] = min(mapReigonStart[0], x);
+					mapReigonStart[1] = min(mapReigonStart[1], y);
+					mapReigonStart[2] = min(mapReigonStart[2], z);
+					mapReigonEnd[0] = max(mapReigonEnd[0], x);
+					mapReigonEnd[1] = max(mapReigonEnd[1], y);
+					mapReigonEnd[2] = max(mapReigonEnd[2], z);
+				}
 				for (int d = 0; d < 6; d++)
 				{
 					if (v->portalability[d] > 3)
@@ -713,4 +720,13 @@ void exportVoxels()
 			}
 		}
 	}
+  mapReigonStart[0]--;
+  mapReigonStart[1]--;
+  mapReigonStart[2]--;
+
+  mapReigonEnd[0] += 2;
+  mapReigonEnd[1] += 2;
+  mapReigonEnd[2] += 2;
+
+	updateVoxelFaces();
 }

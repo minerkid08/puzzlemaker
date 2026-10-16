@@ -141,7 +141,7 @@ static int brushTransform(lua_State* l)
 	dir[0] = glm_rad(rot[0]);
 	dir[1] = glm_rad(rot[1]);
 	dir[2] = glm_rad(rot[2]);
-	glm_euler_yzx_quat(dir, quat);
+	glm_euler_yxz_quat(dir, quat);
 	mat4 rotMat;
 	glm_quat_mat4(quat, rotMat);
 
@@ -172,7 +172,7 @@ static int brushTransform(lua_State* l)
 	entRot[1] = glm_rad(entRot[1]);
 	entRot[2] = glm_rad(entRot[2]);
 	mat4 rotMat2;
-	glm_euler_yzx(entRot, rotMat2);
+	glm_euler_yxz(entRot, rotMat2);
 
 	glm_mat4_mul(rotMat, rotMat2, rotMat);
 	getEulerAngles(rotMat, rot);

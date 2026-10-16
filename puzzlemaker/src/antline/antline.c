@@ -5,37 +5,27 @@
 #include "dynList.h"
 #include "export/entity.h"
 #include "export/overlay.h"
+#include "item/item.h"
+#include "jsonUtils.h"
 #include "renderer/debug.h"
 #include "renderer/renderer.h"
 #include "selection.h"
 #include "utils.h"
+#include "voxel/itemIntersection.h"
 #include <stdio.h>
 #include <string.h>
 
 Antline* antlines;
 static AntlineConfig config;
 
-static char* loadFields(cJSON* json, const char* name)
-{
-	cJSON* item = cJSON_GetObjectItem(json, name);
-	if (item == 0)
-		errorf("undefined field %s in antline.json\n", name);
-	const char* v = cJSON_GetStringValue(item);
-	return strdup(v);
-}
-
-static int loadFieldi(cJSON* json, const char* name)
-{
-	cJSON* item = cJSON_GetObjectItem(json, name);
-	if (item == 0)
-		errorf("undefined field %s in antline.json\n", name);
-	int v = cJSON_GetNumberValue(item);
-	return v;
-}
-
 static __attribute__((constructor)) void init()
 {
 	antlines = dynList_new(0, sizeof(Antline));
+}
+
+AntlineConfig* getAntlineConfig()
+{
+	return &config;
 }
 
 void loadAntlineConfig()
@@ -57,28 +47,36 @@ void loadAntlineConfig()
 	const char* err = cJSON_GetErrorPtr();
 	free(data);
 	if (err)
-		errorf("failed to parse antline.json\n%s\n", err);
+		jsonParseError(data, err, "antline.json");
 
-	config.dotSize = loadFieldi(json, "dotSize");
-	config.checkSize = loadFieldi(json, "checkSize");
+	jsonResetStack("antline.json");
 
-	config.antlineTex = loadFields(json, "lineTex");
-	config.antlineCornerTex = loadFields(json, "cornerTex");
-	config.antlineCheckTex = loadFields(json, "checkTex");
+	config.dotSize = jsonGetInt(json, "dotSize");
+	config.checkSize = jsonGetInt(json, "checkSize");
 
-	config.antlineLen = loadFieldi(json, "lineDotCountx");
-	config.antlineWidth = loadFieldi(json, "lineDotCounty");
-	config.antlineCornerLen = loadFieldi(json, "cornerDotCountx");
-	config.antlineCornerWidth = loadFieldi(json, "cornerDotCounty");
+	config.antlineTex = jsonGetStr(json, "lineTex");
+	config.antlineCornerTex = jsonGetStr(json, "cornerTex");
+	config.antlineCheckTex = jsonGetStr(json, "checkTex");
 
-	char* antlineTex = loadFields(json, "editorAntlineTex");
+	config.antlineWidth = jsonGetInt(json, "lineDotCountx");
+	config.antlineHeight = jsonGetInt(json, "lineDotCounty");
+	config.antlineCornerWidth = jsonGetInt(json, "cornerDotCountx");
+	config.antlineCornerHeight = jsonGetInt(json, "cornerDotCounty");
+
+	char* antlineTex = jsonGetStr(json, "editorAntlineTex");
 	config.editorAntlineTex = assetManagerLoadTexture(antlineTex);
+	char* antlineActiveTex = jsonGetStr(json, "editorAntlineActiveTex");
+	config.editorAntlineActiveTex = assetManagerLoadTexture(antlineActiveTex);
 
-	char* checkTex = loadFields(json, "editorCheckTex");
+	char* checkTex = jsonGetStr(json, "editorCheckTex");
 	config.editorCheckTex = assetManagerLoadTexture(checkTex);
+	char* checkActiveTex = jsonGetStr(json, "editorCheckActiveTex");
+	config.editorCheckActiveTex = assetManagerLoadTexture(checkActiveTex);
 
 	free(antlineTex);
+	free(antlineActiveTex);
 	free(checkTex);
+	free(checkActiveTex);
 
 	config.editorCheckSize = (float)config.checkSize / 128.0f;
 	config.editorDotSize = (float)config.dotSize / 128.0f;
@@ -93,8 +91,41 @@ Antline* addAntline()
 	Antline* antline = &antlines[len];
 	memset(antline, 0, sizeof(Antline));
 	antline->id = len;
+	antlineUpdateTransformRot(&antline->baseSegment);
 	antline->segments = dynList_new(0, sizeof(AntlineSegment));
 	return antline;
+}
+
+void removeAntline(Antline* antline)
+{
+	dynList_free(antline->segments);
+
+	Item* itemList = getItemList();
+	int itemCount = dynList_size(itemList);
+	for (int i = 0; i < itemCount; i++)
+	{
+		Item* item2 = &itemList[i];
+		if (!isItemValid(item2))
+			continue;
+		ItemOutput* outputs = item2->outputs;
+		int outputCount = dynList_size(outputs);
+		for (int j = 0; j < outputCount; j++)
+		{
+			ItemOutput* output = &outputs[j];
+			if (output->antline == antline->id)
+				output->antline = -1;
+		}
+	}
+	antline->id = -1;
+	if (selection.type == SELECTION_ANTLINE)
+	{
+		if (selection.antline == antline)
+			selection.type = SELECTION_NONE;
+	}
+}
+char isAntlineValid(Antline* antline)
+{
+	return antline->id != -1;
 }
 
 void antlineUpdateTransform(AntlineSegment* antline)
@@ -146,34 +177,83 @@ void antlineUpdateTransformRot(AntlineSegment* antline)
 	memcpy(antline->invTransform, invTransform, sizeof(mat4));
 }
 
+static void drawAntline(Antline* antline)
+{
+	if (antline->hasCheck)
+	{
+		int tex = 0;
+		if (antline->hovered)
+			tex = config.editorCheckActiveTex;
+		else
+			tex = config.editorCheckTex;
+		vec2 start = {-config.editorCheckSize, -config.editorCheckSize};
+		vec2 end = {config.editorCheckSize, config.editorCheckSize};
+		overlayDrawRect(start, end, tex, 1);
+		panelEndFrame(antline->baseSegment.transform, antline->hovered == 0, antline->hovered == 0);
+	}
+
+	int tex = 0;
+	if (antline->hovered)
+		tex = config.editorAntlineActiveTex;
+	else
+		tex = config.editorAntlineTex;
+	int l = dynList_size(antline->segments);
+	for (int j = 0; j < l; j++)
+	{
+		AntlineSegment* segment = &antline->segments[j];
+
+		vec3 start = {-config.editorDotSize, -config.editorDotSize};
+		vec3 end = {config.editorDotSize, config.editorDotSize};
+		end[1] *= 2.0f * segment->len - 1;
+		overlayDrawRect(start, end, tex, segment->len);
+		panelEndFrame(segment->transform, antline->hovered == 0, antline->hovered == 0);
+	}
+}
+
 void renderAntlines()
 {
 	int len = dynList_size(antlines);
 	for (int i = 0; i < len; i++)
 	{
 		Antline* antline = &antlines[i];
-		if (antline->hasCheck)
+		if (!isAntlineValid(antline))
+			continue;
+		if (antline->hovered)
+			continue;
+
+		drawAntline(antline);
+	}
+}
+
+void renderAntlineHover()
+{
+	int len = dynList_size(antlines);
+	for (int i = 0; i < len; i++)
+	{
+		Antline* antline = &antlines[i];
+		if (!isAntlineValid(antline))
+			continue;
+		if (antline->hovered == 0)
+			continue;
+		drawAntline(antline);
+	}
+	if (selection.type == SELECTION_ANTLINE)
+	{
+
+		if (&selection.antline->baseSegment == selection.antlineSeg)
 		{
-			vec3 start = {-config.editorCheckSize, -config.editorCheckSize, -0.125f};
-			vec3 end = {config.editorCheckSize, config.editorCheckSize, 0.125f};
-			overlayDrawRect(start, end, config.editorCheckTex, 1);
-			panelEndFrame(antline->baseSegment.transform, 1);
-			if (selection.type == SELECTION_ANTLINE && &antline->baseSegment == selection.antlineSeg)
-				drawDebugRectAntline(start, end, antline->baseSegment.transform);
+			AntlineSegment* segment = &selection.antline->baseSegment;
+			vec3 start = {-config.editorCheckSize, -0.125f, -config.editorCheckSize};
+			vec3 end = {config.editorCheckSize, 0.125f, config.editorCheckSize};
+			drawDebugRectAntline(start, end, segment->transform);
 		}
-
-		int l = dynList_size(antline->segments);
-		for (int j = 0; j < l; j++)
+		else
 		{
-			AntlineSegment* segment = &antline->segments[j];
-
-			vec3 start = {-config.editorDotSize, -config.editorDotSize, -0.125f};
-			vec3 end = {config.editorDotSize, config.editorDotSize, 0.125f};
-			end[0] *= 2.0f * segment->len - 1;
-			overlayDrawRect(start, end, config.editorAntlineTex, segment->len);
-			panelEndFrame(segment->transform, 1);
-			if (selection.type == SELECTION_ANTLINE && segment == selection.antlineSeg)
-				drawDebugRectAntline(start, end, segment->transform);
+			AntlineSegment* segment = selection.antlineSeg;
+			vec3 start = {-config.editorDotSize, -0.125f, -config.editorDotSize};
+			vec3 end = {config.editorDotSize, 0.125f, config.editorDotSize};
+			end[2] *= 2.0f * segment->len - 1;
+			drawDebugRectAntline(start, end, segment->transform);
 		}
 	}
 }
@@ -184,6 +264,8 @@ Antline* getIntersectingAntline(vec3 pos, AntlineSegment** seg)
 	for (int j = 0; j < count; j++)
 	{
 		Antline* antline = &antlines[j];
+		if (!isAntlineValid(antline))
+			continue;
 		vec4 pos2 = {pos[0], pos[1], pos[2], 1};
 		mat4 transform;
 		memcpy(transform, antline->baseSegment.invTransform, sizeof(mat4));
@@ -213,7 +295,7 @@ Antline* getIntersectingAntline(vec3 pos, AntlineSegment** seg)
 			glm_mat4_mulv(transform, pos2, pos2);
 			vec3 bound1 = {-config.editorDotSize, -config.editorDotSize, -0.125f};
 			vec3 bound2 = {config.editorDotSize, config.editorDotSize, 0.125f};
-			bound2[0] *= 2.0f * segment->len - 1;
+			bound2[1] *= 2.0f * segment->len - 1;
 
 			if (pos2[0] < bound1[0] || pos2[0] > bound2[0])
 				continue;
@@ -234,6 +316,11 @@ void antlineExport()
 	for (int i = 0; i < count; i++)
 	{
 		Antline* antline = &antlines[i];
+		if (!isAntlineValid(antline))
+			continue;
+		int segmentCount = dynList_size(antline->segments);
+		if (segmentCount == 0 && !antline->hasCheck)
+			continue;
 
 		char buf[64];
 		snprintf(buf, 64, "antline%d", antline->id);
@@ -249,48 +336,108 @@ void antlineExport()
 			overlay->texture = config.antlineCheckTex;
 			overlay->size[0] = config.checkSize;
 			overlay->size[1] = config.checkSize;
-			overlay->tint[0] = 255;
-			overlay->tint[1] = 255;
-			overlay->tint[2] = 255;
-			overlay->tint[3] = 255;
 		}
-		int segmentCount = dynList_size(selection.antline->segments);
 		for (int i = 0; i < segmentCount; i++)
 		{
-			AntlineSegment* segment = &selection.antline->segments[i];
+			char addCorner = 1;
+			AntlineSegment* segment = &antline->segments[i];
 
-			Overlay* overlay = exportCreateOverlay();
+			vec3 start = {-config.editorDotSize, -0.125f, -config.editorDotSize};
+			vec3 end = {config.editorDotSize, 0.125f, config.editorDotSize};
+			OBB a;
+			start[0] += 0.01;
+			start[2] += 0.01;
+			end[0] -= 0.01;
+			end[2] -= 0.01;
 
-			vec3 bound1 = {-config.editorDotSize, -config.editorDotSize, 0};
-			vec3 bound2 = {config.editorDotSize, config.editorDotSize, 0};
-			bound2[0] *= 2.0f * segment->len - 1;
+			vec3 rot;
+			memcpy(rot, segment->rot, sizeof(vec3));
+			rot[0] = glm_rad(rot[0]);
+			rot[1] = glm_rad(rot[1]);
+			rot[2] = glm_rad(rot[2]);
+			mat4 rotMat;
+			glm_euler_yxz(rot, rotMat);
+			genOBB(start, end, rotMat, segment->pos, &a);
 
-			float x = (bound1[0] + bound2[0]) / 2.0f;
+			for (int j = 0; j < segmentCount; j++)
+			{
+				if (i == j)
+					continue;
+				AntlineSegment* segment2 = &antline->segments[j];
+				vec3 start = {-config.editorDotSize, -config.editorDotSize, -0.125f};
+				vec3 end = {config.editorDotSize, config.editorDotSize, 0.125f};
+				end[1] *= 2.0f * segment2->len - 1;
+				start[0] += 0.01;
+				start[1] += 0.01;
+				end[0] -= 0.01;
+				end[1] -= 0.01;
+				OBB b;
 
-			vec4 pos = {x, 0, 0, 1};
-			mat4 transform;
-			memcpy(transform, segment->transform, sizeof(mat4));
-			glm_mat4_mulv(transform, pos, pos);
+				vec3 rot;
+				memcpy(rot, segment2->rot, sizeof(vec3));
+				rot[0] = glm_rad(rot[0]);
+				rot[1] = glm_rad(rot[1]);
+				rot[2] = glm_rad(rot[2]);
+				mat4 rotMat;
+				glm_euler_yxz(rot, rotMat);
+				genOBB(start, end, rotMat, segment2->pos, &b);
+				if (getCollision(&a, &b))
+				{
+					printf("seg %d, %d collided\n", i, j);
+					addCorner = 0;
+				}
+			}
 
-			memcpy(overlay->pos, pos, sizeof(vec3));
+			if (!(addCorner && segment->len == 1))
+			{
+				Overlay* overlay = exportCreateOverlay();
+				vec3 bound1 = {-config.editorDotSize, 0, -config.editorDotSize};
+				vec3 bound2 = {config.editorDotSize, 0, config.editorDotSize};
+				bound2[0] *= 2.0f * segment->len - 1;
+				if (addCorner)
+					bound1[0] = config.editorDotSize;
 
-			overlay->name = strdup(buf);
-			memcpy(overlay->rotation, segment->rot, sizeof(vec3));
-			overlay->tile[0] = segment->len;
-			overlay->tile[1] = 0.25f;
-			overlay->texture = config.antlineTex;
-			overlay->size[0] = config.dotSize;
-			overlay->size[1] = config.dotSize * segment->len;
-			overlay->tint[0] = 255;
-			overlay->tint[1] = 255;
-			overlay->tint[2] = 255;
-			overlay->tint[3] = 255;
+				float x = (bound1[0] + bound2[0]) / 2.0f;
+
+				vec4 pos = {0, x, 0, 1};
+				mat4 transform;
+				memcpy(transform, segment->transform, sizeof(mat4));
+				glm_mat4_mulv(transform, pos, pos);
+
+				memcpy(overlay->pos, pos, sizeof(vec3));
+
+				overlay->name = strdup(buf);
+				memcpy(overlay->rotation, segment->rot, sizeof(vec3));
+				overlay->tile[0] = (segment->len - addCorner) / (float)config.antlineHeight;
+				overlay->tile[1] = 1.0f / (float)config.antlineWidth;
+				overlay->texture = config.antlineTex;
+				overlay->size[0] = config.dotSize;
+				overlay->size[1] = config.dotSize * (segment->len - addCorner);
+			}
+			if (addCorner)
+			{
+				Overlay* overlay = exportCreateOverlay();
+				vec3 bound1 = {-config.editorDotSize, -config.editorDotSize, 0};
+				vec3 bound2 = {config.editorDotSize, config.editorDotSize, 0};
+
+				memcpy(overlay->pos, segment->pos, sizeof(vec3));
+
+				overlay->name = strdup(buf);
+				memcpy(overlay->rotation, segment->rot, sizeof(vec3));
+				overlay->tile[0] = 1.0f / (float)config.antlineCornerHeight;
+				overlay->tile[1] = 1.0f / (float)config.antlineCornerWidth;
+				overlay->texture = config.antlineCornerTex;
+				overlay->size[0] = config.dotSize;
+				overlay->size[1] = config.dotSize;
+			}
 		}
-		AntlineSegment* segment = &selection.antline->segments[i];
 		Entity* entity = exportCreateEntity();
 
-		memcpy(entity->pos, antline->baseSegment.pos, sizeof(vec3));
-		memcpy(entity->rotation, antline->baseSegment.rot, sizeof(vec3));
+		if (antline->hasCheck)
+			memcpy(entity->pos, antline->baseSegment.pos, sizeof(vec3));
+		else
+			memcpy(entity->pos, antline->segments[0].pos, sizeof(vec3));
+		memset(entity->rotation, 0, sizeof(vec3));
 		entity->className = "env_texturetoggle";
 		exportEntityAddKvss(entity, "target", buf);
 		snprintf(buf, 64, "antline%d-tex", antline->id);

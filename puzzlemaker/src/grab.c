@@ -2,7 +2,9 @@
 #include "item/item.h"
 #include "raycast.h"
 #include "selection.h"
+#include "settings.h"
 #include "utils.h"
+#include "voxel/voxel.h"
 #include <string.h>
 
 int mousex = 0;
@@ -27,6 +29,8 @@ void updateGrab(vec3 cameraPos, vec3 mouseDir)
 		{
 			if (&selection.antline->baseSegment != selection.antlineSeg)
 				snapMode = 5;
+			else
+				snapMode = 6;
 		}
 		if (selection.type == SELECTION_ITEM)
 			snapMode = selection.item->def->snapMode;
@@ -37,26 +41,61 @@ void updateGrab(vec3 cameraPos, vec3 mouseDir)
 			newPos[1] = round(hit.pos[1]);
 			newPos[2] = round(hit.pos[2]);
 			break;
-		case SNAP_CENTER:
+		case SNAP_CENTER: {
 			newPos[0] = round(hit.pos[0] - 0.5) + 0.5;
 			newPos[1] = round(hit.pos[1] - 0.5) + 0.5;
 			newPos[2] = round(hit.pos[2] - 0.5) + 0.5;
+
+			if (selection.item->def->type == ITEM_TYPE_PANEL)
+			{
+				vec3 dir;
+				dir[0] = -selection.item->transform[0][0];
+				dir[1] = -selection.item->transform[0][1];
+				dir[2] = -selection.item->transform[0][2];
+				newPos[0] += dir[0] * 0.5f;
+				newPos[1] += dir[1] * 0.5f;
+				newPos[2] += dir[2] * 0.5f;
+			}
 			break;
+		}
 		case SNAP_MINI_CORNER:
 			newPos[0] = round(hit.pos[0] * 2) / 2;
 			newPos[1] = round(hit.pos[1] * 2) / 2;
 			newPos[2] = round(hit.pos[2] * 2) / 2;
 			break;
-		case SNAP_MINI_CENTER:
+		case SNAP_MINI_CENTER: {
 			newPos[0] = round(hit.pos[0] * 2 - 0.25) / 2 + 0.25;
 			newPos[1] = round(hit.pos[1] * 2 - 0.25) / 2 + 0.25;
 			newPos[2] = round(hit.pos[2] * 2 - 0.25) / 2 + 0.25;
+
+			if (selection.item->def->type == ITEM_TYPE_PANEL)
+			{
+				vec3 dir;
+				dir[0] = -selection.item->transform[0][0];
+				dir[1] = -selection.item->transform[0][1];
+				dir[2] = -selection.item->transform[0][2];
+				newPos[0] += dir[0] * 0.25f;
+				newPos[1] += dir[1] * 0.25f;
+				newPos[2] += dir[2] * 0.25f;
+			}
 			break;
-		case 5:
-			newPos[0] = round(hit.pos[0] * 4 - 0.125) / 4 + 0.125;
-			newPos[1] = round(hit.pos[1] * 4 - 0.125) / 4 + 0.125;
-			newPos[2] = round(hit.pos[2] * 4 - 0.125) / 4 + 0.125;
+		}
+		case 5: {
+			AntlineConfig* cfg = getAntlineConfig();
+			float a = 64.0f / cfg->dotSize;
+			newPos[0] = round(hit.pos[0] * a - cfg->editorDotSize) / a + cfg->editorDotSize;
+			newPos[1] = round(hit.pos[1] * a - cfg->editorDotSize) / a + cfg->editorDotSize;
+			newPos[2] = round(hit.pos[2] * a - cfg->editorDotSize) / a + cfg->editorDotSize;
 			break;
+		}
+		case 6: {
+			AntlineConfig* cfg = getAntlineConfig();
+			float a = 64.0f / cfg->checkSize;
+			newPos[0] = round(hit.pos[0] * a - cfg->editorCheckSize) / a + cfg->editorCheckSize;
+			newPos[1] = round(hit.pos[1] * a - cfg->editorCheckSize) / a + cfg->editorCheckSize;
+			newPos[2] = round(hit.pos[2] * a - cfg->editorCheckSize) / a + cfg->editorCheckSize;
+			break;
+		}
 		}
 		char snapDir;
 		if (selection.type == SELECTION_ITEM)
@@ -81,7 +120,6 @@ void updateGrab(vec3 cameraPos, vec3 mouseDir)
 
 		if (snapDir != hit.dir)
 		{
-
 			if (selection.type == SELECTION_ITEM)
 				selection.item->snapDir = hit.dir;
 			if (selection.type == SELECTION_ANTLINE)
@@ -128,6 +166,7 @@ void updateGrab(vec3 cameraPos, vec3 mouseDir)
 				memcpy(selection.item->pos, newPos, sizeof(vec3));
 				memcpy(selection.item->dir, newRot, sizeof(vec3));
 				updateItemTransformRot(selection.item);
+				updateCulledVoxels();
 			}
 			if (selection.type == SELECTION_ANTLINE)
 			{
@@ -140,8 +179,13 @@ void updateGrab(vec3 cameraPos, vec3 mouseDir)
 		{
 			if (selection.type == SELECTION_ITEM)
 			{
-				memcpy(selection.item->pos, newPos, sizeof(vec3));
-				updateItemTransformRot(selection.item);
+				if (newPos[0] != selection.item->pos[0] || newPos[1] != selection.item->pos[1] ||
+					newPos[2] != selection.item->pos[2])
+				{
+					memcpy(selection.item->pos, newPos, sizeof(vec3));
+					updateItemTransformRot(selection.item);
+          updateCulledVoxels();
+				}
 			}
 			if (selection.type == SELECTION_ANTLINE)
 			{
@@ -166,10 +210,10 @@ void updateRotate(int mouseX)
 	float rotStep = mouseX - mousex;
 	rotStep /= 80.0f;
 	rotStep = floorf(rotStep);
-	rotStep *= 90.0f;
+	rotStep *= editorSettings.rotSnap;
 	rotStep = glm_rad(rotStep);
 
-	vec3 axis = {0, 1, 0};
+	vec3 axis = {0, 0, 1};
 
 	vec4 newQuat;
 
@@ -197,7 +241,7 @@ void rotateSelection(float amount)
 	if (selection.type == SELECTION_ANTLINE)
 		memcpy(itemQuat, selection.antlineSeg->quat, sizeof(vec4));
 	vec4 quat2;
-	vec3 axis = {0, 1, 0};
+	vec3 axis = {0, 0, 1};
 
 	glm_quatv(quat2, glm_rad(amount), axis);
 

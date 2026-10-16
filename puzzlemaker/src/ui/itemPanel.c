@@ -1,7 +1,11 @@
 #include "antline/antline.h"
+#include "cglm/cam.h"
+#include "cglm/vec3.h"
 #include "item/panel.h"
 #include "item/volumeItem.h"
+#include "utils.h"
 #include "voxel/voxel.h"
+#include <math.h>
 #include <stdbool.h>
 #include <string.h>
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
@@ -19,6 +23,7 @@
 #define PICK_OUTPUT 0
 #define PICK_KV 1
 #define PICK_ANTLINE 2
+#define PICK_POINT_AT 3
 
 extern Antline* antlines;
 
@@ -120,6 +125,56 @@ void itemPanelRender()
 		{
 			updateVoxel = 1;
 			updateItemTransformRot(selection.item);
+		}
+
+		char pressed;
+		if (picker.active && pickType == PICK_POINT_AT)
+			pressed = igButton("picking item", zero);
+		else
+			pressed = igButton("point at item", zero);
+
+		if (pressed)
+		{
+			picker.active = 1;
+			picker.ptr = &pickEntity;
+			pickEntity = 0;
+			pickType = PICK_POINT_AT;
+		}
+
+		if (picker.active == 0 && pickEntity && pickType == PICK_POINT_AT)
+		{
+			vec3 src;
+			vec3 dest;
+			memcpy(src, selection.item->pos, sizeof(vec3));
+			memcpy(dest, pickEntity->pos, sizeof(vec3));
+			vec3 f;
+			f[0] = dest[0] - src[0];
+			f[1] = dest[1] - src[1];
+			f[2] = dest[2] - src[2];
+			glm_normalize(f);
+
+			vec3 angles;
+
+			float xyDist = sqrtf(f[0] * f[0] + f[2] * f[2]);
+			angles[0] = -atan2f(f[1], xyDist);
+			if (xyDist > 0.001f)
+				angles[1] = (atan2f(f[0], f[2]));
+			else
+			{
+				vec3 left;
+				float f2 = modff(fabsf(f[2] + 0.5f), &left[0]);
+				left[0] = -f[1];
+				left[1] = f[0] - f2 * f[2];
+				angles[1] = atan2f(-left[0], left[1]);
+			}
+
+			angles[0] = glm_deg(angles[0]);
+			angles[1] = glm_deg(angles[1]);
+			angles[2] = 0.0f;
+			memcpy(selection.item->dir, angles, sizeof(vec3));
+			updateItemTransformRot(selection.item);
+
+			pickEntity = 0;
 		}
 
 		if (selection.item->def->type == ITEM_TYPE_PANEL)
@@ -417,6 +472,7 @@ void itemPanelRender()
 					}
 
 					igCheckbox("inverted", (bool*)&output->inverted);
+					igCheckbox("only primary output", (bool*)&output->onlyPrimary);
 					igEndDisabled();
 
 					igTreePop();

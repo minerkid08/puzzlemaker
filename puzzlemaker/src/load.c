@@ -68,6 +68,13 @@ void load()
 		}
 	}
 
+	mapReigonStart[0] = 9999;
+	mapReigonStart[1] = 9999;
+	mapReigonStart[2] = 9999;
+	mapReigonEnd[0] = -1;
+	mapReigonEnd[1] = -1;
+	mapReigonEnd[2] = -1;
+
 	cJSON* voxelArr = cJSON_GetObjectItem(json, "voxels");
 	cJSON* voxel;
 	cJSON_ArrayForEach(voxel, voxelArr)
@@ -100,6 +107,15 @@ void load()
 				v->portalability[4] = jsonGetInt(voxel, "portal4");
 				v->portalability[5] = jsonGetInt(voxel, "portal5");
 			}
+		}
+		else
+		{
+			mapReigonStart[0] = min(mapReigonStart[0], x);
+			mapReigonStart[1] = min(mapReigonStart[1], y);
+			mapReigonStart[2] = min(mapReigonStart[2], z);
+			mapReigonEnd[0] = max(mapReigonEnd[0], x);
+			mapReigonEnd[1] = max(mapReigonEnd[1], y);
+			mapReigonEnd[2] = max(mapReigonEnd[2], z);
 		}
 	}
 
@@ -153,6 +169,7 @@ void load()
 			int itemIndex = jsonGetInt(outputJson, "ent");
 			output->entity = itemIndex;
 			output->inverted = jsonGetBool(outputJson, "inverted");
+			output->onlyPrimary = jsonGetBoolC(outputJson, "onlyPrimary", 0);
 			output->def = 0;
 			if (cJSON_GetObjectItem(outputJson, "antline"))
 				output->antline = jsonGetInt(outputJson, "antline");
@@ -351,6 +368,14 @@ void load()
 		jsonGetVec3(editor, "cameraPos", cameraPos);
 		jsonGetVec3(editor, "cameraRot", cameraRot);
 	}
+
+	mapReigonStart[0]--;
+	mapReigonStart[1]--;
+	mapReigonStart[2]--;
+
+	mapReigonEnd[0] += 2;
+	mapReigonEnd[1] += 2;
+	mapReigonEnd[2] += 2;
 
 	updateVoxelFaces();
 	printf("done\n");

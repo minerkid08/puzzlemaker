@@ -4,6 +4,7 @@
 #include "dynList.h"
 #include "export/brush.h"
 #include "export/entity.h"
+#include "export/exportUtils.h"
 #include "voxel/itemIntersection.h"
 #include <stdio.h>
 #include <string.h>
@@ -32,7 +33,7 @@ Overlay* exportCreateOverlay()
 	dynList_resize((void**)&overlays, len + 1);
 	Overlay* overlay = &overlays[len];
 
-  overlay->script = 0;
+	overlay->script = 0;
 	overlay->tint[0] = 255;
 	overlay->tint[1] = 255;
 	overlay->tint[2] = 255;
@@ -49,15 +50,16 @@ void exportEndOverlays(FILE* file)
 	{
 		Overlay* overlay = &overlays[i];
 
+		vec3 pos;
+		transformPosTo(overlay->pos, pos);
 		fprintf(file, "entity\n{\n");
 
 		fprintf(file, "  \"id\" \"%d\"\n", i + startId);
 		fprintf(file, "  \"classname\" \"info_overlay\"\n");
-		fprintf(file, "  \"origin\" \"%f %f %f\"\n", overlay->pos[2] * 64, overlay->pos[0] * 64, overlay->pos[1] * 64);
+		fprintf(file, "  \"origin\" \"%f %f %f\"\n", pos[0], pos[1], pos[2]);
 		fprintf(file, "  \"angles\" \"0 0 0\"\n");
 		fprintf(file, "  \"targetname\" \"%s\"\n", overlay->name);
-		fprintf(file, "  \"BasisOrigin\" \"%f %f %f\"\n", overlay->pos[2] * 64, overlay->pos[0] * 64,
-				overlay->pos[1] * 64);
+		fprintf(file, "  \"BasisOrigin\" \"%f %f %f\"\n", pos[0], pos[1], pos[2]);
 
 		free((char*)overlay->name);
 
@@ -77,18 +79,9 @@ void exportEndOverlays(FILE* file)
 		glm_mat4_mulv3(rotMat, normDir, 1, normDir);
 		glm_mat4_mulv3(rotMat, uDir, 1, uDir);
 		glm_mat4_mulv3(rotMat, vDir, 1, vDir);
-		float tmp = normDir[0];
-		normDir[0] = normDir[2];
-		normDir[2] = normDir[1];
-		normDir[1] = tmp;
-		tmp = uDir[0];
-		uDir[0] = uDir[2];
-		uDir[2] = uDir[1];
-		uDir[1] = tmp;
-		tmp = vDir[0];
-		vDir[0] = vDir[2];
-		vDir[2] = vDir[1];
-		vDir[1] = tmp;
+		transformVec(normDir);
+		transformVec(uDir);
+		transformVec(vDir);
 		fprintf(file, "  \"BasisNormal\" \"%f %f %f\"\n", normDir[0], normDir[1], normDir[2]);
 		fprintf(file, "  \"BasisU\" \"%f %f %f\"\n", uDir[0], uDir[1], uDir[2]);
 		fprintf(file, "  \"BasisV\" \"%f %f %f\"\n", vDir[0], vDir[1], vDir[2]);
@@ -100,7 +93,7 @@ void exportEndOverlays(FILE* file)
 		fprintf(file, "  \"endu\" \"%f\"\n", overlay->tile[1]);
 		fprintf(file, "  \"endv\" \"0\"\n");
 
-		if(overlay->script)
+		if (overlay->script)
 			free((char*)overlay->texture);
 
 		float halfWidth = overlay->size[0] / 2.0f;
@@ -115,12 +108,12 @@ void exportEndOverlays(FILE* file)
 		OBB overlayObb;
 		vec3 min;
 		vec3 max;
-		min[0] = -overlay->size[1] / 128.0f;
-		min[1] = -0.125;
-		min[2] = -overlay->size[0] / 128.0f;
-		max[0] = overlay->size[1] / 128.0f;
-		max[1] = 0.125;
-		max[2] = overlay->size[0] / 128.0f;
+		min[0] = -overlay->size[0] / 128.0f;
+		min[1] = -overlay->size[1] / 128.0f;
+		min[2] = -0.125;
+		max[0] = overlay->size[0] / 128.0f;
+		max[1] = overlay->size[1] / 128.0f;
+		max[2] = 0.125;
 		min[0] += 0.01;
 		min[1] += 0.01;
 		min[2] += 0.01;
@@ -137,6 +130,8 @@ void exportEndOverlays(FILE* file)
 		for (int j = 0; j < brushLen; j++)
 		{
 			Brush* brush = &brushList[j];
+      if(brush->ent)
+        continue;
 			for (int k = 0; k < 6; k++)
 			{
 				Side* side = &brush->sides[k];

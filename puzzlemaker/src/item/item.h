@@ -108,6 +108,7 @@ typedef struct
 	int antline;
 	InputDef* input;
 	char inverted;
+	char onlyPrimary;
 } ItemOutput;
 
 struct Item

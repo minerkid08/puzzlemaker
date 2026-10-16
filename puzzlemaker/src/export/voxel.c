@@ -703,7 +703,7 @@ void exportVoxels()
 			for (int x = 0; x < MAP_SIZE; x++)
 			{
 				Voxel* v = getVoxel(x, y, z);
-				if (v->solid)
+				if (!v->solid)
 				{
 					mapReigonStart[0] = min(mapReigonStart[0], x);
 					mapReigonStart[1] = min(mapReigonStart[1], y);
@@ -720,5 +720,13 @@ void exportVoxels()
 			}
 		}
 	}
+  mapReigonStart[0]--;
+  mapReigonStart[1]--;
+  mapReigonStart[2]--;
+
+  mapReigonEnd[0] += 2;
+  mapReigonEnd[1] += 2;
+  mapReigonEnd[2] += 2;
+
 	updateVoxelFaces();
 }

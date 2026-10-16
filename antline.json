@@ -4,12 +4,12 @@
     "editorCheckTex": "check.png",
     "editorCheckActiveTex": "check-active.png",
 
-    "dotSize": 8,
+    "dotSize": 16,
     "checkSize": 32,
 
-    "lineTex": "p1pbr/signage/indicator_lights/indicator_lights_wall",
-    "cornerTex": "p1pbr/signage/indicator_lights/indicator_lights_corner_wall",
-    "checkTex": "p1pbr/signage/signage_doorstate",
+    "lineTex": "signage/indicator_lights/indicator_lights_wall",
+    "cornerTex": "signage/indicator_lights/indicator_lights_corner_wall",
+    "checkTex": "signage/signage_doorstate",
     "lineDotCountx": 4,
     "lineDotCounty": 1,
     "cornerDotCountx": 1,

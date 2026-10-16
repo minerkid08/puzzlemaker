@@ -100,6 +100,7 @@ void save()
 			cJSON_AddNumberToObject(outputJson, "ent", outputItem->entity);
 			cJSON_AddNumberToObject(outputJson, "antline", outputItem->antline);
 			cJSON_AddBoolToObject(outputJson, "inverted", outputItem->inverted);
+			cJSON_AddBoolToObject(outputJson, "onlyPrimary", outputItem->onlyPrimary);
 			cJSON_AddStringToObject(outputJson, "input", outputItem->input->name);
 			cJSON_AddStringToObject(outputJson, "output", outputItem->def->name);
 		}

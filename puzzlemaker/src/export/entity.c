@@ -2,6 +2,7 @@
 #include "dynList.h"
 #include "export/brush.h"
 #include "item/item.h"
+#include "export/exportUtils.h"
 #include "utils.h"
 #include <stdio.h>
 #include <string.h>
@@ -305,7 +306,7 @@ void exportEntitiesProcessOutputs()
 						exportEntityAddRawOutput(relay, "OnUser1", ioEntName, input->falseInput, "", 0);
 				}
 
-				if (output->def->falseOutput)
+				if (output->def->falseOutput && !output->onlyPrimary)
 				{
 					if (input->trueArg)
 						exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->trueInput, input->trueArg, 0);
@@ -322,7 +323,7 @@ void exportEntitiesProcessOutputs()
 				else
 					exportEntityAddRawOutput(relay, "OnUser1", ioEntName, input->trueInput, "", 0);
 
-				if (input->falseInput || output->def->falseOutput)
+				if (input->falseInput && output->def->falseOutput && !output->onlyPrimary)
 				{
 					if (input->falseArg)
 						exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->falseInput, input->falseArg, 0);
@@ -343,11 +344,13 @@ void exportEndEntities(FILE* file)
 	{
 		Entity* entity = &entities[i];
 
+    transformPos(entity->pos);
+
 		fprintf(file, "entity\n{\n");
 
 		fprintf(file, "  \"id\" \"%d\"\n", i + 1);
 		fprintf(file, "  \"classname\" \"%s\"\n", entity->className);
-		fprintf(file, "  \"origin\" \"%f %f %f\"\n", entity->pos[2] * 64, entity->pos[0] * 64, entity->pos[1] * 64);
+		fprintf(file, "  \"origin\" \"%f %f %f\"\n", entity->pos[0], entity->pos[1], entity->pos[2]);
 		fprintf(file, "  \"angles\" \"%f %f %f\"\n", entity->rotation[0], entity->rotation[1], entity->rotation[2]);
 		fprintf(file, "  \"targetname\" \"%s\"\n", entity->name);
 

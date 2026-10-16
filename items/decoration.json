@@ -52,7 +52,7 @@
   },
 	{
     "type": "overlay",
-		"name": "indicatorShapes",
+		"name": "indicatorSignage",
 		"editorTexture": "arrow.png",
 		"size": [32, 32],
 		"texture": "signage/{texture}",
@@ -73,6 +73,33 @@
 					"dots2": "signage_overlay_dots2",
 					"dots3": "signage_overlay_dots3",
 					"dots4": "signage_overlay_dots4"
+				}
+			}
+		]
+  },
+  {
+    "type": "overlay",
+		"name": "itemSignage",
+		"editorTexture": "exitSign.png",
+		"size": [32, 32],
+		"texture": "signage/{texture}",
+		"snapMode": "mini-center",
+		"keyvalues": [
+			{
+				"type": "drop-string",
+				"kv": "texture",
+				"defaultValue": 0,
+				"options": {
+					"door": "signage_exit",
+					"button": "signage_box_button",
+					"cube-dropper": "signage_overlay_boxdispensor",
+					"cube-hurt": "signage_overlay_box_hurt",
+					"laser-cube": "signage_laser_cube",
+					"laser-catcher": "signage_laser_catcher",
+					"funnel": "signage_tractor_beam",
+					"funnel-polarity": "signage_tractor_polarity",
+					"fling1": "signage_overlay_fling1",
+					"fling2": "signage_overlay_fling2"
 				}
 			}
 		]

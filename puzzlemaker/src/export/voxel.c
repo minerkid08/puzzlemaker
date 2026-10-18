@@ -14,34 +14,34 @@ const char* getMat(Voxel* voxel, int dir, char forceMini)
 	{
 	case 0: {
 		if (dir == DIR_POS_Y)
-			return voxelConfig.blackFloor;
+			return voxelConfig->blackFloor;
 		if (dir == DIR_NEG_Y)
-			return voxelConfig.blackCeiling;
-		return voxelConfig.blackWall;
+			return voxelConfig->blackCeiling;
+		return voxelConfig->blackWall;
 	}
 	case 1: {
 		if (dir == DIR_POS_Y)
-			return voxelConfig.whiteFloor;
+			return voxelConfig->whiteFloor;
 		if (dir == DIR_NEG_Y)
-			return voxelConfig.whiteCeiling;
-		return voxelConfig.whiteWall;
+			return voxelConfig->whiteCeiling;
+		return voxelConfig->whiteWall;
 	}
 	case 2: {
 		if (dir == DIR_POS_Y)
-			return voxelConfig.blackFloorMini;
+			return voxelConfig->blackFloorMini;
 		if (dir == DIR_NEG_Y)
-			return voxelConfig.blackCeilingMini;
-		return voxelConfig.blackWallMini;
+			return voxelConfig->blackCeilingMini;
+		return voxelConfig->blackWallMini;
 	}
 	case 3: {
 		if (dir == DIR_POS_Y)
-			return voxelConfig.whiteFloorMini;
+			return voxelConfig->whiteFloorMini;
 		if (dir == DIR_NEG_Y)
-			return voxelConfig.whiteCeilingMini;
-		return voxelConfig.whiteWallMini;
+			return voxelConfig->whiteCeilingMini;
+		return voxelConfig->whiteWallMini;
 	}
 	default:
-		return voxelConfig.backstage;
+		return voxelConfig->backstage;
 	}
 	return 0;
 }
@@ -61,7 +61,7 @@ void exportVoxel(Voxel* voxel, ivec3 pos, ivec3 size)
 	for (int i = 0; i < 6; i++)
 	{
 		Side* side = &brush->sides[i];
-		side->material = voxelConfig.nodraw;
+		side->material = voxelConfig->nodraw;
 	}
 
 	int x = pos[0];
@@ -294,44 +294,44 @@ void exportSubVoxels(int x, int y, int z, Voxel* voxel)
 			vec3 end = {x + 0.5f + xoff, y + 0.5f + yoff, z + 0.5f + zoff};
 			Brush* brush = exportCreateBrush(start, end);
 			for (int i = 0; i < 6; i++)
-				brush->sides[i].material = voxelConfig.nodraw;
+				brush->sides[i].material = voxelConfig->nodraw;
 
 			if (xoff == 0.0f)
 			{
 				if (voxel->faces & (1 << DIR_NEG_X))
 					brush->sides[DIR_NEG_X].material = getMat(voxel, DIR_NEG_X, 1);
-				brush->sides[DIR_POS_X].material = voxelConfig.backstage;
+				brush->sides[DIR_POS_X].material = voxelConfig->backstage;
 			}
 
 			if (xoff == 0.5f)
 			{
 				if (voxel->faces & (1 << DIR_POS_X))
 					brush->sides[DIR_POS_X].material = getMat(voxel, DIR_POS_X, 1);
-				brush->sides[DIR_NEG_X].material = voxelConfig.backstage;
+				brush->sides[DIR_NEG_X].material = voxelConfig->backstage;
 			}
 			if (yoff == 0.0f)
 			{
 				if (voxel->faces & (1 << DIR_NEG_Y))
 					brush->sides[DIR_NEG_Y].material = getMat(voxel, DIR_NEG_Y, 1);
-				brush->sides[DIR_POS_Y].material = voxelConfig.backstage;
+				brush->sides[DIR_POS_Y].material = voxelConfig->backstage;
 			}
 			if (yoff == 0.5f)
 			{
 				if (voxel->faces & (1 << DIR_POS_Y))
 					brush->sides[DIR_POS_Y].material = getMat(voxel, DIR_POS_Y, 1);
-				brush->sides[DIR_NEG_Y].material = voxelConfig.backstage;
+				brush->sides[DIR_NEG_Y].material = voxelConfig->backstage;
 			}
 			if (zoff == 0.0f)
 			{
 				if (voxel->faces & (1 << DIR_NEG_Z))
 					brush->sides[DIR_NEG_Z].material = getMat(voxel, DIR_NEG_Z, 1);
-				brush->sides[DIR_POS_Z].material = voxelConfig.backstage;
+				brush->sides[DIR_POS_Z].material = voxelConfig->backstage;
 			}
 			if (zoff == 0.5f)
 			{
 				if (voxel->faces & (1 << DIR_POS_Z))
 					brush->sides[DIR_POS_Z].material = getMat(voxel, DIR_POS_Z, 1);
-				brush->sides[DIR_NEG_Z].material = voxelConfig.backstage;
+				brush->sides[DIR_NEG_Z].material = voxelConfig->backstage;
 			}
 		}
 	}

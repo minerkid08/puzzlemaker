@@ -7,6 +7,8 @@
 #include "voxel/voxelConfig.h"
 #include <string.h>
 
+VoxelConfig* voxelConfig;
+
 Voxel voxels[MAP_SIZE * MAP_SIZE * MAP_SIZE];
 ivec3 mapReigonStart;
 ivec3 mapReigonEnd;
@@ -27,8 +29,6 @@ char pointInRange(ivec3 point, ivec3 boundA, ivec3 boundB)
 
 void initVoxels()
 {
-	loadVoxelConfig();
-
 	memset(voxels, 0, sizeof(voxels));
 	for (int i = 0; i < VOXEL_COUNT; i++)
 	{

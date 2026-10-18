@@ -19,6 +19,8 @@ void openMapSettingsUi();
 void renderMapSettingsUi();
 void openEditorSettingsUi();
 void renderEditorSettingsUi();
+void openPackageManager();
+void packageManagerRender();
 void openErrorPopup();
 void renderErrorPopup();
 void openErrorPopup();

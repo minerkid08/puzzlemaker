@@ -1,8 +1,10 @@
 #include "assetManager.h"
 #include "dynList.h"
 #include "glad/glad.h"
+#include "packages/package.h"
 #include "renderer/mesh.h"
 #include "renderer/texture.h"
+#include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -59,44 +61,59 @@ void assetManagerCleanup()
 
 unsigned int assetManagerLoadTexture(const char* filename)
 {
+	int offset = 0;
+
+  Package* package = processPackageString(currentPackage, filename, &offset);
+  const char* file = filename + offset;
+
 	int len = dynList_size(textures);
+	char* textureName = strdupf("packages/%s/assets/materials/%s", package->name, file);
 	for (int i = 0; i < len; i++)
 	{
 		TextureAsset* asset = &textures[i];
-		if (strcmp(asset->name, filename) == 0)
+		if (strcmp(asset->name, textureName) == 0)
+    {
+      free(textureName);
 			return asset->id;
+    }
 	}
 
 	dynList_resize((void**)&textures, len + 1);
 
 	TextureAsset* asset = &textures[len];
-	asset->name = strdup(filename);
+	asset->name = textureName;
 
-	printf("[asset manager] loading texture '%s'\n", filename);
+	printf("[asset manager] loading texture '%s'\n", file);
 
-	asset->id = loadTexture(filename);
+	asset->id = loadTexture(package, file);
 	return asset->id;
 }
 
 Mesh* assetManagerLoadMesh(const char* filename)
 {
+	int offset = 0;
+
+  Package* package = processPackageString(currentPackage, filename, &offset);
+  const char* file = filename + offset;
+
+	char* meshName = strdupf("packages/%s/assets/models/%s", package->name, file);
 	int len = dynList_size(meshes);
 	for (int i = 0; i < len; i++)
 	{
 		MeshAsset* asset = &meshes[i];
-		if (strcmp(asset->name, filename) == 0)
+		if (strcmp(asset->name, meshName) == 0)
 			return asset->mesh;
 	}
 
 	dynList_resize((void**)&meshes, len + 1);
 
 	MeshAsset* asset = &meshes[len];
-	asset->name = strdup(filename);
+	asset->name = meshName;
 
-	printf("[asset manager] loading mesh '%s'\n", filename);
+	printf("[asset manager] loading mesh '%s'\n", file);
 
 	asset->mesh = malloc(sizeof(Mesh));
 
-	loadMesh(filename, asset->mesh);
+	loadMesh(package, file, asset->mesh);
 	return asset->mesh;
 }

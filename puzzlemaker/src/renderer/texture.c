@@ -2,6 +2,7 @@
 #include "glad/glad.h"
 #include <string.h>
 
+#include "packages/package.h"
 #include "stb/stbimage.h"
 
 static __attribute__((constructor)) void init()
@@ -9,7 +10,7 @@ static __attribute__((constructor)) void init()
 	stbi_set_flip_vertically_on_load(1);
 }
 
-unsigned int loadTexture(const char* filename)
+unsigned int loadTexture(Package* package, const char* filename)
 {
 	int l = strlen(filename) + 18;
 	char* buf = malloc(l);
@@ -17,10 +18,13 @@ unsigned int loadTexture(const char* filename)
 	snprintf(buf, l, "assets/materials/%s\n", filename);
 	buf[l - 1] = 0;
 
+  int dataLen;
+  unsigned char* file = readPackageFile(package, buf, &dataLen);
+
 	int channels;
 	int width;
 	int height;
-	unsigned char* data = stbi_load(buf, &width, &height, &channels, 0);
+	unsigned char* data = stbi_load_from_memory(file, dataLen, &width, &height, &channels, 0);
 	if (data == 0)
 	{
 		printf("failed to load image: '%s'\n", buf);

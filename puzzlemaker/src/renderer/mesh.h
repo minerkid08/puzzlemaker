@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cglm/types.h"
+#include "packages/package.h"
 
 typedef struct
 {
@@ -11,4 +12,4 @@ typedef struct
   unsigned int vertCount;
 } Mesh;
 
-void loadMesh(const char* filename, Mesh* mesh);
+void loadMesh(Package* package, const char* filename, Mesh* mesh);

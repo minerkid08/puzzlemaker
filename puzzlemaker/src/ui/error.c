@@ -17,12 +17,13 @@ static char open = 0;
 static char wasOpen = 0;
 extern GLFWwindow* window;
 extern char running;
+extern char metadataLoaded;
 
 void startErrorLoop()
 {
-  printf("err: %s\n", err);
-  if(running)
-    return;
+	printf("err: %s\n", err);
+	if (running)
+		return;
 	while (!glfwWindowShouldClose(window))
 	{
 		uiNewFrame();
@@ -52,8 +53,8 @@ void renderErrorPopup()
 
 	if (open == 0 && wasOpen)
 	{
-    wasOpen = 0;
-    errorState = 0;
+		wasOpen = 0;
+		errorState = 0;
 		if (running == 0)
 			exit(1);
 	}
@@ -76,6 +77,12 @@ void renderErrorPopup()
 			int len = dynList_size(stackTrace);
 			for (int i = 0; i < len; i++)
 				igText("in %s", stackTrace[i]);
+		}
+		if (metadataLoaded)
+		{
+			if (igButton("package manager", zero))
+				openPackageManager();
+			packageManagerRender();
 		}
 		igEndPopup();
 	}

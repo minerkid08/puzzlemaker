@@ -1,5 +1,6 @@
 #include "mapsettings.h"
 #include "dynList.h"
+#include "packages/theme.h"
 #include <string.h>
 
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
@@ -7,8 +8,6 @@
 #include "cimgui.h"
 
 static bool open = 0;
-
-extern PostProcessData* postProcessPresets;
 
 void openMapSettingsUi()
 {
@@ -26,6 +25,23 @@ void renderMapSettingsUi()
 
 	igBegin("Map Settings", &open, ImGuiWindowFlags_NoDocking);
 
+	if (igBeginCombo("Map Theme", currentTheme->name, 0))
+	{
+		int len = dynList_size(themeList);
+		for (int i = 0; i < len; i++)
+		{
+			Theme* theme = &themeList[i];
+			char selected = (currentTheme == theme);
+			if (igSelectable_Bool(theme->name, selected, 0, zero))
+			{
+				mapSettings.postProcessPreset = 0;
+        setTheme(theme);
+			}
+			if (selected)
+				igSetItemDefaultFocus();
+		}
+		igEndCombo();
+	}
 	igSeparatorText("Game Rules");
 	igCheckbox("enable fall damage", (bool*)&mapSettings.boots);
 	igCheckbox("enable health regen", (bool*)&mapSettings.regen);
@@ -40,12 +56,14 @@ void renderMapSettingsUi()
 
 	PostProcessData* data = &mapSettings.postProcess;
 
-	if (igBeginCombo("preset", postProcessPresets[mapSettings.postProcessPreset].name, 0))
+  PostProcessData* presets = currentTheme->postProcessPresets;
+
+	if (igBeginCombo("preset", presets[mapSettings.postProcessPreset].name, 0))
 	{
-		int len = dynList_size(postProcessPresets);
+		int len = dynList_size(presets);
 		for (int i = 0; i < len; i++)
 		{
-			PostProcessData* preset = &postProcessPresets[i];
+			PostProcessData* preset = &presets[i];
 			char selected = (mapSettings.postProcessPreset == i);
 			if (igSelectable_Bool(preset->name, selected, 0, zero))
 			{

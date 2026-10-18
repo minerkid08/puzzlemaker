@@ -1,7 +1,9 @@
 #include <stdbool.h>
+#include <string.h>
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 
 #include "compile/compile.h"
+#include "export/export.h"
 #include <cimgui.h>
 
 float frac = 0;
@@ -26,8 +28,31 @@ void updateCompilePopup()
 		float count = getCompileStepCount();
 		frac = step / (count - 1);
 		igProgressBar(frac, zero, steps[step].name);
-		if(failed)
+		if (failed)
 			igText("compile step '%s' failed", steps[step].name);
+
+		ImVec2 size = igGetContentRegionAvail();
+		ImGuiStyle* style = igGetStyle();
+		size.y -= style->FramePadding.y * 2 + style->FontSizeBase + style->ItemSpacing.y * 2;
+
+		igBeginChild_Str("output", size, ImGuiChildFlags_Borders, 0);
+
+		const char* message = getMessage();
+		int len = strlen(message);
+		const char* end = strchr(message, '\n');
+		while (end)
+		{
+			igTextEx(message, end, 0);
+			message = end + 1;
+			end = strchr(message, '\n');
+		}
+
+		igTextEx(message, strchr(message, 0), 0);
+
+    if(igGetScrollY() >= igGetScrollMaxY())
+      igSetScrollHereY(1.0f);
+		igEndChild();
+
 		if (step != count && (failed == 0))
 		{
 			if (igButton("cancel", zero))

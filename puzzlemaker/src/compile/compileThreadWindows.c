@@ -1,6 +1,7 @@
 #ifdef _WIN32
 #include "compile/compileThread.h"
 #include "dynList.h"
+#include "export/export.h"
 #include <io.h>
 #include <stdio.h>
 #include <windows.h>
@@ -17,11 +18,11 @@ void processString(const char* str, char* out);
 int runCmd(char* cmd)
 {
 	processString(cmd, buf);
-  memset(proc, 0, 1024);
+	memset(proc, 0, 1024);
 
 	int len = strlen(buf);
 	int j = 1;
-  proc[0] = '"';
+	proc[0] = '"';
 	for (int i = 0; i < len; i++)
 	{
 		if (buf[i] == '%')
@@ -31,17 +32,22 @@ int runCmd(char* cmd)
 		}
 		if (buf[i] == ' ' && proc[j] != ' ')
 		{
-      proc[j] = '"';
-      proc[j + 1] = ' ';
-      proc[j + 2] = '"';
+			proc[j] = '"';
+			proc[j + 1] = ' ';
+			proc[j + 2] = '"';
 			j += 3;
 			continue;
 		}
 		proc[j] = buf[i];
 		j++;
 	}
-  proc[j] = '"';
-  proc[j + 1] = 0;
+	proc[j] = '"';
+	proc[j + 1] = 0;
+
+	SECURITY_ATTRIBUTES sa;
+	sa.nLength = sizeof(sa);
+	sa.lpSecurityDescriptor = 0;
+	sa.bInheritHandle = 1;
 
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
@@ -50,11 +56,19 @@ int runCmd(char* cmd)
 	si.cb = sizeof(si);
 	memset(&pi, 0, sizeof(pi));
 
+	HANDLE hr;
+	HANDLE hw;
+
+	CreatePipe(&hr, &hw, &sa, 0);
+	si.hStdInput = 0;
+	si.hStdOutput = hw;
+	si.hStdError = hw;
+
 	if (!CreateProcess(0, proc, 0, 0, FALSE, 0, 0, compileStatus.workingDir, &si, &pi))
 	{
-		printf("CreateProcess failed (%d).\n", GetLastError());
-		printf("command line: '%s'\n", proc);
-		printf("working dir: '%s'\n", compileStatus.workingDir);
+		writeMessagef("CreateProcess failed (%d).\n", GetLastError());
+		writeMessagef("command line: '%s'\n", proc);
+		writeMessagef("working dir: '%s'\n", compileStatus.workingDir);
 
 		int len = strlen(buf);
 		for (int i = 0; i < len; i++)
@@ -68,11 +82,21 @@ int runCmd(char* cmd)
 			}
 		}
 		if (_access(buf, 0))
-			printf("bad command line\n");
+			writeMessage("bad command line\n");
 
 		if (_access(compileStatus.workingDir, 0))
-			printf("bad working dir\n");
+			writeMessage("bad working dir\n");
 		return 1;
+	}
+	CloseHandle(hw);
+
+	char buf[512];
+  unsigned long int len2 = 1;
+	while (len2 > 0)
+	{
+	  if(!ReadFile(hr, buf, 512, &len2, 0))
+      break;
+		writeMessagen(buf, len2);
 	}
 
 	WaitForSingleObject(pi.hProcess, INFINITE);
@@ -108,9 +132,11 @@ DWORD WINAPI compileThread(LPVOID data)
 		printf("compile started\n");
 		compileStatus.currentStep = 0;
 		ResetEvent(event);
+		clearMessage();
 		for (int i = 0; i < compileStatus.stepCount; i++)
 		{
 			CompileStep* step = &compileStatus.compileSteps[i];
+			writeMessagef("running %s\n\n", step->name);
 			if (i == 0)
 			{
 				if (exportMap())

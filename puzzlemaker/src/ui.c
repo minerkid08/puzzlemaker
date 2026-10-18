@@ -20,6 +20,8 @@ float uiScale = 1.0f;
 char queueCompile = 0;
 ImVec2 zero;
 
+extern char errorState;
+
 void initUi(GLFWwindow* window)
 {
 	zero.x = 0;
@@ -138,25 +140,39 @@ void uiMenuBar()
 	zero.x = 0;
 	zero.y = 0;
 	igBeginMenuBar();
-	if (igMenuItem_Bool("save", 0, 0, 1))
-		fileBrowserSave();
-	if (igMenuItem_Bool("save as", 0, 0, 1))
-		fileBrowserOpen(MODE_SAVE);
-	if (igMenuItem_Bool("load", 0, 0, 1))
-		fileBrowserOpen(MODE_LOAD);
-	if (igMenuItem_Bool("compile", 0, 0, 1))
+	if (igBeginMenu("file", 1))
 	{
-		if (mapSettings.name[0] == 0)
+		if (igMenuItem_Bool("save", 0, 0, 1))
+			fileBrowserSave();
+		if (igMenuItem_Bool("save as", 0, 0, 1))
 			fileBrowserOpen(MODE_SAVE);
-		else
-			startCompile();
+		if (igMenuItem_Bool("load", 0, 0, 1))
+			fileBrowserOpen(MODE_LOAD);
+    igEndMenu();
 	}
-	if (igMenuItem_Bool("map settings", 0, 0, 1))
-		openMapSettingsUi();
-	if (igMenuItem_Bool("editor settings", 0, 0, 1))
-		openEditorSettingsUi();
-	if (igMenuItem_Bool("debug", 0, 0, 1))
-		openItemDebug();
+	if (igBeginMenu("map", 1))
+	{
+		if (igMenuItem_Bool("compile", 0, 0, 1))
+		{
+			if (mapSettings.name[0] == 0)
+				fileBrowserOpen(MODE_SAVE);
+			else
+				startCompile();
+		}
+		if (igMenuItem_Bool("map settings", 0, 0, 1))
+			openMapSettingsUi();
+    igEndMenu();
+	}
+	if (igBeginMenu("window", 1))
+	{
+		if (igMenuItem_Bool("editor settings", 0, 0, 1))
+			openEditorSettingsUi();
+		if (igMenuItem_Bool("debug", 0, 0, 1))
+			openItemDebug();
+		if (igMenuItem_Bool("package manager", 0, 0, 1))
+			openPackageManager();
+    igEndMenu();
+	}
 	igSeparator();
 	igText("%s", mapSettings.name);
 
@@ -171,5 +187,7 @@ void uiMenuBar()
 	igEndMenuBar();
 
 	renderMapSettingsUi();
+	if (errorState == 0)
+		packageManagerRender();
 	renderEditorSettingsUi();
 }

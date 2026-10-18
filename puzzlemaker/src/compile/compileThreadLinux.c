@@ -1,10 +1,11 @@
-#include <stdlib.h>
 #ifdef linux
 
 #include "compileThread.h"
 #include "dynList.h"
+#include "export/export.h"
 #include <pthread.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -28,6 +29,12 @@ int runCmd(char* cmd)
 
 	pid_t pid;
 
+	int stdoutPipe[2];
+	if (pipe(stdoutPipe) == -1)
+		perror("pipe");
+	int stdoutRead = stdoutPipe[0];
+	int stdoutWrite = stdoutPipe[1];
+
 	pid = fork();
 
 	if (pid < 0)
@@ -37,6 +44,9 @@ int runCmd(char* cmd)
 	}
 	else if (pid == 0)
 	{
+		dup2(stdoutWrite, STDOUT_FILENO);
+		close(stdoutRead);
+
 		// Child process
 
 		int arglen = strlen(buf);
@@ -88,9 +98,18 @@ int runCmd(char* cmd)
 	}
 	else
 	{
+		char buf[512];
+		close(stdoutWrite);
+		int len = read(stdoutRead, buf, 512);
+		while (len > 0)
+		{
+			writeMessagen(buf, len);
+			len = read(stdoutRead, buf, 512);
+		}
 		// Parent process
 		int status = 0;
 		waitpid(pid, &status, 0);
+		close(stdoutRead);
 		if (status)
 			compileStatus.failed = 1;
 	}
@@ -106,9 +125,11 @@ void* compileThread(void* e)
 		char c;
 		read(pipeRead, &c, 1);
 		compileStatus.currentStep = 0;
+		clearMessage();
 		for (int i = 0; i < compileStatus.stepCount; i++)
 		{
 			CompileStep* step = &compileStatus.compileSteps[i];
+			writeMessagef("running %s\n\n", step->name);
 			if (i == 0)
 			{
 				if (exportMap())

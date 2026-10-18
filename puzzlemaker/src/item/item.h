@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cjson.h"
+#include "packages/package.h"
 #include "renderer/mesh.h"
 #include <cglm/cglm.h>
 
@@ -73,6 +74,7 @@ typedef struct
 	char type;
 
 	void* data;
+  Package* package;
 
 	const char* name;
 	const char* group;
@@ -141,7 +143,7 @@ typedef struct
 	int startInd;
 } ItemGroup;
 
-void loadItemDefinitions();
+void loadItemDefinitionFile(Package* package, const char* filename);
 
 void drawItems();
 

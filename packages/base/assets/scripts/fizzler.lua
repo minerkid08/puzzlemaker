@@ -1,3 +1,6 @@
+require("fizzlerUtils");
+main();
+
 local pos = Item.getPosition();
 local rot = Item.getRotation();
 local size = Item.getSize();

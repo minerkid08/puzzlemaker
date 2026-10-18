@@ -1,0 +1,55 @@
+{
+  "voxel": {
+	  "blackEditor": "blackVoxel.png",
+	  "whiteEditor": "whiteVoxel.png",
+	  "blackMiniEditor": "blackMiniVoxel.png",
+	  "whiteMiniEditor": "whiteMiniVoxel.png",
+	  "nodraw": "TOOLS/TOOLSNODRAW",
+	  "backstage": "ANIM_WP/FRAMEWORK/BACKPANELS",
+
+	  "blackFloor": "METAL/BLACK_FLOOR_METAL_001C",
+	  "blackWall": "METAL/BLACK_WALL_METAL_002A",
+	  "blackCeiling": "METAL/BLACK_CEILING_METAL_001A",
+	  "whiteFloor": "TILE/WHITE_FLOOR_TILE002A",
+	  "whiteWall": "TILE/WHITE_WALL_STATE",
+	  "whiteCeiling": "TILE/WHITE_CEILING_TILE002A",
+
+	  "blackFloorMini": "METAL/BLACK_FLOOR_METAL_001C",
+	  "blackWallMini": "METAL/BLACK_WALL_METAL_002B",
+	  "blackCeilingMini": "METAL/BLACK_CEILING_METAL_001A",
+	  "whiteFloorMini": "TILE/WHITE_FLOOR_TILE002A",
+	  "whiteWallMini": "TILE/WHITE_WALL_TILE003F",
+	  "whiteCeilingMini": "TILE/WHITE_CEILING_TILE002A"
+  },
+  "antline": {
+    "editorAntlineTex": "antline.png",
+    "editorAntlineActiveTex": "antline-active.png",
+    "editorCheckTex": "check.png",
+    "editorCheckActiveTex": "check-active.png",
+
+    "dotSize": 16,
+    "checkSize": 32,
+
+    "lineTex": "signage/indicator_lights/indicator_lights_wall",
+    "cornerTex": "signage/indicator_lights/indicator_lights_corner_wall",
+    "checkTex": "signage/signage_doorstate",
+    "lineDotCountx": 4,
+    "lineDotCounty": 1,
+    "cornerDotCountx": 1,
+    "cornerDotCounty": 1
+ },
+ "postProcessing": [
+	  {
+		  "name": "testchamber",
+	    "maxExposure": 3,
+	    "minExposure": 0.5,
+	    "tonemapRate": 0.25,
+	    "brightPixelPercent": 5,
+	    "primaryFogColor": [40, 53, 64],
+	    "secondaryFogColor": [40, 53, 64],
+	    "fogStart": 128,
+	    "fogEnd": 5000,
+	    "fogDensity": 1
+	  }
+  ]
+}

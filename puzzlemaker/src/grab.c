@@ -81,7 +81,7 @@ void updateGrab(vec3 cameraPos, vec3 mouseDir)
 			break;
 		}
 		case 5: {
-			AntlineConfig* cfg = getAntlineConfig();
+			AntlineConfig* cfg = antlineConfig;
 			float a = 64.0f / cfg->dotSize;
 			newPos[0] = round(hit.pos[0] * a - cfg->editorDotSize) / a + cfg->editorDotSize;
 			newPos[1] = round(hit.pos[1] * a - cfg->editorDotSize) / a + cfg->editorDotSize;
@@ -89,7 +89,7 @@ void updateGrab(vec3 cameraPos, vec3 mouseDir)
 			break;
 		}
 		case 6: {
-			AntlineConfig* cfg = getAntlineConfig();
+			AntlineConfig* cfg = antlineConfig;
 			float a = 64.0f / cfg->checkSize;
 			newPos[0] = round(hit.pos[0] * a - cfg->editorCheckSize) / a + cfg->editorCheckSize;
 			newPos[1] = round(hit.pos[1] * a - cfg->editorCheckSize) / a + cfg->editorCheckSize;

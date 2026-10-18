@@ -1,17 +1,24 @@
 #include "cjson.h"
 #include "dynList.h"
-#include "item/item.h"
 #include "item/entityItem.h"
+#include "item/item.h"
 #include "item/overlayItem.h"
 #include "item/panel.h"
 #include "item/volumeItem.h"
 #include "jsonUtils.h"
+#include "packages/package.h"
 #include "utils.h"
 #include <stdio.h>
 #include <string.h>
 
 ItemDefinition* definitions;
 ItemGroup* groups;
+
+static __attribute__((constructor)) void init()
+{
+	definitions = dynList_new(0, sizeof(ItemDefinition));
+	groups = dynList_new(0, sizeof(ItemGroup));
+}
 
 ItemDefinition* getItemDefinitions()
 {
@@ -23,36 +30,9 @@ ItemGroup* getItemGroups()
 	return groups;
 }
 
-void loadItemDefinitionFile(const char* filename);
-
-void loadItemDefinitions()
-{
-	const char** files = dynList_new(0, sizeof(const char*));
-
-	listFiles("items", 0, &files, ".json");
-
-	definitions = dynList_new(0, sizeof(ItemDefinition));
-	groups = dynList_new(0, sizeof(ItemGroup));
-
-	int len = dynList_size(files);
-	for (int i = 0; i < len; i++)
-	{
-		loadItemDefinitionFile(files[i]);
-		free((void*)files[i]);
-	}
-	dynList_free(files);
-
-	dynList_trim((void**)&definitions);
-	dynList_trim((void**)&groups);
-}
-
-void loadItemDefinitionFile(const char* filename)
+void loadItemDefinitionFile(Package* package, const char* filename)
 {
 	char filenameBuf[64];
-	snprintf(filenameBuf, 64, "items/%s", filename);
-	printf("[item loader] loading file %s\n", filenameBuf);
-
-	FILE* file = fopen(filenameBuf, "rb");
 
 	strncpy(filenameBuf, filename, 64);
 	for (int i = 0; i < strlen(filenameBuf); i++)
@@ -65,20 +45,18 @@ void loadItemDefinitionFile(const char* filename)
 	}
 	const char* group = strdup(filenameBuf);
 
-	fseek(file, 0, SEEK_END);
-	unsigned long long len = ftell(file);
-	fseek(file, 0, SEEK_SET);
+	snprintf(filenameBuf, 64, "items/%s", filename);
+	printf("[item loader] loading file %s\n", filenameBuf);
 
-	char* data = malloc(len + 1);
-
-	fread(data, 1, len, file);
+	int len;
+	char* data = readPackageFile(package, filenameBuf, &len);
 	data[len] = 0;
 
 	cJSON* json = cJSON_Parse(data);
 	const char* err = cJSON_GetErrorPtr();
 
-	if(err)
-		jsonParseError(data, err, filename);
+	if (err)
+		jsonParseError(data, err, filenameBuf);
 
 	free(data);
 
@@ -100,9 +78,10 @@ void loadItemDefinitionFile(const char* filename)
 	cJSON_ArrayForEach(item, json)
 	{
 		if (!cJSON_IsObject(item))
-			errorf("bad type for item %s %d, expected object\n", filename, j);
+			errorf("bad type for item __%s__/items/%s: index %d, expected object\n", package->baseName, filename, j);
 		ItemDefinition* def = &definitions[i++];
 		def->group = group;
+		def->package = package;
 
 		if (cJSON_GetObjectItem(item, "name") == 0)
 			errorf("item %d is missing name field\n", i);
@@ -112,7 +91,7 @@ void loadItemDefinitionFile(const char* filename)
 		printf("[item loader] loading item '%s'\n", def->name);
 
 		char buf[256];
-		snprintf(buf, 256, "%s, %s index %d", def->name, filename, j++);
+		snprintf(buf, 256, "%s, __%s__/items/%s: index %d", def->name, package->baseName, filename, j++);
 		jsonResetStack(buf);
 
 		const char* type = jsonGetStr(item, "type");
@@ -140,7 +119,8 @@ void loadItemDefinitionFile(const char* filename)
 			jsonError("invalid value for key type type\n");
 
 		def->deleteIntersectingVoxels = jsonGetBoolC(item, "deleteIntersectingVoxels", 0);
-		def->deleteIntersectingVoxelsEditor = jsonGetBoolC(item, "deleteIntersectingVoxelsEditor", def->deleteIntersectingVoxels);
+		def->deleteIntersectingVoxelsEditor =
+			jsonGetBoolC(item, "deleteIntersectingVoxelsEditor", def->deleteIntersectingVoxels);
 		def->genMissingVoxels = jsonGetBoolC(item, "genMissingVoxels", 1);
 		def->exportScript = jsonGetStrC(item, "exportScript", 0);
 		def->transparent = jsonGetBoolC(item, "transparent", 0);

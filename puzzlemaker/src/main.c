@@ -1,7 +1,7 @@
 #include "antline/antline.h"
 #include "assetManager.h"
 #include "grab.h"
-#include "mapsettings.h"
+#include "packages/package.h"
 #include "renderer/framebuffer.h"
 #include "save.h"
 #include "settings.h"
@@ -74,11 +74,14 @@ void mouseZoomCallback(GLFWwindow* window, double x, double y);
 extern float uiScale;
 static char snapRotation;
 
+const char* commandLine = 0;
 GLFWwindow* window;
 char running = 0;
 
-int main()
+
+int main(int argc, const char** argv)
 {
+  commandLine = argv[0];
 	makeDir("maps");
 
 	glfwInit();
@@ -103,17 +106,15 @@ int main()
 
 	initUi(window);
 
-	loadMapSettingsPresets();
+  loadPackageList();
+
 	loadEditorSettings();
 	startCompileThread();
 	initVoxels();
-	loadAntlineConfig();
 
 	initRenderer();
 	aspect = (float)width / (float)height;
 	initCamera();
-
-	loadItemDefinitions();
 
 	initItemPanel();
 

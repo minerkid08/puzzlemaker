@@ -23,7 +23,7 @@ char startsWith(const char* a, const char* b);
 
 extern ivec3 dirs[6];
 
-void listFiles(const char* path, const char*** dirs, const char*** files, const char* extensionFilter);
+int listFiles(const char* path, const char*** dirs, const char*** files, const char* extensionFilter);
 void makeDir(const char* path);
 
 void getEulerAngles(mat4 mat, vec3 out);

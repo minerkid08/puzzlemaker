@@ -132,8 +132,8 @@ void drawSubVoxels(int x, int y, int z, Voxel* voxel)
 
 void drawVoxels()
 {
-	bindVoxelTextures(voxelConfig.blackEditor, voxelConfig.whiteEditor, voxelConfig.blackMiniEditor,
-					  voxelConfig.whiteMiniEditor);
+	bindVoxelTextures(voxelConfig->blackEditor, voxelConfig->whiteEditor, voxelConfig->blackMiniEditor,
+					  voxelConfig->whiteMiniEditor);
 
 	for (int z = mapReigonStart[2]; z < mapReigonEnd[2]; z++)
 	{

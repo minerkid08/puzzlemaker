@@ -2,6 +2,7 @@
 #include "api.h"
 #include "cglm/euler.h"
 #include "cglm/mat4.h"
+#include "dynList.h"
 #include "export/brush.h"
 #include "item/item.h"
 #include "lua/lauxlib.h"
@@ -12,6 +13,10 @@
 
 // Entity.new(string name, string className, vec3 pos, vec3 rot);
 static int entityNew(lua_State* l);
+// Entity.newGlobal(string name, string className, vec3 pos, vec3 rot);
+static int entityNewGlobal(lua_State* l);
+// Entity.getGlobal(string name);
+static int entityGetGlobal(lua_State* l);
 // Entity:setPosition(vec3 pos);
 static int entitySetPosition(lua_State* l);
 // Entity:setRotation(vec3 rot);
@@ -105,6 +110,87 @@ int entityNew(lua_State* l)
 	lua_pushcfunction(l, entityMarkAsIO);
 	lua_setfield(l, -2, "markAsIO");
 	long long id = entity->id;
+	lua_pushlightuserdata(l, (void*)id);
+	lua_setfield(l, -2, "id");
+	return 1;
+}
+
+int entityNewGlobal(lua_State* l)
+{
+	if (lua_type(l, 1) != LUA_TSTRING)
+		luaL_error(l, "bad arg 1, expected string");
+	if (lua_type(l, 2) != LUA_TSTRING)
+		luaL_error(l, "bad arg 1, expected string");
+
+	vec3 pos;
+	vec3 rot;
+	luaGetVec3(l, 3, pos, "bad arg 3");
+	luaGetVec3(l, 4, rot, "bad arg 4");
+	Entity* entity = exportCreateEntity();
+	entity->name = strdup(lua_tostring(l, 1));
+	entity->className = strdup(lua_tostring(l, 2));
+	entity->script = 1;
+	memcpy(entity->pos, pos, sizeof(vec3));
+	memcpy(entity->rotation, rot, sizeof(vec3));
+
+	lua_newtable(l);
+	lua_pushcfunction(l, entitySetPosition);
+	lua_setfield(l, -2, "setPosition");
+	lua_pushcfunction(l, entitySetRotation);
+	lua_setfield(l, -2, "setRotation");
+	lua_pushcfunction(l, entityTransform);
+	lua_setfield(l, -2, "transform");
+	lua_pushcfunction(l, entityAttachBrush);
+	lua_setfield(l, -2, "attachBrush");
+	lua_pushcfunction(l, entitySetKv);
+	lua_setfield(l, -2, "setKv");
+	lua_pushcfunction(l, entityAddOutput);
+	lua_setfield(l, -2, "addOutput");
+	lua_pushcfunction(l, entityMarkAsIO);
+	lua_setfield(l, -2, "markAsIO");
+	long long id = entity->id;
+	lua_pushlightuserdata(l, (void*)id);
+	lua_setfield(l, -2, "id");
+	return 1;
+}
+
+int entityGetGlobal(lua_State* l)
+{
+	if (lua_type(l, 1) != LUA_TSTRING)
+		luaL_error(l, "bad arg 1, expected string");
+
+	const char* name = lua_tostring(l, 1);
+
+	int entId = -1;
+	Entity* entityList = getEntityList();
+	int entityCount = dynList_size(entityList);
+	for (int i = 0; i < entityCount; i++)
+	{
+		Entity* ent = &entityList[i];
+		if (strcmp(ent->name, name) == 0)
+		{
+      entId = i;
+		}
+	}
+  if(entId == -1)
+    luaL_error(l, "no item with the name '%s' found\n", name); 
+
+	lua_newtable(l);
+	lua_pushcfunction(l, entitySetPosition);
+	lua_setfield(l, -2, "setPosition");
+	lua_pushcfunction(l, entitySetRotation);
+	lua_setfield(l, -2, "setRotation");
+	lua_pushcfunction(l, entityTransform);
+	lua_setfield(l, -2, "transform");
+	lua_pushcfunction(l, entityAttachBrush);
+	lua_setfield(l, -2, "attachBrush");
+	lua_pushcfunction(l, entitySetKv);
+	lua_setfield(l, -2, "setKv");
+	lua_pushcfunction(l, entityAddOutput);
+	lua_setfield(l, -2, "addOutput");
+	lua_pushcfunction(l, entityMarkAsIO);
+	lua_setfield(l, -2, "markAsIO");
+	long long id = entId;
 	lua_pushlightuserdata(l, (void*)id);
 	lua_setfield(l, -2, "id");
 	return 1;
@@ -210,7 +296,7 @@ int entitySetKv(lua_State* l)
 		break;
 	}
 	case LUA_TTABLE: {
-    Entity* ent = luaGetEntity(l, 3, "bad arg 3");
+		Entity* ent = luaGetEntity(l, 3, "bad arg 3");
 		snprintf(value, 50, "%s", ent->name);
 		break;
 	}

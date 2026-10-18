@@ -1,9 +1,8 @@
 #include "dynList.h"
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-int pstrcmp(const void* a, const void* b)
+static int pstrcmp(const void* a, const void* b)
 {
 	return strcmp(*(const char**)a, *(const char**)b);
 }
@@ -14,7 +13,7 @@ int pstrcmp(const void* a, const void* b)
 #include <sys/stat.h>
 #include <sys/types.h>
 
-void listFiles(const char* path, const char*** dirs, const char*** files, const char* extensionFilter)
+int listFiles(const char* path, const char*** dirs, const char*** files, const char* extensionFilter)
 {
 	struct dirent* en;
 
@@ -57,7 +56,7 @@ void listFiles(const char* path, const char*** dirs, const char*** files, const 
 		closedir(dir);
 	}
 	else
-		printf("bad directory '%s'\n", path);
+		return 1;
 	if (files)
 	{
 		int fileCount = dynList_size(*files);
@@ -68,6 +67,7 @@ void listFiles(const char* path, const char*** dirs, const char*** files, const 
 		int dirCount = dynList_size(*dirs);
 		qsort(*dirs, dirCount, sizeof(const char*), pstrcmp);
 	}
+  return 0;
 }
 
 void makeDir(const char* path)
@@ -77,8 +77,9 @@ void makeDir(const char* path)
 
 #else
 #include <windows.h>
+#include <stdio.h>
 
-void listFiles(const char* dirPath, const char*** dirs, const char*** files, const char* extensionFilter)
+int listFiles(const char* dirPath, const char*** dirs, const char*** files, const char* extensionFilter)
 {
 	char searchPath[MAX_PATH];
 	snprintf(searchPath, sizeof(searchPath), "%s\\*", dirPath);
@@ -89,7 +90,7 @@ void listFiles(const char* dirPath, const char*** dirs, const char*** files, con
 	if (hFind == INVALID_HANDLE_VALUE)
 	{
 		printf("Failed to open directory: %s\n", dirPath);
-		return;
+		return 1;
 	}
 
 	do
@@ -143,6 +144,7 @@ void listFiles(const char* dirPath, const char*** dirs, const char*** files, con
 		int dirCount = dynList_size(*dirs);
 		qsort(*dirs, dirCount, sizeof(const char*), pstrcmp);
 	}
+  return 0;
 }
 
 void makeDir(const char* path)

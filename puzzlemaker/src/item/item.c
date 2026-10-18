@@ -76,7 +76,7 @@ Item** getIntersectingItems(vec3 pos, Item** ignore)
 	int count = dynList_size(itemList);
 	int ignoreCount = 0;
 	if (ignore)
-		ignoreCount = dynList_size(itemList);
+		ignoreCount = dynList_size(ignore);
 
 	for (int j = 0; j < count; j++)
 	{
@@ -126,7 +126,7 @@ Item* getIntersectingItem(vec3 pos, Item** ignore)
 	int count = dynList_size(itemList);
 	int ignoreCount = 0;
 	if (ignore)
-		ignoreCount = dynList_size(itemList);
+		ignoreCount = dynList_size(ignore);
 
 	for (int j = 0; j < count; j++)
 	{

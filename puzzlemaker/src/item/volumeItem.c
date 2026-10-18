@@ -183,6 +183,9 @@ void volumeItemExport(Item* item)
 		char buf[20];
 		snprintf(buf, 20, "%s%d", item->def->name, item->index);
 		memcpy(ent->pos, item->pos, sizeof(vec3));
+    ent->rotation[0] = 0;
+    ent->rotation[1] = 1;
+    ent->rotation[2] = 2;
 		ent->name = strdup(buf);
 		ent->className = def->entity;
 		exportEntityAddBrush(ent, brush);

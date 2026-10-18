@@ -346,6 +346,7 @@ void itemPanelRender()
 				output->input = 0;
 				output->antline = -1;
 				output->inverted = 0;
+				output->onlyPrimary = 0;
 			}
 
 			ItemOutput* outputs = selection.item->outputs;

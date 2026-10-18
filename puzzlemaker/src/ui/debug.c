@@ -22,11 +22,8 @@ void drawTransform(vec3 pos, vec3 rot, mat4 transform)
 	if (update && transform)
 	{
 		mat4 trans;
-		vec3 pos2;
 		vec3 rot2;
 		glm_mat4_identity(trans);
-		memcpy(pos2, pos, sizeof(vec3));
-		memcpy(rot2, pos, sizeof(vec3));
 
 		mat4 rotMat;
 		rot2[0] = glm_rad(rot[0]);

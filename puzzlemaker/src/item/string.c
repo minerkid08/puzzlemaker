@@ -35,7 +35,7 @@ char* itemProcessString(const char* str, ItemKv* kvs)
 					if (t == TYPE_FLOAT)
 						k += strncatf(buf, 512, "%f", kv->value.f);
 					if (t == TYPE_BOOL)
-						k += strncatf(buf, 512, "%b", kv->value.b);
+						k += strncatf(buf, 512, "%d", kv->value.b);
 					if (t == TYPE_STRING)
 						k += strncatf(buf, 512, "%s", kv->value.s);
 					if (t == TYPE_BITFIELD)

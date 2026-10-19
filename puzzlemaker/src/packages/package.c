@@ -25,10 +25,10 @@ void loadPackageMetadata(Package* package)
 
 	jsonResetStack(buf);
 
-	package->baseName = jsonGetStr(json, "name");
-	package->author = jsonGetStr(json, "author");
-	package->description = jsonGetStr(json, "description");
-	package->version = jsonGetStr(json, "version");
+	package->baseName = jsonGetStrD(json, "name");
+	package->author = jsonGetStrD(json, "author");
+	package->description = jsonGetStrD(json, "description");
+	package->version = jsonGetStrD(json, "version");
 
   package->icon = -1;
 

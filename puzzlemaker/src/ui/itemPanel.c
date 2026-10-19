@@ -1,9 +1,7 @@
 #include "antline/antline.h"
-#include "cglm/cam.h"
 #include "cglm/vec3.h"
 #include "item/panel.h"
 #include "item/volumeItem.h"
-#include "utils.h"
 #include "voxel/voxel.h"
 #include <math.h>
 #include <stdbool.h>

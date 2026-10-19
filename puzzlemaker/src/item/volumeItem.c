@@ -79,7 +79,7 @@ void* loadVolumeItemDef(cJSON* item, ItemDefinition* itemDef)
 	}
 
 	if (cJSON_GetObjectItem(item, "entity"))
-		data->entity = jsonGetStr(item, "entity");
+		data->entity = jsonGetStrD(item, "entity");
 	else
 		data->entity = 0;
 

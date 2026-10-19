@@ -150,13 +150,10 @@ void* loadPanelItemDef(cJSON* item, ItemDefinition* itemDef)
 			Prop* prop = &data->props[index];
 
 			prop->model = jsonGetStr(propJson, "model");
-			char* meshName = jsonGetStr(propJson, "editorModel");
+			const char* meshName = jsonGetStr(propJson, "editorModel");
 			prop->mesh = assetManagerLoadMesh(meshName);
-			char* textureName = jsonGetStr(propJson, "editorTexture");
+			const char* textureName = jsonGetStr(propJson, "editorTexture");
 			prop->tex = assetManagerLoadTexture(textureName);
-
-			free(meshName);
-			free(textureName);
 
 			jsonGetTransform(propJson, "transform", prop->pos, prop->rot, prop->transform);
 			jsonGetTransform(propJson, "editorTransform", prop->editorPos, prop->editorRot, prop->editorTransform);
@@ -181,7 +178,7 @@ void* loadPanelItemDef(cJSON* item, ItemDefinition* itemDef)
 	data->exportThickness = jsonGetInt(item, "thickness");
 
 	if (cJSON_GetObjectItem(item, "entity"))
-		data->classname = jsonGetStr(item, "entity");
+		data->classname = jsonGetStrD(item, "entity");
 	else
 		data->classname = 0;
 

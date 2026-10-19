@@ -25,7 +25,7 @@ void* loadOverlayItemDef(cJSON* item, ItemDefinition* itemDef)
 	OverlayItemDef* def = malloc(sizeof(OverlayItemDef));
 	const char* textureName = jsonGetStr(item, "editorTexture");
 	def->texture = assetManagerLoadTexture(textureName);
-	def->exportTexture = jsonGetStr(item, "texture");
+	def->exportTexture = jsonGetStrD(item, "texture");
 	jsonGetVec2(item, "size", def->size);
 	return def;
 }

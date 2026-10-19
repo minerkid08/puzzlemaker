@@ -20,39 +20,34 @@ static __attribute__((constructor)) void init()
 
 static void loadVoxelConfig(Theme* theme, cJSON* json)
 {
-	theme->voxelCfg.nodraw = jsonGetStr(json, "nodraw");
-	theme->voxelCfg.backstage = jsonGetStr(json, "backstage");
+	theme->voxelCfg.nodraw = jsonGetStrD(json, "nodraw");
+	theme->voxelCfg.backstage = jsonGetStrD(json, "backstage");
 
-	theme->voxelCfg.blackFloor = jsonGetStr(json, "blackFloor");
-	theme->voxelCfg.blackWall = jsonGetStr(json, "blackWall");
-	theme->voxelCfg.blackCeiling = jsonGetStr(json, "blackCeiling");
-	theme->voxelCfg.whiteFloor = jsonGetStr(json, "whiteFloor");
-	theme->voxelCfg.whiteWall = jsonGetStr(json, "whiteWall");
-	theme->voxelCfg.whiteCeiling = jsonGetStr(json, "whiteCeiling");
+	theme->voxelCfg.blackFloor = jsonGetStrD(json, "blackFloor");
+	theme->voxelCfg.blackWall = jsonGetStrD(json, "blackWall");
+	theme->voxelCfg.blackCeiling = jsonGetStrD(json, "blackCeiling");
+	theme->voxelCfg.whiteFloor = jsonGetStrD(json, "whiteFloor");
+	theme->voxelCfg.whiteWall = jsonGetStrD(json, "whiteWall");
+	theme->voxelCfg.whiteCeiling = jsonGetStrD(json, "whiteCeiling");
 
-	theme->voxelCfg.blackFloorMini = jsonGetStr(json, "blackFloorMini");
-	theme->voxelCfg.blackWallMini = jsonGetStr(json, "blackWallMini");
-	theme->voxelCfg.blackCeilingMini = jsonGetStr(json, "blackCeilingMini");
-	theme->voxelCfg.whiteFloorMini = jsonGetStr(json, "whiteFloorMini");
-	theme->voxelCfg.whiteWallMini = jsonGetStr(json, "whiteWallMini");
-	theme->voxelCfg.whiteCeilingMini = jsonGetStr(json, "whiteCeilingMini");
+	theme->voxelCfg.blackFloorMini = jsonGetStrD(json, "blackFloorMini");
+	theme->voxelCfg.blackWallMini = jsonGetStrD(json, "blackWallMini");
+	theme->voxelCfg.blackCeilingMini = jsonGetStrD(json, "blackCeilingMini");
+	theme->voxelCfg.whiteFloorMini = jsonGetStrD(json, "whiteFloorMini");
+	theme->voxelCfg.whiteWallMini = jsonGetStrD(json, "whiteWallMini");
+	theme->voxelCfg.whiteCeilingMini = jsonGetStrD(json, "whiteCeilingMini");
 
-	char* blackEditor = jsonGetStr(json, "blackEditor");
+	const char* blackEditor = jsonGetStr(json, "blackEditor");
 	theme->voxelCfg.blackEditor = assetManagerLoadTexture(blackEditor);
 
-	char* whiteEditor = jsonGetStr(json, "whiteEditor");
+	const char* whiteEditor = jsonGetStr(json, "whiteEditor");
 	theme->voxelCfg.whiteEditor = assetManagerLoadTexture(whiteEditor);
 
-	char* blackMiniEditor = jsonGetStr(json, "blackMiniEditor");
+	const char* blackMiniEditor = jsonGetStr(json, "blackMiniEditor");
 	theme->voxelCfg.blackMiniEditor = assetManagerLoadTexture(blackMiniEditor);
 
-	char* whiteMiniEditor = jsonGetStr(json, "whiteMiniEditor");
+	const char* whiteMiniEditor = jsonGetStr(json, "whiteMiniEditor");
 	theme->voxelCfg.whiteMiniEditor = assetManagerLoadTexture(whiteMiniEditor);
-
-	free(blackEditor);
-	free(whiteEditor);
-	free(blackMiniEditor);
-	free(whiteMiniEditor);
 }
 
 void loadAntlineConfig(Theme* theme, cJSON* json)
@@ -60,29 +55,24 @@ void loadAntlineConfig(Theme* theme, cJSON* json)
 	theme->antlineCfg.dotSize = jsonGetInt(json, "dotSize");
 	theme->antlineCfg.checkSize = jsonGetInt(json, "checkSize");
 
-	theme->antlineCfg.antlineTex = jsonGetStr(json, "lineTex");
-	theme->antlineCfg.antlineCornerTex = jsonGetStr(json, "cornerTex");
-	theme->antlineCfg.antlineCheckTex = jsonGetStr(json, "checkTex");
+	theme->antlineCfg.antlineTex = jsonGetStrD(json, "lineTex");
+	theme->antlineCfg.antlineCornerTex = jsonGetStrD(json, "cornerTex");
+	theme->antlineCfg.antlineCheckTex = jsonGetStrD(json, "checkTex");
 
 	theme->antlineCfg.antlineWidth = jsonGetInt(json, "lineDotCountx");
 	theme->antlineCfg.antlineHeight = jsonGetInt(json, "lineDotCounty");
 	theme->antlineCfg.antlineCornerWidth = jsonGetInt(json, "cornerDotCountx");
 	theme->antlineCfg.antlineCornerHeight = jsonGetInt(json, "cornerDotCounty");
 
-	char* antlineTex = jsonGetStr(json, "editorAntlineTex");
+	const char* antlineTex = jsonGetStr(json, "editorAntlineTex");
 	theme->antlineCfg.editorAntlineTex = assetManagerLoadTexture(antlineTex);
-	char* antlineActiveTex = jsonGetStr(json, "editorAntlineActiveTex");
+	const char* antlineActiveTex = jsonGetStr(json, "editorAntlineActiveTex");
 	theme->antlineCfg.editorAntlineActiveTex = assetManagerLoadTexture(antlineActiveTex);
 
-	char* checkTex = jsonGetStr(json, "editorCheckTex");
+	const char* checkTex = jsonGetStr(json, "editorCheckTex");
 	theme->antlineCfg.editorCheckTex = assetManagerLoadTexture(checkTex);
-	char* checkActiveTex = jsonGetStr(json, "editorCheckActiveTex");
+	const char* checkActiveTex = jsonGetStr(json, "editorCheckActiveTex");
 	theme->antlineCfg.editorCheckActiveTex = assetManagerLoadTexture(checkActiveTex);
-
-	free(antlineTex);
-	free(antlineActiveTex);
-	free(checkTex);
-	free(checkActiveTex);
 
 	theme->antlineCfg.editorCheckSize = (float)theme->antlineCfg.checkSize / 128.0f;
 	theme->antlineCfg.editorDotSize = (float)theme->antlineCfg.dotSize / 128.0f;
@@ -98,7 +88,7 @@ void loadPostProcessingPresets(Theme* theme, cJSON* json)
 		cJSON* item = jsonArrGetObject(json, i);
 		PostProcessData* data = &theme->postProcessPresets[i];
 
-		data->name = jsonGetStr(item, "name");
+		data->name = jsonGetStrD(item, "name");
 
 		data->maxExposure = jsonGetFloat(item, "maxExposure");
 		data->minExposure = jsonGetFloat(item, "minExposure");

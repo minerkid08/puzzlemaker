@@ -5,6 +5,8 @@
 #include "item/item.h"
 #include "jsonUtils.h"
 #include "mapsettings.h"
+#include "packages/theme.h"
+#include "utils.h"
 #include "voxel/voxel.h"
 #include <stdio.h>
 #include <string.h>
@@ -67,7 +69,8 @@ void save()
 		cJSON* itemJson = cJSON_CreateObject();
 		cJSON_AddItemToArray(items, itemJson);
 		cJSON_AddNumberToObject(itemJson, "index", item->index);
-		cJSON_AddStringToObject(itemJson, "id", item->def->name);
+		cJSON_AddStringToObject(itemJson, "id", item->def->id);
+		cJSON_AddStringToObject(itemJson, "group", item->def->group);
 		cJSON_AddBoolToObject(itemJson, "hidden", item->hidden);
 
 		cJSON* pos = cJSON_CreateArray();
@@ -195,6 +198,7 @@ void save()
 
 	cJSON* settings = cJSON_CreateObject();
 	cJSON_AddItemToObject(json, "settings", settings);
+	cJSON_AddStringToObject(settings, "theme", currentTheme->name);
 	cJSON_AddNumberToObject(settings, "regen", mapSettings.regen);
 	cJSON_AddNumberToObject(settings, "boots", mapSettings.boots);
 	cJSON_AddNumberToObject(settings, "portalgun", mapSettings.portalGun);

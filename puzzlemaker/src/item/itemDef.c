@@ -83,15 +83,16 @@ void loadItemDefinitionFile(Package* package, const char* filename)
 		def->group = group;
 		def->package = package;
 
-		if (cJSON_GetObjectItem(item, "name") == 0)
-			errorf("item %d is missing name field\n", i);
+		if (cJSON_GetObjectItem(item, "id") == 0)
+			errorf("bad type for id field in item __%s__/items/%s: index %d, expected string\n", package->baseName, filename, j);
 
-		def->name = jsonGetStr(item, "name");
+		def->id = jsonGetStrD(item, "id");
+		def->name = jsonGetStrCD(item, "name", (char*)def->id);
 
-		printf("[item loader] loading item '%s'\n", def->name);
+		printf("[item loader] loading item '%s'\n", def->id);
 
 		char buf[256];
-		snprintf(buf, 256, "%s, __%s__/items/%s: index %d", def->name, package->baseName, filename, j++);
+		snprintf(buf, 256, "%s, __%s__/items/%s: index %d", def->id, package->baseName, filename, j++);
 		jsonResetStack(buf);
 
 		const char* type = jsonGetStr(item, "type");
@@ -122,7 +123,7 @@ void loadItemDefinitionFile(Package* package, const char* filename)
 		def->deleteIntersectingVoxelsEditor =
 			jsonGetBoolC(item, "deleteIntersectingVoxelsEditor", def->deleteIntersectingVoxels);
 		def->genMissingVoxels = jsonGetBoolC(item, "genMissingVoxels", 1);
-		def->exportScript = jsonGetStrC(item, "exportScript", 0);
+		def->exportScript = jsonGetStrCD(item, "exportScript", 0);
 		def->transparent = jsonGetBoolC(item, "transparent", 0);
 		def->requiresPaint = jsonGetBoolC(item, "requiresPaint", 0);
 
@@ -135,39 +136,36 @@ void loadItemDefinitionFile(Package* package, const char* filename)
 			cJSON* kv = jsonArrGetObject(keyValues, i);
 			ItemKvDef* kvDef = &def->kvs[i];
 
-			kvDef->name = jsonGetStr(kv, "kv");
-			if (cJSON_GetObjectItem(kv, "name"))
-				kvDef->displayName = jsonGetStr(kv, "name");
-			else
-				kvDef->displayName = kvDef->name;
+			kvDef->name = jsonGetStrD(kv, "kv");
+      kvDef->displayName = jsonGetStrCD(kv, "name", (char*)kvDef->name);
 
-			cJSON* type = cJSON_GetObjectItem(kv, "type");
-			if (strcmp(type->valuestring, "bool") == 0)
+			const char* type = jsonGetStr(kv, "type");
+			if (strcmp(type, "bool") == 0)
 			{
 				kvDef->type = TYPE_BOOL;
 				kvDef->defaultValue.b = jsonGetBool(kv, "defaultValue");
 			}
-			if (strcmp(type->valuestring, "float") == 0)
+			if (strcmp(type, "float") == 0)
 			{
 				kvDef->type = TYPE_FLOAT;
 				kvDef->defaultValue.f = jsonGetFloat(kv, "defaultValue");
 			}
-			if (strcmp(type->valuestring, "int") == 0)
+			if (strcmp(type, "int") == 0)
 			{
 				kvDef->type = TYPE_INT;
 				kvDef->defaultValue.i = jsonGetInt(kv, "defaultValue");
 			}
-			if (strcmp(type->valuestring, "string") == 0)
+			if (strcmp(type, "string") == 0)
 			{
 				kvDef->type = TYPE_STRING;
-				kvDef->defaultValue.s = jsonGetStr(kv, "defaultValue");
+				kvDef->defaultValue.s = jsonGetStrD(kv, "defaultValue");
 			}
-			if (strcmp(type->valuestring, "item") == 0)
+			if (strcmp(type, "item") == 0)
 			{
 				kvDef->type = TYPE_PICKER;
 				kvDef->defaultValue.i = -1;
 			}
-			if (strcmp(type->valuestring, "bitfield") == 0)
+			if (strcmp(type, "bitfield") == 0)
 			{
 				kvDef->type = TYPE_BITFIELD;
 				kvDef->defaultValue.i = jsonGetInt(kv, "defaultValue");
@@ -192,7 +190,7 @@ void loadItemDefinitionFile(Package* package, const char* filename)
 				}
 				jsonPop();
 			}
-			if (strcmp(type->valuestring, "drop-string") == 0)
+			if (strcmp(type, "drop-string") == 0)
 			{
 				kvDef->type = TYPE_STRING | TYPE_DROPDOWN;
 				kvDef->defaultValue.i = jsonGetInt(kv, "defaultValue");
@@ -216,7 +214,7 @@ void loadItemDefinitionFile(Package* package, const char* filename)
 				}
 				jsonPop();
 			}
-			if (strcmp(type->valuestring, "drop-int") == 0)
+			if (strcmp(type, "drop-int") == 0)
 			{
 				kvDef->type = TYPE_INT | TYPE_DROPDOWN;
 				kvDef->defaultValue.i = jsonGetInt(kv, "defaultValue");
@@ -264,11 +262,11 @@ void loadItemDefinitionFile(Package* package, const char* filename)
 				cJSON* input = jsonArrGetObject(inputs, i);
 				InputDef* inputDef = &def->inputs[i];
 
-				inputDef->name = jsonGetStr(input, "name");
-				inputDef->trueInput = jsonGetStr(input, "trueInput");
-				inputDef->falseInput = jsonGetStrC(input, "falseInput", 0);
-				inputDef->trueArg = jsonGetStrC(input, "trueArg", 0);
-				inputDef->falseArg = jsonGetStrC(input, "falseArg", 0);
+				inputDef->name = jsonGetStrD(input, "name");
+				inputDef->trueInput = jsonGetStrD(input, "trueInput");
+				inputDef->falseInput = jsonGetStrCD(input, "falseInput", 0);
+				inputDef->trueArg = jsonGetStrCD(input, "trueArg", 0);
+				inputDef->falseArg = jsonGetStrCD(input, "falseArg", 0);
 				jsonPop();
 			}
 			jsonPop();
@@ -286,9 +284,9 @@ void loadItemDefinitionFile(Package* package, const char* filename)
 				cJSON* output = jsonArrGetObject(outputs, i);
 				OutputDef* outputDef = &def->outputs[i];
 
-				outputDef->name = jsonGetStr(output, "name");
-				outputDef->trueOutput = jsonGetStr(output, "trueOutput");
-				outputDef->falseOutput = jsonGetStrC(output, "falseOutput", 0);
+				outputDef->name = jsonGetStrD(output, "name");
+				outputDef->trueOutput = jsonGetStrD(output, "trueOutput");
+				outputDef->falseOutput = jsonGetStrCD(output, "falseOutput", 0);
 				jsonPop();
 			}
 			jsonPop();
@@ -317,7 +315,7 @@ void loadItemDefinitionFile(Package* package, const char* filename)
 			jsonPop();
 		}
 
-		char* snapMode = jsonGetStrC(item, "snapMode", 0);
+		const char* snapMode = jsonGetStrC(item, "snapMode", 0);
 		def->snapMode = SNAP_CORNER;
 		if (snapMode)
 		{
@@ -329,7 +327,6 @@ void loadItemDefinitionFile(Package* package, const char* filename)
 				def->snapMode = SNAP_MINI_CORNER;
 			if (strcmp(snapMode, "mini-center") == 0)
 				def->snapMode = SNAP_MINI_CENTER;
-			free(snapMode);
 		}
 	}
 

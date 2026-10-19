@@ -29,8 +29,8 @@ void* loadEntityItemDef(cJSON* item, ItemDefinition* itemDef)
 {
 	itemDef->callbacks = &callbacks;
 	EntityItemDef* def = malloc(sizeof(EntityItemDef));
-	const char* modelName = cJSON_GetObjectItem(item, "model")->valuestring;
-	const char* textureName = cJSON_GetObjectItem(item, "mat")->valuestring;
+	const char* modelName = jsonGetStr(item, "model");
+	const char* textureName = jsonGetStr(item, "mat");
 
 	vec3 bound1;
 	vec3 bound2;
@@ -51,12 +51,12 @@ void* loadEntityItemDef(cJSON* item, ItemDefinition* itemDef)
 	if (cJSON_HasObjectItem(item, "instance"))
 	{
 		def->entityName = 0;
-		def->instanceName = jsonGetStr(item, "instance");
+		def->instanceName = jsonGetStrD(item, "instance");
 	}
 	else
 	{
 		def->instanceName = 0;
-		def->entityName = jsonGetStr(item, "entity");
+		def->entityName = jsonGetStrD(item, "entity");
 	}
 
 	def->mesh = assetManagerLoadMesh(modelName);

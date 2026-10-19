@@ -196,7 +196,7 @@ void jsonPop()
 	dynList_resize((void**)&jsonStack, len - 1);
 }
 
-char* jsonGetStr(const cJSON* json, const char* name)
+const char* jsonGetStr(const cJSON* json, const char* name)
 {
 	cJSON* j = cJSON_GetObjectItem(json, name);
 	if (j == 0)
@@ -204,11 +204,18 @@ char* jsonGetStr(const cJSON* json, const char* name)
 	if (!cJSON_IsString(j))
 		jsonError("wrong type for key '%s', expected string\n", name);
 
-	int len = strlen(j->valuestring);
+	return j->valuestring;
+}
 
-	char* buf = malloc(len + 1);
-	strcpy(buf, j->valuestring);
-	return buf;
+char* jsonGetStrD(const cJSON* json, const char* name)
+{
+	cJSON* j = cJSON_GetObjectItem(json, name);
+	if (j == 0)
+		jsonError("unknown key '%s'\n", name);
+	if (!cJSON_IsString(j))
+		jsonError("wrong type for key '%s', expected string\n", name);
+
+	return strdup(j->valuestring);
 }
 
 char jsonGetBool(const cJSON* json, const char* name)
@@ -281,8 +288,8 @@ void jsonGetTex(const cJSON* json, const char* name, Texture* out)
 	dynList_resize((void**)&jsonStack, len + 1);
 	jsonStack[len] = strdup(name);
 
-	out->filename = jsonGetStr(tex, "filename");
-	char* alignment = jsonGetStrC(tex, "alignment", 0);
+	out->filename = jsonGetStrD(tex, "filename");
+	const char* alignment = jsonGetStrC(tex, "alignment", 0);
 	if (alignment)
 	{
 		if (strcmp(alignment, "none") == 0)
@@ -291,8 +298,6 @@ void jsonGetTex(const cJSON* json, const char* name, Texture* out)
 			out->alignment = TEX_ALIGNMENT_FIT;
 		else
 			jsonError("invalid alignment mode\n");
-
-		free(alignment);
 	}
 	out->size = jsonGetFloatC(tex, "size", 512);
 	jsonPop();
@@ -318,8 +323,7 @@ void jsonGetEditorTex(const cJSON* json, const char* name, Texture* out)
 
 	out->filename = jsonGetStr(tex, "filename");
 	out->tex = assetManagerLoadTexture(out->filename);
-	free((char*)out->filename);
-	char* alignment = jsonGetStrC(tex, "alignment", 0);
+	const char* alignment = jsonGetStrC(tex, "alignment", 0);
 	if (alignment)
 	{
 		if (strcmp(alignment, "none") == 0)
@@ -328,8 +332,6 @@ void jsonGetEditorTex(const cJSON* json, const char* name, Texture* out)
 			out->alignment = TEX_ALIGNMENT_FIT;
 		else
 			jsonError("invalid alignment mode\n");
-
-		free(alignment);
 	}
 	out->size = jsonGetFloatC(tex, "size", 1);
 	jsonPop();
@@ -369,7 +371,7 @@ void jsonGetTransform(const cJSON* json, const char* name, vec3 pos, vec3 rot, m
 	}
 }
 
-char* jsonGetStrC(const cJSON* json, const char* name, char* def)
+const char* jsonGetStrC(const cJSON* json, const char* name, char* def)
 {
 	cJSON* j = cJSON_GetObjectItem(json, name);
 	if (j == 0)
@@ -377,11 +379,18 @@ char* jsonGetStrC(const cJSON* json, const char* name, char* def)
 	if (!cJSON_IsString(j))
 		jsonError("wrong type for key '%s', expected string\n", name);
 
-	int len = strlen(j->valuestring);
+	return j->valuestring;
+}
 
-	char* buf = malloc(len + 1);
-	strcpy(buf, j->valuestring);
-	return buf;
+char* jsonGetStrCD(const cJSON* json, const char* name, char* def)
+{
+	cJSON* j = cJSON_GetObjectItem(json, name);
+	if (j == 0)
+		return def;
+	if (!cJSON_IsString(j))
+		jsonError("wrong type for key '%s', expected string\n", name);
+
+	return strdup(j->valuestring);
 }
 
 char jsonGetBoolC(const cJSON* json, const char* name, char def)

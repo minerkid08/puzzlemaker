@@ -25,24 +25,24 @@ void loadPackageList()
 	int dirCount = dynList_size(dirs);
 	int fileCount = dynList_size(files);
 
-  int packageCount = dirCount + fileCount;
+	int packageCount = dirCount + fileCount;
 
 	for (int i = 0; i < fileCount; i++)
 	{
 		char buf[64];
 		strncpy(buf, files[i], 64);
-    int l = strlen(buf);
-    l -= 4;
-    buf[l] = 0;
+		int l = strlen(buf);
+		l -= 4;
+		buf[l] = 0;
 
 		for (int j = 0; j < dirCount; j++)
 		{
-      if(strcmp(buf, dirs[j]) == 0)
-      {
-        files[i][0] = 0;
-        packageCount--;
-        break;
-      }
+			if (strcmp(buf, dirs[j]) == 0)
+			{
+				files[i][0] = 0;
+				packageCount--;
+				break;
+			}
 		}
 	}
 
@@ -58,12 +58,12 @@ void loadPackageList()
 	}
 	dynList_free(dirs);
 
-  int j = 0;
+	int j = 0;
 	for (int i = 0; i < fileCount; i++)
 	{
 		const char* name = files[i];
-    if(name[0] == 0)
-      continue;
+		if (name[0] == 0)
+			continue;
 		Package* package = &packageList[dirCount + j++];
 		package->name = name;
 		package->enabled = 1;
@@ -116,6 +116,8 @@ void loadPackageList()
 		Package* package = &packageList[i];
 		if (package->enabled)
 			loadPackage(package);
+		else
+			zip_close(package->zip);
 	}
 
 	if (dynList_size(themeList) == 0)

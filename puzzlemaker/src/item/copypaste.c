@@ -6,12 +6,14 @@
 #include <string.h>
 
 extern GLFWwindow* window;
+extern ItemGroup* groups;
 
 void copyItem(Item* item)
 {
 	ItemDefinition* def = item->def;
 	cJSON* json = cJSON_CreateObject();
-	cJSON_AddStringToObject(json, "name", def->name);
+	cJSON_AddStringToObject(json, "id", def->id);
+	cJSON_AddStringToObject(json, "group", def->group);
 
 	cJSON* kvList = cJSON_CreateObject();
 	cJSON_AddItemToObject(json, "kv", kvList);
@@ -67,8 +69,29 @@ Item* pasteItem()
 	}
 	jsonResetStack("paste");
 
-	char* defName = jsonGetStr(json, "name");
-	Item* item = addItemFromDefName(defName, 0);
+	char* defId = jsonGetStr(json, "id");
+	char* defGroup = jsonGetStr(json, "group");
+	ItemDefinition* defs = getItemDefinitions();
+	Item* item = 0;
+
+	for (int i = 0; i < dynList_size(groups); i++)
+	{
+		ItemGroup* group = &groups[i];
+		if (strcmp(group->name, defGroup))
+			continue;
+		for (int j = 0; j < group->size; j++)
+		{
+			if (strcmp(defs[j + group->startInd].id, defId) == 0)
+			{
+				item = addItem(j + group->startInd, 0);
+				break;
+			}
+		}
+		if (item)
+			break;
+	}
+  free(defId);
+  free(defGroup);
 	if (item == 0)
 	{
 		jsonError("invalid item name\n");

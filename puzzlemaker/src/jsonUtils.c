@@ -366,7 +366,7 @@ void jsonGetTransform(const cJSON* json, const char* name, vec3 pos, vec3 rot, m
 		r2[1] = glm_rad(rot[1]);
 		r2[2] = glm_rad(rot[2]);
 		glm_translate(mat, pos);
-		glm_euler_yzx(r2, rotMat);
+		glm_euler_yxz(r2, rotMat);
 		glm_mat4_mul(mat, rotMat, mat);
 	}
 }

@@ -1,8 +1,8 @@
 #include "export/entity.h"
 #include "dynList.h"
 #include "export/brush.h"
-#include "item/item.h"
 #include "export/exportUtils.h"
+#include "item/item.h"
 #include "utils.h"
 #include <stdio.h>
 #include <string.h>
@@ -55,41 +55,41 @@ void exportEntityAddKv(Entity* ent, ItemKv* kv)
 	{
 		int type = def->type & ~(TYPE_INSTANCE);
 		if (type == TYPE_INT)
-			buf = strdupf("\"replace%d\" \"$%s %d\"", len, def->name, kv->value.i);
+			buf = strdupf("\"replace%02d\" \"$%s %d\"", len, def->name, kv->value.i);
 		if (type == TYPE_BOOL)
-			buf = strdupf("\"replace%d\" \"$%s %d\"", len, def->name, (int)kv->value.b);
+			buf = strdupf("\"replace%02d\" \"$%s %d\"", len, def->name, (int)kv->value.b);
 		if (type == TYPE_FLOAT)
-			buf = strdupf("\"replace%d\" \"$%s %.2f\"", len, def->name, kv->value.f);
+			buf = strdupf("\"replace%02d\" \"$%s %.2f\"", len, def->name, kv->value.f);
 		if (type == TYPE_STRING)
-			buf = strdupf("\"replace%d\" \"$%s %s\"", len, def->name, kv->value.s);
+			buf = strdupf("\"replace%02d\" \"$%s %s\"", len, def->name, kv->value.s);
 		if (type == TYPE_BITFIELD)
 		{
 			int value = 0;
-			int len = dynList_size(kv->def->dropNames);
-			for (int j = 0; j < len; j++)
+			int optionCount = dynList_size(kv->def->dropNames);
+			for (int j = 0; j < optionCount; j++)
 			{
 				if (kv->value.s[j])
 					value |= 1 << kv->def->dropValues[j].i;
 			}
-			buf = strdupf("\"replace%d\" \"$%s %d\"", len, def->name, value);
+			buf = strdupf("\"replace%02d\" \"$%s %d\"", len, def->name, value);
 		}
 		if (type == TYPE_PICKER)
 		{
 			if (kv->value.i == -1)
-				buf = strdupf("\"replace%d\" \"$%s (none)\"", len, def->name);
+				buf = strdupf("\"replace%02d\" \"$%s (none)\"", len, def->name);
 			else
 			{
 				Item* target = getItem(kv->value.i);
-				buf = strdupf("\"replace%d\" \"$%s %s%d\"", len, def->name, target->def->name, target->index);
+				buf = strdupf("\"replace%02d\" \"$%s %s%d\"", len, def->name, target->def->name, target->index);
 			}
 		}
 		if (type & TYPE_DROPDOWN)
 		{
 			type &= ~(TYPE_DROPDOWN);
 			if (type == TYPE_STRING)
-				buf = strdupf("\"replace%d\" \"$%s %s\"", len, def->name, kv->def->dropValues[kv->value.i].s);
+				buf = strdupf("\"replace%02d\" \"$%s %s\"", len, def->name, kv->def->dropValues[kv->value.i].s);
 			if (type == TYPE_INT)
-				buf = strdupf("\"replace%d\" \"$%s %d\"", len, def->name, kv->def->dropValues[kv->value.i].i);
+				buf = strdupf("\"replace%02d\" \"$%s %d\"", len, def->name, kv->def->dropValues[kv->value.i].i);
 		}
 	}
 	else
@@ -344,14 +344,15 @@ void exportEndEntities(FILE* file)
 	{
 		Entity* entity = &entities[i];
 
-    transformPos(entity->pos);
+		transformPos(entity->pos);
 
 		fprintf(file, "entity\n{\n");
 
 		fprintf(file, "  \"id\" \"%d\"\n", i + 1);
 		fprintf(file, "  \"classname\" \"%s\"\n", entity->className);
 		fprintf(file, "  \"origin\" \"%f %f %f\"\n", entity->pos[0], entity->pos[1], entity->pos[2]);
-		fprintf(file, "  \"angles\" \"%f %f %f\"\n", entity->rotation[0], entity->rotation[1], entity->rotation[2]);
+		if (entity->brushes == 0)
+			fprintf(file, "  \"angles\" \"%f %f %f\"\n", entity->rotation[0], entity->rotation[1], entity->rotation[2]);
 		fprintf(file, "  \"targetname\" \"%s\"\n", entity->name);
 
 		free((char*)entity->name);

@@ -119,7 +119,7 @@ Item* pasteItem()
 			{
 				kv->value.i = jsonGetInt(kvJson, def->name);
 				Item* itemList = getItemList();
-				if (dynList_size(itemList) >= kv->value.i)
+				if (dynList_size(itemList) <= kv->value.i)
 					kv->value.i = -1;
 				else if (!isItemValid(getItem(kv->value.i)))
 					kv->value.i = -1;

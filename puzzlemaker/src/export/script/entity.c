@@ -11,11 +11,11 @@
 #include <stdio.h>
 #include <string.h>
 
-// Entity.new(string name, string className, vec3 pos, vec3 rot);
+// Entity.new(string name, string className, vec3 pos, vec3 rot): Entity;
 static int entityNew(lua_State* l);
-// Entity.newGlobal(string name, string className, vec3 pos, vec3 rot);
+// Entity.newGlobal(string name, string className, vec3 pos, vec3 rot): Entity;
 static int entityNewGlobal(lua_State* l);
-// Entity.getGlobal(string name);
+// Entity.getGlobal(string name): Entity;
 static int entityGetGlobal(lua_State* l);
 // Entity:setPosition(vec3 pos);
 static int entitySetPosition(lua_State* l);

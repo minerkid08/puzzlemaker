@@ -6,7 +6,6 @@
 #include "renderer/texture.h"
 #include <GL/gl.h>
 #include <math.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -30,11 +29,18 @@ static Vertex* vertBase;
 static int vertCount = 0;
 static int quadCount = 0;
 
+static int renderPass = 0;
+
 #define NUM_QUADS 64
 #define NUM_VERTS NUM_QUADS * 4
 
 static mat4 camMat;
 static mat4 projMat;
+
+void setRenderPass(int i)
+{
+	renderPass = i;
+}
 
 mat4* getProjMat()
 {
@@ -403,6 +409,7 @@ void panelEndFrame(mat4 transform, char backfaceCull, char depthTest)
 	setUniformMat4(panelShader, "cam", camMat);
 	setUniformMat4(panelShader, "mat", projMat);
 	setUniformMat4(panelShader, "transform", transform);
+	setUniformi(panelShader, "pass", renderPass);
 
 	glDrawElements(GL_TRIANGLES, quadCount * 6, GL_UNSIGNED_INT, 0);
 	glEnable(GL_CULL_FACE);
@@ -425,6 +432,7 @@ void drawMesh(Mesh* mesh, unsigned int texture, mat4 transform)
 	setUniformMat4(mesh->shader, "cam", camMat);
 	setUniformMat4(mesh->shader, "mat", projMat);
 	setUniformMat4(mesh->shader, "trans", transform);
+	setUniformi(mesh->shader, "pass", renderPass);
 
 	glDrawElements(GL_TRIANGLES, mesh->vertCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);

@@ -44,7 +44,7 @@ void* fileOpen(const char* path, void* user_data)
 		size = stat.size;
 		zip_file_t* file = zip_fopen(p->zip, path, 0);
 		if (file == 0)
-			errorf("failed to open %s\n", path);
+			errorf("failed to open %s", path);
 		return file;
 	}
 }
@@ -101,7 +101,7 @@ void loadMesh(Package* package, const char* filename, Mesh* mesh)
 
 	fastObjMesh* m = fast_obj_read_with_callbacks(buf, &callbacks, 0);
 	if (m == 0)
-		errorf("failed to load mesh '%s'\n", buf);
+		errorf("failed to load mesh '%s'", buf);
 	free(buf);
 
 	Vertex* vertices = malloc(sizeof(Vertex) * m->index_count);

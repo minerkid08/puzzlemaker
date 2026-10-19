@@ -1,3 +1,4 @@
+#include "error.h"
 #include "dynList.h"
 #include "setjmp.h"
 #include "utils.h"
@@ -6,7 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-static jmp_buf jmpPoint;
+jmp_buf jmpPoint;
+static char jmpActive = 0;
 
 static const char** stackTrace;
 static const char* error = 0;
@@ -16,22 +18,14 @@ static __attribute__((constructor)) void init()
 	stackTrace = dynList_new(0, sizeof(const char*));
 }
 
-char initErrorStack(const char* initalFrame, void(*func)())
+void _initErrorStack(const char* initalFrame)
 {
 	int len = dynList_size(stackTrace);
 	for (int i = 0; i < len; i++)
 		free((char*)stackTrace[i]);
 	dynList_resize((void**)&stackTrace, 1);
-	stackTrace[0] = strdup(initalFrame);
-
-	int res = setjmp(jmpPoint);
-  if(res == 0)
-  {
-    func();
-    return 0;
-  }
-  else
-    return 1;
+	stackTrace[0] = initalFrame;
+	jmpActive = 1;
 }
 
 void pushStackFrame(const char* name)
@@ -52,35 +46,48 @@ void errorf(const char* fmt, ...)
 {
 	va_list va;
 	va_start(va, fmt);
-  error = vstrdupf(fmt, va);
-  longjmp(jmpPoint, 1);
-}
-
-void errorf2(const char* fmt, ...)
-{
-	va_list va;
-	va_start(va, fmt);
-  error = vstrdupf(fmt, va);
+	error = vstrdupf(fmt, va);
+	printf("error: %s\n", error);
+	int len = dynList_size(stackTrace);
+	for (int i = 0; i < len; i++)
+		printf("in %s\n", stackTrace[i]);
+	if (jmpActive)
+	{
+		jmpActive = 0;
+		longjmp(jmpPoint, 1);
+	}
+	else
+		openErrorPopup();
 }
 
 const char* getError()
 {
-  return error;
+	return error;
 }
 
 void setError(const char* err)
 {
-  error = strdup(err);
+	error = strdup(err);
 }
 
 const char** getStackTrace()
 {
-  return stackTrace;
+	return stackTrace;
 }
 
 void clearError()
 {
-  if(error)
-    free((char*)error);
-  error = 0;
+	if (error)
+		free((char*)error);
+	error = 0;
+	jmpActive = 0;
+}
+
+void endStackTrace()
+{
+	jmpActive = 0;
+	int len = dynList_size(stackTrace);
+	for (int i = 0; i < len; i++)
+		free((char*)stackTrace[i]);
+	dynList_resize((void**)&stackTrace, 0);
 }

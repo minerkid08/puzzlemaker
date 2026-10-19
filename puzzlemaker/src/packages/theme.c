@@ -110,14 +110,20 @@ void loadPostProcessingPresets(Theme* theme, cJSON* json)
 		popStackFrame();
 	}
 	if (arrSize == 0)
-		errorf("no post processing presets set\n");
+		errorf("no post processing presets set");
 }
 
-char path[64];
-const char* filename;
-
-void loadThemeFile()
+void loadTheme(const char* filename)
 {
+	char path[64];
+	printf("[package loader] loading theme %s\n", filename);
+	snprintf(path, 64, "themes/%s", filename);
+
+	int res = 0;
+	initErrorStack(strdupf("__%s__/themes/%s", currentPackage->name, filename), res);
+	if(res)
+		startErrorLoop();
+
 	int dataSize;
 	char* data = readPackageFile(currentPackage, path, &dataSize);
 	data[dataSize] = 0;
@@ -154,14 +160,4 @@ void setTheme(Theme* theme)
 	currentTheme = theme;
 	voxelConfig = &theme->voxelCfg;
 	antlineConfig = &theme->antlineCfg;
-}
-
-void loadTheme(const char* f)
-{
-  filename = f;
-	printf("[package loader] loading theme %s\n", filename);
-	snprintf(path, 64, "themes/%s", filename);
-
-	if (initErrorStack(path, loadThemeFile))
-		startErrorLoop();
 }

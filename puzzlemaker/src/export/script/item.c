@@ -1,4 +1,5 @@
 #include "item/item.h"
+#include "error.h"
 #include "dynList.h"
 #include "export/script/api.h"
 #include "item/panel.h"
@@ -10,14 +11,24 @@
 static Item* item;
 static char itemName[50];
 
+// Item.getPosition(): vec3;
 static int itemGetPosition(lua_State* l);
+// Item.getRotation(): vec3;
 static int itemGetRotation(lua_State* l);
+// Item.getName(): vec3;
 static int itemGetName(lua_State* l);
+// Item.getType(): vec3;
 static int itemGetType(lua_State* l);
+// Item.getKv(string name): (number|boolena|string), (number|string)?
 static int itemGetKv(lua_State* l);
 
+// Item.getSize(): (vec2|vec3);
 static int itemGetSize(lua_State* l);
+// Item.getTile(): vec2;
 static int itemGetTile(lua_State* l);
+
+// Item.instanceStr(string instance): string;
+static int itemInstanceStr(lua_State* l);
 
 void addItemApi(lua_State* l, Item* i)
 {
@@ -33,6 +44,9 @@ void addItemApi(lua_State* l, Item* i)
 	lua_setfield(l, -2, "getType");
 	lua_pushcfunction(l, itemGetKv);
 	lua_setfield(l, -2, "getKv");
+
+	lua_pushcfunction(l, itemInstanceStr);
+	lua_setfield(l, -2, "instanceStr");
 
 	if (item->def->type != ITEM_TYPE_ENTITY)
 	{
@@ -156,4 +170,23 @@ int itemGetTile(lua_State* l)
 	}
 	luaL_error(l, "getTile() must be called on panel item");
 	return 0;
+}
+
+int itemInstanceStr(lua_State* l)
+{
+	if (lua_type(l, 1) != LUA_TSTRING)
+		luaL_error(l, "bad arg 1, expected string");
+
+	const char* s = lua_tostring(l, 1);
+
+	int offset = 0;
+	int res = 0;
+	initErrorStack("instanceStr", res);
+	if(res)
+		luaL_error(l, getError()); 
+
+	Package* package = processPackageString(item->def->package, s, &offset);
+	lua_pushfstring(l, "pmInstances/%s/%s", package->name, s + offset);
+
+	return 1;
 }

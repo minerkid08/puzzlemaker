@@ -9,44 +9,42 @@
 
 Package* currentPackage;
 
-static char* buf2;
 
-void loadPackageMetadataInt()
+void loadPackageMetadata(Package* package)
 {
+	char buf[64];
+	snprintf(buf, 64, "__%s__/package.json", package->name);
+	int res;
+	initErrorStackD(buf, res);
+	if(res)
+    startErrorLoop();
+
 	int len;
-	char* data = readPackageFile(currentPackage, "package.json", &len);
+	char* data = readPackageFile(package, "package.json", &len);
 	data[len] = 0;
 
 	cJSON* json = cJSON_Parse(data);
 	const char* err = cJSON_GetErrorPtr();
 	if (err)
-		jsonParseError(data, err, buf2);
+		jsonParseError(data, err, buf);
 	free(data);
 
-	currentPackage->baseName = jsonGetStrD(json, "name");
-	currentPackage->author = jsonGetStrD(json, "author");
-	currentPackage->description = jsonGetStrD(json, "description");
-	currentPackage->version = jsonGetStrD(json, "version");
+	package->baseName = jsonGetStrD(json, "name");
+	package->author = jsonGetStrD(json, "author");
+	package->description = jsonGetStrD(json, "description");
+	package->version = jsonGetStrD(json, "version");
 
-  currentPackage->icon = -1;
+  package->icon = -1;
+
+	currentPackage = package;
 
   const char* filename = jsonGetStrC(json, "icon", 0);
   if(filename)
-    currentPackage->icon = assetManagerLoadTexture(filename);
+    package->icon = assetManagerLoadTexture(filename);
   else
-    currentPackage->icon = assetManagerLoadTexture("__base__/laser.png");
+    package->icon = assetManagerLoadTexture("__base__/laser.png");
 
 	cJSON_Delete(json);
-}
-
-void loadPackageMetadata(Package* package)
-{
-	char buf[64];
-  buf2 = buf;
-	snprintf(buf, 64, "__%s__/package.json", package->name);
-  currentPackage = package;
-	if(initErrorStack(buf, loadPackageMetadataInt))
-    startErrorLoop();
 }
 
 void loadPackage(Package* package)

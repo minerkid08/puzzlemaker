@@ -1,5 +1,6 @@
 #include "cjson.h"
 #include "compileThread.h"
+#include "error.h"
 #include "jsonUtils.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,7 +10,14 @@ extern CompileStatus compileStatus;
 
 void loadTaskList()
 {
+	int res;
+	initErrorStackD("compileSteps.json", res);
+	if (res)
+		startErrorLoop();
+
 	FILE* file = fopen("compileSteps.json", "rb");
+	if (file == 0)
+		errorf("file not found");
 
 	fseek(file, 0, SEEK_END);
 	unsigned long long len = ftell(file);
@@ -21,20 +29,27 @@ void loadTaskList()
 	data[len] = 0;
 
 	cJSON* json = cJSON_Parse(data);
+	if (json == 0)
+		jsonParseError(data, cJSON_GetErrorPtr(), "compileSteps.json");
+
 	free(data);
-	cJSON* steps = cJSON_GetObjectItem(json, "steps");
+	cJSON* steps = jsonGetArray(json, "steps");
 
 	compileStatus.stepCount = cJSON_GetArraySize(steps);
 	compileStatus.compileSteps = malloc(sizeof(CompileStep) * (compileStatus.stepCount + 2));
 	for (int i = 0; i < compileStatus.stepCount; i++)
 	{
-		cJSON* item = cJSON_GetArrayItem(steps, i);
+		cJSON* item = jsonArrGetObject(steps, i);
 		CompileStep* step = &compileStatus.compileSteps[i + 1];
-		step->name = jsonGetStr(item, "name");
-		step->cmd = jsonGetStr(item, "cmd");
+		step->name = jsonGetStrD(item, "name");
+		step->cmd = jsonGetStrD(item, "cmd");
+		popStackFrame();
 	}
-	compileStatus.p2ce = jsonGetStr(json, "p2ce");
-	compileStatus.bin = jsonGetStr(json, "bin");
+	popStackFrame();
+
+	compileStatus.p2ce = jsonGetStrD(json, "p2ce");
+	compileStatus.maps= jsonGetStrD(json, "maps");
+	compileStatus.bin = jsonGetStrD(json, "bin");
 
 	compileStatus.stepCount++;
 	CompileStep* step = &compileStatus.compileSteps[compileStatus.stepCount];
@@ -43,7 +58,7 @@ void loadTaskList()
 	step = &compileStatus.compileSteps[0];
 	step->name = "generate vmf";
 
-	cJSON_free(json);
+	cJSON_Delete(json);
 
 	int j = 0;
 	for (int i = 0; i < strlen(compileStatus.p2ce); i++)
@@ -54,4 +69,6 @@ void loadTaskList()
 		j++;
 	}
 	compileStatus.workingDir[j] = 0;
+
+	endStackTrace();
 }

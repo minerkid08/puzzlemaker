@@ -59,18 +59,25 @@ void copyItem(Item* item)
 	cJSON_Delete(json);
 }
 
-Item* item;
-
-static void pasteInt()
+Item* pasteItem()
 {
+	cJSON* json = 0;
+	int res;
+	initErrorStackD("paste", res);
+	if (res)
+	{
+		if(json)
+			cJSON_Delete(json);
+		openErrorPopup();
+		return 0;
+	}
+
 	const char* data = glfwGetClipboardString(window);
-	cJSON* json = cJSON_Parse(data);
+	json = cJSON_Parse(data);
 	if (json == 0)
 	{
 		const char* err = cJSON_GetErrorPtr();
 		jsonParseError(data, err, "paste");
-		openErrorPopup();
-		return;
 	}
 
 	const char* defId = jsonGetStr(json, "id");
@@ -95,7 +102,7 @@ static void pasteInt()
 			break;
 	}
 	if (item == 0)
-		errorf("invalid item name\n");
+		errorf("invalid item name");
 
 	cJSON* kvJson = jsonGetObject(json, "kv");
 	int len = dynList_size(item->def->kvs);
@@ -153,11 +160,6 @@ static void pasteInt()
 	}
 	popStackFrame();
 	item->def->callbacks->load(item, json);
-}
 
-Item* pasteItem()
-{
-	if (initErrorStack("paste", pasteInt))
-		openErrorPopup();
 	return item;
 }

@@ -1,6 +1,7 @@
 #version 330 core
 
 uniform sampler2D textures[10];
+uniform int pass;
 
 in vec2 iuv;
 flat in int imat;
@@ -21,5 +22,15 @@ void main()
 		case 7:  color = texture(textures[7],  iuv); break;
 		case 8:  color = texture(textures[8],  iuv); break;
 		case 9:  color = texture(textures[9],  iuv); break;
+	}
+	if(pass == 0)
+	{
+		if(color.a != 1)
+			discard;
+	}
+	else
+	{
+		if(color.a == 1)
+			discard;
 	}
 }

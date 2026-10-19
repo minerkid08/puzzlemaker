@@ -8,6 +8,7 @@
 #include "export/entity.h"
 #include "item/item.h"
 #include "jsonUtils.h"
+#include "packages/package.h"
 #include "renderer/renderer.h"
 #include "utils.h"
 #include <math.h>
@@ -134,8 +135,12 @@ void entityItemExport(Item* item)
 	{
 		entity->className = "func_instance";
     char* instanceName = itemProcessString(defData->instanceName, item->kv);
-		exportEntityAddKvss(entity, "file", instanceName);
+		int offset = 0;
+		Package* package = processPackageString(item->def->package, instanceName, &offset);
+		char* n = strdupf("pmInstances/%s/%s", package->name, instanceName + offset);
+		exportEntityAddKvss(entity, "file", n);
     free(instanceName);
+    free(n);
 	}
 	else
 		entity->className = defData->entityName;

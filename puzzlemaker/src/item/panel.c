@@ -97,7 +97,7 @@ void* loadPanelItemDef(cJSON* item, ItemDefinition* itemDef)
 			else if (strcmp(id, "bottom-right") == 0)
 				index = PANEL_ITEM_ID_BOTTOM_RIGHT;
 			else
-				errorf("bad id '%s'\n", id);
+				errorf("bad id '%s'", id);
 
 			PanelItemDef* item = &data->items[index];
 			jsonGetEditorTex(border, "editorTexture", &item->editorTexture);
@@ -146,7 +146,7 @@ void* loadPanelItemDef(cJSON* item, ItemDefinition* itemDef)
 			else if (strcmp(id, "bottom-right") == 0)
 				index = PANEL_ITEM_ID_BOTTOM_RIGHT;
 			else
-				errorf("bad id '%s'\n", id);
+				errorf("bad id '%s'", id);
 
 			Prop* prop = &data->props[index];
 

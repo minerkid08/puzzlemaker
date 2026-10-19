@@ -12,7 +12,7 @@
 static int handleError(lua_State* l)
 {
 	lua_pushvalue(l, 1);
-	lua_pushstring(l, "\n");
+	lua_pushstring(l, "\n\n");
 	luaL_traceback(l, l, 0, 1);
 	lua_concat(l, 3);
 	return 1;
@@ -131,7 +131,7 @@ int runExportScript(Item* item2)
 	Package* package = processPackageString(item->def->package, buf, &offset);
 	void* data = readPackageFile(package, buf, &fileLen);
 
-	char* buf2 = strdupf("@__%s__/%s", package->baseName, buf + offset);
+	char* buf2 = strdupf("@__%s__/%s", package->name, buf + offset);
 	writeMessagef("running script '%s' on item %s %d\n", buf2 + 1, item->def->name, item->index);
 
 	if (luaL_loadbuffer(l, data, fileLen, buf2))

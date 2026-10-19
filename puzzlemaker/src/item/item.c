@@ -5,9 +5,11 @@
 #include "jsonUtils.h"
 #include "raycast.h"
 #include "renderer/debug.h"
+#include "renderer/renderer.h"
 #include "selection.h"
 #include "utils.h"
 
+#include <glad/glad.h>
 #include <cjson.h>
 #include <dynList.h>
 #include <string.h>
@@ -32,13 +34,13 @@ void drawItems()
 			continue;
 		if (item->highlighted)
 			highlightedItem = item;
-		if (item->def->transparent)
-			continue;
 		if (item->hidden)
 			continue;
 		item->def->callbacks->render(item);
 	}
 
+	setRenderPass(1);
+	glDepthMask(GL_FALSE);
 	for (int i = 0; i < len; i++)
 	{
 		Item* item = &itemList[i];
@@ -50,6 +52,8 @@ void drawItems()
 			continue;
 		item->def->callbacks->render(item);
 	}
+	setRenderPass(0);
+	glDepthMask(GL_TRUE);
 
 	if (highlightedItem)
 	{

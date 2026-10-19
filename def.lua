@@ -91,9 +91,12 @@ function Item.getPosition() end
 ---@return vec3 
 function Item.getRotation() end
 ---@param key string
----@return (number|boolean|string), (number|string)
+---@return (number|boolean|string), (number|string)?
 function Item.getKv(key) end
 ---@return (vec2|vec3)
 function Item.getSize() end
 ---@return vec2
 function Item.getTile() end
+---@param instance string
+---@return string
+function Item.instanceStr(instance) end

@@ -186,4 +186,5 @@ void uiMenuBar()
 
 	renderMapSettingsUi();
 	renderEditorSettingsUi();
+	packageManagerRender();
 }

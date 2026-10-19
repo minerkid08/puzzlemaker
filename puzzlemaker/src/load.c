@@ -18,15 +18,36 @@ extern ItemGroup* groups;
 
 static char filename[256];
 
-#define errf(fmt, ...)                                                                                                 \
-	{                                                                                                                  \
-		errorf(fmt, __VA_ARGS__);                                                                                      \
-		cJSON_Delete(json);                                                                                            \
-		return;                                                                                                        \
+void load()
+{
+	cJSON* json = 0;
+	char* data = 0;
+	FILE* file = 0;
+
+	snprintf(filename, 256, "maps/%s.chamb", mapSettings.name);
+	printf("loading '%s'\n", filename);
+	int res;
+	initErrorStackD(filename, res);
+	if (res)
+	{
+		if(json)
+			cJSON_Delete(json);
+		if(data)
+		{
+			fclose(file);
+			free(data);
+		}
+		for (int i = 0; i < dynList_size(itemList); i++)
+		{
+			Item* item = &itemList[i];
+			if (isItemValid(item))
+				removeItem(item);
+		}
+		initVoxels();
+		openErrorPopup();
+		return;
 	}
 
-static void loadInt()
-{
 	for (int i = 0; i < dynList_size(itemList); i++)
 	{
 		Item* item = &itemList[i];
@@ -41,21 +62,25 @@ static void loadInt()
 	}
 	dynList_resize((void**)&antlines, 0);
 
-	FILE* file = fopen(filename, "rb");
+	file = fopen(filename, "rb");
 
 	fseek(file, 0, SEEK_END);
 	unsigned long long len = ftell(file);
 	fseek(file, 0, SEEK_SET);
 
-	char* data = malloc(len + 1);
+	data = malloc(len + 1);
 
 	fread(data, 1, len, file);
 	data[len] = 0;
 
-	cJSON* json = cJSON_Parse(data);
+	json = cJSON_Parse(data);
 	const char* err = cJSON_GetErrorPtr();
+	if(err)
+		jsonParseError(data, err, filename);
 	free(data);
 	fclose(file);
+	data = 0;
+	file = 0;
 
 	for (int z = 0; z < MAP_SIZE; z++)
 	{
@@ -76,7 +101,6 @@ static void loadInt()
 	mapReigonEnd[2] = -1;
 
 	cJSON* voxelArr = jsonGetArray(json, "voxels");
-	cJSON* voxel;
 	int voxelArrLen = cJSON_GetArraySize(voxelArr);
 	for (int i = 0; i < voxelArrLen; i++)
 	{
@@ -170,7 +194,7 @@ static void loadInt()
 				break;
 		}
 		if (item == 0)
-			errf("failed to load item, item definition not found for item '%s'\n", id);
+			errorf("failed to load item, item definition not found for item '%s'", id);
 		item->loadIndex = index;
 
 		jsonGetVec3(itemJson, "pos", item->pos);
@@ -205,7 +229,7 @@ static void loadInt()
 					output->def = &outputs[j];
 			}
 			if (output->def == 0)
-				errf("failed to load item def %s, %d\n", item->def->name, i);
+				errorf("failed to load item def %s, %d", item->def->name, i);
 
 			const char* inputName = jsonGetStrD(outputJson, "input");
 			output->input = (InputDef*)inputName;
@@ -385,7 +409,7 @@ static void loadInt()
 		if (theme)
 			setTheme(theme);
 		else
-			errf("unknown theme '%s'\n", themeName);
+			errorf("unknown theme '%s'", themeName);
 		mapSettings.regen = jsonGetInt(settings, "regen");
 		mapSettings.boots = jsonGetInt(settings, "boots");
 		mapSettings.portalGun = jsonGetInt(settings, "portalgun");
@@ -406,7 +430,7 @@ static void loadInt()
 			data->fogEnd = jsonGetFloat(settings, "fogEnd");
 			data->fogDensity = jsonGetFloat(settings, "fogDensity");
 		}
-    popStackFrame();
+		popStackFrame();
 	}
 
 	cJSON* editor = jsonGetObjectC(json, "editor");
@@ -414,26 +438,9 @@ static void loadInt()
 	{
 		jsonGetVec3(editor, "cameraPos", cameraPos);
 		jsonGetVec3(editor, "cameraRot", cameraRot);
-    popStackFrame();
+		popStackFrame();
 	}
 
 	printf("done\n");
 	cJSON_Delete(json);
-}
-
-void load()
-{
-	snprintf(filename, 256, "maps/%s.chamb", mapSettings.name);
-	printf("loading '%s'\n", filename);
-	if (initErrorStack(filename, loadInt))
-	{
-		for (int i = 0; i < dynList_size(itemList); i++)
-		{
-			Item* item = &itemList[i];
-			if (isItemValid(item))
-				removeItem(item);
-		}
-    initVoxels();
-		openErrorPopup();
-	}
 }

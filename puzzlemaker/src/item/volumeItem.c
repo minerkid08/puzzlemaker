@@ -75,7 +75,7 @@ void* loadVolumeItemDef(cJSON* item, ItemDefinition* itemDef)
 			jsonGetTex(textureJson, "front", &data->exportMaterial[DIR_NEG_X]);
 		}
 		else
-			errorf("no textures defined\n");
+			errorf("no textures defined");
 	}
 
 	if (cJSON_GetObjectItem(item, "entity"))

@@ -8,6 +8,7 @@ typedef struct
 	CompileStep* compileSteps;
 	const char* p2ce;
 	const char* bin;
+	const char* maps;
 	char curPath[512];
 	char buf[256];
   char workingDir[512];

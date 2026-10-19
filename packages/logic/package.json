@@ -1,7 +1,7 @@
 {
-  "name": "logic",
+  "name": "Map Logic",
   "author": "minerkid08",
-  "description": "a set of map logic and helper items",
+  "description": "A collection of helpful map logic and utility items.",
   "version": "1.0",
   "icon": "counter.png"
 }

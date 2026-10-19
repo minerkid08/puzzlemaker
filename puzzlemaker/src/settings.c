@@ -1,5 +1,6 @@
 #include "settings.h"
 #include "cjson.h"
+#include "error.h"
 #include "utils.h"
 #include "jsonUtils.h"
 #include <stdio.h>
@@ -29,11 +30,15 @@ void loadEditorSettings()
 	fread(data, 1, len, file);
 	data[len] = 0;
 
+	int res;
+	initErrorStackD("editorSettings.json", res);
+	if(res)
+		startErrorLoop();
+
 	cJSON* json = cJSON_Parse(data);
-	const char* err = cJSON_GetErrorPtr();
+	if (json == 0)
+		jsonParseError(data, cJSON_GetErrorPtr(), "editorSettings.json");
 	free(data);
-	if (err)
-		errorf("failed to parse editorSettings.json\n%s\n", err);
 
 	editorSettings.moveSpeed = jsonGetFloat(json, "moveSpeed");
 	editorSettings.boostSpeed = jsonGetFloat(json, "boostSpeed");

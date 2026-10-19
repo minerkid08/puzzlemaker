@@ -36,16 +36,16 @@ Package* processPackageString(Package* p, const char* filename, int* offset)
 			Package* p = &packageList[i];
 			if (!p->enabled)
 				continue;
-			if (strcmp(p->baseName, packageName) == 0)
+			if (strcmp(p->name, packageName) == 0)
 			{
 				package = p;
 				break;
 			}
 		}
 		if (package == 0)
-			errorf("error loading %s\nno enabled package with the name %s\n", filename, packageName);
+			errorf("error loading %s\nno enabled package with the name %s", filename, packageName);
 	}
-  return package;
+	return package;
 }
 
 char packageContainsFile(Package* package, const char* filename)
@@ -57,18 +57,18 @@ char packageContainsFile(Package* package, const char* filename)
 
 		FILE* file = fopen(path, "rb");
 		if (file == 0)
-      return 0;
-    fclose(file);
-    return 1;
+			return 0;
+		fclose(file);
+		return 1;
 	}
 	else
 	{
 		zip_file_t* file = zip_fopen(package->zip, filename, 0);
 
 		if (file == 0)
-      return 0;
-    zip_fclose(file);
-    return 1;
+			return 0;
+		zip_fclose(file);
+		return 1;
 	}
 }
 
@@ -81,7 +81,7 @@ void* readPackageFile(Package* package, const char* filename, int* plen)
 
 		FILE* file = fopen(path, "rb");
 		if (file == 0)
-			errorf("failed to open __%s__/%s\n", package->name, filename);
+			errorf("failed to open __%s__/%s", package->name, filename);
 
 		fseek(file, 0, SEEK_END);
 		int len = ftell(file);
@@ -98,7 +98,7 @@ void* readPackageFile(Package* package, const char* filename, int* plen)
 		zip_file_t* file = zip_fopen(package->zip, filename, 0);
 
 		if (file == 0)
-			errorf("failed to open __%s__/%s\n", package->name, filename);
+			errorf("failed to open __%s__/%s", package->name, filename);
 
 		zip_stat_t stat;
 		zip_stat(package->zip, filename, 0, &stat);
@@ -117,11 +117,11 @@ int listPackageFiles(Package* package, const char* path, const char*** dirs, con
 					 const char* extensionFilter)
 {
 	if (package->zip == 0)
-  {
-    char buf[128];
-    snprintf(buf, 128, "packages/%s/%s", package->name, path);
+	{
+		char buf[128];
+		snprintf(buf, 128, "packages/%s/%s", package->name, path);
 		return listFiles(buf, dirs, files, extensionFilter);
-  }
+	}
 
 	int fileCount = zip_get_num_entries(package->zip, 0);
 
@@ -136,15 +136,17 @@ int listPackageFiles(Package* package, const char* path, const char*** dirs, con
 				if (dirs)
 				{
 					int len = strlen(name);
-					int l = dynList_size(*dirs);
-					dynList_resize((void**)dirs, len + 1);
 					int j = 0;
 					for (int i = 0; i < len - 1; i++)
 					{
 						if (name[i] == '/')
 							j = i;
 					}
-					(*files)[l] = strdup(name + j + 1);
+					if (j == 0)
+						continue;
+					int l = dynList_size(*dirs);
+					dynList_resize((void**)dirs, l + 1);
+					(*dirs)[l] = strdup(name + j + 1);
 				}
 			}
 			else

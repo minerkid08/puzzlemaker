@@ -76,6 +76,7 @@ typedef struct
 	void* data;
   Package* package;
 
+	const char* id;
 	const char* name;
 	const char* group;
 

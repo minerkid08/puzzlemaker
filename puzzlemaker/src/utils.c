@@ -8,21 +8,6 @@
 
 ivec3 dirs[] = {{1, 0, 0}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}, {0, 0, 1}, {0, 0, -1}};
 
-extern char** stackTrace;
-extern char* err;
-extern char errorState;
-
-void errorf(const char* fmt, ...)
-{
-	va_list va;
-	va_start(va, fmt);
-	char buf[256];
-	vsnprintf(buf, 256, fmt, va);
-	err = strdup(buf);
-	errorState = 1;
-	startErrorLoop();
-}
-
 char startsWith(const char* a, const char* b)
 {
 	int l = strlen(b);
@@ -52,8 +37,22 @@ char* strdupf(const char* fmt, ...)
 	va_start(va, fmt);
 	int len = vsnprintf(0, 0, fmt, va);
 	char* buf = malloc(len + 1);
+	va_end(va);
 	va_start(va, fmt);
 	vsnprintf(buf, len + 1, fmt, va);
+	va_end(va);
+	return buf;
+}
+
+char* vstrdupf(const char* fmt, va_list va)
+{
+	va_list va2;
+	va_copy(va2, va);
+	int len = vsnprintf(0, 0, fmt, va);
+	char* buf = malloc(len + 1);
+	vsnprintf(buf, len + 1, fmt, va2);
+	va_end(va);
+	va_end(va2);
 	return buf;
 }
 

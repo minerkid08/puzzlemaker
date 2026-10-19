@@ -1,7 +1,8 @@
 [
 	{
     "type": "entity",
-		"name": "light",
+		"id": "light",
+		"name": "Light",
 		"model": "light.obj",
 		"mat": "light.png",
     "instance": "puzzlemakerInstances/light",
@@ -17,7 +18,8 @@
 	},
   {
     "type": "volume",
-    "name": "small-blocks",
+    "id": "small-blocks",
+    "name": "Small Blocks",
     "editorTexture": {
       "filename": "blackVoxel.png",
       "size": 0.5,
@@ -38,7 +40,8 @@
   },
   {
     "type": "panel",
-    "name": "window",
+    "id": "window",
+    "name": "Window",
     "editorCenterTexture": "glass.png",
     "centerTexture": "GLASS/GLASSWINDOW_FROSTED_002",
     "zTexture": "ANIM_WP/FRAMEWORK/BACKPANELS",
@@ -52,7 +55,8 @@
   },
 	{
     "type": "overlay",
-		"name": "indicatorSignage",
+		"id": "indicatorSignage",
+		"name": "Indicator Signage",
 		"editorTexture": "arrow.png",
 		"size": [32, 32],
 		"texture": "signage/{texture}",
@@ -79,7 +83,8 @@
   },
   {
     "type": "overlay",
-		"name": "itemSignage",
+		"id": "itemSignage",
+		"name": "Item Signage",
 		"editorTexture": "exitSign.png",
 		"size": [32, 32],
 		"texture": "signage/{texture}",

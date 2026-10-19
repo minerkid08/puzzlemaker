@@ -20,8 +20,6 @@ float uiScale = 1.0f;
 char queueCompile = 0;
 ImVec2 zero;
 
-extern char errorState;
-
 void initUi(GLFWwindow* window)
 {
 	zero.x = 0;
@@ -157,7 +155,7 @@ void uiMenuBar()
 			if (mapSettings.name[0] == 0)
 				fileBrowserOpen(MODE_SAVE);
 			else
-				startCompile();
+        queueCompile = 1;
 		}
 		if (igMenuItem_Bool("map settings", 0, 0, 1))
 			openMapSettingsUi();
@@ -187,7 +185,5 @@ void uiMenuBar()
 	igEndMenuBar();
 
 	renderMapSettingsUi();
-	if (errorState == 0)
-		packageManagerRender();
 	renderEditorSettingsUi();
 }

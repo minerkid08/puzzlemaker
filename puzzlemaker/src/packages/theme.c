@@ -3,6 +3,7 @@
 #include "assetManager.h"
 #include "cjson.h"
 #include "dynList.h"
+#include "error.h"
 #include "jsonUtils.h"
 #include "packages/package.h"
 #include "utils.h"
@@ -106,20 +107,19 @@ void loadPostProcessingPresets(Theme* theme, cJSON* json)
 		data->fogStart = jsonGetFloat(item, "fogStart");
 		data->fogEnd = jsonGetFloat(item, "fogEnd");
 		data->fogDensity = jsonGetFloat(item, "fogDensity");
-		jsonPop();
+		popStackFrame();
 	}
 	if (arrSize == 0)
 		errorf("no post processing presets set\n");
 }
 
-void loadTheme(const char* filename)
-{
-	printf("[package loader] loading theme %s\n", filename);
-	char path[64];
-	snprintf(path, 64, "themes/%s", filename);
+char path[64];
+const char* filename;
 
-  int dataSize;
-  char* data = readPackageFile(currentPackage, path, &dataSize);
+void loadThemeFile()
+{
+	int dataSize;
+	char* data = readPackageFile(currentPackage, path, &dataSize);
 	data[dataSize] = 0;
 
 	cJSON* json = cJSON_Parse(data);
@@ -128,27 +128,25 @@ void loadTheme(const char* filename)
 	if (err)
 		jsonParseError(data, err, path);
 
-	jsonResetStack(path);
-
 	int themeCount = dynList_size(themeList);
 	dynList_resize((void**)&themeList, themeCount + 1);
 	Theme* theme = &themeList[themeCount];
 	cJSON* voxel = jsonGetObject(json, "voxel");
 	loadVoxelConfig(theme, voxel);
-  jsonPop();
+	popStackFrame();
 	cJSON* antline = jsonGetObject(json, "antline");
 	loadAntlineConfig(theme, antline);
-  jsonPop();
+	popStackFrame();
 	cJSON* postProcessing = jsonGetArray(json, "postProcessing");
 	loadPostProcessingPresets(theme, postProcessing);
-  jsonPop();
+	popStackFrame();
 
-  int l = strlen(filename);
+	int l = strlen(filename);
 
-  char* name = malloc(l - 4);
-  snprintf(name, l - 4, "%s", filename);
+	char* name = malloc(l - 4);
+	snprintf(name, l - 4, "%s", filename);
 
-  theme->name = name;
+	theme->name = name;
 }
 
 void setTheme(Theme* theme)
@@ -156,4 +154,14 @@ void setTheme(Theme* theme)
 	currentTheme = theme;
 	voxelConfig = &theme->voxelCfg;
 	antlineConfig = &theme->antlineCfg;
+}
+
+void loadTheme(const char* f)
+{
+  filename = f;
+	printf("[package loader] loading theme %s\n", filename);
+	snprintf(path, 64, "themes/%s", filename);
+
+	if (initErrorStack(path, loadThemeFile))
+		startErrorLoop();
 }

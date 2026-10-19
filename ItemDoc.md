@@ -4,7 +4,8 @@
 |Key|Type|Default Value|Description|
 |---|----|-------------|-----------|
 |type|string|||
-|name|string|||
+|id|string|||
+|name|string||display name of item, optional|
 |exportScript|string||optional|
 |transparent|bool|false|if the item is transparent and should render after other items|
 |inputs|Input[]||optional|

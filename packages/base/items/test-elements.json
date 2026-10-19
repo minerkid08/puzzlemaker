@@ -1,7 +1,8 @@
 [
   {
     "type": "panel",
-    "name": "fizzler",
+    "id": "fizzler",
+    "name": "Fizzler",
     "editorCenterTexture": "fizzler-center.png",
     "centerTexture": {
       "filename": "EFFECTS/FIZZLER_CENTER",
@@ -72,7 +73,8 @@
   },
   {
     "type": "panel",
-    "name": "laser-panel",
+    "id": "laser-panel",
+    "name": "Laser Field",
     "editorCenterTexture": "laserfield.png",
     "centerTexture": {
       "filename": "TOOLS/TOOLSTRIGGER",
@@ -112,7 +114,8 @@
   },
 	{
     "type": "entity",
-		"name": "door",
+		"id": "door",
+		"name": "Door",
 		"model": "door.obj",
 		"mat": "door.png",
     "instance": "puzzlemakerInstances/door-{portalability}",
@@ -156,7 +159,8 @@
 	},
 	{
     "type": "entity",
-		"name": "dropper",
+		"id": "dropper",
+		"name": "Cube Dropper",
 		"model": "dropper.obj",
 		"mat": "dropper.png",
     "instance": "puzzlemakerInstances/dropper",
@@ -206,7 +210,8 @@
 	},
 	{
     "type": "entity",
-		"name": "cube",
+		"id": "cube",
+		"name": "Cube",
 		"model": "weighted-cube.obj",
 		"mat": "cube.png",
     "entity": "prop_weighted_cube",
@@ -264,7 +269,8 @@
 	},
   {
     "type": "entity",
-    "name": "button",
+    "id": "button",
+    "name": "Floor Button",
     "model": "button.obj",
     "mat": "button.png",
     "instance": "puzzlemakerInstances/button",
@@ -289,7 +295,8 @@
   },
   {
     "type": "entity",
-    "name": "ped-button",
+    "id": "ped-button",
+    "name": "Pedistal Button",
     "model": "pillar-button.obj",
     "mat": "laser.png",
     "entity": "prop_button",
@@ -342,7 +349,8 @@
   },
 	{
     "type": "entity",
-		"name": "laser",
+		"id": "laser",
+		"name": "Laser Emitter",
 		"model": "laser.obj",
 		"mat": "laser.png",
     "entity": "env_portal_laser",
@@ -379,7 +387,8 @@
 	},
 	{
     "type": "entity",
-		"name": "laser-catcher",
+		"id": "laser-catcher",
+		"name": "Laser Catcher",
 		"model": "laser-catcher.obj",
 		"mat": "laser-catcher.png",
     "entity": "prop_laser_catcher",
@@ -414,7 +423,8 @@
 	},
   {
     "type": "entity",
-		"name": "funnel",
+		"id": "funnel",
+		"name": "Funnel",
 		"model": "funnel.obj",
 		"mat": "funnel.png",
     "instance": "puzzlemakerInstances/funnel",

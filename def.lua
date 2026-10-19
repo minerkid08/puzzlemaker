@@ -43,6 +43,17 @@ Entity = {}
 ---@return Entity
 function Entity.new(name, className, pos, rot) end
 
+---@param name string
+---@param className string
+---@param pos vec3
+---@param rot vec3
+---@return Entity
+function Entity.newGlobal(name, className, pos, rot) end
+
+---@param name string
+---@return Entity
+function Entity.getGlobal(name) end
+
 ---@param pos vec3
 function Entity:setPosition(pos) end
 

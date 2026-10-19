@@ -19,6 +19,7 @@
 void errorf(const char* fmt, ...);
 int strncatf(char* buf, int size, const char* fmt, ...);
 char* strdupf(const char* fmt, ...);
+char* vstrdupf(const char* fmt, va_list va); 
 char startsWith(const char* a, const char* b);
 
 extern ivec3 dirs[6];

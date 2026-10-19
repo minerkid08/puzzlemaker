@@ -5,5 +5,4 @@ compileSteps.json
 captureSettings.cap
 *.exe
 
-p1pbr/*
-packages/p1pbr.zip
+packages/*.zip

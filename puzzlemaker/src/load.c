@@ -2,6 +2,7 @@
 #include "camera.h"
 #include "cjson.h"
 #include "dynList.h"
+#include "error.h"
 #include "item/item.h"
 #include "jsonUtils.h"
 #include "mapsettings.h"
@@ -15,6 +16,8 @@ extern Item* itemList;
 extern Antline* antlines;
 extern ItemGroup* groups;
 
+static char filename[256];
+
 #define errf(fmt, ...)                                                                                                 \
 	{                                                                                                                  \
 		errorf(fmt, __VA_ARGS__);                                                                                      \
@@ -22,13 +25,8 @@ extern ItemGroup* groups;
 		return;                                                                                                        \
 	}
 
-void load()
+static void loadInt()
 {
-	char filename[256];
-	snprintf(filename, 256, "maps/%s.chamb", mapSettings.name);
-	printf("loading '%s'\n", filename);
-	jsonResetStack(filename);
-
 	for (int i = 0; i < dynList_size(itemList); i++)
 	{
 		Item* item = &itemList[i];
@@ -121,9 +119,9 @@ void load()
 			mapReigonEnd[1] = max(mapReigonEnd[1], y);
 			mapReigonEnd[2] = max(mapReigonEnd[2], z);
 		}
-		jsonPop();
+		popStackFrame();
 	}
-	jsonPop();
+	popStackFrame();
 
 	mapReigonStart[0]--;
 	mapReigonStart[1]--;
@@ -151,10 +149,10 @@ void load()
 		int index = jsonGetInt(itemJson, "index");
 
 		Item* item = 0;
-		char* id = jsonGetStr(itemJson, "id");
+		const char* id = jsonGetStr(itemJson, "id");
 		ItemDefinition* defs = getItemDefinitions();
 
-		char* groupName = jsonGetStr(itemJson, "group");
+		const char* groupName = jsonGetStr(itemJson, "group");
 		for (int i = 0; i < dynList_size(groups); i++)
 		{
 			ItemGroup* group = &groups[i];
@@ -211,9 +209,9 @@ void load()
 
 			const char* inputName = jsonGetStrD(outputJson, "input");
 			output->input = (InputDef*)inputName;
-			jsonPop();
+			popStackFrame();
 		}
-		jsonPop();
+		popStackFrame();
 
 		cJSON* kvJson = jsonGetObject(itemJson, "kv");
 		int len = dynList_size(item->def->kvs);
@@ -261,11 +259,10 @@ void load()
 					kv->value.i = v;
 				}
 			}
-			jsonPop();
 		}
-		jsonPop();
+		popStackFrame();
 	}
-	jsonPop();
+	popStackFrame();
 
 	updateCulledVoxels();
 
@@ -294,12 +291,12 @@ void load()
 				jsonGetVec3(segmentJson, "rot", seg->rot);
 				seg->len = jsonGetInt(segmentJson, "length");
 				antlineUpdateTransformRot(seg);
-				jsonPop();
+				popStackFrame();
 			}
-			jsonPop();
-			jsonPop();
+			popStackFrame();
+			popStackFrame();
 		}
-		jsonPop();
+		popStackFrame();
 	}
 
 	for (int i = 0; i < itemCount; i++)
@@ -409,7 +406,7 @@ void load()
 			data->fogEnd = jsonGetFloat(settings, "fogEnd");
 			data->fogDensity = jsonGetFloat(settings, "fogDensity");
 		}
-		jsonPop();
+    popStackFrame();
 	}
 
 	cJSON* editor = jsonGetObjectC(json, "editor");
@@ -417,9 +414,26 @@ void load()
 	{
 		jsonGetVec3(editor, "cameraPos", cameraPos);
 		jsonGetVec3(editor, "cameraRot", cameraRot);
-		jsonPop();
+    popStackFrame();
 	}
 
 	printf("done\n");
 	cJSON_Delete(json);
+}
+
+void load()
+{
+	snprintf(filename, 256, "maps/%s.chamb", mapSettings.name);
+	printf("loading '%s'\n", filename);
+	if (initErrorStack(filename, loadInt))
+	{
+		for (int i = 0; i < dynList_size(itemList); i++)
+		{
+			Item* item = &itemList[i];
+			if (isItemValid(item))
+				removeItem(item);
+		}
+    initVoxels();
+		openErrorPopup();
+	}
 }

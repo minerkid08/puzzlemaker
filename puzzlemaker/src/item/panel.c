@@ -3,6 +3,7 @@
 #include "cglm/mat4.h"
 #include "cjson.h"
 #include "dynList.h"
+#include "error.h"
 #include "export/brush.h"
 #include "export/entity.h"
 #include "item/item.h"
@@ -111,9 +112,9 @@ void* loadPanelItemDef(cJSON* item, ItemDefinition* itemDef)
 
 			jsonGetTex(border, "texture", &item->texture);
 
-			jsonPop();
+			popStackFrame();
 		}
-		jsonPop();
+		popStackFrame();
 	}
 
 	for (int i = 0; i < 8; i++)
@@ -158,9 +159,9 @@ void* loadPanelItemDef(cJSON* item, ItemDefinition* itemDef)
 			jsonGetTransform(propJson, "transform", prop->pos, prop->rot, prop->transform);
 			jsonGetTransform(propJson, "editorTransform", prop->editorPos, prop->editorRot, prop->editorTransform);
 
-			jsonPop();
+			popStackFrame();
 		}
-		jsonPop();
+		popStackFrame();
 	}
 
 	float size1 = data->items[PANEL_ITEM_ID_RIGHT].minSize;

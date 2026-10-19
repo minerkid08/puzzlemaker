@@ -1,3 +1,4 @@
+#include "error.h"
 #include "dynList.h"
 #include "itemPanel.h"
 #include "ui.h"
@@ -8,20 +9,16 @@
 
 #include <cimgui.h>
 
-const char** stackTrace = 0;
-const char* err = 0;
-
-char errorState = 0;
-
 static char open = 0;
 static char wasOpen = 0;
+static char queueErrorPopup = 0;
 extern GLFWwindow* window;
 extern char running;
 extern char metadataLoaded;
 
 void startErrorLoop()
 {
-	printf("err: %s\n", err);
+	printf("err: %s\n", getError());
 	if (running)
 		return;
 	while (!glfwWindowShouldClose(window))
@@ -37,14 +34,7 @@ void startErrorLoop()
 
 void openErrorPopup()
 {
-	open = 1;
-	igOpenPopup_Str("error", 0);
-}
-
-void openRuntimeErrorPopup()
-{
-	open = 1;
-	igOpenPopup_Str("error", 0);
+	queueErrorPopup = 1;
 }
 
 void renderErrorPopup()
@@ -54,24 +44,28 @@ void renderErrorPopup()
 	if (open == 0 && wasOpen)
 	{
 		wasOpen = 0;
-		errorState = 0;
 		if (running == 0)
 			exit(1);
-	}
-
-	if (errorState && open == 0)
-	{
-		open = 1;
-		igOpenPopup_Str("error", 0);
+    clearError();
 	}
 
 	if (open)
 		wasOpen = 1;
 
+	if (queueErrorPopup)
+  {
+    queueErrorPopup = 0;
+    open = 1;
+    igOpenPopup_Str("error", 0);
+  }
+		
+
 	if (igBeginPopupModal("error", (bool*)&open, 0))
 	{
-		if (err)
-			igText("error: %s", err);
+    const char* errorMsg = getError();
+    const char** stackTrace = getStackTrace();
+		if (errorMsg)
+			igText("error: %s", errorMsg);
 		if (stackTrace)
 		{
 			int len = dynList_size(stackTrace);
@@ -82,7 +76,6 @@ void renderErrorPopup()
 		{
 			if (igButton("package manager", zero))
 				openPackageManager();
-			packageManagerRender();
 		}
 		igEndPopup();
 	}

@@ -1,5 +1,6 @@
 #include "cjson.h"
 #include "dynList.h"
+#include "error.h"
 #include "jsonUtils.h"
 #include "packages/package.h"
 #include "packages/theme.h"
@@ -14,6 +15,35 @@ char metadataLoaded = 0;
 static __attribute__((constructor)) void init()
 {
 	packageList = dynList_new(0, sizeof(Package));
+}
+
+static void loadPackageFile()
+{
+	FILE* file = fopen("package.json", "rb");
+	if (file == 0)
+		return;
+	fseek(file, 0, SEEK_END);
+	unsigned long long len = ftell(file);
+	fseek(file, 0, SEEK_SET);
+
+	char* data = malloc(len + 1);
+
+	fread(data, 1, len, file);
+	data[len] = 0;
+
+	cJSON* json = cJSON_Parse(data);
+	const char* err = cJSON_GetErrorPtr();
+	free(data);
+	if (err)
+		jsonParseError(data, err, "package.json");
+
+	int packageCount = dynList_size(packageList);
+	for (int i = 0; i < packageCount; i++)
+	{
+		Package* package = &packageList[i];
+		package->enabled = jsonGetBoolC(json, package->name, 1);
+	}
+	cJSON_Delete(json);
 }
 
 void loadPackageList()
@@ -83,33 +113,8 @@ void loadPackageList()
 
 	metadataLoaded = 1;
 
-	FILE* file = fopen("package.json", "rb");
-	if (file)
-	{
-		jsonResetStack("package.json");
-		fseek(file, 0, SEEK_END);
-		unsigned long long len = ftell(file);
-		fseek(file, 0, SEEK_SET);
-
-		char* data = malloc(len + 1);
-
-		fread(data, 1, len, file);
-		data[len] = 0;
-
-		cJSON* json = cJSON_Parse(data);
-		const char* err = cJSON_GetErrorPtr();
-		free(data);
-		if (err)
-			jsonParseError(data, err, "package.json");
-
-		int packageCount = dynList_size(packageList);
-		for (int i = 0; i < packageCount; i++)
-		{
-			Package* package = &packageList[i];
-			package->enabled = jsonGetBoolC(json, package->name, 1);
-		}
-		cJSON_Delete(json);
-	}
+	if (initErrorStack("package.json", loadPackageFile))
+		startErrorLoop();
 
 	for (int i = 0; i < packageCount; i++)
 	{

@@ -1,5 +1,6 @@
 #include "cjson.h"
 #include "dynList.h"
+#include "error.h"
 #include "item/item.h"
 #include "jsonUtils.h"
 #include <GLFW/glfw3.h>
@@ -58,19 +59,22 @@ void copyItem(Item* item)
 	cJSON_Delete(json);
 }
 
-Item* pasteItem()
+Item* item;
+
+static void pasteInt()
 {
 	const char* data = glfwGetClipboardString(window);
 	cJSON* json = cJSON_Parse(data);
 	if (json == 0)
 	{
-		jsonError("parse error\n");
-		return 0;
+		const char* err = cJSON_GetErrorPtr();
+		jsonParseError(data, err, "paste");
+		openErrorPopup();
+		return;
 	}
-	jsonResetStack("paste");
 
-	char* defId = jsonGetStr(json, "id");
-	char* defGroup = jsonGetStr(json, "group");
+	const char* defId = jsonGetStr(json, "id");
+	const char* defGroup = jsonGetStr(json, "group");
 	ItemDefinition* defs = getItemDefinitions();
 	Item* item = 0;
 
@@ -90,15 +94,10 @@ Item* pasteItem()
 		if (item)
 			break;
 	}
-  free(defId);
-  free(defGroup);
 	if (item == 0)
-	{
-		jsonError("invalid item name\n");
-		return 0;
-	}
+		errorf("invalid item name\n");
 
-	cJSON* kvJson = cJSON_GetObjectItem(json, "kv");
+	cJSON* kvJson = jsonGetObject(json, "kv");
 	int len = dynList_size(item->def->kvs);
 	for (int i = 0; i < len; i++)
 	{
@@ -126,7 +125,7 @@ Item* pasteItem()
 			}
 			if (type == TYPE_STRING)
 			{
-				char* str = cJSON_GetObjectItem(kvJson, def->name)->valuestring;
+				const char* str = jsonGetStr(kvJson, def->name);
 				strncpy(kv->value.s, str, 256);
 			}
 			if (type == TYPE_BITFIELD)
@@ -152,6 +151,13 @@ Item* pasteItem()
 			}
 		}
 	}
+	popStackFrame();
 	item->def->callbacks->load(item, json);
+}
+
+Item* pasteItem()
+{
+	if (initErrorStack("paste", pasteInt))
+		openErrorPopup();
 	return item;
 }

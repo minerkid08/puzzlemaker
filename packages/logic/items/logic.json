@@ -1,7 +1,8 @@
 [
   {
     "type": "volume",
-    "name": "trigger-once",
+    "id": "trigger-once",
+    "name": "Trigger Once",
     "editorTexture": "trigger.png",
     "entity": "trigger_once",
     "texture": "TOOLS/TOOLSTRIGGER",
@@ -24,7 +25,8 @@
   },
 	{
     "type": "entity",
-		"name": "end",
+		"id": "end",
+		"name": "Map End",
 		"model": "cube.obj",
 		"mat": "end.png",
     "entity": "point_clientcommand",
@@ -40,7 +42,8 @@
 	},
 	{
     "type": "entity",
-		"name": "start",
+		"id": "start",
+		"name": "Player Spawn",
 		"model": "cube.obj",
 		"mat": "start.png",
     "entity": "info_player_start",
@@ -55,7 +58,8 @@
 	},
 	{
     "type": "entity",
-		"name": "logic-gate",
+		"id": "logic-gate",
+		"name": "Logic Gate",
 		"model": "cube.obj",
 		"mat": "counter.png",
     "entity": "math_counter",

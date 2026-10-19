@@ -1,6 +1,8 @@
 #include "antline/antline.h"
 #include "assetManager.h"
+#include "dynList.h"
 #include "grab.h"
+#include "item/item.h"
 #include "packages/package.h"
 #include "renderer/framebuffer.h"
 #include "save.h"
@@ -78,10 +80,9 @@ const char* commandLine = 0;
 GLFWwindow* window;
 char running = 0;
 
-
 int main(int argc, const char** argv)
 {
-  commandLine = argv[0];
+	commandLine = argv[0];
 	makeDir("maps");
 
 	glfwInit();
@@ -106,7 +107,7 @@ int main(int argc, const char** argv)
 
 	initUi(window);
 
-  loadPackageList();
+	loadPackageList();
 
 	loadEditorSettings();
 	startCompileThread();
@@ -261,6 +262,41 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 				return;
 			rotateSelection(-90);
 		}
+		if (key == GLFW_KEY_H)
+		{
+			if (mods & GLFW_MOD_ALT)
+			{
+				if (selection.type == SELECTION_ITEM)
+					selection.item->hidden = 0;
+				else
+				{
+					Item* itemList = getItemList();
+					for (int i = 0; i < dynList_size(itemList); i++)
+					{
+						Item* item = &itemList[i];
+						if (isItemValid(item))
+							item->hidden = 0;
+					}
+				}
+			}
+			else
+			{
+				if (selection.type == SELECTION_ITEM)
+					selection.item->hidden = 1;
+				else
+				{
+					Item* itemList = getItemList();
+					for (int i = 0; i < dynList_size(itemList); i++)
+					{
+						Item* item = &itemList[i];
+						if (isItemValid(item))
+							item->hidden = 1;
+					}
+				}
+			}
+			if (selection.type == SELECTION_VOXEL)
+				voxelToggleSize();
+		}
 		if (key == GLFW_KEY_C && mods & GLFW_MOD_CONTROL)
 		{
 			if (selection.type != SELECTION_ITEM)
@@ -279,14 +315,17 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 			pos[1] = offset[1] + cameraPos[1];
 			pos[2] = offset[2] + cameraPos[2];
 
-			selection.type = SELECTION_ITEM;
 			selection.item = pasteItem();
+			if (selection.item)
+			{
+				selection.type = SELECTION_ITEM;
 
-			selection.item->pos[0] = pos[0];
-			selection.item->pos[1] = pos[1];
-			selection.item->pos[2] = pos[2];
-			updateItemTransform(selection.item);
-			mouseMode = MODE_GRAB;
+				selection.item->pos[0] = pos[0];
+				selection.item->pos[1] = pos[1];
+				selection.item->pos[2] = pos[2];
+				updateItemTransform(selection.item);
+				mouseMode = MODE_GRAB;
+			}
 		}
 		if (key == GLFW_KEY_S && mods & GLFW_MOD_CONTROL)
 			save();

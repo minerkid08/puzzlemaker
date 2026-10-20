@@ -10,7 +10,7 @@ static __attribute__((constructor)) void init()
 	stbi_set_flip_vertically_on_load(1);
 }
 
-unsigned int loadTexture(Package* package, const char* filename)
+unsigned int loadTexture(Package* package, const char* filename, char* flags)
 {
 	int l = strlen(filename) + 18;
 	char* buf = malloc(l);
@@ -18,8 +18,8 @@ unsigned int loadTexture(Package* package, const char* filename)
 	snprintf(buf, l, "assets/materials/%s\n", filename);
 	buf[l - 1] = 0;
 
-  int dataLen;
-  unsigned char* file = readPackageFile(package, buf, &dataLen);
+	int dataLen;
+	unsigned char* file = readPackageFile(package, buf, &dataLen);
 
 	int channels;
 	int width;
@@ -30,6 +30,29 @@ unsigned int loadTexture(Package* package, const char* filename)
 		printf("failed to load image: '%s'\n", buf);
 		free(buf);
 		return 0;
+	}
+
+	if (flags)
+	{
+		if (channels == 4)
+		{
+			char opaque = 0;
+			char transparent = 0;
+			for (int y = 0; y < height; y++)
+			{
+				for (int x = 0; x < width; x++)
+				{
+					unsigned long long index = (y * width + x) * 4 + 3;
+					unsigned char a = data[index];
+					if (a == 255)
+						*flags |= TEX_OPAQUE;
+					if (a != 0 && a != 255)
+						*flags |= TEX_TRANSPARENT;
+				}
+			}
+		}
+		else
+			*flags = TEX_OPAQUE;
 	}
 
 	int format = (channels == 4 ? GL_RGBA : GL_RGB);

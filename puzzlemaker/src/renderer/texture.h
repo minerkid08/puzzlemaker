@@ -4,6 +4,9 @@
 #define TEX_ALIGNMENT_NONE 0
 #define TEX_ALIGNMENT_FIT 1
 
+#define TEX_OPAQUE 1
+#define TEX_TRANSPARENT 2
+
 typedef struct 
 {
   unsigned int tex;
@@ -12,4 +15,4 @@ typedef struct
   char alignment;
 } Texture;
 
-unsigned int loadTexture(Package* package, const char* filename);
+unsigned int loadTexture(Package* package, const char* filename, char* flags);

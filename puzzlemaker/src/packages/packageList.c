@@ -68,13 +68,22 @@ void loadPackageList()
 		if (name == 0)
 			continue;
 		Package* package = &packageList[dirCount + j++];
-		package->name = name;
-		package->enabled = 1;
 		char buf[128];
 		snprintf(buf, 128, "packages/%s", name);
 		package->zip = zip_open(buf, ZIP_RDONLY, 0);
 		if (package->zip == 0)
 			errorf("failed to open zip %s", name);
+		int nameLen = strlen(name);
+		for (int k = 0; k < nameLen; k++)
+		{
+			if (name[k] == '.')
+			{
+				((char*)name)[k] = 0;
+				break;
+			}
+		}
+		package->name = name;
+		package->enabled = 1;
 	}
 	dynList_free(files);
 
@@ -92,29 +101,30 @@ void loadPackageList()
 		startErrorLoop();
 
 	FILE* file = fopen("package.json", "rb");
-	if (file == 0)
-		return;
-	fseek(file, 0, SEEK_END);
-	unsigned long long len = ftell(file);
-	fseek(file, 0, SEEK_SET);
-
-	char* data = malloc(len + 1);
-
-	fread(data, 1, len, file);
-	data[len] = 0;
-
-	cJSON* json = cJSON_Parse(data);
-	const char* err = cJSON_GetErrorPtr();
-	free(data);
-	if (err)
-		jsonParseError(data, err, "package.json");
-
-	for (int i = 0; i < packageCount; i++)
+	if (file)
 	{
-		Package* package = &packageList[i];
-		package->enabled = jsonGetBoolC(json, package->name, 1);
+		fseek(file, 0, SEEK_END);
+		unsigned long long len = ftell(file);
+		fseek(file, 0, SEEK_SET);
+
+		char* data = malloc(len + 1);
+
+		fread(data, 1, len, file);
+		data[len] = 0;
+
+		cJSON* json = cJSON_Parse(data);
+		const char* err = cJSON_GetErrorPtr();
+		free(data);
+		if (err)
+			jsonParseError(data, err, "package.json");
+
+		for (int i = 0; i < packageCount; i++)
+		{
+			Package* package = &packageList[i];
+			package->enabled = jsonGetBoolC(json, package->name, 1);
+		}
+		cJSON_Delete(json);
 	}
-	cJSON_Delete(json);
 
 	for (int i = 0; i < packageCount; i++)
 	{

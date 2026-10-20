@@ -66,7 +66,6 @@ void itemDebugRender()
 	int snapMode = def->snapMode;
 	if (igCombo_Str("snap mode", &snapMode, "corner\0center\0mini corner\0mini center\0", 4))
 		def->snapMode = snapMode;
-	igCheckbox("transparent", (bool*)&def->transparent);
 
 	if (itemType == ITEM_TYPE_ENTITY)
 	{

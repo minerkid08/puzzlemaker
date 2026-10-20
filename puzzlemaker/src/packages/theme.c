@@ -38,17 +38,18 @@ static void loadVoxelConfig(Theme* theme, cJSON* json)
 	theme->voxelCfg.whiteWallMini = jsonGetStrD(json, "whiteWallMini");
 	theme->voxelCfg.whiteCeilingMini = jsonGetStrD(json, "whiteCeilingMini");
 
+  char flags = 0;
 	const char* blackEditor = jsonGetStr(json, "blackEditor");
-	theme->voxelCfg.blackEditor = assetManagerLoadTexture(blackEditor);
+	theme->voxelCfg.blackEditor = assetManagerLoadTexture(blackEditor, 0);
 
 	const char* whiteEditor = jsonGetStr(json, "whiteEditor");
-	theme->voxelCfg.whiteEditor = assetManagerLoadTexture(whiteEditor);
+	theme->voxelCfg.whiteEditor = assetManagerLoadTexture(whiteEditor, 0);
 
 	const char* blackMiniEditor = jsonGetStr(json, "blackMiniEditor");
-	theme->voxelCfg.blackMiniEditor = assetManagerLoadTexture(blackMiniEditor);
+	theme->voxelCfg.blackMiniEditor = assetManagerLoadTexture(blackMiniEditor, 0);
 
 	const char* whiteMiniEditor = jsonGetStr(json, "whiteMiniEditor");
-	theme->voxelCfg.whiteMiniEditor = assetManagerLoadTexture(whiteMiniEditor);
+	theme->voxelCfg.whiteMiniEditor = assetManagerLoadTexture(whiteMiniEditor, 0);
 }
 
 void loadAntlineConfig(Theme* theme, cJSON* json)
@@ -66,14 +67,14 @@ void loadAntlineConfig(Theme* theme, cJSON* json)
 	theme->antlineCfg.antlineCornerHeight = jsonGetInt(json, "cornerDotCounty");
 
 	const char* antlineTex = jsonGetStr(json, "editorAntlineTex");
-	theme->antlineCfg.editorAntlineTex = assetManagerLoadTexture(antlineTex);
+	theme->antlineCfg.editorAntlineTex = assetManagerLoadTexture(antlineTex, 0);
 	const char* antlineActiveTex = jsonGetStr(json, "editorAntlineActiveTex");
-	theme->antlineCfg.editorAntlineActiveTex = assetManagerLoadTexture(antlineActiveTex);
+	theme->antlineCfg.editorAntlineActiveTex = assetManagerLoadTexture(antlineActiveTex, 0);
 
 	const char* checkTex = jsonGetStr(json, "editorCheckTex");
-	theme->antlineCfg.editorCheckTex = assetManagerLoadTexture(checkTex);
+	theme->antlineCfg.editorCheckTex = assetManagerLoadTexture(checkTex, 0);
 	const char* checkActiveTex = jsonGetStr(json, "editorCheckActiveTex");
-	theme->antlineCfg.editorCheckActiveTex = assetManagerLoadTexture(checkActiveTex);
+	theme->antlineCfg.editorCheckActiveTex = assetManagerLoadTexture(checkActiveTex, 0);
 
 	theme->antlineCfg.editorCheckSize = (float)theme->antlineCfg.checkSize / 128.0f;
 	theme->antlineCfg.editorDotSize = (float)theme->antlineCfg.dotSize / 128.0f;

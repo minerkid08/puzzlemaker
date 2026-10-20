@@ -9,7 +9,6 @@
 
 Package* currentPackage;
 
-
 void loadPackageMetadata(Package* package)
 {
 	char buf[64];
@@ -40,9 +39,9 @@ void loadPackageMetadata(Package* package)
 
   const char* filename = jsonGetStrC(json, "icon", 0);
   if(filename)
-    package->icon = assetManagerLoadTexture(filename);
+    package->icon = assetManagerLoadTexture(filename, 0);
   else
-    package->icon = assetManagerLoadTexture("__base__/laser.png");
+    package->icon = assetManagerLoadTexture("__base__/laser.png", 0);
 
 	cJSON_Delete(json);
 }

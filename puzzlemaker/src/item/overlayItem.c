@@ -24,7 +24,7 @@ void* loadOverlayItemDef(cJSON* item, ItemDefinition* itemDef)
 	itemDef->callbacks = &callbacks;
 	OverlayItemDef* def = malloc(sizeof(OverlayItemDef));
 	const char* textureName = jsonGetStr(item, "editorTexture");
-	def->texture = assetManagerLoadTexture(textureName);
+	def->texture = assetManagerLoadTexture(textureName, &itemDef->flags);
 	def->exportTexture = jsonGetStrD(item, "texture");
 	jsonGetVec2(item, "size", def->size);
 	return def;

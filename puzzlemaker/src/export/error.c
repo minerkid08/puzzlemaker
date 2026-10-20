@@ -25,7 +25,7 @@ char* getMessage()
   return message;
 }
 
-void writeMessage(char* data)
+void writeMessage(const char* data)
 {
   strncpy(start, data, size);
   int len = strlen(data);
@@ -38,7 +38,7 @@ void writeMessage(char* data)
   start += len;
 }
 
-void writeMessagen(char* data, int len)
+void writeMessagen(const char* data, int len)
 {
 #ifdef __linux__
   write(STDOUT_FILENO, data, len);

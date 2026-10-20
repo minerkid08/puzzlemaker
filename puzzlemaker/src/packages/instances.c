@@ -58,7 +58,7 @@ void copyDir(Package* package, const char* dirname, const char* destDir)
 		char* filename = files[i];
 
 		char* src = strdupf("%s/%s", dirname, filename);
-		char* dest = strdupf("%s/%s/%s", destDir, dirname + off, filename);
+		char* dest = strdupf("%s/%s%s", destDir, dirname + off, filename);
 
 		if (package->zip)
 		{
@@ -68,6 +68,7 @@ void copyDir(Package* package, const char* dirname, const char* destDir)
 			unsigned long t = getWriteTime(dest);
 			if (stat.mtime > t)
 			{
+				printf("copying '%s' to '%s'\n", src, dest);
 				zip_file_t* file = zip_fopen(package->zip, src, 0);
 
 				int len = stat.size;
@@ -96,6 +97,7 @@ void copyDir(Package* package, const char* dirname, const char* destDir)
 
 			if (srcTime > dstTime)
 			{
+				printf("copying '%s' to '%s'\n", path, dest);
 				FILE* file = fopen(path, "rb");
 
 				fseek(file, 0, SEEK_END);
@@ -139,6 +141,7 @@ void copyDir(Package* package, const char* dirname, const char* destDir)
 
 void loadInstances()
 {
+	printf("[instance loader] loading instances\n");
 	char* p2ce = strdup(compileStatus.p2ce);
 	int j = 0;
 	for (int k = 0; k < strlen(p2ce); k++)
@@ -150,6 +153,7 @@ void loadInstances()
 	p2ce[j] = 0;
 	char* path = strdupf("%s/%s/pmInstances/", p2ce, compileStatus.maps);
 	makeDir(path);
+	printf("[instance loader] instance dest dir '%s'\n", path);
 	free(path);
 	path = strdupf("%s/%s/puzzlemakerMaps", p2ce, compileStatus.maps);
 	makeDir(path);

@@ -11,14 +11,19 @@
 
 static char path[256];
 static char filename[64];
+static char* file;
 
 static char mode = 0;
+static char queuePopup = 0;
 static bool open = 0;
 
 static char** directories = 0;
 static char** files = 0;
 
 static float textboxWidth = 0;
+
+extern char queueCompile;
+
 static __attribute__((constructor)) void init()
 {
 	path[0] = 0;
@@ -29,7 +34,7 @@ void scanDir()
 	textboxWidth = 0;
 
 	textboxWidth += igCalcTextSize("mkdir", 0, 0, -1).x;
-	if (mode == MODE_SAVE)
+	if (mode & MODE_SAVE)
 		textboxWidth += igCalcTextSize("save", 0, 0, -1).x;
 	else
 		textboxWidth += igCalcTextSize("open", 0, 0, -1).x;
@@ -121,32 +126,38 @@ void fileBrowserRender()
 		l = dynList_size(files);
 		for (int j = 0; j < l; j++)
 		{
-			const char* file = files[j];
+			char* f = files[j];
 			igPushID_Int(i++);
 
-			if (igSelectable_Bool(file, 0, 0, zero))
+			if (igSelectable_Bool(f, 0, 0, zero))
 			{
-				strncat(path, "/", 255);
-				strncat(path, file, 255);
-
-				int l = strlen(path);
-				int dotPos = 0;
-				for (int i = 0; i < l; i++)
+				if (mode & MODE_SAVE)
 				{
-					if (path[i] == '.')
-						dotPos = i;
+					queuePopup = 1;
+					file = f;
 				}
-				if (dotPos != 0)
+				else
 				{
-					path[dotPos] = 0;
-				}
+					strncat(path, "/", 255);
+					strncat(path, f, 255);
 
-				strcpy(mapSettings.name, path + 5);
-				if (mode == MODE_SAVE)
-					save();
-				if (mode == MODE_LOAD)
-					load();
-				open = 0;
+					int l = strlen(path);
+					int dotPos = 0;
+					for (int i = 0; i < l; i++)
+					{
+						if (path[i] == '.')
+							dotPos = i;
+					}
+					if (dotPos != 0)
+					{
+						path[dotPos] = 0;
+					}
+
+					strcpy(mapSettings.name, path + 5);
+					if (mode & MODE_LOAD)
+						load();
+					open = 0;
+				}
 			}
 			igPopID();
 		}
@@ -166,7 +177,7 @@ void fileBrowserRender()
 		scanDir();
 	}
 	igSameLine(0, -1);
-	if (mode == MODE_LOAD)
+	if (mode & MODE_LOAD)
 	{
 		if (igButton("open", zero))
 		{
@@ -185,11 +196,50 @@ void fileBrowserRender()
 			strncat(path, filename, 255);
 			strcpy(mapSettings.name, path + 5);
 			save();
+			if (mode & QUEUE_COMPILE)
+				queueCompile = 1;
 			open = 0;
 		}
 	}
 
 	igEnd();
+
+	if (queuePopup)
+	{
+		queuePopup = 0;
+		igOpenPopup_Str("save as", 0);
+	}
+	if (igBeginPopupModal("save as", 0, 0))
+	{
+		igText("you are going to overwrite %s/%s", path, file);
+		igText("are you sure");
+		if (igButton("yes", zero))
+		{
+			strncat(path, "/", 255);
+			strncat(path, file, 255);
+
+			int l = strlen(path);
+			int dotPos = 0;
+			for (int i = 0; i < l; i++)
+			{
+				if (path[i] == '.')
+					dotPos = i;
+			}
+			if (dotPos != 0)
+			{
+				path[dotPos] = 0;
+			}
+
+			strcpy(mapSettings.name, path + 5);
+			save();
+			open = 0;
+			igCloseCurrentPopup();
+		}
+		igSameLine(0, -1);
+		if (igButton("no", zero))
+			igCloseCurrentPopup();
+		igEnd();
+	}
 }
 
 void fileBrowserSave()

@@ -3,33 +3,34 @@
 ---@field model string
 ---@field openAnim string?
 ---@field closeAnim string?
+---@field skin number?
 
 ---@param ent Entity
 ---@param prop FizzlerProp
 ---@param startDisabled boolean
----@param pos vec3
----@param rot vec3
-local function configProp(ent, prop, startDisabled, pos, rot)
+---@param mat mat4
+local function configProp(ent, prop, startDisabled, mat)
   ent:setKv("model", prop.model);
   if (not prop.static) then
     ent:setKv("holdanimation", true);
+		if(prop.skin ~= nil) then
+			ent:setKv("skin", prop.skin);
+		end
     if (startDisabled) then
       ent:setKv("defaultanimation", prop.closeAnim);
     else
       ent:setKv("defaultanimation", prop.openAnim);
     end
   end
-  ent:transform({ 0, 0, 0 }, { 90, 0, 0 });
-  ent:transform(pos, rot);
+  ent:transformMat(mat);
 end
 
 ---@param prop FizzlerProp
 ---@param startDisabled boolean
 ---@param sourceEntity Entity?
-function addFizzlerProps(prop, startDisabled, sourceEntity)
+---@param mat mat4
+function addFizzlerProps(prop, startDisabled, sourceEntity, mat)
   local tile = Item.getTile();
-  local pos = Item.getPosition();
-  local rot = Item.getRotation();
   local size = Item.getSize();
 
   local entityName = "prop_dynamic";
@@ -39,9 +40,9 @@ function addFizzlerProps(prop, startDisabled, sourceEntity)
   for i = 1, tile[2] do
     local yPos = i * 2 - 1;
     local leftProp = Entity.new("prop", entityName, { 0, yPos, 0 }, { 0, 0, 0 });
-    configProp(leftProp, prop, startDisabled, pos, rot);
+    configProp(leftProp, prop, startDisabled, mat);
     local rightProp = Entity.new("prop", entityName, { size[1], yPos, 0 }, { 0, 180, 0 });
-    configProp(rightProp, prop, startDisabled, pos, rot);
+    configProp(rightProp, prop, startDisabled, mat);
   end
   if (sourceEntity) then
     sourceEntity:addOutput("OnUser1", "prop", "setAnimation", prop.closeAnim);

@@ -2,6 +2,7 @@
 #include "api.h"
 #include "cglm/euler.h"
 #include "cglm/mat4.h"
+#include "cglm/util.h"
 #include "dynList.h"
 #include "export/brush.h"
 #include "item/item.h"
@@ -23,13 +24,17 @@ static int entitySetPosition(lua_State* l);
 static int entitySetRotation(lua_State* l);
 // Entity:transform(vec3 pos, vec3 rot);
 static int entityTransform(lua_State* l);
+// Entity:transformMat(mat4 transform);
+static int entityTransformMat(lua_State* l);
 // Entity:attachBrush(Brush brush);
 static int entityAttachBrush(lua_State* l);
 // Entity:setKv(string k, (string|number|boolean|Entity) v);
 static int entitySetKv(lua_State* l);
+// Entity:setInstanceKv(string k, (string|number|boolean|Entity) v);
+static int entitySetInstanceKv(lua_State* l);
 // Entity:addOutput(string output, string entity, string input, string? arg, number? delay);
 static int entityAddOutput(lua_State* l);
-// Entity:markAsIO(lua_State* l);
+// Entity:markAsIO();
 static int entityMarkAsIO(lua_State* l);
 
 static Item* item;
@@ -53,22 +58,37 @@ void addEntityApi(lua_State* l, Item* i)
 {
 	item = i;
 	lua_newtable(l);
-	lua_pushcfunction(l, entityNew);
-	lua_setfield(l, -2, "new");
+
+	luaL_newmetatable(l, "entity");
+	lua_newtable(l);
 	lua_pushcfunction(l, entitySetPosition);
 	lua_setfield(l, -2, "setPosition");
 	lua_pushcfunction(l, entitySetRotation);
 	lua_setfield(l, -2, "setRotation");
 	lua_pushcfunction(l, entityTransform);
 	lua_setfield(l, -2, "transform");
+	lua_pushcfunction(l, entityTransformMat);
+	lua_setfield(l, -2, "transformMat");
 	lua_pushcfunction(l, entityAttachBrush);
 	lua_setfield(l, -2, "attachBrush");
 	lua_pushcfunction(l, entitySetKv);
 	lua_setfield(l, -2, "setKv");
+	lua_pushcfunction(l, entitySetInstanceKv);
+	lua_setfield(l, -2, "setInstanceKv");
 	lua_pushcfunction(l, entityAddOutput);
 	lua_setfield(l, -2, "addOutput");
 	lua_pushcfunction(l, entityMarkAsIO);
 	lua_setfield(l, -2, "markAsIO");
+	lua_setfield(l, -2, "__index");
+
+	lua_setmetatable(l, -2);
+	lua_pushcfunction(l, entityNew);
+	lua_setfield(l, -2, "new");
+	lua_pushcfunction(l, entityNewGlobal);
+	lua_setfield(l, -2, "newGlobal");
+	lua_pushcfunction(l, entityGetGlobal);
+	lua_setfield(l, -2, "getGlobal");
+
 	lua_setglobal(l, "Entity");
 
 	snprintf(itemName, 50, "%s%d", item->def->name, item->index);
@@ -95,20 +115,9 @@ int entityNew(lua_State* l)
 	memcpy(entity->rotation, rot, sizeof(vec3));
 
 	lua_newtable(l);
-	lua_pushcfunction(l, entitySetPosition);
-	lua_setfield(l, -2, "setPosition");
-	lua_pushcfunction(l, entitySetRotation);
-	lua_setfield(l, -2, "setRotation");
-	lua_pushcfunction(l, entityTransform);
-	lua_setfield(l, -2, "transform");
-	lua_pushcfunction(l, entityAttachBrush);
-	lua_setfield(l, -2, "attachBrush");
-	lua_pushcfunction(l, entitySetKv);
-	lua_setfield(l, -2, "setKv");
-	lua_pushcfunction(l, entityAddOutput);
-	lua_setfield(l, -2, "addOutput");
-	lua_pushcfunction(l, entityMarkAsIO);
-	lua_setfield(l, -2, "markAsIO");
+	luaL_getmetatable(l, "entity");
+	lua_setmetatable(l, -2);
+
 	long long id = entity->id;
 	lua_pushlightuserdata(l, (void*)id);
 	lua_setfield(l, -2, "id");
@@ -134,20 +143,9 @@ int entityNewGlobal(lua_State* l)
 	memcpy(entity->rotation, rot, sizeof(vec3));
 
 	lua_newtable(l);
-	lua_pushcfunction(l, entitySetPosition);
-	lua_setfield(l, -2, "setPosition");
-	lua_pushcfunction(l, entitySetRotation);
-	lua_setfield(l, -2, "setRotation");
-	lua_pushcfunction(l, entityTransform);
-	lua_setfield(l, -2, "transform");
-	lua_pushcfunction(l, entityAttachBrush);
-	lua_setfield(l, -2, "attachBrush");
-	lua_pushcfunction(l, entitySetKv);
-	lua_setfield(l, -2, "setKv");
-	lua_pushcfunction(l, entityAddOutput);
-	lua_setfield(l, -2, "addOutput");
-	lua_pushcfunction(l, entityMarkAsIO);
-	lua_setfield(l, -2, "markAsIO");
+	luaL_getmetatable(l, "entity");
+	lua_setmetatable(l, -2);
+
 	long long id = entity->id;
 	lua_pushlightuserdata(l, (void*)id);
 	lua_setfield(l, -2, "id");
@@ -169,27 +167,15 @@ int entityGetGlobal(lua_State* l)
 		Entity* ent = &entityList[i];
 		if (strcmp(ent->name, name) == 0)
 		{
-      entId = i;
+			entId = i;
 		}
 	}
-  if(entId == -1)
-    luaL_error(l, "no item with the name '%s' found\n", name); 
+	if (entId == -1)
+		luaL_error(l, "no item with the name '%s' found\n", name);
 
 	lua_newtable(l);
-	lua_pushcfunction(l, entitySetPosition);
-	lua_setfield(l, -2, "setPosition");
-	lua_pushcfunction(l, entitySetRotation);
-	lua_setfield(l, -2, "setRotation");
-	lua_pushcfunction(l, entityTransform);
-	lua_setfield(l, -2, "transform");
-	lua_pushcfunction(l, entityAttachBrush);
-	lua_setfield(l, -2, "attachBrush");
-	lua_pushcfunction(l, entitySetKv);
-	lua_setfield(l, -2, "setKv");
-	lua_pushcfunction(l, entityAddOutput);
-	lua_setfield(l, -2, "addOutput");
-	lua_pushcfunction(l, entityMarkAsIO);
-	lua_setfield(l, -2, "markAsIO");
+	luaL_getmetatable(l, "entity");
+	lua_setmetatable(l, -2);
 	long long id = entId;
 	lua_pushlightuserdata(l, (void*)id);
 	lua_setfield(l, -2, "id");
@@ -227,32 +213,71 @@ int entityTransform(lua_State* l)
 	rot[2] = glm_rad(rot[2]);
 
 	mat4 transform;
-	mat4 rotMat;
-	vec4 quat;
-	glm_mat4_identity(transform);
-	glm_translate(transform, pos);
-	glm_euler_yxz_quat(rot, quat);
-	glm_quat_mat4(quat, rotMat);
-	glm_mat4_mul(transform, rotMat, transform);
+	glm_euler_yxz(rot, transform);
+	transform[3][0] = pos[0];
+	transform[3][1] = pos[1];
+	transform[3][2] = pos[2];
 
-	vec3 entPos;
-	memcpy(entPos, entity->pos, sizeof(vec3));
-	glm_mat4_mulv3(transform, entPos, 1, entPos);
-	memcpy(entity->pos, entPos, sizeof(vec3));
+	memcpy(pos, entity->pos, sizeof(vec3));
+	memcpy(rot, entity->rotation, sizeof(vec3));
 
-	vec3 entRot;
-	memcpy(entRot, entity->rotation, sizeof(vec3));
-	entRot[0] = glm_rad(entRot[0]);
-	entRot[1] = glm_rad(entRot[1]);
-	entRot[2] = glm_rad(entRot[2]);
-	mat4 rotMat2;
-	glm_euler_yxz(entRot, rotMat2);
+	rot[0] = glm_rad(rot[0]);
+	rot[1] = glm_rad(rot[1]);
+	rot[2] = glm_rad(rot[2]);
 
-	glm_mat4_mul(rotMat, rotMat2, rotMat);
-	getEulerAngles(rotMat, rot);
+	mat4 trans2;
+	glm_euler_yxz(rot, trans2);
+	trans2[3][0] = pos[0];
+	trans2[3][1] = pos[1];
+	trans2[3][2] = pos[2];
+
+	glm_mat4_mul(transform, trans2, transform);
+
+	pos[0] = transform[3][0];
+	pos[1] = transform[3][1];
+	pos[2] = transform[3][2];
+
+	getEulerAngles(transform, rot);
 	rot[0] = glm_deg(rot[0]);
 	rot[1] = glm_deg(rot[1]);
 	rot[2] = glm_deg(rot[2]);
+	memcpy(entity->pos, pos, sizeof(vec3));
+	memcpy(entity->rotation, rot, sizeof(vec3));
+
+	return 0;
+}
+
+static int entityTransformMat(lua_State* l)
+{
+	Entity* entity = luaGetEntity(l, 1, "bad arg 1");
+	mat4 transform;
+	luaGetMat4(l, 2, transform, "bad arg 2");
+
+	vec3 pos;
+	vec3 rot;
+	memcpy(pos, entity->pos, sizeof(vec3));
+	memcpy(rot, entity->rotation, sizeof(vec3));
+	rot[0] = glm_rad(rot[0]);
+	rot[1] = glm_rad(rot[1]);
+	rot[2] = glm_rad(rot[2]);
+
+	mat4 trans2;
+	glm_euler_yxz(rot, trans2);
+	trans2[3][0] = pos[0];
+	trans2[3][1] = pos[1];
+	trans2[3][2] = pos[2];
+
+	glm_mat4_mul(transform, trans2, transform);
+
+	pos[0] = transform[3][0];
+	pos[1] = transform[3][1];
+	pos[2] = transform[3][2];
+
+	getEulerAngles(transform, rot);
+	rot[0] = glm_deg(rot[0]);
+	rot[1] = glm_deg(rot[1]);
+	rot[2] = glm_deg(rot[2]);
+	memcpy(entity->pos, pos, sizeof(vec3));
 	memcpy(entity->rotation, rot, sizeof(vec3));
 	return 0;
 }
@@ -302,6 +327,51 @@ int entitySetKv(lua_State* l)
 	}
 	}
 	exportEntityAddKvss(entity, key, value);
+	return 0;
+}
+
+int entitySetInstanceKv(lua_State* l)
+{
+	Entity* entity = luaGetEntity(l, 1, "bad arg 1");
+	if (lua_type(l, 2) != LUA_TSTRING)
+		luaL_error(l, "bad arg 2, expected string");
+	char t = lua_type(l, 3);
+	if (t != LUA_TSTRING && t != LUA_TNUMBER && t != LUA_TBOOLEAN && t != LUA_TTABLE)
+		luaL_error(l, "bad arg 3, expected (string|number|boolean|Entity)");
+
+	const char* key = lua_tostring(l, 2);
+
+	char value[50];
+	switch (t)
+	{
+	case LUA_TNUMBER: {
+		double v = lua_tonumber(l, 3);
+		snprintf(value, 50, "%.2f", v);
+		break;
+	}
+	case LUA_TSTRING: {
+		const char* v = lua_tostring(l, 3);
+		snprintf(value, 50, "%s", v);
+		break;
+	}
+	case LUA_TBOOLEAN: {
+		char v = lua_toboolean(l, 3);
+		snprintf(value, 50, "%d", v);
+		break;
+	}
+	case LUA_TTABLE: {
+		Entity* ent = luaGetEntity(l, 3, "bad arg 3");
+		snprintf(value, 50, "%s", ent->name);
+		break;
+	}
+	}
+	ItemKv kv;
+	kv.value.s = value;
+	ItemKvDef def;
+	def.name = key;
+	def.type = TYPE_STRING | TYPE_INSTANCE;
+	kv.def = &def;
+	exportEntityAddKv(entity, &kv);
 	return 0;
 }
 

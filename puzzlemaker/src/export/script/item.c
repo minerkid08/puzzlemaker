@@ -1,6 +1,8 @@
 #include "item/item.h"
-#include "error.h"
 #include "dynList.h"
+#include "error.h"
+#include "export/brush.h"
+#include "export/entity.h"
 #include "export/script/api.h"
 #include "item/panel.h"
 #include "item/volumeItem.h"
@@ -15,12 +17,17 @@ static char itemName[50];
 static int itemGetPosition(lua_State* l);
 // Item.getRotation(): vec3;
 static int itemGetRotation(lua_State* l);
+// Item.getTransform(): mat4;
+static int itemGetTransform(lua_State* l);
 // Item.getName(): vec3;
 static int itemGetName(lua_State* l);
 // Item.getType(): vec3;
 static int itemGetType(lua_State* l);
 // Item.getKv(string name): (number|boolena|string), (number|string)?
 static int itemGetKv(lua_State* l);
+
+// Item.defaultExport(): Entity?, Brush[]?;
+static int itemDefaultExport(lua_State* l);
 
 // Item.getSize(): (vec2|vec3);
 static int itemGetSize(lua_State* l);
@@ -38,12 +45,16 @@ void addItemApi(lua_State* l, Item* i)
 	lua_setfield(l, -2, "getPosition");
 	lua_pushcfunction(l, itemGetRotation);
 	lua_setfield(l, -2, "getRotation");
+	lua_pushcfunction(l, itemGetTransform);
+	lua_setfield(l, -2, "getTransform");
 	lua_pushcfunction(l, itemGetName);
 	lua_setfield(l, -2, "getName");
 	lua_pushcfunction(l, itemGetType);
 	lua_setfield(l, -2, "getType");
 	lua_pushcfunction(l, itemGetKv);
 	lua_setfield(l, -2, "getKv");
+	lua_pushcfunction(l, itemDefaultExport);
+	lua_setfield(l, -2, "defaultExport");
 
 	lua_pushcfunction(l, itemInstanceStr);
 	lua_setfield(l, -2, "instanceStr");
@@ -70,6 +81,29 @@ int itemGetPosition(lua_State* l)
 int itemGetRotation(lua_State* l)
 {
 	luaPushVec3(l, item->dir);
+	return 1;
+}
+
+int itemGetTransform(lua_State* l)
+{
+	mat4 mat;
+
+	vec3 pos;
+	vec3 rot;
+	memcpy(pos, item->pos, sizeof(vec3));
+	memcpy(rot, item->dir, sizeof(vec3));
+
+	rot[0] = glm_rad(rot[0]);
+	rot[1] = glm_rad(rot[1]);
+	rot[2] = glm_rad(rot[2]);
+
+	glm_euler_yxz(rot, mat);
+	mat[3][0] = pos[0];
+	mat[3][1] = pos[1];
+	mat[3][2] = pos[2];
+
+	luaPushMat4(l, mat);
+
 	return 1;
 }
 
@@ -123,7 +157,7 @@ int itemGetKv(lua_State* l)
 
 		if (type & TYPE_DROPDOWN)
 		{
-			int type2 = def->type & ~(TYPE_DROPDOWN);
+			int type2 = type & ~(TYPE_DROPDOWN);
 			if (type2 == TYPE_INT)
 			{
 				lua_pushnumber(l, kv->value.i);
@@ -165,7 +199,8 @@ int itemGetTile(lua_State* l)
 	if (item->def->type == ITEM_TYPE_PANEL)
 	{
 		PanelData* data = item->data;
-		luaPushiVec2(l, data->tile);
+		vec2 tile = {data->tile[0], data->tile[1]};
+		luaPushVec2(l, tile);
 		return 1;
 	}
 	luaL_error(l, "getTile() must be called on panel item");
@@ -181,12 +216,68 @@ int itemInstanceStr(lua_State* l)
 
 	int offset = 0;
 	int res = 0;
-	initErrorStack("instanceStr", res);
-	if(res)
-		luaL_error(l, getError()); 
+	initErrorStackD("instanceStr", res);
+	if (res)
+		luaL_error(l, getError());
 
 	Package* package = processPackageString(item->def->package, s, &offset);
 	lua_pushfstring(l, "pmInstances/%s/%s", package->name, s + offset);
 
 	return 1;
+}
+
+int itemDefaultExport(lua_State* l)
+{
+	Entity* entityList = getEntityList();
+	Brush* brushList = getBrushArray();
+	int entityCount = dynList_size(entityList);
+	int brushCount = dynList_size(brushList);
+
+	item->def->callbacks->exportItem(item);
+
+	entityList = getEntityList();
+	brushList = getBrushArray();
+
+	int newEntityCount = dynList_size(entityList);
+	int newBrushCount = dynList_size(brushList);
+
+	if (entityCount != newEntityCount)
+	{
+		for (int i = entityCount; i < newEntityCount; i++)
+		{
+			Entity* ent = &entityList[i];
+			lua_newtable(l);
+			luaL_getmetatable(l, "entity");
+			lua_setmetatable(l, -2);
+
+			long long id = ent->id;
+			lua_pushlightuserdata(l, (void*)id);
+			lua_setfield(l, -2, "id");
+		}
+	}
+	else
+		lua_pushnil(l);
+	if (brushCount != newBrushCount)
+	{
+		lua_newtable(l);
+		int j = 1;
+		for (int i = brushCount; i < newBrushCount; i++)
+		{
+			Brush* brush = &brushList[i];
+			for (int k = 0; k < 6; k++)
+				brush->sides[k].material = strdup(brush->sides[k].material);
+			brush->script = 1;
+
+			long long id = brush->id;
+			lua_newtable(l);
+			lua_pushlightuserdata(l, (void*)id);
+			lua_setfield(l, -2, "id");
+			luaL_getmetatable(l, "brush");
+			lua_setmetatable(l, -2);
+			lua_seti(l, -2, j++);
+		}
+	}
+	else
+		lua_pushnil(l);
+	return 2;
 }

@@ -8,6 +8,7 @@
 static int brushNew(lua_State* l);
 static int brushSetTexture(lua_State* l);
 static int brushTransform(lua_State* l);
+static int brushTransformMat(lua_State* l);
 
 Brush* luaGetBrush(lua_State* l, int pos, const char* arg)
 {
@@ -26,12 +27,22 @@ Brush* luaGetBrush(lua_State* l, int pos, const char* arg)
 void addBrushApi(lua_State* l)
 {
 	lua_newtable(l);
-	lua_pushcfunction(l, brushNew);
-	lua_setfield(l, -2, "new");
+
+	luaL_newmetatable(l, "brush");
+	lua_newtable(l);
 	lua_pushcfunction(l, brushSetTexture);
 	lua_setfield(l, -2, "setTexture");
 	lua_pushcfunction(l, brushTransform);
 	lua_setfield(l, -2, "transform");
+	lua_pushcfunction(l, brushTransformMat);
+	lua_setfield(l, -2, "transformMat");
+	lua_setfield(l, -2, "__index");
+
+	lua_setmetatable(l, -2);
+
+	lua_pushcfunction(l, brushNew);
+	lua_setfield(l, -2, "new");
+
 	lua_setglobal(l, "Brush");
 }
 
@@ -50,10 +61,8 @@ static int brushNew(lua_State* l)
 	lua_newtable(l);
 	lua_pushlightuserdata(l, (void*)id);
 	lua_setfield(l, -2, "id");
-	lua_pushcfunction(l, brushSetTexture);
-	lua_setfield(l, -2, "setTexture");
-	lua_pushcfunction(l, brushTransform);
-	lua_setfield(l, -2, "transform");
+	luaL_getmetatable(l, "brush");
+	lua_setmetatable(l, -2);
 	return 1;
 }
 
@@ -132,25 +141,41 @@ static int brushTransform(lua_State* l)
 	luaGetVec3(l, 2, pos, "bad arg 2");
 	luaGetVec3(l, 3, rot, "bad arg 2");
 
+	rot[0] = glm_rad(rot[0]);
+	rot[1] = glm_rad(rot[1]);
+	rot[2] = glm_rad(rot[2]);
+
 	mat4 transform;
-	glm_mat4_identity(transform);
-	glm_translate(transform, pos);
+	glm_euler_yxz(rot, transform);
+	transform[3][0] = pos[0];
+	transform[3][1] = pos[1];
+	transform[3][2] = pos[2];
 
-	vec3 dir;
-	vec4 quat;
-	dir[0] = glm_rad(rot[0]);
-	dir[1] = glm_rad(rot[1]);
-	dir[2] = glm_rad(rot[2]);
-	glm_euler_yxz_quat(dir, quat);
-	mat4 rotMat;
-	glm_quat_mat4(quat, rotMat);
+	memcpy(pos, brush->pos, sizeof(vec3));
+	memcpy(rot, brush->rot, sizeof(vec3));
 
-	glm_mat4_mul(transform, rotMat, transform);
+	rot[0] = glm_rad(rot[0]);
+	rot[1] = glm_rad(rot[1]);
+	rot[2] = glm_rad(rot[2]);
 
-	vec3 entPos;
-	memcpy(entPos, brush->pos, sizeof(vec3));
-	glm_mat4_mulv3(transform, entPos, 1, entPos);
-	memcpy(brush->pos, entPos, sizeof(vec3));
+	mat4 trans2;
+	glm_euler_yxz(rot, trans2);
+	trans2[3][0] = pos[0];
+	trans2[3][1] = pos[1];
+	trans2[3][2] = pos[2];
+
+	glm_mat4_mul(transform, trans2, trans2);
+
+	pos[0] = trans2[3][0];
+	pos[1] = trans2[3][1];
+	pos[2] = trans2[3][2];
+
+	getEulerAngles(trans2, rot);
+	rot[0] = glm_deg(rot[0]);
+	rot[1] = glm_deg(rot[1]);
+	rot[2] = glm_deg(rot[2]);
+	memcpy(brush->pos, pos, sizeof(vec3));
+	memcpy(brush->rot, rot, sizeof(vec3));
 
 	for (int i = 0; i < 6; i++)
 	{
@@ -165,21 +190,56 @@ static int brushTransform(lua_State* l)
 			memcpy(side->verts[j], res, sizeof(vec3));
 		}
 	}
+	return 0;
+}
 
-	vec3 entRot;
-	memcpy(entRot, brush->rot, sizeof(vec3));
-	entRot[0] = glm_rad(entRot[0]);
-	entRot[1] = glm_rad(entRot[1]);
-	entRot[2] = glm_rad(entRot[2]);
-	mat4 rotMat2;
-	glm_euler_yxz(entRot, rotMat2);
+static int brushTransformMat(lua_State* l)
+{
+	Brush* brush = luaGetBrush(l, 1, "bad arg 1");
 
-	glm_mat4_mul(rotMat, rotMat2, rotMat);
-	getEulerAngles(rotMat, rot);
+	mat4 transform;
+	luaGetMat4(l, 2, transform, "bad arg 2");
+
+	vec3 pos;
+	vec3 rot;
+	memcpy(pos, brush->pos, sizeof(vec3));
+	memcpy(rot, brush->rot, sizeof(vec3));
+
+	rot[0] = glm_rad(rot[0]);
+	rot[1] = glm_rad(rot[1]);
+	rot[2] = glm_rad(rot[2]);
+
+	mat4 trans2;
+	glm_euler_yxz(rot, trans2);
+	trans2[3][0] = pos[0];
+	trans2[3][1] = pos[1];
+	trans2[3][2] = pos[2];
+
+	glm_mat4_mul(transform, trans2, trans2);
+
+	pos[0] = trans2[3][0];
+	pos[1] = trans2[3][1];
+	pos[2] = trans2[3][2];
+
+	getEulerAngles(trans2, rot);
 	rot[0] = glm_deg(rot[0]);
 	rot[1] = glm_deg(rot[1]);
 	rot[2] = glm_deg(rot[2]);
+	memcpy(brush->pos, pos, sizeof(vec3));
 	memcpy(brush->rot, rot, sizeof(vec3));
 
+	for (int i = 0; i < 6; i++)
+	{
+		Side* side = &brush->sides[i];
+
+		for (int j = 0; j < 4; j++)
+		{
+			vec3 res;
+			vec3 vert;
+			memcpy(vert, side->verts[j], sizeof(vec3));
+			glm_mat4_mulv3(transform, vert, 1, res);
+			memcpy(side->verts[j], res, sizeof(vec3));
+		}
+	}
 	return 0;
 }

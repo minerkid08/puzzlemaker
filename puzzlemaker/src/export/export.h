@@ -2,8 +2,8 @@
 
 void clearMessage();
 char* getMessage();
-void writeMessage(char* data);
+void writeMessage(const char* data);
 void writeMessagef(const char* fmt, ...);
-void writeMessagen(char* data, int len);
+void writeMessagen(const char* data, int len);
 void exportVoxels();
 void exportMapSettings();

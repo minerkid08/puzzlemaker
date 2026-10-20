@@ -97,6 +97,7 @@ extern unsigned int mouseOffsetY;
 
 extern int width;
 extern int height;
+
 void uiViewport(FrameBuffer* framebuffer)
 {
 	igBegin("Viewport", 0, 0);
@@ -132,6 +133,8 @@ void uiViewport(FrameBuffer* framebuffer)
 	igEnd();
 }
 
+static char newMapPopup = 0;
+
 void uiMenuBar()
 {
 	ImVec2 zero;
@@ -140,26 +143,28 @@ void uiMenuBar()
 	igBeginMenuBar();
 	if (igBeginMenu("file", 1))
 	{
+		if (igMenuItem_Bool("new", 0, 0, 1))
+			newMapPopup = 1;
 		if (igMenuItem_Bool("save", 0, 0, 1))
 			fileBrowserSave();
 		if (igMenuItem_Bool("save as", 0, 0, 1))
 			fileBrowserOpen(MODE_SAVE);
 		if (igMenuItem_Bool("load", 0, 0, 1))
 			fileBrowserOpen(MODE_LOAD);
-    igEndMenu();
+		igEndMenu();
 	}
 	if (igBeginMenu("map", 1))
 	{
 		if (igMenuItem_Bool("compile", 0, 0, 1))
 		{
 			if (mapSettings.name[0] == 0)
-				fileBrowserOpen(MODE_SAVE);
+				fileBrowserOpen(MODE_SAVE | QUEUE_COMPILE);
 			else
-        queueCompile = 1;
+				queueCompile = 1;
 		}
 		if (igMenuItem_Bool("map settings", 0, 0, 1))
 			openMapSettingsUi();
-    igEndMenu();
+		igEndMenu();
 	}
 	if (igBeginMenu("window", 1))
 	{
@@ -169,7 +174,7 @@ void uiMenuBar()
 			openItemDebug();
 		if (igMenuItem_Bool("package manager", 0, 0, 1))
 			openPackageManager();
-    igEndMenu();
+		igEndMenu();
 	}
 	igSeparator();
 	igText("%s", mapSettings.name);
@@ -178,6 +183,27 @@ void uiMenuBar()
 	{
 		queueCompile = 0;
 		startCompile();
+	}
+
+	if (newMapPopup)
+	{
+		igOpenPopup_Str("new map", 0);
+		newMapPopup = 0;
+	}
+
+	if (igBeginPopupModal("new map", 0, 0))
+	{
+		igText("you are going to clear the current map");
+		igText("are you sure");
+		if (igButton("yes", zero))
+		{
+			resetMap();
+			igCloseCurrentPopup();
+		}
+		igSameLine(0, -1);
+		if (igButton("no", zero))
+			igCloseCurrentPopup();
+		igEndPopup();
 	}
 
 	updateCompilePopup();

@@ -1,3 +1,4 @@
+#include "error.h"
 #include "export/export.h"
 #include "export/script/api.h"
 #include "item/item.h"
@@ -8,6 +9,23 @@
 #include <lua/lua.h>
 #include <lua/lualib.h>
 #include <string.h>
+
+static int print(lua_State* l)
+{
+	int n = lua_gettop(l);
+	int i;
+	for (i = 1; i <= n; i++)
+	{
+		size_t len;
+		const char* s = luaL_tolstring(l, i, &len);
+		if (i > 1)
+			writeMessage("\t");
+		writeMessage(s);
+		lua_pop(l, 1);
+	}
+	writeMessage("\n");
+	return 0;
+}
 
 static int handleError(lua_State* l)
 {
@@ -25,17 +43,17 @@ static const char* getnextfilename(char** path, char* end)
 	char* sep;
 	char* name = *path;
 	if (name == end)
-		return 0; /* no more names */
+		return 0;
 	else if (*name == '\0')
-	{				 /* from previous iteration? */
-		*name = ';'; /* restore separator */
-		name++;		 /* skip it */
+	{
+		*name = ';';
+		name++;
 	}
-	sep = strchr(name, ';'); /* find next separator */
-	if (sep == 0)			 /* separator not found? */
-		sep = end;			 /* name goes until the end */
-	*sep = '\0';			 /* finish file name */
-	*path = sep;			 /* will start next search from here */
+	sep = strchr(name, ';');
+	if (sep == 0)
+		sep = end;
+	*sep = '\0';
+	*path = sep;
 	return name;
 }
 
@@ -46,6 +64,10 @@ static int searcher(lua_State* l)
 	const char* path = "assets/scripts/?.lua;assets/scripts/?/init.lua";
 
 	filename = luaL_gsub(l, filename, ".", "/");
+	int res = 0;
+	initErrorStackD("package searcher", res);
+	if (res)
+		luaL_error(l, getError());
 	Package* package = processPackageString(item->def->package, filename, &offset);
 
 	luaL_Buffer b;
@@ -90,12 +112,6 @@ static int searcher(lua_State* l)
 	return 1;
 }
 
-static int test(lua_State* l)
-{
-	luaL_error(l, "test");
-	return 0;
-}
-
 int runExportScript(Item* item2)
 {
 	item = item2;
@@ -116,13 +132,16 @@ int runExportScript(Item* item2)
 	lua_pushnil(l);
 	lua_setglobal(l, "io");
 
-	lua_pushcfunction(l, test);
-	lua_setglobal(l, "test");
+	lua_pushcfunction(l, print);
+	lua_setglobal(l, "print");
 
 	addBrushApi(l);
 	addUtilsApi(l);
 	addEntityApi(l, item);
 	addItemApi(l, item);
+	addVec2Api(l);
+	addVec3Api(l);
+	addMat4Api(l);
 
 	char buf[256];
 	snprintf(buf, sizeof(buf) - 1, "assets/scripts/%s", item->def->exportScript);

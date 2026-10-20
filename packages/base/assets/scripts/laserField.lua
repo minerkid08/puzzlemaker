@@ -1,7 +1,22 @@
+require("fizzlerUtils");
+
+---@type FizzlerProp
+local propConfig = {
+	static = false,
+	model = "models/props/fizzler_dynamic",
+	openAnim = "open",
+	closeAnim = "close",
+	skin = 2
+};
+
 local pos = Item.getPosition();
-local rot = Item.getRotation();
 local size = Item.getSize();
 local tile = Item.getTile();
+
+local transform = Item.getTransform();
+
+local rotation = mat4.newRotate({ 90, 0, 0 });
+transform = mat4.mul(transform, rotation);
 
 local ent = Entity.new("trigger", "trigger_hurt", pos, { 0, 0, 0 });
 ent:markAsIO();
@@ -18,7 +33,7 @@ trigger:setTexture(Direction.POS_Y, "TOOLS/TOOLSTRIGGER");
 trigger:setTexture(Direction.NEG_Y, "TOOLS/TOOLSTRIGGER");
 trigger:setTexture(Direction.POS_Z, "TOOLS/TOOLSTRIGGER");
 trigger:setTexture(Direction.NEG_Z, "TOOLS/TOOLSTRIGGER");
-trigger:transform(pos, rot);
+trigger:transformMat(transform);
 ent:attachBrush(trigger);
 
 local laserEnt = Entity.new("laser", "func_brush", pos, { 0, 0, 0 });
@@ -27,8 +42,6 @@ laserEnt:setKv("solidity", 1);
 laserEnt:setKv("renderfx", 14);
 
 for i = 1, tile[2] do
-	local postFix = tostring(i);
-
 	local laser = Brush.new({ 0, tile[2] * 2, -1 / 64 }, { size[1], size[2] + tile[2] * 2, 1 / 64 });
 	laser:setTexture(Direction.POS_X, "TOOLS/TOOLSNODRAW");
 	laser:setTexture(Direction.NEG_X, "TOOLS/TOOLSNODRAW");
@@ -36,29 +49,11 @@ for i = 1, tile[2] do
 	laser:setTexture(Direction.NEG_Y, "TOOLS/TOOLSNODRAW");
 	laser:setTexture(Direction.POS_Z, "EFFECTS/LASERPLANE", { texSize = 512, fit = true });
 	laser:setTexture(Direction.NEG_Z, "EFFECTS/LASERPLANE", { texSize = 512, fit = true });
-	laser:transform(pos, rot);
+trigger:transformMat(transform);
 	laserEnt:attachBrush(laser);
-
-	local leftProp = Entity.new("leftProp" .. postFix, "prop_dynamic", { 0, tile[2] * 2 + 1, 0 }, { 0, 0, 0 });
-
-	leftProp:setKv("model", "models/props/fizzler_dynamic.mdl");
-	leftProp:setKv("holdanimation", true);
-	leftProp:setKv("skin", 2);
-	leftProp:transform(pos, rot);
-
-	local rightProp = Entity.new("rightProp" .. postFix, "prop_dynamic", { size[1], tile[2] * 1 + 1, 0 }, { 0, 180, 0 });
-
-	rightProp:setKv("model", "models/props/fizzler_dynamic.mdl");
-	rightProp:setKv("holdanimation", true);
-	rightProp:setKv("skin", 2);
-	rightProp:transform(pos, rot);
-
-	ent:addOutput("OnUser1", leftProp, "SetAnimation", "close");
-	ent:addOutput("OnUser1", rightProp, "SetAnimation", "close");
-	ent:addOutput("OnUser2", leftProp, "SetAnimation", "open");
-	ent:addOutput("OnUser2", rightProp, "SetAnimation", "open");
 end
 
+addFizzlerProps(propConfig, false, ent, transform);
 
 ent:addOutput("OnUser1", ent, "Disable");
 ent:addOutput("OnUser1", laserEnt, "Disable");

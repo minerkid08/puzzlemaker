@@ -3,7 +3,7 @@ versioninfo
 	"editorextension" "strata"
 	"editorversion" "400"
 	"editorbuild" "10773"
-	"mapversion" "4"
+	"mapversion" "5"
 	"formatversion" "100"
 	"prefab" "0"
 }
@@ -23,25 +23,25 @@ viewsettings
 		v0
 		{
 			"3d" "1"
-			"position" "(-187.384 -198.479 128.765)"
+			"position" "(-80.9172 -99.3102 64.7657)"
 			"angle" "[24.12 53.73 0]"
 		}
 		v1
 		{
 			"3d" "0"
-			"position" "(16.0458 -64.9834 65536)"
+			"position" "(16.0458 -64.9834 0)"
 			"zoom" "2.67483"
 		}
 		v2
 		{
 			"3d" "0"
-			"position" "(0 0 27)"
-			"zoom" "0.25"
+			"position" "(65536 1.94547 36.842)"
+			"zoom" "11.5013"
 		}
 		v3
 		{
 			"3d" "0"
-			"position" "(-37.1183 -65536 14.3848)"
+			"position" "(-37.1183 0 14.3848)"
 			"zoom" "23.8491"
 		}
 	}
@@ -49,7 +49,7 @@ viewsettings
 world
 {
 	"id" "1"
-	"mapversion" "4"
+	"mapversion" "5"
 	"classname" "worldspawn"
 	"detailmaterial" "detail/detailsprites"
 	"detailvbsp" "detail.vbsp"
@@ -60,10 +60,24 @@ world
 }
 entity
 {
+	"id" "146"
+	"classname" "func_instance_parms"
+	"parm1" "$base instance_file"
+	"origin" "0 0 32"
+	editor
+	{
+		"color" "220 30 220"
+		"visgroupshown" "1"
+		"visgroupautoshown" "1"
+		"logicalpos" "[0 500]"
+	}
+}
+entity
+{
 	"id" "119"
 	"classname" "func_instance"
 	"angles" "-0 0 0"
-	"file" "instances/buttons/button_pieces/floor_button_base_intact_black.vmf"
+	"file" "$base"
 	"origin" "0 0 0"
 	editor
 	{

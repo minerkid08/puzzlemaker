@@ -1,6 +1,10 @@
 {
-	"moveSpeed":	8,
+	"moveSpeed":	4,
 	"boostSpeed":	8,
+	"arrowSens":	1,
+	"orbitSens":	0.10000000149011612,
+	"panSens":	0.5,
 	"fov":	90,
-	"rotSnap":	15
+	"rotSnap":	90,
+	"lockMouseOnPan":	true
 }

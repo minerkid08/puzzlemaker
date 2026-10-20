@@ -444,3 +444,23 @@ void load()
 	printf("done\n");
 	cJSON_Delete(json);
 }
+
+void resetMap()
+{
+	for (int i = 0; i < dynList_size(itemList); i++)
+	{
+		Item* item = &itemList[i];
+		if (isItemValid(item))
+			removeItem(item);
+	}
+	dynList_resize((void**)&itemList, 0);
+
+	for (int i = 0; i < dynList_size(antlines); i++)
+	{
+		Antline* antline = &antlines[i];
+		dynList_free(antline->segments);
+	}
+	dynList_resize((void**)&antlines, 0);
+
+	initVoxels();
+}

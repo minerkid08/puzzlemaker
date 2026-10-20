@@ -2,6 +2,7 @@
 
 #define MODE_SAVE 1
 #define MODE_LOAD 2
+#define QUEUE_COMPILE 3
 
 void fileBrowserOpen(char mode);
 void fileBrowserRender();

@@ -3,6 +3,7 @@
 #include "dynList.h"
 #include "grab.h"
 #include "item/item.h"
+#include "mapsettings.h"
 #include "packages/package.h"
 #include "renderer/framebuffer.h"
 #include "save.h"
@@ -139,11 +140,19 @@ int main(int argc, const char** argv)
 		dt = now - lastTime;
 		lastTime = now;
 
-		float moveForward = glfwGetKey(window, GLFW_KEY_W) - glfwGetKey(window, GLFW_KEY_S);
-		float moveRight = glfwGetKey(window, GLFW_KEY_D) - glfwGetKey(window, GLFW_KEY_A);
+		float moveForward = 0.0f;
+		float moveRight = 0.0f;
+		float lookUp = 0.0f;
+		float lookRight = 0.0f;
 
-		float lookUp = glfwGetKey(window, GLFW_KEY_UP) - glfwGetKey(window, GLFW_KEY_DOWN);
-		float lookRight = glfwGetKey(window, GLFW_KEY_RIGHT) - glfwGetKey(window, GLFW_KEY_LEFT);
+		if (viewportHovered)
+		{
+			moveForward = glfwGetKey(window, GLFW_KEY_W) - glfwGetKey(window, GLFW_KEY_S);
+			moveRight = glfwGetKey(window, GLFW_KEY_D) - glfwGetKey(window, GLFW_KEY_A);
+
+			lookUp = glfwGetKey(window, GLFW_KEY_UP) - glfwGetKey(window, GLFW_KEY_DOWN);
+			lookRight = glfwGetKey(window, GLFW_KEY_RIGHT) - glfwGetKey(window, GLFW_KEY_LEFT);
+		}
 
 		snapRotation = !glfwGetKey(window, GLFW_KEY_LEFT_CONTROL);
 
@@ -203,13 +212,63 @@ int main(int argc, const char** argv)
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+	if (action == GLFW_PRESS)
+	{
+		if (key == GLFW_KEY_F9)
+		{
+			if (mapSettings.name[0] == 0)
+				fileBrowserOpen(MODE_SAVE | QUEUE_COMPILE);
+			else
+				queueCompile = 1;
+			return;
+		}
+		if (mods & GLFW_MOD_CONTROL)
+		{
+			if (key == GLFW_KEY_C)
+			{
+				if (selection.type != SELECTION_ITEM)
+					return;
+				copyItem(selection.item);
+				return;
+			}
+			if (key == GLFW_KEY_V)
+			{
+				vec3 offset;
+				vec3 pos;
+				ivec3 ipos;
+
+				glm_vec3_scale(forward, 5, offset);
+
+				pos[0] = offset[0] + cameraPos[0];
+				pos[1] = offset[1] + cameraPos[1];
+				pos[2] = offset[2] + cameraPos[2];
+
+				selection.item = pasteItem();
+				if (selection.item)
+				{
+					selection.type = SELECTION_ITEM;
+
+					selection.item->pos[0] = pos[0];
+					selection.item->pos[1] = pos[1];
+					selection.item->pos[2] = pos[2];
+					updateItemTransform(selection.item);
+					mouseMode = MODE_GRAB;
+				}
+				return;
+			}
+			if (key == GLFW_KEY_S)
+			{
+				fileBrowserSave();
+				return;
+			}
+		}
+	}
+
 	if (!viewportHovered)
 		return;
 
 	if (action == GLFW_PRESS)
 	{
-		if (key == GLFW_KEY_F9)
-			queueCompile = 1;
 		if (key == GLFW_KEY_2)
 		{
 			if (selection.type == SELECTION_VOXEL)
@@ -298,38 +357,6 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 			if (selection.type == SELECTION_VOXEL)
 				voxelToggleSize();
 		}
-		if (key == GLFW_KEY_C && mods & GLFW_MOD_CONTROL)
-		{
-			if (selection.type != SELECTION_ITEM)
-				return;
-			copyItem(selection.item);
-		}
-		if (key == GLFW_KEY_V && mods & GLFW_MOD_CONTROL)
-		{
-			vec3 offset;
-			vec3 pos;
-			ivec3 ipos;
-
-			glm_vec3_scale(forward, 5, offset);
-
-			pos[0] = offset[0] + cameraPos[0];
-			pos[1] = offset[1] + cameraPos[1];
-			pos[2] = offset[2] + cameraPos[2];
-
-			selection.item = pasteItem();
-			if (selection.item)
-			{
-				selection.type = SELECTION_ITEM;
-
-				selection.item->pos[0] = pos[0];
-				selection.item->pos[1] = pos[1];
-				selection.item->pos[2] = pos[2];
-				updateItemTransform(selection.item);
-				mouseMode = MODE_GRAB;
-			}
-		}
-		if (key == GLFW_KEY_S && mods & GLFW_MOD_CONTROL)
-			save();
 	}
 }
 
@@ -377,12 +404,30 @@ void mouseCallback(GLFWwindow* window, int button, int action, int mods)
 		{
 			mouseMode = MODE_ORBIT;
 			memcpy(tempRot, cameraRot, sizeof(float) * 3);
+			if (editorSettings.lockMouseOnPan)
+			{
+				tx = width / 2.0f;
+				ty = height / 2.0f;
+				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+				int viewportCenterX = mouseOffsetX + width / 2;
+				int viewportCenterY = mouseOffsetY + height / 2;
+				glfwSetCursorPos(window, viewportCenterX, viewportCenterY);
+			}
 		}
 
 		if (button == GLFW_MOUSE_BUTTON_3)
 		{
 			mouseMode = MODE_PAN;
 			memcpy(tempPos, cameraPos, sizeof(float) * 3);
+			if (editorSettings.lockMouseOnPan)
+			{
+				tx = width / 2.0f;
+				ty = height / 2.0f;
+				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+				int viewportCenterX = mouseOffsetX + width / 2;
+				int viewportCenterY = mouseOffsetY + height / 2;
+				glfwSetCursorPos(window, viewportCenterX, viewportCenterY);
+			}
 		}
 		if (button == GLFW_MOUSE_BUTTON_1)
 		{
@@ -394,6 +439,8 @@ void mouseCallback(GLFWwindow* window, int button, int action, int mods)
 	{
 		endSelection();
 		mouseMode = 0;
+		if (editorSettings.lockMouseOnPan)
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	}
 }
 
@@ -406,24 +453,57 @@ void mouseMoveCallback(GLFWwindow* window, double x, double y)
 	mx = x2;
 	my = y2;
 
-	double dx = tx - x2;
-	double dy = ty - y2;
-
-	if (mouseMode == MODE_ORBIT)
+	double dx = 0;
+	double dy = 0;
+	if (editorSettings.lockMouseOnPan)
 	{
-		cameraRot[1] = tempRot[1] + (dx * 0.001);
-		cameraRot[0] = tempRot[0] + (dy * 0.001);
+		dx = width / 2.0f - x2;
+		dy = height / 2.0f - y2;
+		if (mouseMode == MODE_ORBIT)
+		{
+			cameraRot[1] += (dx * editorSettings.orbitSens / 100.0f);
+			cameraRot[0] += (dy * editorSettings.orbitSens / 100.0f);
+
+			int viewportCenterX = mouseOffsetX + width / 2;
+			int viewportCenterY = mouseOffsetY + height / 2;
+			glfwSetCursorPos(window, viewportCenterX, viewportCenterY);
+		}
+
+		if (mouseMode == MODE_PAN)
+		{
+			cameraPos[0] += right[0] * dx * editorSettings.panSens / 100.0f;
+			cameraPos[1] += right[1] * dx * editorSettings.panSens / 100.0f;
+			cameraPos[2] += right[2] * dx * editorSettings.panSens / 100.0f;
+
+			cameraPos[0] -= up[0] * dy * editorSettings.panSens / 100.0f;
+			cameraPos[1] -= up[1] * dy * editorSettings.panSens / 100.0f;
+			cameraPos[2] -= up[2] * dy * editorSettings.panSens / 100.0f;
+
+			int viewportCenterX = mouseOffsetX + width / 2;
+			int viewportCenterY = mouseOffsetY + height / 2;
+			glfwSetCursorPos(window, viewportCenterX, viewportCenterY);
+		}
 	}
-
-	if (mouseMode == MODE_PAN)
+	else
 	{
-		cameraPos[0] = tempPos[0] + right[0] * dx * 0.005;
-		cameraPos[1] = tempPos[1] + right[1] * dx * 0.005;
-		cameraPos[2] = tempPos[2] + right[2] * dx * 0.005;
+		dx = tx - x2;
+		dy = ty - y2;
+		if (mouseMode == MODE_ORBIT)
+		{
+			cameraRot[1] = tempRot[1] + (dx * editorSettings.orbitSens / 100.0f);
+			cameraRot[0] = tempRot[0] + (dy * editorSettings.orbitSens / 100.0f);
+		}
 
-		cameraPos[0] -= up[0] * dy * 0.005;
-		cameraPos[1] -= up[1] * dy * 0.005;
-		cameraPos[2] -= up[2] * dy * 0.005;
+		if (mouseMode == MODE_PAN)
+		{
+			cameraPos[0] = tempPos[0] + right[0] * dx * editorSettings.panSens / 100.0f;
+			cameraPos[1] = tempPos[1] + right[1] * dx * editorSettings.panSens / 100.0f;
+			cameraPos[2] = tempPos[2] + right[2] * dx * editorSettings.panSens / 100.0f;
+
+			cameraPos[0] -= up[0] * dy * editorSettings.panSens / 100.0f;
+			cameraPos[1] -= up[1] * dy * editorSettings.panSens / 100.0f;
+			cameraPos[2] -= up[2] * dy * editorSettings.panSens / 100.0f;
+		}
 	}
 
 	if (mouseMode == MODE_GRAB)

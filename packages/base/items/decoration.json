@@ -5,7 +5,7 @@
 		"name": "Light",
 		"model": "light.obj",
 		"mat": "light.png",
-    "instance": "puzzlemakerInstances/light",
+    "instance": "light",
     "snapMode": "mini-center",
     "bound1": [-1.25, -0.25, 0],
     "bound2": [0.75, 0.25, 0.1],

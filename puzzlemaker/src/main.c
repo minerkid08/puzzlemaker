@@ -105,9 +105,9 @@ int main(int argc, const char** argv)
 
 	glfwSwapInterval(1);
 
-	startCompileThread();
-
 	initUi(window);
+
+	startCompileThread();
 
 	loadPackageList();
 

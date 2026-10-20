@@ -96,6 +96,8 @@ void loadItemDefinitionFile(Package* package, const char* filename)
 
 		printf("[item loader] loading item '%s'\n", def->id);
 
+    def->flags = 0;
+
 		const char* type = jsonGetStr(item, "type");
 		if (strcmp(type, "entity") == 0)
 		{
@@ -125,7 +127,6 @@ void loadItemDefinitionFile(Package* package, const char* filename)
 			jsonGetBoolC(item, "deleteIntersectingVoxelsEditor", def->deleteIntersectingVoxels);
 		def->genMissingVoxels = jsonGetBoolC(item, "genMissingVoxels", 1);
 		def->exportScript = jsonGetStrCD(item, "exportScript", 0);
-		def->transparent = jsonGetBoolC(item, "transparent", 0);
 		def->requiresPaint = jsonGetBoolC(item, "requiresPaint", 0);
 
 		cJSON* keyValues = jsonGetArrayC(item, "keyvalues");

@@ -18,7 +18,6 @@ extern char metadataLoaded;
 
 void startErrorLoop()
 {
-	printf("err: %s\n", getError());
 	if (running)
 		return;
 	openErrorPopup();

@@ -61,7 +61,7 @@ void* loadEntityItemDef(cJSON* item, ItemDefinition* itemDef)
 	}
 
 	def->mesh = assetManagerLoadMesh(modelName);
-	def->texture = assetManagerLoadTexture(textureName);
+	def->texture = assetManagerLoadTexture(textureName, &itemDef->flags);
 
 	return def;
 }

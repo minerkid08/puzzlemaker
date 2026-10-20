@@ -6,6 +6,7 @@
 #include "raycast.h"
 #include "renderer/debug.h"
 #include "renderer/renderer.h"
+#include "renderer/texture.h"
 #include "selection.h"
 #include "utils.h"
 
@@ -32,6 +33,8 @@ void drawItems()
 		Item* item = &itemList[i];
 		if (!isItemValid(item))
 			continue;
+		if (!(item->def->flags & TEX_OPAQUE))
+			continue;
 		if (item->highlighted)
 			highlightedItem = item;
 		if (item->hidden)
@@ -46,7 +49,7 @@ void drawItems()
 		Item* item = &itemList[i];
 		if (!isItemValid(item))
 			continue;
-		if (item->def->transparent == 0)
+		if (!(item->def->flags & TEX_TRANSPARENT))
 			continue;
 		if (item->hidden)
 			continue;

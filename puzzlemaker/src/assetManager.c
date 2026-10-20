@@ -13,6 +13,7 @@ typedef struct
 {
 	const char* name;
 	unsigned int id;
+	char flags;
 } TextureAsset;
 
 typedef struct
@@ -59,12 +60,12 @@ void assetManagerCleanup()
 	dynList_free(meshes);
 }
 
-unsigned int assetManagerLoadTexture(const char* filename)
+unsigned int assetManagerLoadTexture(const char* filename, char* flags)
 {
 	int offset = 0;
 
-  Package* package = processPackageString(currentPackage, filename, &offset);
-  const char* file = filename + offset;
+	Package* package = processPackageString(currentPackage, filename, &offset);
+	const char* file = filename + offset;
 
 	int len = dynList_size(textures);
 	char* textureName = strdupf("packages/%s/assets/materials/%s", package->name, file);
@@ -72,10 +73,12 @@ unsigned int assetManagerLoadTexture(const char* filename)
 	{
 		TextureAsset* asset = &textures[i];
 		if (strcmp(asset->name, textureName) == 0)
-    {
-      free(textureName);
+		{
+			free(textureName);
+			if (flags)
+				*flags = asset->flags;
 			return asset->id;
-    }
+		}
 	}
 
 	dynList_resize((void**)&textures, len + 1);
@@ -85,7 +88,9 @@ unsigned int assetManagerLoadTexture(const char* filename)
 
 	printf("[asset manager] loading texture '%s'\n", file);
 
-	asset->id = loadTexture(package, file);
+	asset->id = loadTexture(package, file, &asset->flags);
+	if (flags)
+		*flags = asset->flags;
 	return asset->id;
 }
 
@@ -93,8 +98,8 @@ Mesh* assetManagerLoadMesh(const char* filename)
 {
 	int offset = 0;
 
-  Package* package = processPackageString(currentPackage, filename, &offset);
-  const char* file = filename + offset;
+	Package* package = processPackageString(currentPackage, filename, &offset);
+	const char* file = filename + offset;
 
 	char* meshName = strdupf("packages/%s/assets/models/%s", package->name, file);
 	int len = dynList_size(meshes);

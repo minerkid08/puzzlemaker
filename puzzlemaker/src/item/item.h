@@ -90,10 +90,11 @@ typedef struct
 
 	char snapMode;
 	char requiresPaint;
-	char transparent;
 	char deleteIntersectingVoxels;
 	char deleteIntersectingVoxelsEditor;
 	char genMissingVoxels;
+
+	char flags;
 
 	ItemCallbacks* callbacks;
 } ItemDefinition;

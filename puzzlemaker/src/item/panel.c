@@ -69,7 +69,9 @@ void* loadPanelItemDef(cJSON* item, ItemDefinition* itemDef)
 		data->items[i].minSize = 0;
 	}
 
-	jsonGetEditorTex(item, "editorCenterTexture", &data->editorCenterTexture);
+  char flags = 0;
+	jsonGetEditorTex(item, "editorCenterTexture", &data->editorCenterTexture, &flags);
+  itemDef->flags |= flags;
 
 	cJSON* arr = jsonGetArrayC(item, "borders");
 	if (arr)
@@ -100,7 +102,9 @@ void* loadPanelItemDef(cJSON* item, ItemDefinition* itemDef)
 				errorf("bad id '%s'", id);
 
 			PanelItemDef* item = &data->items[index];
-			jsonGetEditorTex(border, "editorTexture", &item->editorTexture);
+      char flags = 0;
+			jsonGetEditorTex(border, "editorTexture", &item->editorTexture, &flags);
+      itemDef->flags |= flags;
 
 			item->maxSize = 9999;
 			if (cJSON_GetObjectItem(border, "maxSize"))
@@ -154,7 +158,9 @@ void* loadPanelItemDef(cJSON* item, ItemDefinition* itemDef)
 			const char* meshName = jsonGetStr(propJson, "editorModel");
 			prop->mesh = assetManagerLoadMesh(meshName);
 			const char* textureName = jsonGetStr(propJson, "editorTexture");
-			prop->tex = assetManagerLoadTexture(textureName);
+      char flags = 0;
+			prop->tex = assetManagerLoadTexture(textureName, &flags);
+      itemDef->flags |= flags;
 
 			jsonGetTransform(propJson, "transform", prop->pos, prop->rot, prop->transform);
 			jsonGetTransform(propJson, "editorTransform", prop->editorPos, prop->editorRot, prop->editorTransform);

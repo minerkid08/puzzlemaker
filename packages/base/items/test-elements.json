@@ -118,7 +118,7 @@
 		"name": "Door",
 		"model": "door.obj",
 		"mat": "door.png",
-    "instance": "puzzlemakerInstances/door-{portalability}",
+    "instance": "door-{portalability}",
     "bound1": [-1, -0.5, 0],
     "bound2": [1, 0, 2],
     "editorTransform": {
@@ -163,7 +163,7 @@
 		"name": "Cube Dropper",
 		"model": "dropper.obj",
 		"mat": "dropper.png",
-    "instance": "puzzlemakerInstances/dropper",
+    "instance": "dropper",
     "bound1": [-1, -1, 0],
     "bound2": [1, 1, 1],
 		"editorTransform": {
@@ -273,7 +273,7 @@
     "name": "Floor Button",
     "model": "button.obj",
     "mat": "button.png",
-    "instance": "puzzlemakerInstances/button",
+    "instance": "button",
     "bound1": [-1, -1, 0],
     "bound2": [1, 1, 0.3],
     "editorTransform": {
@@ -427,7 +427,7 @@
 		"name": "Funnel",
 		"model": "funnel.obj",
 		"mat": "funnel.png",
-    "instance": "puzzlemakerInstances/funnel",
+    "instance": "funnel",
     "bound1": [-1, -1, -1],
     "bound2": [1, 1, 0],
     "transform": {

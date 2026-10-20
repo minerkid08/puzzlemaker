@@ -238,7 +238,7 @@ void jsonGetTex(const cJSON* json, const char* name, Texture* out)
   popStackFrame();
 }
 
-void jsonGetEditorTex(const cJSON* json, const char* name, Texture* out)
+void jsonGetEditorTex(const cJSON* json, const char* name, Texture* out, char* flags)
 {
 	cJSON* tex = cJSON_GetObjectItem(json, name);
 	out->alignment = TEX_ALIGNMENT_FIT;
@@ -248,14 +248,14 @@ void jsonGetEditorTex(const cJSON* json, const char* name, Texture* out)
 
 	if (cJSON_IsString(tex))
 	{
-		out->tex = assetManagerLoadTexture(tex->valuestring);
+		out->tex = assetManagerLoadTexture(tex->valuestring, flags);
 		return;
 	}
 
 	pushStackFrame(name);
 
 	out->filename = jsonGetStr(tex, "filename");
-	out->tex = assetManagerLoadTexture(out->filename);
+	out->tex = assetManagerLoadTexture(out->filename, flags);
 	const char* alignment = jsonGetStrC(tex, "alignment", 0);
 	if (alignment)
 	{

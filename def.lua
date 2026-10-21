@@ -112,6 +112,15 @@ function mat4.getPosition(mat) end
 ---@param mat mat4 
 ---@return vec3
 function mat4.getRotation(mat) end
+---@param mat mat4 
+---@return vec3
+function mat4.forward(mat) end
+---@param mat mat4 
+---@return vec3
+function mat4.up(mat) end
+---@param mat mat4 
+---@return vec3
+function mat4.right(mat) end
 
 ---@class BrushTexOpts
 ---@field texSize number?

@@ -172,6 +172,7 @@ void renderAntlineHover()
 		if (antline->hovered == 0)
 			continue;
 		drawAntline(antline);
+    antline->hovered = 0;
 	}
 	if (selection.type == SELECTION_ANTLINE)
 	{

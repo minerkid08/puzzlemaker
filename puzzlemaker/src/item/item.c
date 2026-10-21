@@ -64,6 +64,7 @@ void drawItems()
 		vec3 b;
 		highlightedItem->def->callbacks->getBoundingBox(highlightedItem, a, b);
 		drawDebugRect(a, b, highlightedItem->transform, 1);
+    highlightedItem->highlighted = 0;
 	}
 
 	if (selection.type == SELECTION_ITEM)

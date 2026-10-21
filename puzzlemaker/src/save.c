@@ -2,11 +2,11 @@
 #include "camera.h"
 #include "cjson.h"
 #include "dynList.h"
+#include "error.h"
 #include "item/item.h"
 #include "jsonUtils.h"
 #include "mapsettings.h"
 #include "packages/theme.h"
-#include "utils.h"
 #include "voxel/voxel.h"
 #include <stdio.h>
 #include <string.h>
@@ -70,7 +70,7 @@ void save()
 		cJSON_AddItemToArray(items, itemJson);
 		cJSON_AddNumberToObject(itemJson, "index", item->index);
 		cJSON_AddStringToObject(itemJson, "id", item->def->id);
-		cJSON_AddStringToObject(itemJson, "group", item->def->group);
+		cJSON_AddStringToObject(itemJson, "package", item->def->package->name);
 		cJSON_AddBoolToObject(itemJson, "hidden", item->hidden);
 
 		cJSON* pos = cJSON_CreateArray();

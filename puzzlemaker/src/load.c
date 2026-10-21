@@ -30,9 +30,9 @@ void load()
 	initErrorStackD(filename, res);
 	if (res)
 	{
-		if(json)
+		if (json)
 			cJSON_Delete(json);
-		if(data)
+		if (data)
 		{
 			fclose(file);
 			free(data);
@@ -75,7 +75,7 @@ void load()
 
 	json = cJSON_Parse(data);
 	const char* err = cJSON_GetErrorPtr();
-	if(err)
+	if (err)
 		jsonParseError(data, err, filename);
 	free(data);
 	fclose(file);
@@ -176,22 +176,17 @@ void load()
 		const char* id = jsonGetStr(itemJson, "id");
 		ItemDefinition* defs = getItemDefinitions();
 
-		const char* groupName = jsonGetStr(itemJson, "group");
-		for (int i = 0; i < dynList_size(groups); i++)
+		const char* packageName = jsonGetStr(itemJson, "package");
+		for (int j = 0; j < dynList_size(defs); j++)
 		{
-			ItemGroup* group = &groups[i];
-			if (strcmp(group->name, groupName))
-				continue;
-			for (int j = 0; j < group->size; j++)
+			if (strcmp(defs[j].package->name, packageName) == 0)
 			{
-				if (strcmp(defs[j + group->startInd].id, id) == 0)
+				if (strcmp(defs[j].id, id) == 0)
 				{
-					item = addItem(j + group->startInd, 0);
+					item = addItem(j, 0);
 					break;
 				}
 			}
-			if (item)
-				break;
 		}
 		if (item == 0)
 			errorf("failed to load item, item definition not found for item '%s'", id);
@@ -284,6 +279,7 @@ void load()
 				}
 			}
 		}
+		popStackFrame();
 		popStackFrame();
 	}
 	popStackFrame();

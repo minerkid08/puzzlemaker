@@ -25,10 +25,8 @@ end
 
 portal = portal:lower();
 
-local transform = mat4.newRotate(Item.getRotation());
-local forward = transform:mulv3(vec3.forward);
-
-local dot = vec3.dot(forward, vec3.up);
+local transform = Item.getTransform();
+local dot = vec3.dot(transform:forward(), vec3.up);
 
 if (dot > 0.5) then
 	portal = portal:gsub("%%surf%%", "floor");

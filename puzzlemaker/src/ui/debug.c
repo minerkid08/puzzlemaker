@@ -7,6 +7,7 @@
 
 #include "item/item.h"
 
+#include "camera.h"
 #include "cimgui.h"
 #include "save.h"
 #include "selection.h"
@@ -51,6 +52,10 @@ void itemDebugRender()
 	zero.y = 0;
 
 	igBegin("Item Debug", &open, 0);
+
+	igDragFloat3("cam", cameraPos, 0.1, -9999, 9999, "%.2f", 0);
+	if (igDragFloat3("rot", cameraRot, 0.01, -9999, 9999, "%.2f", 0))
+		cameraRot[2] = 0;
 
 	if (selection.type != SELECTION_ITEM)
 	{

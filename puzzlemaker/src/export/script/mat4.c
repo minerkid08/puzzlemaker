@@ -24,6 +24,12 @@ static int mat4Mulv3(lua_State* l);
 static int mat4GetPosition(lua_State* l);
 // mat4.getRotation(mat4 mat): vec3
 static int mat4GetRotation(lua_State* l);
+// mat4.getForward(mat4 mat): vec3
+static int mat4GetForward(lua_State* l);
+// mat4.getUp(mat4 mat): vec3
+static int mat4GetUp(lua_State* l);
+// mat4.getRight(mat4 mat): vec3
+static int mat4GetRight(lua_State* l);
 
 void luaGetMat4(lua_State* l, int pos, mat4 out, const char* arg)
 {
@@ -85,6 +91,12 @@ void addMat4Api(lua_State* l)
 	lua_setfield(l, -2, "getPosition");
 	lua_pushcfunction(l, mat4GetRotation);
 	lua_setfield(l, -2, "getRotation");
+	lua_pushcfunction(l, mat4GetForward);
+	lua_setfield(l, -2, "forward");
+	lua_pushcfunction(l, mat4GetUp);
+	lua_setfield(l, -2, "up");
+	lua_pushcfunction(l, mat4GetRight);
+	lua_setfield(l, -2, "right");
 	lua_setfield(l, -2, "__index");
 	lua_setmetatable(l, -2);
 
@@ -214,4 +226,42 @@ static int mat4GetRotation(lua_State* l)
 
 	luaPushVec3(l, vec);
 	return 1;
+}
+static int mat4GetForward(lua_State* l)
+{
+	mat4 mat;
+	luaGetMat4(l, 1, mat, "bad arg 1");
+
+	vec3 vec;
+  vec[0] = mat[2][0];
+  vec[1] = mat[2][1];
+  vec[2] = mat[2][2];
+  luaPushVec3(l, vec);
+  return 1;
+}
+
+static int mat4GetUp(lua_State* l)
+{
+	mat4 mat;
+	luaGetMat4(l, 1, mat, "bad arg 1");
+
+	vec3 vec;
+  vec[0] = mat[1][0];
+  vec[1] = mat[1][1];
+  vec[2] = mat[1][2];
+  luaPushVec3(l, vec);
+  return 1;
+}
+
+static int mat4GetRight(lua_State* l)
+{
+	mat4 mat;
+	luaGetMat4(l, 1, mat, "bad arg 1");
+
+	vec3 vec;
+  vec[0] = -mat[0][0];
+  vec[1] = -mat[0][1];
+  vec[2] = -mat[0][2];
+  luaPushVec3(l, vec);
+  return 1;
 }

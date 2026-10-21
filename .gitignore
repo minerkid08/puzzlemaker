@@ -4,5 +4,6 @@ imgui.ini
 compileSteps.json
 captureSettings.cap
 *.exe
+packageRelease.sh
 
 packages/*.zip

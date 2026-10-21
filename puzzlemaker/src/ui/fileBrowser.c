@@ -16,6 +16,7 @@ static char* file;
 static char mode = 0;
 static char queuePopup = 0;
 static bool open = 0;
+static bool loadPopup = 0;
 
 static char** directories = 0;
 static char** files = 0;
@@ -67,13 +68,53 @@ void scanDir()
 void fileBrowserOpen(char mode2)
 {
 	mode = mode2;
-	open = 1;
+	if (mode & MODE_LOAD)
+		loadPopup = 1;
+	else
+		open = 1;
 	strcpy(path, "maps");
 	scanDir();
 }
 
+static ImVec2 zero = {0.0f, 0.0f};
+
 void fileBrowserRender()
 {
+	if (loadPopup)
+	{
+		loadPopup = 0;
+		igOpenPopup_Str("load", 0);
+	}
+	if (igBeginPopupModal("load", 0, 0))
+	{
+		igText("your current map might not be saved");
+		igText("would you like to save it");
+
+		if (igButton("save", zero))
+		{
+			fileBrowserSave();
+			igCloseCurrentPopup();
+		}
+		igSameLine(0, -1);
+		if (igButton("save as", zero))
+		{
+			fileBrowserOpen(MODE_SAVE);
+			igCloseCurrentPopup();
+		}
+		igSameLine(0, -1);
+		if (igButton("load", zero))
+		{
+			mode = MODE_LOAD;
+			open = 1;
+			igCloseCurrentPopup();
+		}
+		igSameLine(0, -1);
+		if (igButton("cancel", zero))
+			igCloseCurrentPopup();
+
+		igEndPopup();
+	}
+
 	if (open == 0)
 		return;
 	igBegin("File Browser", &open, ImGuiWindowFlags_NoDocking);
@@ -82,8 +123,6 @@ void fileBrowserRender()
 	ImVec2 size = igGetContentRegionAvail();
 
 	size.y = size.y - buttonSize;
-
-	ImVec2 zero = {0.0f, 0.0f};
 
 	if (igButton("^", zero))
 	{
@@ -131,15 +170,11 @@ void fileBrowserRender()
 
 			if (igSelectable_Bool(f, 0, 0, zero))
 			{
-				if (mode & MODE_SAVE)
-				{
-					queuePopup = 1;
-					file = f;
-				}
-				else
+				file = f;
+				if (mode & MODE_LOAD)
 				{
 					strncat(path, "/", 255);
-					strncat(path, f, 255);
+					strncat(path, file, 255);
 
 					int l = strlen(path);
 					int dotPos = 0;
@@ -154,10 +189,11 @@ void fileBrowserRender()
 					}
 
 					strcpy(mapSettings.name, path + 5);
-					if (mode & MODE_LOAD)
-						load();
+					load();
 					open = 0;
 				}
+				else
+					queuePopup = 1;
 			}
 			igPopID();
 		}
@@ -207,7 +243,8 @@ void fileBrowserRender()
 	if (queuePopup)
 	{
 		queuePopup = 0;
-		igOpenPopup_Str("save as", 0);
+		if (mode & MODE_SAVE)
+			igOpenPopup_Str("save as", 0);
 	}
 	if (igBeginPopupModal("save as", 0, 0))
 	{
@@ -232,13 +269,15 @@ void fileBrowserRender()
 
 			strcpy(mapSettings.name, path + 5);
 			save();
+			if (mode & QUEUE_COMPILE)
+				queueCompile = 1;
 			open = 0;
 			igCloseCurrentPopup();
 		}
 		igSameLine(0, -1);
 		if (igButton("no", zero))
 			igCloseCurrentPopup();
-		igEnd();
+		igEndPopup();
 	}
 }
 

@@ -102,7 +102,7 @@ void fileBrowserRender()
 			igCloseCurrentPopup();
 		}
 		igSameLine(0, -1);
-		if (igButton("load", zero))
+		if (igButton("dont save", zero))
 		{
 			mode = MODE_LOAD;
 			open = 1;

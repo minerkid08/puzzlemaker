@@ -41,15 +41,27 @@
  "postProcessing": [
 	  {
 		  "name": "testchamber",
-	    "maxExposure": 3,
-	    "minExposure": 0.5,
-	    "tonemapRate": 0.25,
-	    "brightPixelPercent": 5,
-	    "primaryFogColor": [40, 53, 64],
-	    "secondaryFogColor": [40, 53, 64],
-	    "fogStart": 128,
-	    "fogEnd": 5000,
-	    "fogDensity": 1
+			"tonemap": {
+				"maxExposure": 3,
+	    	"minExposure": 0.5,
+	    	"tonemapRate": 0.25,
+	    	"brightPixelPercent": 5
+			},
+			"fog": {
+				"primaryColor": [40, 53, 64],
+	    	"secondaryColor": [40, 53, 64],
+	    	"start": 128,
+	    	"end": 5000,
+	    	"density": 1
+			},
+			"colorCorrection": {
+				"minFalloff": 0,
+				"maxFalloff": 200,
+				"maxWeight": 1,
+				"fadeInDuration": 0,
+				"fadeOutDuration": 0,
+				"filename": ""
+			}
 	  }
   ]
 }

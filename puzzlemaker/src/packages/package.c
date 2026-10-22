@@ -8,15 +8,19 @@
 #include "packages/theme.h"
 
 Package* currentPackage;
+extern ItemGroup* groups;
 
 void loadPackageMetadata(Package* package)
 {
+	package->itemGroupStart = 0;
+	package->itemGroupCount = 0;
+
 	char buf[64];
 	snprintf(buf, 64, "__%s__/package.json", package->name);
 	int res;
 	initErrorStackD(buf, res);
-	if(res)
-    startErrorLoop();
+	if (res)
+		startErrorLoop();
 
 	int len;
 	char* data = readPackageFile(package, "package.json", &len);
@@ -33,15 +37,15 @@ void loadPackageMetadata(Package* package)
 	package->description = jsonGetStrD(json, "description");
 	package->version = jsonGetStrD(json, "version");
 
-  package->icon = -1;
+	package->icon = -1;
 
 	currentPackage = package;
 
-  const char* filename = jsonGetStrC(json, "icon", 0);
-  if(filename)
-    package->icon = assetManagerLoadTexture(filename, 0);
-  else
-    package->icon = assetManagerLoadTexture("__base__/laser.png", 0);
+	const char* filename = jsonGetStrC(json, "icon", 0);
+	if (filename)
+		package->icon = assetManagerLoadTexture(filename, 0);
+	else
+		package->icon = assetManagerLoadTexture("__base__/laser.png", 0);
 
 	cJSON_Delete(json);
 }
@@ -55,12 +59,16 @@ void loadPackage(Package* package)
 
 	listPackageFiles(package, "items", 0, &files, ".json");
 
+	package->itemGroupStart = dynList_size(groups);
+
 	int len = dynList_size(files);
 	for (int i = 0; i < len; i++)
 	{
 		loadItemDefinitionFile(package, files[i]);
 		free((void*)files[i]);
 	}
+
+	package->itemGroupCount = dynList_size(groups) - package->itemGroupStart;
 
 	dynList_resize((void**)&files, 0);
 

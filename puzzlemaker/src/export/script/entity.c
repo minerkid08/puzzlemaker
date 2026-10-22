@@ -405,7 +405,15 @@ int entityAddOutput(lua_State* l)
 		strncpy(entName, ent2->name, 64);
 	}
 	else
-		snprintf(entName, 64, "%s-%s", itemName, lua_tostring(l, 3));
+	{
+		const char* target = lua_tostring(l, 3);
+		if (target[0] == '!')
+			snprintf(entName, 64, "%s", target);
+		else if (target[0] == '@')
+			snprintf(entName, 64, "%s", target + 1);
+		else
+			snprintf(entName, 64, "%s-%s", itemName, lua_tostring(l, 3));
+	}
 	const char* input = lua_tostring(l, 4);
 	const char* arg = "";
 	float delay = 0;
@@ -421,6 +429,9 @@ int entityAddOutput(lua_State* l)
 int entityMarkAsIO(lua_State* l)
 {
 	Entity* entity = luaGetEntity(l, 1, "bad arg 1");
+
+	if(item->ioEnt)
+		luaL_error(l, "io ent is already set for item"); 
 
 	item->ioEnt = strdup(entity->name);
 	entity->outputs = item->outputs;

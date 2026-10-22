@@ -18,7 +18,6 @@
     "snapMode": "mini-center",
     "defaultSize": [4, 2],
 		"vertTile": true,
-		"transparent": true,
     "borders": [
       {
         "id": "left",
@@ -90,7 +89,6 @@
 		"vertTile": true,
     "defaultSize": [4, 2],
 		"exportScript": "laserField.lua",
-		"transparent": true,
 		"inputs": [
 			{
 				"name": "disable",
@@ -131,6 +129,7 @@
 		"keyvalues": [
       {
         "kv": "portalability",
+				"name": "Portalibility",
         "type": "bitfield",
         "defaultValue": 0,
         "options": {
@@ -140,18 +139,19 @@
       },
 			{
 				"kv": "open",
+				"name": "Start Open",
 				"type": "bool",
 				"defaultValue": false
 			}
 		],
 		"inputs": [
 			{
-				"name": "open",
+				"name": "Open",
 				"trueInput": "instance:door;Open",
 				"falseInput": "instance:door;Close"
 			},
 			{
-				"name": "lock",
+				"name": "Lock",
 				"trueInput": "instance:door;Lock",
 				"falseInput": "instance:door;Unlock"
 			}
@@ -164,27 +164,25 @@
 		"model": "dropper.obj",
 		"mat": "dropper.png",
     "instance": "dropper",
-    "bound1": [-1, -1, 0],
-    "bound2": [1, 1, 1],
-		"editorTransform": {
-			"rotation": [-90, 0, 0]
-		},
-		"transform": {
-			"rotation": [-90, 0, 0]
-		},
+    "bound1": [-1, -1, -1],
+    "bound2": [1, 0, 1],
+		"rotationRestriction": "xyz",
 		"keyvalues": [
 			{
 				"kv": "dontautorespawn",
+				"name": "Auto Respawn",
 				"type": "bool",
 				"defaultValue": true
 			},
 			{
 				"kv": "dontdropinital",
+				"name": "Drop Initial",
 				"type": "bool",
 				"defaultValue": true
 			},
       {
     	  "kv": "cubeType",
+				"name": "Cube Type",
     	  "type": "drop-string",
     	  "defaultValue": 0,
 				"options": {
@@ -202,9 +200,8 @@
 		],
 		"inputs": [
 			{
-				"name": "drop",
-				"trueInput": "instance:drop;Trigger",
-				"falseInput": "nuh"
+				"name": "Drop Cube",
+				"trueInput": "instance:drop;Trigger"
 			}
 		]
 	},
@@ -227,10 +224,11 @@
 		"keyvalues": [
 			{
     	  "kv": "CubeBehavior",
+				"name": "Behavior",
     	  "type": "drop-int",
     	  "defaultValue": 0,
 				"options": {
-					"Auto": 0,
+					"Auto (from Cube Type)": 0,
 					"Standard Cube": 1,
 					"Reflection Cube": 2,
 					"Schrodinger's Cube": 3
@@ -238,16 +236,18 @@
     	},
     	{
     	  "kv": "CubeShape",
+				"name": "Shape",
     	  "type": "drop-int",
     	  "defaultValue": 0,
 				"options": {
-					"Auto": 0,
+					"Auto (from Cube Type)": 0,
 					"Cubic": 1,
 					"Spherical": 2
 				}
     	},
     	{
     	  "kv": "model",
+				"name": "Cube Type",
     	  "type": "drop-string",
     	  "defaultValue": 0,
 				"options": {
@@ -285,7 +285,7 @@
     },
     "keyvalues": [
 			{
-				"name": "portaliblity",
+				"name": "Portaliblity",
 				"kv": "portal",
 				"type": "drop-string",
 				"defaultValue": 0,
@@ -299,7 +299,7 @@
     "snapMode": "corner",
     "outputs": [
       {
-        "name": "press",
+        "name": "On Press",
         "trueOutput": "instance:button;OnPressed",
         "falseOutput": "instance:button;OnUnPressed"
       }
@@ -324,6 +324,7 @@
     "keyvalues": [
     	{
     	  "kv": "skin",
+				"name": "Skin",
     	  "type": "drop-int",
     	  "defaultValue": 0,
 				"options": {
@@ -333,16 +334,19 @@
       },
       {
         "kv": "delay",
+        "name": "Time Until Reset",
         "type": "float",
         "defaultValue": 1.0
       },
       {
         "kv": "istimer",
+        "name": "Play Timer Sound",
         "type": "bool",
         "defaultValue": false
       },
       {
         "kv": "preventfastreset",
+        "name": "Prevent Fast Reset",
         "type": "bool",
         "defaultValue": false
       }
@@ -350,7 +354,7 @@
     "inputs": [],
     "outputs": [
       {
-        "name": "press",
+        "name": "On Press",
         "trueOutput": "OnPressed",
         "falseOutput": "OnButtonReset"
       }
@@ -376,22 +380,52 @@
     "keyvalues": [
       {
         "kv": "startstate",
+				"name": "Start Disabled",
         "type": "bool",
         "defaultValue": false
       },
       {
         "kv": "model",
         "type": "drop-string",
+				"name": "Model",
         "defaultValue": 0,
         "options": {
 		      "centered": "models/props/laser_emitter_center.mdl",
 		      "offset": "models/props/laser_emitter.mdl"
         }
+      },
+			{
+    	  "kv": "skin",
+				"name": "Skin",
+    	  "type": "drop-int",
+    	  "defaultValue": 0,
+				"options": {
+					"Clean": 0,
+					"Dirty": 1
+				}
+      },
+      {
+        "kv": "noplacementhelper",
+				"name": "Dont Create Placement Helper",
+        "type": "bool",
+        "defaultValue": false
+      },
+      {
+        "kv": "disableplayercollision",
+				"name": "Disable Player Collision",
+        "type": "bool",
+        "defaultValue": true
+      },
+      {
+        "kv": "lethaldamage",
+				"name": "Lethal",
+        "type": "bool",
+        "defaultValue": false
       }
     ],
     "inputs": [
       {
-        "name": "enable",
+        "name": "Enable",
         "trueInput": "TurnOn",
         "falseInput": "TurnOff"
       }
@@ -417,17 +451,28 @@
     "keyvalues": [
       {
         "kv": "model",
+				"name": "Model",
         "type": "drop-string",
         "defaultValue": 0,
         "options": {
 		      "centered": "models/props/laser_catcher_center.mdl",
 		      "offset": "models/props/laser_catcher.mdl"
         }
+      },
+			{
+    	  "kv": "skintype",
+				"name": "Skin",
+    	  "type": "drop-int",
+    	  "defaultValue": 0,
+				"options": {
+					"Clean": 0,
+					"Dirty": 1
+				}
       }
     ],
     "outputs": [
       {
-        "name": "on powered",
+        "name": "On Powered",
         "trueOutput": "OnPowered",
         "falseOutput": "OnUnpowered"
       }
@@ -454,7 +499,7 @@
         "kv": "enabled",
 				"name": "Enabled",
         "type": "bool",
-        "defaultValue": false
+        "defaultValue": true 
       },
       {
         "kv": "speed",
@@ -462,19 +507,19 @@
         "type": "drop-int",
         "defaultValue": 0,
         "options": {
-          "forward": 250,
-          "reverse": -250
+          "Forward": 250,
+          "Reverse": -250
         }
       }
     ],
     "inputs": [
       {
-        "name": "enable",
+        "name": "Enable",
         "trueInput": "instance:tractorbeam;Enable",
         "falseInput": "instance:tractorbeam;Disable"
       },
       {
-        "name": "reverse",
+        "name": "Reverse",
         "trueInput": "instance:reverse;Trigger",
         "falseInput": "instance:forward;Trigger"
       }

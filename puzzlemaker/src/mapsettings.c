@@ -22,4 +22,6 @@ static __attribute__((constructor)) void init()
 
 	PostProcessData* data = &mapSettings.postProcess;
 	memset(data, 0, sizeof(PostProcessData));
+	data->filename = malloc(256);
+	data->filename[0] = 0;
 }

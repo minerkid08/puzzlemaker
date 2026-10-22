@@ -1,6 +1,9 @@
 #include "cglm/mat4.h"
+#include "cjson.h"
 #include "item/entityItem.h"
 #include "item/panel.h"
+#include "jsonUtils.h"
+#include <GLFW/glfw3.h>
 #include <stdbool.h>
 #include <string.h>
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
@@ -14,6 +17,70 @@
 #include "ui/itemPanel.h"
 
 static bool open = 0;
+
+extern GLFWwindow* window;
+
+void copyEntityItem()
+{
+	ItemDefinition* def = selection.item->def;
+	EntityItemDef* ent = def->data;
+
+	cJSON* json = cJSON_CreateObject();
+
+	switch (def->snapMode)
+	{
+	case SNAP_CENTER:
+		cJSON_AddStringToObject(json, "snapMode", "center");
+		break;
+	case SNAP_CORNER:
+		cJSON_AddStringToObject(json, "snapMode", "corner");
+		break;
+	case SNAP_MINI_CENTER:
+		cJSON_AddStringToObject(json, "snapMode", "mini-center");
+		break;
+	case SNAP_MINI_CORNER:
+		cJSON_AddStringToObject(json, "snapMode", "mini-corner");
+		break;
+	}
+
+	jsonSetVec3(json, "bound1", ent->bound1);
+	jsonSetVec3(json, "bound2", ent->bound2);
+
+	cJSON* transform = cJSON_CreateObject();
+	cJSON_AddItemToObject(json, "transform", transform);
+	jsonSetVec3(transform, "position", ent->positionOffset);
+	jsonSetVec3(transform, "rotation", ent->rotationOffset);
+
+	transform = cJSON_CreateObject();
+	cJSON_AddItemToObject(json, "editorTransform", transform);
+	jsonSetVec3(transform, "position", ent->editorPos);
+	jsonSetVec3(transform, "rotation", ent->editorRot);
+
+	char* data = cJSON_Print(json);
+	glfwSetClipboardString(window, data);
+	cJSON_Delete(json);
+	free(data);
+}
+
+void copyPropTransforms(Prop* prop)
+{
+	cJSON* json = cJSON_CreateObject();
+
+	cJSON* transform = cJSON_CreateObject();
+	cJSON_AddItemToObject(json, "transform", transform);
+	jsonSetVec3(transform, "position", prop->pos);
+	jsonSetVec3(transform, "rotation", prop->rot);
+
+	transform = cJSON_CreateObject();
+	cJSON_AddItemToObject(json, "editorTransform", transform);
+	jsonSetVec3(transform, "position", prop->editorPos);
+	jsonSetVec3(transform, "rotation", prop->editorRot);
+
+	char* data = cJSON_Print(json);
+	glfwSetClipboardString(window, data);
+	cJSON_Delete(json);
+	free(data);
+}
 
 void drawTransform(vec3 pos, vec3 rot, mat4 transform)
 {
@@ -89,6 +156,9 @@ void itemDebugRender()
 			drawTransform(data->positionOffset, data->rotationOffset, 0);
 			igTreePop();
 		}
+
+		if (igButton("copy", zero))
+			copyEntityItem();
 	}
 
 	if (itemType == ITEM_TYPE_PANEL)
@@ -140,6 +210,8 @@ void itemDebugRender()
 					drawTransform(prop->pos, prop->rot, prop->transform);
 					igTreePop();
 				}
+				if (igButton("copy", zero))
+					copyPropTransforms(prop);
 				igTreePop();
 			}
 		}

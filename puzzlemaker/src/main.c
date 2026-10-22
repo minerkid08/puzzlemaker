@@ -210,6 +210,8 @@ int main(int argc, const char** argv)
 	glfwTerminate();
 }
 
+extern int queueItemAdd;
+
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if (action == GLFW_PRESS)
@@ -298,27 +300,27 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 		}
 		if (key == GLFW_KEY_G)
 		{
-			if (selection.type == SELECTION_VOXEL)
+			if (selection.type == SELECTION_VOXEL || selection.type == SELECTION_NONE)
 				return;
 			mouseMode = MODE_GRAB;
 			startGrab();
 		}
 		if (key == GLFW_KEY_F)
 		{
-			if (selection.type == SELECTION_VOXEL)
+			if (selection.type == SELECTION_VOXEL || selection.type == SELECTION_NONE)
 				return;
 			mouseMode = MODE_ROTATE;
 			startRotate(mx);
 		}
 		if (key == GLFW_KEY_Q)
 		{
-			if (selection.type == SELECTION_VOXEL)
+			if (selection.type == SELECTION_VOXEL || selection.type == SELECTION_NONE)
 				return;
 			rotateSelection(90);
 		}
 		if (key == GLFW_KEY_E)
 		{
-			if (selection.type == SELECTION_VOXEL)
+			if (selection.type == SELECTION_VOXEL || selection.type == SELECTION_NONE)
 				return;
 			rotateSelection(-90);
 		}
@@ -357,6 +359,8 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 			if (selection.type == SELECTION_VOXEL)
 				voxelToggleSize();
 		}
+		if (key == GLFW_KEY_C)
+			queueItemAdd = 1;
 	}
 }
 

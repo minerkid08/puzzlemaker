@@ -7,12 +7,12 @@
 |id|string|||
 |name|string||display name of item, optional|
 |exportScript|string||optional|
-|transparent|bool|false|if the item is transparent and should render after other items|
 |inputs|Input[]||optional|
 |outputs|Output[]||opional|
 |kvs|Kv[]||optional|
 |statickvs|table<string, string>||kv pairs to add to exported entity, does not work on instances. optional|
 |snapMode|SnapMode|"corner"|how the item snaps when grabbed|
+|rotationRestriction|string||which axis's should the item rotation be restricted on, ex "xyz" restricts rotation entirely and "xz" restricts only pitch and roll rotaiton|
 |deleteIntersectingVoxels|boolean|false|if the item should delete the voxels that it intersects with|
 |genMissingVoxels|boolean|true|if the item should generate voxels so the map stays sealed, only does something when deleteIntersectingVoxels is true|
 |deleteIntersectingVoxelsEditor|boolean|false|same as deleteIntersectingVoxels but for the editor|
@@ -169,4 +169,4 @@ bottom-left, bottom, bottom-right, left, right, top-left, top, top-right
 
 ## Templated Strings
 
-Some strings can be templated which means that they can use the values of kvs inside them. To do this put the kv name inside of square brackets or curly bracks in the string. For dropdown kvs square brackets use the display name of the option, curly brackets use the value.
+Some strings can be templated which means that they can use the values of kvs inside them. To do this put the kv name inside of square brackets or curly bracks in the string. For dropdown kvs square brackets use the name of the option, curly brackets use the value.

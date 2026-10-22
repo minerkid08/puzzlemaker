@@ -5,6 +5,7 @@
 #include "dynList.h"
 #include "error.h"
 #include "jsonUtils.h"
+#include "mapsettings.h"
 #include "packages/package.h"
 #include "utils.h"
 #include "voxel/voxelConfig.h"
@@ -92,22 +93,36 @@ void loadPostProcessingPresets(Theme* theme, cJSON* json)
 
 		data->name = jsonGetStrD(item, "name");
 
-		data->maxExposure = jsonGetFloat(item, "maxExposure");
-		data->minExposure = jsonGetFloat(item, "minExposure");
-		data->tonemapRate = jsonGetFloat(item, "tonemapRate");
-		data->brightPixelPercent = jsonGetFloat(item, "brightPixelPercent");
+		cJSON* tonemap = jsonGetObject(item, "tonemap");
+		data->maxExposure = jsonGetFloat(tonemap, "maxExposure");
+		data->minExposure = jsonGetFloat(tonemap, "minExposure");
+		data->tonemapRate = jsonGetFloat(tonemap, "tonemapRate");
+		data->brightPixelPercent = jsonGetFloat(tonemap, "brightPixelPercent");
+		popStackFrame();
 
-		jsonGetVec3(item, "primaryFogColor", data->primaryFogColor);
-		jsonGetVec3(item, "secondaryFogColor", data->secondaryFogColor);
+		cJSON* fog = jsonGetObject(item, "fog");
+		jsonGetVec3(fog, "primaryColor", data->primaryFogColor);
+		jsonGetVec3(fog, "secondaryColor", data->secondaryFogColor);
 		data->primaryFogColor[0] /= 255.0f;
 		data->primaryFogColor[1] /= 255.0f;
 		data->primaryFogColor[2] /= 255.0f;
 		data->secondaryFogColor[0] /= 255.0f;
 		data->secondaryFogColor[1] /= 255.0f;
 		data->secondaryFogColor[2] /= 255.0f;
-		data->fogStart = jsonGetFloat(item, "fogStart");
-		data->fogEnd = jsonGetFloat(item, "fogEnd");
-		data->fogDensity = jsonGetFloat(item, "fogDensity");
+		data->fogStart = jsonGetFloat(fog, "start");
+		data->fogEnd = jsonGetFloat(fog, "end");
+		data->fogDensity = jsonGetFloat(fog, "density");
+		popStackFrame();
+
+		cJSON* colorCorrection = jsonGetObject(item, "colorCorrection");
+		data->minFalloff = jsonGetFloat(colorCorrection, "minFalloff");
+		data->maxFalloff= jsonGetFloat(colorCorrection, "maxFalloff");
+		data->maxWeight= jsonGetFloat(colorCorrection, "maxWeight");
+		data->fadeInDuration= jsonGetFloat(colorCorrection, "fadeInDuration");
+		data->fadeOutDuration= jsonGetFloat(colorCorrection, "fadeOutDuration");
+		data->filename = jsonGetStrD(colorCorrection, "filename");
+		popStackFrame();
+		
 		popStackFrame();
 	}
 	if (arrSize == 0)
@@ -161,4 +176,11 @@ void setTheme(Theme* theme)
 	currentTheme = theme;
 	voxelConfig = &theme->voxelCfg;
 	antlineConfig = &theme->antlineCfg;
+	char* filename = mapSettings.postProcess.filename;
+	memcpy(&mapSettings.postProcess, &theme->postProcessPresets[0], sizeof(PostProcessData));
+	
+	mapSettings.postProcessPreset = 0;
+
+	mapSettings.postProcess.filename = filename;
+	strncpy(filename, theme->postProcessPresets[0].filename, 256);
 }

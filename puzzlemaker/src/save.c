@@ -2,7 +2,6 @@
 #include "camera.h"
 #include "cjson.h"
 #include "dynList.h"
-#include "error.h"
 #include "item/item.h"
 #include "jsonUtils.h"
 #include "mapsettings.h"
@@ -217,6 +216,13 @@ void save()
 	cJSON_AddNumberToObject(settings, "fogStart", data->fogStart);
 	cJSON_AddNumberToObject(settings, "fogEnd", data->fogEnd);
 	cJSON_AddNumberToObject(settings, "fogDensity", data->fogDensity);
+
+	cJSON_AddNumberToObject(settings, "minFalloff", data->minFalloff);
+	cJSON_AddNumberToObject(settings, "maxFalloff", data->maxFalloff);
+	cJSON_AddNumberToObject(settings, "maxWeight", data->maxWeight);
+	cJSON_AddNumberToObject(settings, "fadeInDuration", data->fadeInDuration);
+	cJSON_AddNumberToObject(settings, "fadeOutDuration", data->fadeOutDuration);
+	cJSON_AddStringToObject(settings, "filename", data->filename);
 
 	cJSON* editor = cJSON_CreateObject();
 	cJSON_AddItemToObject(json, "editor", editor);

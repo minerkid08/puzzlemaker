@@ -24,6 +24,10 @@
 #define SNAP_MINI_CORNER 2
 #define SNAP_MINI_CENTER 3
 
+#define RESTRICT_X 1
+#define RESTRICT_Y 2
+#define RESTRICT_Z 3
+
 typedef struct Item Item;
 
 typedef union {
@@ -95,6 +99,7 @@ typedef struct
 	char genMissingVoxels;
 
 	char flags;
+	char rotationRestriction;
 
 	ItemCallbacks* callbacks;
 } ItemDefinition;

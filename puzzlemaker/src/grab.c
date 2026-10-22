@@ -161,6 +161,14 @@ void updateGrab(vec3 cameraPos, vec3 mouseDir)
 				newRot[1] = 180;
 				newRot[2] = 0;
 			}
+
+			if(selection.item->def->rotationRestriction & RESTRICT_X)
+				newRot[0] = 0;
+			if(selection.item->def->rotationRestriction & RESTRICT_Y)
+				newRot[1] = 0;
+			if(selection.item->def->rotationRestriction & RESTRICT_Z)
+				newRot[2] = 0;
+
 			if (selection.type == SELECTION_ITEM)
 			{
 				memcpy(selection.item->pos, newPos, sizeof(vec3));

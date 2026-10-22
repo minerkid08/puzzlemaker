@@ -28,7 +28,12 @@ extern Antline* antlines;
 extern ImVec2 zero;
 
 int groupCount;
+int packageCount;
+int queueItemAdd = 0;
+int queueItemAddGrab = 0;
 extern ItemGroup* groups;
+extern Package* packageList;
+extern int mouseMode;
 
 extern Picker picker;
 
@@ -49,6 +54,7 @@ void setSelectedItem(Item* item)
 void initItemPanel()
 {
 	groupCount = dynList_size(groups);
+	packageCount = dynList_size(packageList);
 }
 
 char* outputNames = 0;
@@ -56,40 +62,58 @@ char* outputNames = 0;
 void itemPanelStub()
 {
 	if (igButton("add item", zero))
+	{
+		queueItemAddGrab = 0;
 		igOpenPopup_Str("pick", 0);
+	}
 
+	if (queueItemAdd)
+	{
+		queueItemAddGrab = 1;
+		queueItemAdd = 0;
+		igOpenPopup_Str("pick", 0);
+	}
 	if (igBeginPopup("pick", 0))
 	{
-		for (int i = 0; i < groupCount; i++)
+		for (int k = 0; k < packageCount; k++)
 		{
-			ItemGroup* group = &groups[i];
-			if (!igBeginMenu(group->name, 1))
+			Package* package = &packageList[k];
+			if (!igBeginMenu(package->baseName, 1))
 				continue;
-			for (int j = 0; j < group->size; j++)
+			for (int i = 0; i < package->itemGroupCount; i++)
 			{
-				ItemDefinition* def = &getItemDefinitions()[j + group->startInd];
-				if (igSelectable_Bool(def->name, 0, 0, zero))
+				ItemGroup* group = &groups[i + package->itemGroupStart];
+				if (!igBeginMenu(group->name, 1))
+					continue;
+				for (int j = 0; j < group->size; j++)
 				{
-					clearSelection();
-					vec3 offset;
-					vec3 pos;
-					ivec3 ipos;
+					ItemDefinition* def = &getItemDefinitions()[j + group->startInd];
+					if (igSelectable_Bool(def->name, 0, 0, zero))
+					{
+						clearSelection();
+						vec3 offset;
+						vec3 pos;
+						ivec3 ipos;
 
-					glm_vec3_scale(forward, 5, offset);
+						glm_vec3_scale(forward, 5, offset);
 
-					pos[0] = offset[0] + cameraPos[0];
-					pos[1] = offset[1] + cameraPos[1];
-					pos[2] = offset[2] + cameraPos[2];
+						pos[0] = offset[0] + cameraPos[0];
+						pos[1] = offset[1] + cameraPos[1];
+						pos[2] = offset[2] + cameraPos[2];
 
-					ipos[0] = floorf(pos[0]);
-					ipos[1] = floorf(pos[1]);
-					ipos[2] = floorf(pos[2]);
+						ipos[0] = floorf(pos[0]);
+						ipos[1] = floorf(pos[1]);
+						ipos[2] = floorf(pos[2]);
 
-					selection.type = SELECTION_ITEM;
-					selection.item = addItemFromDef(def, ipos);
+						selection.type = SELECTION_ITEM;
+						selection.item = addItemFromDef(def, ipos);
+						if(queueItemAddGrab)
+							mouseMode = 4;
+					}
 				}
+				igEndMenu();
 			}
-			igEndMenu();
+			igEndPopup();
 		}
 		igEndPopup();
 	}

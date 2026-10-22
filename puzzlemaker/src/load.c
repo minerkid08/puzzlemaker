@@ -425,6 +425,14 @@ void load()
 			data->fogStart = jsonGetFloat(settings, "fogStart");
 			data->fogEnd = jsonGetFloat(settings, "fogEnd");
 			data->fogDensity = jsonGetFloat(settings, "fogDensity");
+
+			data->minFalloff= jsonGetFloat(settings, "minFalloff");
+			data->maxFalloff= jsonGetFloat(settings, "maxFalloff");
+			data->maxWeight= jsonGetFloat(settings, "maxWeight");
+			data->fadeInDuration= jsonGetFloat(settings, "fadeInDuration");
+			data->fadeOutDuration= jsonGetFloat(settings, "fadeOutDuration");
+			const char* filename = jsonGetStr(settings, "filename");
+			strncpy(data->filename, filename, 256);
 		}
 		popStackFrame();
 	}

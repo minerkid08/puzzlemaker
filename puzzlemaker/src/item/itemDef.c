@@ -96,7 +96,7 @@ void loadItemDefinitionFile(Package* package, const char* filename)
 
 		printf("[item loader] loading item '%s'\n", def->id);
 
-    def->flags = 0;
+		def->flags = 0;
 
 		const char* type = jsonGetStr(item, "type");
 		if (strcmp(type, "entity") == 0)
@@ -128,6 +128,24 @@ void loadItemDefinitionFile(Package* package, const char* filename)
 		def->genMissingVoxels = jsonGetBoolC(item, "genMissingVoxels", 1);
 		def->exportScript = jsonGetStrCD(item, "exportScript", 0);
 		def->requiresPaint = jsonGetBoolC(item, "requiresPaint", 0);
+
+		def->rotationRestriction = 0;
+		const char* rotRestrict = jsonGetStrC(item, "rotationRestriction", "");
+		for (int i = 0; i < strlen(rotRestrict); i++)
+		{
+			switch (rotRestrict[i])
+			{
+			case 'x':
+				def->rotationRestriction |= RESTRICT_X;
+				break;
+			case 'y':
+				def->rotationRestriction |= RESTRICT_Y;
+				break;
+			case 'z':
+				def->rotationRestriction |= RESTRICT_Z;
+				break;
+			}
+		}
 
 		cJSON* keyValues = jsonGetArrayC(item, "keyvalues");
 		int len = cJSON_GetArraySize(keyValues);

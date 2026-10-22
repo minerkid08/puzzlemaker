@@ -9,11 +9,19 @@ typedef struct
 	float minExposure;
 	float tonemapRate;
 	float brightPixelPercent;
+
 	vec3 primaryFogColor;
 	vec3 secondaryFogColor;
 	float fogStart;
 	float fogEnd;
 	float fogDensity;
+	
+	float minFalloff;
+	float maxFalloff;
+	float maxWeight;
+	float fadeInDuration;
+	float fadeOutDuration;
+	char* filename;
 } PostProcessData;
 
 typedef struct 

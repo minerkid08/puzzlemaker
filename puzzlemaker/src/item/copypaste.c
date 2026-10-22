@@ -7,14 +7,13 @@
 #include <string.h>
 
 extern GLFWwindow* window;
-extern ItemGroup* groups;
 
 void copyItem(Item* item)
 {
 	ItemDefinition* def = item->def;
 	cJSON* json = cJSON_CreateObject();
 	cJSON_AddStringToObject(json, "id", def->id);
-	cJSON_AddStringToObject(json, "group", def->group);
+	cJSON_AddStringToObject(json, "package", def->package->name);
 
 	cJSON* kvList = cJSON_CreateObject();
 	cJSON_AddItemToObject(json, "kv", kvList);
@@ -66,7 +65,7 @@ Item* pasteItem()
 	initErrorStackD("paste", res);
 	if (res)
 	{
-		if(json)
+		if (json)
 			cJSON_Delete(json);
 		openErrorPopup();
 		return 0;
@@ -81,26 +80,22 @@ Item* pasteItem()
 	}
 
 	const char* defId = jsonGetStr(json, "id");
-	const char* defGroup = jsonGetStr(json, "group");
+	const char* packageName = jsonGetStr(json, "package");
 	ItemDefinition* defs = getItemDefinitions();
 	Item* item = 0;
 
-	for (int i = 0; i < dynList_size(groups); i++)
+	for (int j = 0; j < dynList_size(defs); j++)
 	{
-		ItemGroup* group = &groups[i];
-		if (strcmp(group->name, defGroup))
-			continue;
-		for (int j = 0; j < group->size; j++)
+		if (strcmp(defs[j].package->name, packageName) == 0)
 		{
-			if (strcmp(defs[j + group->startInd].id, defId) == 0)
+			if (strcmp(defs[j].id, defId) == 0)
 			{
-				item = addItem(j + group->startInd, 0);
+				item = addItem(j, 0);
 				break;
 			}
 		}
-		if (item)
-			break;
 	}
+
 	if (item == 0)
 		errorf("invalid item name");
 

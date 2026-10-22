@@ -1,13 +1,11 @@
 require("fizzlerUtils");
+require("utils");
 
 local pos = Item.getPosition();
 local size = Item.getSize();
 local tile = Item.getTile();
 
-local transform = Item.getTransform();
-
-local rotation = mat4.newRotate({ 90, 0, 0 });
-transform = mat4.mul(transform, rotation);
+local transform = Item.getFloorTransform();
 
 local startDisabled = Item.getKv("startdisabled");
 

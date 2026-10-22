@@ -1,0 +1,89 @@
+[
+	{
+    "type": "entity",
+		"id": "target",
+		"name": "Target",
+		"model": "cube.obj",
+		"mat": "target.png",
+    "entity": "info_target",
+    "snapMode": "mini-corner",
+    "bound1": [-0.25, -0.25, -0.25],
+    "bound2": [0.25, 0.25, 0.25],
+		"keyvalues": [
+			{
+				"kv": "spawnflags",
+				"name": "Flags",
+				"type": "bitfield",
+				"defaultValue": 0,
+				"options": {
+					"Transmit To Client": 1,
+					"Always Transmit To Client": 2
+				}
+			}
+		]
+	},
+	{
+    "type": "entity",
+		"id": "start",
+		"name": "Player Spawn",
+		"model": "cube.obj",
+		"mat": "start.png",
+    "entity": "info_player_start",
+    "snapMode": "mini-corner",
+    "bound1": [-0.25, -0.25, -0.25],
+    "bound2": [0.25, 0.25, 0.25],
+    "editorTransform": {
+      "rotation": [90, 0, 0]
+    },
+    "transform": {
+      "rotation": [90, 0, 0]
+    }
+	},
+	{
+    "type": "entity",
+		"id": "end",
+		"name": "Map End",
+		"model": "cube.obj",
+		"mat": "end.png",
+    "entity": "point_clientcommand",
+    "snapMode": "mini-corner",
+    "bound1": [-0.25, -0.25, -0.25],
+    "bound2": [0.25, 0.25, 0.25],
+		"inputs": [
+			{
+				"name": "Trigger",
+				"trueInput": "Command",
+        "trueArg": "disconnect"
+			}
+		]
+	},
+	{
+    "type": "entity",
+		"id": "campaign-manager",
+		"name": "Campaign Manager",
+		"model": "cube.obj",
+		"mat": "campaignManager.png",
+    "entity": "info_campaign_manager",
+    "snapMode": "mini-corner",
+    "bound1": [-0.25, -0.25, -0.25],
+    "bound2": [0.25, 0.25, 0.25],
+		"inputs": [
+			{
+				"name": "Next Map",
+				"trueInput": "NextMap"
+			},
+			{
+				"name": "Prevous Map",
+				"trueInput": "Command"
+			},
+			{
+				"name": "Mark Complete",
+				"trueInput": "MarkCampaignComplete"
+			},
+			{
+				"name": "End Campaign",
+				"trueInput": "ExitGame"
+			}
+		]
+	}
+]

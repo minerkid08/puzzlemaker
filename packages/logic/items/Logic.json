@@ -1,28 +1,4 @@
 [
-  {
-    "type": "volume",
-    "id": "trigger-once",
-    "name": "Trigger Once",
-    "editorTexture": "trigger.png",
-    "entity": "trigger_once",
-    "texture": "TOOLS/TOOLSTRIGGER",
-    "snapMode": "mini-corner",
-		"transparent": true,
-    "bound1": [0, 0, 0],
-    "bound2": [0.5, 0.5, 0.5],
-    "minSize": [0.5, 0.5, 0.5],
-    "defaultSize": [0.5, 0.5, 0.5],
-    "outputs": [
-      {
-        "name": "onTrigger",
-        "trueOutput": "OnTrigger"
-      }
-    ],
-    "statickvs": {
-      "startdisabled": "0",
-      "spawnflags": "1"
-    }
-  },
 	{
     "type": "entity",
 		"id": "end",
@@ -30,11 +6,12 @@
 		"model": "cube.obj",
 		"mat": "end.png",
     "entity": "point_clientcommand",
-    "bound1": [-0.5, -0.5, -0.5],
-    "bound2": [0.5, 0.5, 0.5],
+    "snapMode": "mini-corner",
+    "bound1": [-0.25, -0.25, -0.25],
+    "bound2": [0.25, 0.25, 0.25],
 		"inputs": [
 			{
-				"name": "trigger",
+				"name": "Trigger",
 				"trueInput": "Command",
         "trueArg": "disconnect"
 			}
@@ -47,8 +24,9 @@
 		"model": "cube.obj",
 		"mat": "start.png",
     "entity": "info_player_start",
-    "bound1": [-0.5, -0.5, -0.5],
-    "bound2": [0.5, 0.5, 0.5],
+    "snapMode": "mini-corner",
+    "bound1": [-0.25, -0.25, -0.25],
+    "bound2": [0.25, 0.25, 0.25],
     "editorTransform": {
       "rotation": [90, 0, 0]
     },
@@ -58,16 +36,43 @@
 	},
 	{
     "type": "entity",
+		"id": "relay",
+		"name": "Relay",
+		"model": "cube.obj",
+		"mat": "relay.png",
+    "entity": "logic_relay",
+    "snapMode": "mini-corner",
+    "bound1": [-0.25, -0.25, -0.25],
+    "bound2": [0.25, 0.25, 0.25],
+		"inputs": [
+			{
+				"name": "Trigger",
+				"trueInput": "FireUser1",
+				"falseInput": "FireUser2"
+			}
+		],
+    "outputs": [
+      {
+        "name": "On Trigger",
+        "trueOutput": "OnUser1",
+        "falseOutput": "OnUser2"
+      }
+    ]
+	},
+	{
+    "type": "entity",
 		"id": "logic-gate",
 		"name": "Logic Gate",
 		"model": "cube.obj",
 		"mat": "counter.png",
     "entity": "math_counter",
-    "bound1": [-0.5, -0.5, -0.5],
-    "bound2": [0.5, 0.5, 0.5],
+    "snapMode": "mini-corner",
+    "bound1": [-0.25, -0.25, -0.25],
+    "bound2": [0.25, 0.25, 0.25],
 		"keyvalues": [
 			{
 				"kv": "max",
+				"name": "Connection Count",
 				"type": "int",
 				"defaultValue": 2
 			}
@@ -78,7 +83,7 @@
 		},
 		"inputs": [
 			{
-				"name": "input",
+				"name": "Input",
 				"trueInput": "Add",
 				"trueArg": "1",
 				"falseInput": "Subtract",
@@ -87,12 +92,12 @@
 		],
     "outputs": [
       {
-        "name": "and",
+        "name": "And",
         "trueOutput": "OnHitMax",
         "falseOutput": "OnChangedFromMax"
       },
       {
-        "name": "or",
+        "name": "Or",
         "trueOutput": "OnChangedFromMin",
         "falseOutput": "OnHitMin"
       }

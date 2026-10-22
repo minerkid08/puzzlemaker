@@ -11,6 +11,9 @@ typedef struct
   unsigned int icon;
   char enabled;
 
+	int itemGroupStart;
+	int itemGroupCount;
+
   zip_t* zip;
 } Package;
 

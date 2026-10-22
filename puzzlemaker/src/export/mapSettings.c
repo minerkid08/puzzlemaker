@@ -101,4 +101,24 @@ void exportMapSettings()
 	exportEntityAddRawOutput(logicAuto, "OnMapSpawn", "tonemapper", "SetTonemapRate", buf, 0);
 	snprintf(buf, 32, "%.2f", data->brightPixelPercent);
 	exportEntityAddRawOutput(logicAuto, "OnMapSpawn", "tonemapper", "SetTonemapPercentBrightPixels", buf, 0);
+
+	Entity* colorCorrection = exportCreateEntity();
+	colorCorrection->name = strdup("colorCorrection");
+	colorCorrection->className = "color_correction";
+	memcpy(colorCorrection->pos, pos, sizeof(vec3));
+
+	colorCorrection->rotation[0] = 0;
+	colorCorrection->rotation[1] = 0;
+	colorCorrection->rotation[2] = 0;
+	snprintf(buf, 32, "%.2f", data->minFalloff);
+	exportEntityAddKvss(colorCorrection, "minfalloff", buf);
+	snprintf(buf, 32, "%.2f", data->maxFalloff);
+	exportEntityAddKvss(colorCorrection, "maxfalloff", buf);
+	snprintf(buf, 32, "%.2f", data->maxWeight);
+	exportEntityAddKvss(colorCorrection, "maxweight", buf);
+	snprintf(buf, 32, "%.2f", data->fadeInDuration);
+	exportEntityAddKvss(colorCorrection, "fadeinduration", buf);
+	snprintf(buf, 32, "%.2f", data->fadeOutDuration);
+	exportEntityAddKvss(colorCorrection, "fadeoutduration", buf);
+	exportEntityAddKvss(colorCorrection, "filename", data->filename);
 }

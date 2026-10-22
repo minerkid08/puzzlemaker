@@ -39,6 +39,19 @@ void loadPackageMetadata(Package* package)
 
 	package->icon = -1;
 
+	package->requiredAddons = 0;
+
+	cJSON* addons = jsonGetArrayC(json, "requiredAddons");
+	if(addons)
+	{
+		int size = cJSON_GetArraySize(addons);
+
+		package->requiredAddons = dynList_new(size, sizeof(const char**));
+
+		for(int i = 0; i < size; i++)
+			package->requiredAddons[i] = jsonArrGetStr(addons, i);
+	}
+
 	currentPackage = package;
 
 	const char* filename = jsonGetStrC(json, "icon", 0);

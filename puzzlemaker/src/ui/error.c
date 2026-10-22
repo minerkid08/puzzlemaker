@@ -46,24 +46,23 @@ void renderErrorPopup()
 		wasOpen = 0;
 		if (running == 0)
 			exit(1);
-    clearError();
+		clearError();
 	}
 
 	if (open)
 		wasOpen = 1;
 
 	if (queueErrorPopup)
-  {
-    queueErrorPopup = 0;
-    open = 1;
-    igOpenPopup_Str("error", 0);
-  }
-		
+	{
+		queueErrorPopup = 0;
+		open = 1;
+		igOpenPopup_Str("error", 0);
+	}
 
 	if (igBeginPopupModal("error", (bool*)&open, 0))
 	{
-    const char* errorMsg = getError();
-    const char** stackTrace = getStackTrace();
+		const char* errorMsg = getError();
+		const char** stackTrace = getStackTrace();
 		if (errorMsg)
 			igText("error: %s", errorMsg);
 		if (stackTrace)
@@ -76,7 +75,9 @@ void renderErrorPopup()
 		{
 			if (igButton("package manager", zero))
 				openPackageManager();
-      packageManagerRender();
+			if (igIsKeyPressed_Bool(ImGuiKey_Escape, 0))
+				igCloseCurrentPopup();
+			packageManagerRender();
 		}
 		igEndPopup();
 	}

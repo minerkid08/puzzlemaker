@@ -9,7 +9,7 @@
 #include "item/item.h"
 #include "jsonUtils.h"
 #include "packages/package.h"
-#include "renderer/renderer.h"
+#include "renderer/mesh.h"
 #include "utils.h"
 #include <math.h>
 #include <string.h>
@@ -31,7 +31,6 @@ void* loadEntityItemDef(cJSON* item, ItemDefinition* itemDef)
 	itemDef->callbacks = &callbacks;
 	EntityItemDef* def = malloc(sizeof(EntityItemDef));
 	const char* modelName = jsonGetStr(item, "model");
-	const char* textureName = jsonGetStr(item, "mat");
 
 	vec3 bound1;
 	vec3 bound2;
@@ -61,8 +60,7 @@ void* loadEntityItemDef(cJSON* item, ItemDefinition* itemDef)
 	}
 
 	def->mesh = assetManagerLoadMesh(modelName);
-	def->texture = assetManagerLoadTexture(textureName, &itemDef->flags);
-
+	itemDef->flags = def->mesh->flags;
 	return def;
 }
 
@@ -79,7 +77,7 @@ void entityItemRender(Item* item)
 	memcpy(editorTransform, def->editorTransform, sizeof(mat4));
 	memcpy(transform, item->transform, sizeof(mat4));
 	glm_mat4_mul(transform, editorTransform, transform);
-	drawMesh(def->mesh, def->texture, transform);
+	renderMesh(def->mesh, transform);
 }
 
 void entityItemExport(Item* item)

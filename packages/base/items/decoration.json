@@ -4,7 +4,6 @@
 		"id": "light",
 		"name": "Light",
 		"model": "light.obj",
-		"mat": "light.png",
     "instance": "light",
     "snapMode": "mini-center",
     "bound1": [-1.25, -0.25, 0],

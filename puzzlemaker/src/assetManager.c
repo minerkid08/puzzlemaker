@@ -51,11 +51,8 @@ void assetManagerCleanup()
 		MeshAsset* meshAsset = &meshes[i];
 		free((char*)meshAsset->name);
 		Mesh* mesh = meshAsset->mesh;
-		if (i == 0)
-			glDeleteProgram(mesh->shader);
 		glDeleteBuffers(1, &mesh->vertBuffer);
 		glDeleteBuffers(1, &mesh->indexBuffer);
-		glDeleteVertexArrays(1, &mesh->vertexArray);
 	}
 	dynList_free(meshes);
 }
@@ -88,9 +85,10 @@ unsigned int assetManagerLoadTexture(const char* filename, char* flags)
 
 	printf("[asset manager] loading texture '%s'\n", file);
 
+	asset->flags = 0;
 	asset->id = loadTexture(package, file, &asset->flags);
 	if (flags)
-		*flags = asset->flags;
+		*flags |= asset->flags;
 	return asset->id;
 }
 

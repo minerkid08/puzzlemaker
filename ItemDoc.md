@@ -80,7 +80,6 @@ both texture structs can be a string
 |---|----|-------------|-----------|
 |type|string|"entity"||
 |model|string||model to use in editor|
-|mat|string||material to use in editor|
 |bound1|vec3||point 1 for selection box|
 |bound2|vec3||point 2 for selection box|
 |transform|Transform||transform to apply to exported entity|
@@ -117,7 +116,6 @@ For snapping on floors, set the rotation field in the transform to [90, 0, 0]
 |---|----|-------------|-----------|
 |id|PanelBorderId|||
 |editorModel|string|||
-|editorTexture|string|||
 |model|string|||
 |transform|Transform|||
 |editorTransform|Transform|||

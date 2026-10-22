@@ -1,23 +1,23 @@
 #include "export/brush.h"
+#include "api.h"
 #include "lua/lauxlib.h"
 #include "lua/lua.h"
-#include <string.h>
-#include "api.h"
 #include "utils.h"
+#include <string.h>
 
 static int brushNew(lua_State* l);
 static int brushSetTexture(lua_State* l);
 static int brushTransform(lua_State* l);
 static int brushTransformMat(lua_State* l);
 
-Brush* luaGetBrush(lua_State* l, int pos, const char* arg)
+Brush* luaGetBrush(lua_State* l, int pos)
 {
 	if (lua_type(l, pos) != LUA_TTABLE)
-		luaL_error(l, "%s, expected Brush", arg);
+		luaL_typeerror(l, pos, "brush");
 
 	lua_getfield(l, pos, "id");
 	if (lua_type(l, -1) != LUA_TLIGHTUSERDATA)
-		luaL_error(l, "%s, invalid Brush", arg);
+		luaL_argerror(l, pos, "invalid brush");
 
 	long long id = (long long)lua_touserdata(l, -1);
 	lua_pop(l, 1);
@@ -37,6 +37,8 @@ void addBrushApi(lua_State* l)
 	lua_pushcfunction(l, brushTransformMat);
 	lua_setfield(l, -2, "transformMat");
 	lua_setfield(l, -2, "__index");
+	lua_pushstring(l, "brush");
+	lua_setfield(l, -2, "__name");
 
 	lua_setmetatable(l, -2);
 
@@ -51,8 +53,8 @@ static int brushNew(lua_State* l)
 	vec3 start;
 	vec3 end;
 
-	luaGetVec3(l, 1, start, "bad arg 1");
-	luaGetVec3(l, 2, end, "bad arg 2");
+	luaGetVec3(l, 1, start);
+	luaGetVec3(l, 2, end);
 
 	Brush* b = exportCreateBrush(start, end);
 	b->script = 1;
@@ -68,23 +70,23 @@ static int brushNew(lua_State* l)
 
 static int brushSetTexture(lua_State* l)
 {
-	if(lua_gettop(l) == 3)
+	if (lua_gettop(l) == 3)
 		lua_pushnil(l);
 
-	Brush* brush = luaGetBrush(l, 1, "bad arg 1");
+	Brush* brush = luaGetBrush(l, 1);
 
 	if (lua_type(l, 2) != LUA_TNUMBER)
-		luaL_error(l, "bad arg 2, expected number");
+		luaL_typeerror(l, 2, "number");
 	if (lua_type(l, 3) != LUA_TSTRING)
-		luaL_error(l, "bad arg 3, expected string");
+		luaL_typeerror(l, 3, "number");
 
 	char type = lua_type(l, 4);
 	if (type != LUA_TNIL && type != LUA_TTABLE)
-		luaL_error(l, "bad arg 4, expected table?");
+		luaL_typeerror(l, 4, "table?");
 
 	char dir = lua_tonumber(l, 2);
 	if (dir < 0 || dir > 5)
-		luaL_error(l, "bad arg 2, dir value is out of range");
+		luaL_argerror(l, 2, "value is out of range");
 
 	const char* texName = lua_tostring(l, 3);
 
@@ -101,7 +103,7 @@ static int brushSetTexture(lua_State* l)
 		if (type != LUA_TNIL)
 		{
 			if (type != LUA_TNUMBER)
-				luaL_error(l, "bad field 'texSize' in arg 4, expected number?");
+				luaL_argerror(l, 4, "bad type for field 'texSize', expected number?");
 			side->texHeight = lua_tonumber(l, -1);
 			side->texWidth = side->texHeight;
 		}
@@ -112,7 +114,7 @@ static int brushSetTexture(lua_State* l)
 		if (type != LUA_TNIL)
 		{
 			if (type != LUA_TNUMBER)
-				luaL_error(l, "bad field 'lightmapScale' in arg 4, expected number?");
+				luaL_argerror(l, 4, "bad type for field 'lightmapScale', expected number?");
 			side->lightmapscale = lua_tonumber(l, -1);
 		}
 		lua_pop(l, 1);
@@ -122,7 +124,7 @@ static int brushSetTexture(lua_State* l)
 		if (type != LUA_TNIL)
 		{
 			if (type != LUA_TBOOLEAN)
-				luaL_error(l, "bad field 'fit' in arg 4, expected bool?");
+				luaL_argerror(l, 4, "bad type for field 'fit', expected bool?");
 			side->fit = lua_toboolean(l, -1);
 		}
 		lua_pop(l, 1);
@@ -133,13 +135,13 @@ static int brushSetTexture(lua_State* l)
 
 static int brushTransform(lua_State* l)
 {
-	Brush* brush = luaGetBrush(l, 1, "bad arg 1");
+	Brush* brush = luaGetBrush(l, 1);
 
 	vec3 pos;
 	vec3 rot;
 
-	luaGetVec3(l, 2, pos, "bad arg 2");
-	luaGetVec3(l, 3, rot, "bad arg 2");
+	luaGetVec3(l, 2, pos);
+	luaGetVec3(l, 3, rot);
 
 	rot[0] = glm_rad(rot[0]);
 	rot[1] = glm_rad(rot[1]);
@@ -195,10 +197,10 @@ static int brushTransform(lua_State* l)
 
 static int brushTransformMat(lua_State* l)
 {
-	Brush* brush = luaGetBrush(l, 1, "bad arg 1");
+	Brush* brush = luaGetBrush(l, 1);
 
 	mat4 transform;
-	luaGetMat4(l, 2, transform, "bad arg 2");
+	luaGetMat4(l, 2, transform);
 
 	vec3 pos;
 	vec3 rot;

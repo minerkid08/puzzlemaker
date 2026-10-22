@@ -20,7 +20,6 @@ typedef struct
 {
   const char* model;
   Mesh* mesh;
-  unsigned int tex;
   mat4 transform;
   vec3 pos;
   vec3 rot;

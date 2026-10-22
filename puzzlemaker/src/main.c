@@ -106,6 +106,8 @@ int main(int argc, const char** argv)
 
 	glfwSwapInterval(1);
 
+	initRenderer();
+
 	initUi(window);
 
 	startCompileThread();
@@ -115,7 +117,6 @@ int main(int argc, const char** argv)
 	loadEditorSettings();
 	initVoxels();
 
-	initRenderer();
 	aspect = (float)width / (float)height;
 	initCamera();
 

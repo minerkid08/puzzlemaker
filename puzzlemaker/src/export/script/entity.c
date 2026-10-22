@@ -40,14 +40,14 @@ static int entityMarkAsIO(lua_State* l);
 static Item* item;
 static char itemName[50];
 
-Entity* luaGetEntity(lua_State* l, int pos, const char* arg)
+Entity* luaGetEntity(lua_State* l, int pos)
 {
 	if (lua_type(l, pos) != LUA_TTABLE)
-		luaL_error(l, "%s, expected Entity", arg);
+		luaL_typeerror(l, pos, "entity");
 
 	lua_getfield(l, pos, "id");
 	if (lua_type(l, -1) != LUA_TLIGHTUSERDATA)
-		luaL_error(l, "%s, invalid Entity", arg);
+		luaL_argerror(l, pos, "invalid entity");
 
 	long long id = (long long)lua_touserdata(l, -1);
 	lua_pop(l, 1);
@@ -80,6 +80,8 @@ void addEntityApi(lua_State* l, Item* i)
 	lua_pushcfunction(l, entityMarkAsIO);
 	lua_setfield(l, -2, "markAsIO");
 	lua_setfield(l, -2, "__index");
+	lua_pushstring(l, "entity");
+	lua_setfield(l, -2, "__name");
 
 	lua_setmetatable(l, -2);
 	lua_pushcfunction(l, entityNew);
@@ -97,14 +99,14 @@ void addEntityApi(lua_State* l, Item* i)
 int entityNew(lua_State* l)
 {
 	if (lua_type(l, 1) != LUA_TSTRING)
-		luaL_error(l, "bad arg 1, expected string");
+		luaL_typeerror(l, 1, "string");
 	if (lua_type(l, 2) != LUA_TSTRING)
-		luaL_error(l, "bad arg 1, expected string");
+		luaL_typeerror(l, 2, "string");
 
 	vec3 pos;
 	vec3 rot;
-	luaGetVec3(l, 3, pos, "bad arg 3");
-	luaGetVec3(l, 4, rot, "bad arg 4");
+	luaGetVec3(l, 3, pos);
+	luaGetVec3(l, 4, rot);
 	Entity* entity = exportCreateEntity();
 	char name[64];
 	snprintf(name, 64, "%s-%s", itemName, lua_tostring(l, 1));
@@ -127,14 +129,14 @@ int entityNew(lua_State* l)
 int entityNewGlobal(lua_State* l)
 {
 	if (lua_type(l, 1) != LUA_TSTRING)
-		luaL_error(l, "bad arg 1, expected string");
+		luaL_typeerror(l, 1, "string");
 	if (lua_type(l, 2) != LUA_TSTRING)
-		luaL_error(l, "bad arg 1, expected string");
+		luaL_typeerror(l, 2, "string");
 
 	vec3 pos;
 	vec3 rot;
-	luaGetVec3(l, 3, pos, "bad arg 3");
-	luaGetVec3(l, 4, rot, "bad arg 4");
+	luaGetVec3(l, 3, pos);
+	luaGetVec3(l, 4, rot);
 	Entity* entity = exportCreateEntity();
 	entity->name = strdup(lua_tostring(l, 1));
 	entity->className = strdup(lua_tostring(l, 2));
@@ -155,7 +157,7 @@ int entityNewGlobal(lua_State* l)
 int entityGetGlobal(lua_State* l)
 {
 	if (lua_type(l, 1) != LUA_TSTRING)
-		luaL_error(l, "bad arg 1, expected string");
+		luaL_typeerror(l, 1, "string");
 
 	const char* name = lua_tostring(l, 1);
 
@@ -184,29 +186,29 @@ int entityGetGlobal(lua_State* l)
 
 int entitySetPosition(lua_State* l)
 {
+	Entity* entity = luaGetEntity(l, 1);
 	vec3 pos;
-	luaGetVec3(l, 2, pos, "bad arg 2");
-	Entity* entity = luaGetEntity(l, 1, "bad arg 1");
+	luaGetVec3(l, 2, pos);
 	memcpy(entity->pos, pos, sizeof(vec3));
 	return 0;
 }
 
 int entitySetRotation(lua_State* l)
 {
+	Entity* entity = luaGetEntity(l, 1);
 	vec3 rot;
-	luaGetVec3(l, 2, rot, "bad arg 2");
-	Entity* entity = luaGetEntity(l, 1, "bad arg 1");
+	luaGetVec3(l, 2, rot);
 	memcpy(entity->rotation, rot, sizeof(vec3));
 	return 0;
 }
 
 int entityTransform(lua_State* l)
 {
-	Entity* entity = luaGetEntity(l, 1, "bad arg 1");
+	Entity* entity = luaGetEntity(l, 1);
 	vec3 pos;
 	vec3 rot;
-	luaGetVec3(l, 2, pos, "bad arg 2");
-	luaGetVec3(l, 3, rot, "bad arg 3");
+	luaGetVec3(l, 2, pos);
+	luaGetVec3(l, 3, rot);
 
 	rot[0] = glm_rad(rot[0]);
 	rot[1] = glm_rad(rot[1]);
@@ -249,9 +251,9 @@ int entityTransform(lua_State* l)
 
 static int entityTransformMat(lua_State* l)
 {
-	Entity* entity = luaGetEntity(l, 1, "bad arg 1");
+	Entity* entity = luaGetEntity(l, 1);
 	mat4 transform;
-	luaGetMat4(l, 2, transform, "bad arg 2");
+	luaGetMat4(l, 2, transform);
 
 	vec3 pos;
 	vec3 rot;
@@ -284,8 +286,8 @@ static int entityTransformMat(lua_State* l)
 
 int entityAttachBrush(lua_State* l)
 {
-	Entity* entity = luaGetEntity(l, 1, "bad arg 1");
-	Brush* brush = luaGetBrush(l, 2, "bad arg 2");
+	Entity* entity = luaGetEntity(l, 1);
+	Brush* brush = luaGetBrush(l, 2);
 
 	exportEntityAddBrush(entity, brush);
 	return 0;
@@ -293,12 +295,12 @@ int entityAttachBrush(lua_State* l)
 
 int entitySetKv(lua_State* l)
 {
-	Entity* entity = luaGetEntity(l, 1, "bad arg 1");
+	Entity* entity = luaGetEntity(l, 1);
 	if (lua_type(l, 2) != LUA_TSTRING)
-		luaL_error(l, "bad arg 2, expected string");
+		luaL_typeerror(l, 2, "string");
 	char t = lua_type(l, 3);
 	if (t != LUA_TSTRING && t != LUA_TNUMBER && t != LUA_TBOOLEAN && t != LUA_TTABLE)
-		luaL_error(l, "bad arg 3, expected (string|number|boolean|Entity)");
+		luaL_typeerror(l, 2, "string or number or bool or entity");
 
 	const char* key = lua_tostring(l, 2);
 
@@ -321,7 +323,7 @@ int entitySetKv(lua_State* l)
 		break;
 	}
 	case LUA_TTABLE: {
-		Entity* ent = luaGetEntity(l, 3, "bad arg 3");
+		Entity* ent = luaGetEntity(l, 3);
 		snprintf(value, 50, "%s", ent->name);
 		break;
 	}
@@ -332,12 +334,12 @@ int entitySetKv(lua_State* l)
 
 int entitySetInstanceKv(lua_State* l)
 {
-	Entity* entity = luaGetEntity(l, 1, "bad arg 1");
+	Entity* entity = luaGetEntity(l, 1);
 	if (lua_type(l, 2) != LUA_TSTRING)
-		luaL_error(l, "bad arg 2, expected string");
+		luaL_typeerror(l, 2, "string");
 	char t = lua_type(l, 3);
 	if (t != LUA_TSTRING && t != LUA_TNUMBER && t != LUA_TBOOLEAN && t != LUA_TTABLE)
-		luaL_error(l, "bad arg 3, expected (string|number|boolean|Entity)");
+		luaL_typeerror(l, 2, "string or number or bool or entity");
 
 	const char* key = lua_tostring(l, 2);
 
@@ -360,7 +362,7 @@ int entitySetInstanceKv(lua_State* l)
 		break;
 	}
 	case LUA_TTABLE: {
-		Entity* ent = luaGetEntity(l, 3, "bad arg 3");
+		Entity* ent = luaGetEntity(l, 3);
 		snprintf(value, 50, "%s", ent->name);
 		break;
 	}
@@ -381,27 +383,27 @@ int entityAddOutput(lua_State* l)
 		lua_pushnil(l);
 	if (lua_gettop(l) == 5)
 		lua_pushnil(l);
-	Entity* entity = luaGetEntity(l, 1, "bad arg 1");
+	Entity* entity = luaGetEntity(l, 1);
 	if (lua_type(l, 2) != LUA_TSTRING)
-		luaL_error(l, "bad arg 2, expected string");
+		luaL_typeerror(l, 2, "string");
 	char type3 = lua_type(l, 3);
 	if (type3 != LUA_TSTRING && type3 != LUA_TTABLE)
-		luaL_error(l, "bad arg 3, expected (string|Entity)");
+		luaL_typeerror(l, 3, "string or entity");
 
 	if (lua_type(l, 4) != LUA_TSTRING)
-		luaL_error(l, "bad arg 4, expected string");
+		luaL_typeerror(l, 4, "string");
 	char type5 = lua_type(l, 5);
 	if (type5 != LUA_TSTRING && type5 != LUA_TNIL)
-		luaL_error(l, "bad arg 5, expected string?");
+		luaL_typeerror(l, 5, "string?");
 	char type6 = lua_type(l, 6);
 	if (type6 != LUA_TNUMBER && type6 != LUA_TNIL)
-		luaL_error(l, "bad arg 6, expected number?");
+		luaL_typeerror(l, 6, "number?");
 
 	const char* output = lua_tostring(l, 2);
 	char entName[64];
 	if (type3 == LUA_TTABLE)
 	{
-		Entity* ent2 = luaGetEntity(l, 3, "bad arg 3");
+		Entity* ent2 = luaGetEntity(l, 3);
 		strncpy(entName, ent2->name, 64);
 	}
 	else
@@ -428,7 +430,7 @@ int entityAddOutput(lua_State* l)
 
 int entityMarkAsIO(lua_State* l)
 {
-	Entity* entity = luaGetEntity(l, 1, "bad arg 1");
+	Entity* entity = luaGetEntity(l, 1);
 
 	if(item->ioEnt)
 		luaL_error(l, "io ent is already set for item"); 

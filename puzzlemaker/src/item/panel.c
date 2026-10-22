@@ -8,6 +8,7 @@
 #include "export/entity.h"
 #include "item/item.h"
 #include "jsonUtils.h"
+#include "renderer/mesh.h"
 #include "renderer/renderer.h"
 #include "renderer/texture.h"
 #include "utils.h"
@@ -157,10 +158,7 @@ void* loadPanelItemDef(cJSON* item, ItemDefinition* itemDef)
 			prop->model = jsonGetStr(propJson, "model");
 			const char* meshName = jsonGetStr(propJson, "editorModel");
 			prop->mesh = assetManagerLoadMesh(meshName);
-			const char* textureName = jsonGetStr(propJson, "editorTexture");
-      char flags = 0;
-			prop->tex = assetManagerLoadTexture(textureName, &flags);
-      itemDef->flags |= flags;
+      itemDef->flags |= prop->mesh->flags;
 
 			jsonGetTransform(propJson, "transform", prop->pos, prop->rot, prop->transform);
 			jsonGetTransform(propJson, "editorTransform", prop->editorPos, prop->editorRot, prop->editorTransform);
@@ -443,7 +441,7 @@ void panelItemRender(Item* item)
 				memcpy(mat2, item->transform, sizeof(mat4));
 				glm_mat4_mul(mat2, transform, transform);
 
-				drawMesh(prop->mesh, prop->tex, transform);
+				renderMesh(prop->mesh, transform);
 			}
 		}
 	}

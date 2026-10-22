@@ -1,0 +1,23 @@
+# Blender 5.2.0 LTS MTL File: 'cube.blend'
+# www.blender.org
+
+newmtl materials/models/props_map_editor/glass
+Ns 10.000005
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.100000 0.100000 0.100000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd glass.png
+
+newmtl materials/models/props_map_editor/item_dropper
+map_Kd dropper.png
+Ns 115.599983
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.100000 0.100000 0.100000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2

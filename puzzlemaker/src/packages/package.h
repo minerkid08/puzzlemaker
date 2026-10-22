@@ -14,6 +14,8 @@ typedef struct
 	int itemGroupStart;
 	int itemGroupCount;
 
+	const char** requiredAddons;
+
   zip_t* zip;
 } Package;
 

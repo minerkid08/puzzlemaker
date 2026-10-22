@@ -2,6 +2,7 @@
 #include "cglm/types.h"
 #include "debug.h"
 #include "glad/glad.h"
+#include "renderer/mesh.h"
 #include "renderer/shader.h"
 #include "renderer/texture.h"
 #include <GL/gl.h>
@@ -29,7 +30,7 @@ static Vertex* vertBase;
 static int vertCount = 0;
 static int quadCount = 0;
 
-static int renderPass = 0;
+int renderPass = 0;
 
 #define NUM_QUADS 64
 #define NUM_VERTS NUM_QUADS * 4
@@ -74,6 +75,7 @@ void setCamMat(mat4 mat)
 
 void initRenderer()
 {
+	initMeshRenderer();
 	initDebug();
 
 	prgmId = makeShader("voxel");
@@ -418,22 +420,4 @@ void panelEndFrame(mat4 transform, char backfaceCull, char depthTest)
 	verts = vertBase;
 	vertCount = 0;
 	quadCount = 0;
-}
-
-void drawMesh(Mesh* mesh, unsigned int texture, mat4 transform)
-{
-	bindTexture(texture);
-	glBindVertexArray(mesh->vertexArray);
-	glBindBuffer(GL_ARRAY_BUFFER, mesh->vertBuffer);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->indexBuffer);
-	glUseProgram(mesh->shader);
-
-	setUniformi(mesh->shader, "tex", 0);
-	setUniformMat4(mesh->shader, "cam", camMat);
-	setUniformMat4(mesh->shader, "mat", projMat);
-	setUniformMat4(mesh->shader, "trans", transform);
-	setUniformi(mesh->shader, "pass", renderPass);
-
-	glDrawElements(GL_TRIANGLES, mesh->vertCount, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
 }

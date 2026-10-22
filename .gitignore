@@ -7,3 +7,4 @@ captureSettings.cap
 packageRelease.sh
 
 packages/*.zip
+./package.json

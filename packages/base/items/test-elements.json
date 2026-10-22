@@ -162,7 +162,6 @@
 		"id": "dropper",
 		"name": "Cube Dropper",
 		"model": "dropper.obj",
-		"mat": "dropper.png",
     "instance": "dropper",
     "bound1": [-1, -1, -1],
     "bound2": [1, 0, 1],
@@ -210,7 +209,6 @@
 		"id": "cube",
 		"name": "Cube",
 		"model": "weighted-cube.obj",
-		"mat": "cube.png",
     "entity": "prop_weighted_cube",
 		"transform": {
 			"position": [32, 0, 0],
@@ -219,8 +217,8 @@
 		"editorTransform": {
 			"rotation": [90, 0, 0]
 		},
-    "bound1": [-0.5, -0.5, 0],
-    "bound2": [0.5, 0.5, 1],
+    "bound1": [-0.3, -0.3, 0],
+    "bound2": [0.3, 0.3, 0.6],
 		"keyvalues": [
 			{
     	  "kv": "CubeBehavior",
@@ -272,7 +270,6 @@
     "id": "button",
     "name": "Floor Button",
     "model": "button.obj",
-    "mat": "button.png",
     "instance": "button",
 		"exportScript": "baseTexture.lua",
     "bound1": [-1, -1, 0],
@@ -310,7 +307,6 @@
     "id": "ped-button",
     "name": "Pedistal Button",
     "model": "pillar-button.obj",
-    "mat": "laser.png",
     "entity": "prop_button",
     "bound1": [-0.125, 0, -0.125],
     "bound2": [0.125, 0.75, 0.125],
@@ -368,7 +364,6 @@
 		"id": "laser",
 		"name": "Laser Emitter",
 		"model": "laser.obj",
-		"mat": "laser.png",
     "entity": "env_portal_laser",
     "bound1": [-0.5, -0.5, -0.5],
     "bound2": [0.5, 0.5, 0.1],
@@ -436,7 +431,6 @@
 		"id": "laser-catcher",
 		"name": "Laser Catcher",
 		"model": "laser-catcher.obj",
-		"mat": "laser-catcher.png",
     "entity": "prop_laser_catcher",
     "bound1": [-0.5, -0.5, -0.5],
     "bound2": [0.5, 0.5, 0.1],
@@ -483,7 +477,6 @@
 		"id": "funnel",
 		"name": "Funnel",
 		"model": "funnel.obj",
-		"mat": "funnel.png",
     "instance": "funnel",
     "bound1": [-1, -1, -1],
     "bound2": [1, 1, 0],

@@ -31,16 +31,19 @@ static int mat4GetUp(lua_State* l);
 // mat4.getRight(mat4 mat): vec3
 static int mat4GetRight(lua_State* l);
 
-void luaGetMat4(lua_State* l, int pos, mat4 out, const char* arg)
+void luaGetMat4(lua_State* l, int pos, mat4 out)
 {
 	if (lua_type(l, pos) != LUA_TTABLE)
-		luaL_error(l, "%s, expected mat4", arg);
+		luaL_typeerror(l, pos, "mat4");
 
 	for (int i = 0; i < 16; i++)
 	{
 		lua_geti(l, pos, i + 1);
 		if (lua_type(l, -1) != LUA_TNUMBER)
-			luaL_error(l, "%s index %d to mat4, expected number", arg, i + 1);
+		{
+			const char* arg = lua_pushfstring(l, "bad type for index %d, expected number", i + 1);
+			luaL_argerror(l, pos, arg);
+		}
 		int x = i & 3;
 		int y = i / 4;
 		out[y][x] = lua_tonumber(l, -1);
@@ -98,6 +101,8 @@ void addMat4Api(lua_State* l)
 	lua_pushcfunction(l, mat4GetRight);
 	lua_setfield(l, -2, "right");
 	lua_setfield(l, -2, "__index");
+	lua_pushstring(l, "mat4");
+	lua_setfield(l, -2, "__name");
 	lua_setmetatable(l, -2);
 
 	lua_pushcfunction(l, mat4New);
@@ -120,7 +125,7 @@ static int mat4New(lua_State* l)
 static int mat4NewTranslate(lua_State* l)
 {
 	vec3 pos;
-	luaGetVec3(l, 1, pos, "bad arg 1");
+	luaGetVec3(l, 1, pos);
 
 	mat4 mat;
 	glm_mat4_identity(mat);
@@ -132,7 +137,7 @@ static int mat4NewTranslate(lua_State* l)
 static int mat4NewRotation(lua_State* l)
 {
 	vec3 rot;
-	luaGetVec3(l, 1, rot, "bad arg 1");
+	luaGetVec3(l, 1, rot);
 
 	rot[0] = glm_rad(rot[0]);
 	rot[1] = glm_rad(rot[1]);
@@ -147,9 +152,9 @@ static int mat4NewRotation(lua_State* l)
 static int mat4Translate(lua_State* l)
 {
 	mat4 mat;
-	luaGetMat4(l, 1, mat, "bad arg 1");
+	luaGetMat4(l, 1, mat);
 	vec3 pos;
-	luaGetVec3(l, 2, pos, "bad arg 2");
+	luaGetVec3(l, 2, pos);
 
 	glm_translate(mat, pos);
 	luaUpdateMat4(l, 1, mat);
@@ -159,9 +164,9 @@ static int mat4Translate(lua_State* l)
 static int mat4Rotate(lua_State* l)
 {
 	mat4 mat;
-	luaGetMat4(l, 1, mat, "bad arg 1");
+	luaGetMat4(l, 1, mat);
 	vec3 rot;
-	luaGetVec3(l, 1, rot, "bad arg 1");
+	luaGetVec3(l, 1, rot);
 
 	rot[0] = glm_rad(rot[0]);
 	rot[1] = glm_rad(rot[1]);
@@ -177,9 +182,9 @@ static int mat4Rotate(lua_State* l)
 static int mat4Mul(lua_State* l)
 {
 	mat4 mat;
-	luaGetMat4(l, 1, mat, "bad arg 1");
+	luaGetMat4(l, 1, mat);
 	mat4 mat2;
-	luaGetMat4(l, 2, mat2, "bad arg 2");
+	luaGetMat4(l, 2, mat2);
 
 	glm_mat4_mul(mat, mat2, mat);
 	luaPushMat4(l, mat);
@@ -189,9 +194,9 @@ static int mat4Mul(lua_State* l)
 static int mat4Mulv3(lua_State* l)
 {
 	mat4 mat;
-	luaGetMat4(l, 1, mat, "bad arg 1");
+	luaGetMat4(l, 1, mat);
 	vec3 vec;
-	luaGetVec3(l, 2, vec, "bad arg 2");
+	luaGetVec3(l, 2, vec);
 
 	glm_mat4_mulv3(mat, vec, 1, vec);
 	luaPushVec3(l, vec);
@@ -201,7 +206,7 @@ static int mat4Mulv3(lua_State* l)
 static int mat4GetPosition(lua_State* l)
 {
 	mat4 mat;
-	luaGetMat4(l, 1, mat, "bad arg 1");
+	luaGetMat4(l, 1, mat);
 
 	vec3 vec;
 	vec[0] = mat[3][0];
@@ -215,7 +220,7 @@ static int mat4GetPosition(lua_State* l)
 static int mat4GetRotation(lua_State* l)
 {
 	mat4 mat;
-	luaGetMat4(l, 1, mat, "bad arg 1");
+	luaGetMat4(l, 1, mat);
 
 	vec3 vec;
 	getEulerAngles(mat, vec);
@@ -230,38 +235,38 @@ static int mat4GetRotation(lua_State* l)
 static int mat4GetForward(lua_State* l)
 {
 	mat4 mat;
-	luaGetMat4(l, 1, mat, "bad arg 1");
+	luaGetMat4(l, 1, mat);
 
 	vec3 vec;
-  vec[0] = mat[2][0];
-  vec[1] = mat[2][1];
-  vec[2] = mat[2][2];
-  luaPushVec3(l, vec);
-  return 1;
+	vec[0] = mat[2][0];
+	vec[1] = mat[2][1];
+	vec[2] = mat[2][2];
+	luaPushVec3(l, vec);
+	return 1;
 }
 
 static int mat4GetUp(lua_State* l)
 {
 	mat4 mat;
-	luaGetMat4(l, 1, mat, "bad arg 1");
+	luaGetMat4(l, 1, mat);
 
 	vec3 vec;
-  vec[0] = mat[1][0];
-  vec[1] = mat[1][1];
-  vec[2] = mat[1][2];
-  luaPushVec3(l, vec);
-  return 1;
+	vec[0] = mat[1][0];
+	vec[1] = mat[1][1];
+	vec[2] = mat[1][2];
+	luaPushVec3(l, vec);
+	return 1;
 }
 
 static int mat4GetRight(lua_State* l)
 {
 	mat4 mat;
-	luaGetMat4(l, 1, mat, "bad arg 1");
+	luaGetMat4(l, 1, mat);
 
 	vec3 vec;
-  vec[0] = -mat[0][0];
-  vec[1] = -mat[0][1];
-  vec[2] = -mat[0][2];
-  luaPushVec3(l, vec);
-  return 1;
+	vec[0] = -mat[0][0];
+	vec[1] = -mat[0][1];
+	vec[2] = -mat[0][2];
+	luaPushVec3(l, vec);
+	return 1;
 }

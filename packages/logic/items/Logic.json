@@ -1,41 +1,6 @@
 [
 	{
     "type": "entity",
-		"id": "end",
-		"name": "Map End",
-		"model": "cube.obj",
-		"mat": "end.png",
-    "entity": "point_clientcommand",
-    "snapMode": "mini-corner",
-    "bound1": [-0.25, -0.25, -0.25],
-    "bound2": [0.25, 0.25, 0.25],
-		"inputs": [
-			{
-				"name": "Trigger",
-				"trueInput": "Command",
-        "trueArg": "disconnect"
-			}
-		]
-	},
-	{
-    "type": "entity",
-		"id": "start",
-		"name": "Player Spawn",
-		"model": "cube.obj",
-		"mat": "start.png",
-    "entity": "info_player_start",
-    "snapMode": "mini-corner",
-    "bound1": [-0.25, -0.25, -0.25],
-    "bound2": [0.25, 0.25, 0.25],
-    "editorTransform": {
-      "rotation": [90, 0, 0]
-    },
-    "transform": {
-      "rotation": [90, 0, 0]
-    }
-	},
-	{
-    "type": "entity",
 		"id": "relay",
 		"name": "Relay",
 		"model": "cube.obj",

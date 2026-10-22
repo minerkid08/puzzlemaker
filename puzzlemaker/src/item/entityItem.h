@@ -18,7 +18,6 @@ typedef struct
 	mat4 editorTransform;
 
 	Mesh* mesh;
-	unsigned int texture;
 
 } EntityItemDef;
 

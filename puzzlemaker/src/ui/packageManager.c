@@ -39,6 +39,11 @@ void packageManagerRender()
 	zero.x = 0;
 	zero.y = 0;
 
+	ImGuiStyle* style = igGetStyle();
+	float height = style->FramePadding.y * 2 + style->FontSizeBase + style->ItemSpacing.y * 2;
+	ImVec2 size = {0, -height};
+
+	igBeginChild_Str("spacer", size, 0, 0);
 	int packageCount = dynList_size(packageList);
 	for (int i = 0; i < packageCount; i++)
 	{
@@ -53,7 +58,7 @@ void packageManagerRender()
 			tex._TexData = 0;
 			igImage(tex, size, uv0, uv1);
 			igSameLine(0, -1);
-			size.x = igGetContentRegionAvail().x - 128;
+			size.x = igGetContentRegionAvail().x - 150;
 			igBeginChild_Str("text", size, ImGuiChildFlags_Borders, 0);
 
 			igText("by %s", package->author);
@@ -65,17 +70,19 @@ void packageManagerRender()
 
 			size.x = igGetContentRegionAvail().x;
 			igBeginChild_Str("text2", size, ImGuiChildFlags_Borders, 0);
-			igText("%s", package->version);
+			igText("v%s", package->version);
+			if (package->requiredAddons)
+			{
+				int s = dynList_size(package->requiredAddons);
+				igText("p2ce addons:");
+				for (int j = 0; j < s; j++)
+					igText(package->requiredAddons[j]);
+			}
 
 			igEndChild();
 			igTreePop();
 		}
 	}
-	ImGuiStyle* style = igGetStyle();
-	float height = style->FramePadding.y * 2 + style->FontSizeBase + style->ItemSpacing.y * 2;
-	ImVec2 size = {0, -height};
-
-	igBeginChild_Str("spacer", size, 0, 0);
 	igEndChild();
 
 	if (igButton("apply", zero))

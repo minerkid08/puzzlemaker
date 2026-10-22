@@ -66,6 +66,8 @@ void updateCompilePopup()
 			if (igButton("done", zero))
 				igCloseCurrentPopup();
 		}
+		if(igIsKeyPressed_Bool(ImGuiKey_Escape, 0))
+			igCloseCurrentPopup();
 		igEndPopup();
 	}
 }

@@ -9,6 +9,16 @@
 
 #define BUFSIZE 65536
 
+#ifdef _WIN32
+static HANDLE out;
+
+static __attribute((constructor)) void init()
+{
+  out = GetStdHandle(STD_OUTPUT_HANDLE);
+}
+
+#endif
+
 char message[BUFSIZE];
 int size = BUFSIZE;
 char* start = message;
@@ -32,7 +42,7 @@ void writeMessage(const char* data)
 #ifdef __linux__
   write(STDOUT_FILENO, data, len);
 #else
-  WriteFile(stdout, data, len, 0, 0);
+  WriteFile(out, data, len, 0, 0);
 #endif
   size -= len;
   start += len;
@@ -43,7 +53,7 @@ void writeMessagen(const char* data, int len)
 #ifdef __linux__
   write(STDOUT_FILENO, data, len);
 #else
-  WriteFile(stdout, data, len, 0, 0);
+  WriteFile(out, data, len, 0, 0);
 #endif
   memcpy(start, data, len);
   size -= len;
@@ -59,7 +69,7 @@ void writeMessagef(const char* fmt, ...)
 #ifdef __linux__
   write(STDOUT_FILENO, start, len);
 #else
-  WriteFile(stdout, start, len, 0, 0);
+  WriteFile(out, start, len, 0, 0);
 #endif
   start += len;
   size -= len;

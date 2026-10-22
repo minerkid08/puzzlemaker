@@ -134,6 +134,7 @@ void uiViewport(FrameBuffer* framebuffer)
 }
 
 static char newMapPopup = 0;
+extern char running;
 
 void uiMenuBar()
 {
@@ -212,5 +213,9 @@ void uiMenuBar()
 
 	renderMapSettingsUi();
 	renderEditorSettingsUi();
-	packageManagerRender();
+	if (running)
+		packageManagerRender();
+	// igBegin("style editor", 0, 0);
+	// igShowStyleEditor(igGetStyle());
+	// igEnd();
 }

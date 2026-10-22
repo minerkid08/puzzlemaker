@@ -60,12 +60,16 @@ int runCmd(char* cmd)
 	HANDLE hw;
 
 	CreatePipe(&hr, &hw, &sa, 0);
+	SetHandleInformation(hr, HANDLE_FLAG_INHERIT, 0);
 	si.hStdInput = 0;
 	si.hStdOutput = hw;
 	si.hStdError = hw;
+	si.dwFlags |= STARTF_USESTDHANDLES;
 
-	if (!CreateProcess(0, proc, 0, 0, FALSE, 0, 0, compileStatus.workingDir, &si, &pi))
+	if (!CreateProcess(0, proc, 0, 0, TRUE, 0, 0, compileStatus.workingDir, &si, &pi))
 	{
+		CloseHandle(hw);
+		CloseHandle(hr);
 		writeMessagef("CreateProcess failed (%d).\n", GetLastError());
 		writeMessagef("command line: '%s'\n", proc);
 		writeMessagef("working dir: '%s'\n", compileStatus.workingDir);
@@ -91,15 +95,16 @@ int runCmd(char* cmd)
 	CloseHandle(hw);
 
 	char buf[512];
-  unsigned long int len2 = 1;
+	unsigned long int len2 = 1;
 	while (len2 > 0)
 	{
-	  if(!ReadFile(hr, buf, 512, &len2, 0))
-      break;
+		if (!ReadFile(hr, buf, 512, &len2, 0))
+			break;
 		writeMessagen(buf, len2);
 	}
 
 	WaitForSingleObject(pi.hProcess, INFINITE);
+	CloseHandle(hr);
 
 	DWORD exitCode = 0;
 	GetExitCodeProcess(pi.hProcess, &exitCode);

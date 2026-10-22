@@ -76,6 +76,7 @@ void renderErrorPopup()
 		{
 			if (igButton("package manager", zero))
 				openPackageManager();
+      packageManagerRender();
 		}
 		igEndPopup();
 	}

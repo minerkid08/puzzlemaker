@@ -224,7 +224,7 @@ void load()
 					output->def = &outputs[j];
 			}
 			if (output->def == 0)
-				errorf("failed to load item def %s, %d", item->def->name, i);
+				errorf("bad output for item %s, output index %d '%s'", item->def->name, i, outputName);
 
 			const char* inputName = jsonGetStrD(outputJson, "input");
 			output->input = (InputDef*)inputName;

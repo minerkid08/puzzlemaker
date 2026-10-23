@@ -6,4 +6,4 @@
 |description|string|
 |version|string|
 |icon|string?|
-
+|requiredAddons|string[]?|

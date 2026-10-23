@@ -1,7 +1,7 @@
 {
 	"moveSpeed":	4,
 	"boostSpeed":	8,
-	"arrowSens":	1,
+	"arrowSens":	6,
 	"orbitSens":	0.10000000149011612,
 	"panSens":	0.5,
 	"fov":	90,

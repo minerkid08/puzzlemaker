@@ -7,13 +7,7 @@
     "instance": "light",
     "snapMode": "mini-center",
     "bound1": [-1.25, -0.25, 0],
-    "bound2": [0.75, 0.25, 0.1],
-		"editorTransform": {
-			"rotation": [90, 0, 90]
-		},
-		"transform": {
-			"rotation": [90, 0, 0]
-		}
+    "bound2": [0.75, 0.25, 0.1]
 	},
   {
     "type": "volume",

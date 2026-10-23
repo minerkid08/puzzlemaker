@@ -40,7 +40,8 @@ corner, center, mini-corner, mini-center
 #### struct Kv
 |Key|Type|Default Value|Description|
 |---|----|-------------|-----------|
-|name|string|||
+|kv|string|||
+|name|string||optional|
 |type|KvType||type of the kv, also the type for default value and options|
 |defaultValue|type|||
 |options|object<string, type>||only needs to be specified if using a dropdown type|
@@ -52,7 +53,7 @@ corner, center, mini-corner, mini-center
 |rotation|vec3|[0, 0, 0]|rotations happen in the yxz (yaw pitch roll) order|
 
 #### enum KvType (string)  
-int, float, bool, string, drop-int, drop-string
+int, float, bool, string, bitfield, drop-int, drop-string
 
 #### enum TextureAlignment (string)  
 none, fit

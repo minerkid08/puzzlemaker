@@ -153,6 +153,9 @@ int main(int argc, const char** argv)
 
 			lookUp = glfwGetKey(window, GLFW_KEY_UP) - glfwGetKey(window, GLFW_KEY_DOWN);
 			lookRight = glfwGetKey(window, GLFW_KEY_RIGHT) - glfwGetKey(window, GLFW_KEY_LEFT);
+
+			lookUp *= editorSettings.arrowSens;
+			lookRight *= editorSettings.arrowSens;
 		}
 
 		snapRotation = !glfwGetKey(window, GLFW_KEY_LEFT_CONTROL);
@@ -225,6 +228,13 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 				queueCompile = 1;
 			return;
 		}
+		if (key == GLFW_KEY_S && mods & GLFW_MOD_CONTROL)
+		{
+			fileBrowserSave();
+			return;
+		}
+		if (!viewportHovered)
+			return;
 		if (mods & GLFW_MOD_CONTROL)
 		{
 			if (key == GLFW_KEY_C)
@@ -257,11 +267,6 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 					updateItemTransform(selection.item);
 					mouseMode = MODE_GRAB;
 				}
-				return;
-			}
-			if (key == GLFW_KEY_S)
-			{
-				fileBrowserSave();
 				return;
 			}
 		}

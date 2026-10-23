@@ -3,8 +3,5 @@
   "author": "minerkid08",
   "description": "Portal 2 item pack",
   "version": "1.0",
-  "icon": "icon.jpg",
-	"requiredAddons": [
-		"p1pbr"
-	]
+  "icon": "icon.jpg"
 }

@@ -162,15 +162,15 @@ void updateGrab(vec3 cameraPos, vec3 mouseDir)
 				newRot[2] = 0;
 			}
 
-			if(selection.item->def->rotationRestriction & RESTRICT_X)
-				newRot[0] = 0;
-			if(selection.item->def->rotationRestriction & RESTRICT_Y)
-				newRot[1] = 0;
-			if(selection.item->def->rotationRestriction & RESTRICT_Z)
-				newRot[2] = 0;
-
 			if (selection.type == SELECTION_ITEM)
 			{
+				if (selection.item->def->rotationRestriction & RESTRICT_X)
+					newRot[0] = 0;
+				if (selection.item->def->rotationRestriction & RESTRICT_Y)
+					newRot[1] = 0;
+				if (selection.item->def->rotationRestriction & RESTRICT_Z)
+					newRot[2] = 0;
+
 				memcpy(selection.item->pos, newPos, sizeof(vec3));
 				memcpy(selection.item->dir, newRot, sizeof(vec3));
 				updateItemTransformRot(selection.item);
@@ -192,7 +192,7 @@ void updateGrab(vec3 cameraPos, vec3 mouseDir)
 				{
 					memcpy(selection.item->pos, newPos, sizeof(vec3));
 					updateItemTransformRot(selection.item);
-          updateCulledVoxels();
+					updateCulledVoxels();
 				}
 			}
 			if (selection.type == SELECTION_ANTLINE)

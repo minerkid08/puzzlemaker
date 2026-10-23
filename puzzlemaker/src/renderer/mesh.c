@@ -1,7 +1,9 @@
 #include "assetManager.h"
 #include "dynList.h"
+#include "error.h"
 #include "packages/package.h"
 #include "renderer/renderer.h"
+#include "renderer/texture.h"
 #include "utils.h"
 #include <stdio.h>
 #include <zip.h>
@@ -42,17 +44,27 @@ void* fileOpen(const char* path, void* user_data)
 		snprintf(buf, 128, "packages/%s/%s", p->name, path);
 
 		FILE* file = fopen(buf, "rb");
+		if (file == 0)
+			printf("failed to open file '__%s__/%s'\n", p->name, path);
 		return file;
 	}
 	else
 	{
 		zip_stat_t stat;
-		if (zip_stat(p->zip, path, 0, &stat))
+		char buf[128];
+		strncpy(buf, path, 128);
+		for (int i = 0; i < strlen(path); i++)
+		{
+			if (buf[i] == '\\')
+				buf[i] = '/';
+		}
+		if (zip_stat(p->zip, buf, 0, &stat))
+		{
+			printf("failed to open file '__%s__/%s'\n", p->name, path);
 			return 0;
+		}
 		size = stat.size;
-		zip_file_t* file = zip_fopen(p->zip, path, 0);
-		if (file == 0)
-			errorf("failed to open %s", path);
+		zip_file_t* file = zip_fopen(p->zip, buf, 0);
 		return file;
 	}
 }
@@ -102,7 +114,7 @@ void initMeshRenderer()
 	meshShader = makeShader("mesh");
 	glGenBuffers(1, &uniformBuffer);
 	glBindBuffer(GL_UNIFORM_BUFFER, uniformBuffer);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(MeshMaterial) * 4, 0, GL_DYNAMIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(MeshMaterial) * 8, 0, GL_DYNAMIC_DRAW);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	bindingPoint = 0;
@@ -131,6 +143,11 @@ void loadMesh(Package* package, const char* filename, Mesh* mesh)
 	fastObjMesh* m = fast_obj_read_with_callbacks(buf, &callbacks, 0);
 	if (m == 0)
 		errorf("failed to load mesh '%s'", buf);
+
+	char* frame = strdupf("mesh '__%s__/%s'\n", package->name, buf);
+	pushStackFrame(frame);
+	free(frame);
+
 	free(buf);
 
 	mesh->flags = 0;
@@ -139,12 +156,17 @@ void loadMesh(Package* package, const char* filename, Mesh* mesh)
 	mesh->textureCount = m->texture_count - 1;
 	mesh->textures = textures;
 
+	if (m->texture_count > 9)
+		errorf("too many textures on mesh: found %d, max 8", m->texture_count - 1);
+
 	for (int i = 0; i < m->texture_count - 1; i++)
 	{
 		fastObjTexture* tex = &m->textures[i + 1];
 		textures[i] = assetManagerLoadTexture(tex->name, &mesh->flags);
 	}
 
+	if (m->material_count > 8)
+		errorf("too many materials on mesh: found %d, max 8", m->material_count);
 	MeshMaterial* materials = dynList_new(m->material_count, sizeof(MeshMaterial));
 	mesh->materialCount = m->material_count;
 	mesh->materials = materials;
@@ -158,10 +180,15 @@ void loadMesh(Package* package, const char* filename, Mesh* mesh)
 		MeshMaterial* meshMat = &materials[i];
 
 		meshMat->texture = mat->map_Kd;
+		meshMat->alphaTex = mat->map_d;
 		meshMat->tint[0] = mat->Kd[0];
 		meshMat->tint[1] = mat->Kd[1];
 		meshMat->tint[2] = mat->Kd[2];
 		meshMat->tint[3] = mat->d;
+		if (mat->d > 0 && mat->d < 1)
+			mesh->flags |= TEX_TRANSPARENT;
+		if (mat->d == 1)
+			mesh->flags |= TEX_OPAQUE;
 	}
 
 	Vertex* vertices = malloc(sizeof(Vertex) * m->index_count);
@@ -175,6 +202,8 @@ void loadMesh(Package* package, const char* filename, Mesh* mesh)
 
 	for (int i = 0; i < m->face_count; i++)
 	{
+		if (m->face_vertices[i] != 3)
+			errorf("all faces in a mesh must be trangulated: expected 3, got %d\nface %d", m->face_vertices[i], i);
 		Vertex* vert = &vertices[i * 3];
 		vert->material = m->face_materials[i];
 		vert = &vertices[i * 3 + 1];
@@ -211,6 +240,8 @@ void loadMesh(Package* package, const char* filename, Mesh* mesh)
 	glVertexAttribIPointer(2, 1, GL_INT, sizeof(Vertex), (void*)(5 * sizeof(float)));
 
 	glBindVertexArray(0);
+
+	popStackFrame();
 
 	free(vertices);
 	free(indices);

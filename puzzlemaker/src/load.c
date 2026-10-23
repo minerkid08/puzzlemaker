@@ -44,7 +44,7 @@ void load()
 				removeItem(item);
 		}
 		initVoxels();
-    mapSettings.name[0] = 0;
+    mapSettings.name[5] = 0;
 		openErrorPopup();
 		return;
 	}
@@ -452,6 +452,10 @@ void load()
 
 void resetMap()
 {
+	mapSettings.name[5] = 0;
+
+	setTheme(themeList);
+
 	for (int i = 0; i < dynList_size(itemList); i++)
 	{
 		Item* item = &itemList[i];

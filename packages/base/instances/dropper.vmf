@@ -3,7 +3,7 @@ versioninfo
 	"editorextension" "strata"
 	"editorversion" "400"
 	"editorbuild" "10903"
-	"mapversion" "5"
+	"mapversion" "6"
 	"formatversion" "100"
 	"prefab" "0"
 }
@@ -29,19 +29,19 @@ viewsettings
 		v1
 		{
 			"3d" "0"
-			"position" "(34.2963 -16.5344 65536)"
+			"position" "(34.2963 -16.5344 0)"
 			"zoom" "7.987"
 		}
 		v2
 		{
 			"3d" "0"
-			"position" "(65536 199.903 38.9031)"
+			"position" "(0 199.903 38.9031)"
 			"zoom" "0.746496"
 		}
 		v3
 		{
 			"3d" "0"
-			"position" "(-246.727 -65536 -129.463)"
+			"position" "(-246.727 0 -129.463)"
 			"zoom" "0.895795"
 		}
 	}
@@ -49,14 +49,14 @@ viewsettings
 world
 {
 	"id" "1"
-	"mapversion" "5"
+	"mapversion" "6"
 	"classname" "worldspawn"
-	"skyname" "sky_black_nofog"
-	"maxpropscreenwidth" "-1"
-	"detailvbsp" "detail.vbsp"
 	"detailmaterial" "detail/detailsprites"
+	"detailvbsp" "detail.vbsp"
 	"maxblobcount" "250"
 	"maxprojectedtextures" "8"
+	"maxpropscreenwidth" "-1"
+	"skyname" "sky_black_nofog"
 }
 entity
 {
@@ -148,7 +148,7 @@ entity
 	"viewhideflags" "0"
 	connections
 	{
-		"OnFizzled" "autorespawnTrigger0-1"
+		"OnFizzled" "autorespawnTest0-1"
 	}
 	"origin" "0 0 -16"
 	editor
@@ -200,15 +200,14 @@ entity
 entity
 {
 	"id" "254"
-	"classname" "logic_relay"
+	"classname" "logic_branch"
 	"angles" "0 0 0"
-	"spawnflags" "0"
-	"startdisabled" "$dontdropinital"
+	"initialvalue" "$dropinitial"
 	"targetname" "drop"
 	connections
 	{
-		"OnTrigger" "triggerEnable0-1"
-		"OnTrigger" "cubeFireUser10-1"
+		"OnTrue" "triggerEnable0-1"
+		"OnTrue" "cubeFireUser10-1"
 	}
 	"origin" "-16 0 0"
 	editor
@@ -227,7 +226,7 @@ entity
 	"targetname" "proxy"
 	connections
 	{
-		"OnProxyRelay" "dropTrigger0-1"
+		"OnProxyRelay" "dropTest0-1"
 	}
 	"origin" "-32 0 0"
 	editor
@@ -247,8 +246,8 @@ entity
 	connections
 	{
 		"OnMapSpawn" "makerForceSpawn0-1"
-		"OnMapSpawn" "dropTrigger1-1"
-		"OnMapSpawn" "dropEnable2-1"
+		"OnMapSpawn" "dropTest1-1"
+		"OnMapSpawn" "dropSetValue12-1"
 	}
 	"origin" "-16 -16 0"
 	editor
@@ -433,14 +432,13 @@ entity
 entity
 {
 	"id" "401"
-	"classname" "logic_relay"
+	"classname" "logic_branch"
 	"angles" "0 0 0"
-	"spawnflags" "0"
-	"startdisabled" "$dontautorespawn"
+	"initialvalue" "$autorespawn"
 	"targetname" "autorespawn"
 	connections
 	{
-		"OnTrigger" "triggerEnable0-1"
+		"OnTrue" "triggerEnable0-1"
 	}
 	"origin" "-16 16 0"
 	editor
@@ -456,8 +454,8 @@ entity
 	"id" "506"
 	"classname" "func_instance_parms"
 	"parm1" "$cubeType string models/props/metal_box.mdl"
-	"parm2" "$dontdropInital boolean 0"
-	"parm3" "$dontautorespawn boolean 0"
+	"parm2" "$dropinitial boolean 0"
+	"parm3" "$autorespawn boolean 0"
 	"origin" "-32 16 0"
 	editor
 	{

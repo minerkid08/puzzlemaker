@@ -8,12 +8,15 @@ uniform mat4 mat;
 uniform mat4 cam;
 uniform mat4 trans;
 
-out vec2 iuv;
-flat out int materialId;
+out VSOUT
+{
+	vec2 uv;
+	flat int materialId;
+} vertOut;
 
 void main()
 {
-	materialId = matId;
-  iuv = uv;
+	vertOut.materialId = matId;
+  vertOut.uv = uv;
   gl_Position = mat * cam * trans * vec4(pos, 1);
 }

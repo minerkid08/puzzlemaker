@@ -73,7 +73,7 @@ unsigned int assetManagerLoadTexture(const char* filename, char* flags)
 		{
 			free(textureName);
 			if (flags)
-				*flags = asset->flags;
+				*flags |= asset->flags;
 			return asset->id;
 		}
 	}

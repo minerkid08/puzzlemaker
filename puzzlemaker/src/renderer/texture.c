@@ -1,4 +1,5 @@
 #include "texture.h"
+#include "error.h"
 #include "glad/glad.h"
 #include <string.h>
 
@@ -36,8 +37,6 @@ unsigned int loadTexture(Package* package, const char* filename, char* flags)
 	{
 		if (channels == 4)
 		{
-			char opaque = 0;
-			char transparent = 0;
 			for (int y = 0; y < height; y++)
 			{
 				for (int x = 0; x < width; x++)
@@ -55,8 +54,23 @@ unsigned int loadTexture(Package* package, const char* filename, char* flags)
 			*flags = TEX_OPAQUE;
 	}
 
-	int format = (channels == 4 ? GL_RGBA : GL_RGB);
-	int intFormat = (channels == 4 ? GL_RGBA8 : GL_RGBA8);
+	int format;
+	int intFormat = GL_RGBA8;
+	switch (channels)
+	{
+	case 1:
+		format = GL_RED;
+		break;
+	case 3:
+		format = GL_RGB;
+		break;
+	case 4:
+		format = GL_RGBA;
+		break;
+	default:
+		errorf("invalid number of channels: got %d, expected 1 or 3 or 4\n");
+	}
+
 	unsigned int id;
 	glGenTextures(1, &id);
 	glBindTexture(GL_TEXTURE_2D, id);

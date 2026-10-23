@@ -283,7 +283,7 @@ void fileBrowserRender()
 
 void fileBrowserSave()
 {
-	if (path[0] == 0)
+	if (path[5] == 0)
 	{
 		fileBrowserOpen(MODE_SAVE);
 		return;

@@ -6,6 +6,7 @@
 typedef struct
 {
 	int texture;
+	int alphaTex;
 	vec4 tint;
 } MeshMaterial;
 

@@ -8,6 +8,8 @@
 
 static inline char isSelected(int x, int y, int z, char dir)
 {
+	if(selection.type != SELECTION_VOXEL)
+		return 0;
 	ivec3 pos = {x, y, z};
 	if (dir == selection.voxelDir || selection.voxelDir == DIR_NONE)
 		return pointInRange(pos, selection.voxelPos, selection.voxel2Pos);

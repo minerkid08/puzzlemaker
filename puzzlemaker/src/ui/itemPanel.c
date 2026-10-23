@@ -78,6 +78,8 @@ void itemPanelStub()
 		for (int k = 0; k < packageCount; k++)
 		{
 			Package* package = &packageList[k];
+      if(package->enabled == 0)
+        continue;
 			if (!igBeginMenu(package->baseName, 1))
 				continue;
 			for (int i = 0; i < package->itemGroupCount; i++)

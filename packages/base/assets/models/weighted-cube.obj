@@ -1,7 +1,7 @@
 # Blender 5.2.0 LTS
 # www.blender.org
 mtllib weighted-cube.mtl
-o models/props_map_editor/cube.mdl/dmx/cube_model.dmx
+o cube
 v 0.270107 0.241215 0.270154
 v 0.270483 0.242508 0.282226
 v 0.281897 0.242509 0.270812
@@ -14063,7 +14063,7 @@ vt 0.491310 0.536939
 vt 0.487255 0.534229
 vt 0.484545 0.530174
 s 1
-usemtl materials/models/props_map_editor/cube
+usemtl cube
 f 3/1/1 2/2/1 1/3/1
 f 6/4/2 5/5/3 4/6/2
 f 7/7/4 6/4/2 4/6/2

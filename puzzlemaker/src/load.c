@@ -44,6 +44,7 @@ void load()
 				removeItem(item);
 		}
 		initVoxels();
+    mapSettings.name[0] = 0;
 		openErrorPopup();
 		return;
 	}

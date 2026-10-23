@@ -1,7 +1,7 @@
 # Blender 5.1.2
 # www.blender.org
 mtllib cube.mtl
-o Cube
+o cube
 v -0.500000 -0.500000 0.500000
 v -0.500000 0.500000 0.500000
 v -0.500000 -0.500000 -0.500000

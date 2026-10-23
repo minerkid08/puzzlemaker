@@ -1,7 +1,7 @@
 # Blender 5.2.0 LTS
 # www.blender.org
 mtllib button.mtl
-o ~Mw0AouhK/buttonweight.mdl/dmx/button_model.dmx
+o button
 v -0.641566 0.123903 -0.193937
 v -0.620194 0.123924 -0.256894
 v -0.527570 0.173223 -0.218527
@@ -15435,7 +15435,7 @@ vt 0.020662 0.183326
 vt 0.025541 0.183064
 vt 0.523715 0.538968
 s 1
-usemtl materials/models/props_map_editor/buttons
+usemtl button
 f 3/1/1 2/2/1 1/3/1
 f 6/4/2 5/5/1 4/6/1
 f 7/7/1 6/4/2 4/6/1

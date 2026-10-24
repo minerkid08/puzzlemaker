@@ -5,6 +5,7 @@ compileSteps.json
 captureSettings.cap
 *.exe
 packageRelease.sh
+crash.dmp
 
 packages/*.zip
 ./package.json

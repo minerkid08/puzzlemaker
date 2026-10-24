@@ -93,7 +93,7 @@ void renderMapSettingsUi()
 		igColorEdit3("secondary color", data->primaryFogColor, 0);
 		igDragFloat("start", &data->fogStart, 1, 0, 9999, "%.2f", 0);
 		igDragFloat("end", &data->fogEnd, 1, 0, 9999, "%.2f", 0);
-		igDragFloat("density", &data->fogDensity, 1, 0, 1, "%.5f", 0);
+		igDragFloat("density", &data->fogDensity, 0.001, 0, 1, "%.5f", 0);
 
 		igSeparatorText("Color Correction");
 		igDragFloat("min falloff", &data->minFalloff, 1, -1, 9999, "%.2f", 0);

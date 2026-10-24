@@ -25,3 +25,4 @@ Press G to grab item to be moved with mouse
 Press F to rotate item with mouse  
 Press Q to rotate item 90 deg left  
 Press E to rotate item 90 deg right  
+Press C to open item placement menu  

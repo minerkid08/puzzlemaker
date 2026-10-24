@@ -72,7 +72,7 @@ void exportMapSettings()
 	exportEntityAddKvss(fogController, "fogstart", buf);
 	snprintf(buf, 32, "%.2f", data->fogEnd);
 	exportEntityAddKvss(fogController, "fogend", buf);
-	snprintf(buf, 32, "%.2f", data->fogDensity);
+	snprintf(buf, 32, "%.5f", data->fogDensity);
 	exportEntityAddKvss(fogController, "fogmaxdensity", buf);
 
 	Entity* tonemapper = exportCreateEntity();

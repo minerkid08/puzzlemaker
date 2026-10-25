@@ -6,10 +6,10 @@
 #include "raycast.h"
 #include "ui/itemPanel.h"
 #include "utils.h"
-#include <stdio.h>
 
 Selection selection;
-extern Picker picker;
+Picker picker;
+Item** pickPtr = 0;
 
 #define RAY_LEN 40
 

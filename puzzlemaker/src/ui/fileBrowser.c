@@ -34,16 +34,21 @@ void scanDir()
 {
 	textboxWidth = 0;
 
-	textboxWidth += igCalcTextSize("mkdir", 0, 0, -1).x;
-	if (mode & MODE_SAVE)
-		textboxWidth += igCalcTextSize("save", 0, 0, -1).x;
-	else
-		textboxWidth += igCalcTextSize("open", 0, 0, -1).x;
-
 	ImGuiStyle* style = igGetStyle();
 
-	textboxWidth += style->FramePadding.x * 4;
-	textboxWidth += style->ItemSpacing.x * 2.0f;
+	if (mode & MODE_SAVE)
+	{
+		textboxWidth += style->FramePadding.x * 4;
+		textboxWidth += style->ItemSpacing.x * 2.0f;
+		textboxWidth += igCalcTextSize("mkdir", 0, 0, -1).x;
+		textboxWidth += igCalcTextSize("save", 0, 0, -1).x;
+	}
+	else
+	{
+		textboxWidth += style->FramePadding.x * 2;
+		textboxWidth += style->ItemSpacing.x * 1.0f;
+		textboxWidth += igCalcTextSize("open", 0, 0, -1).x;
+	}
 
 	if (directories == 0)
 	{
@@ -119,11 +124,6 @@ void fileBrowserRender()
 		return;
 	igBegin("File Browser", &open, ImGuiWindowFlags_NoDocking);
 
-	float buttonSize = igGetStyle()->FontScaleMain * 30 + igGetStyle()->FramePadding.y * 4;
-	ImVec2 size = igGetContentRegionAvail();
-
-	size.y = size.y - buttonSize;
-
 	if (igButton("^", zero))
 	{
 		int l = strlen(path);
@@ -141,6 +141,12 @@ void fileBrowserRender()
 	}
 	igSameLine(0, -1);
 	igText(path);
+
+	ImGuiStyle* style = igGetStyle();
+	float height = style->FramePadding.y * 2 + style->FontSizeBase + style->ItemSpacing.y * 2;
+	ImVec2 size = igGetContentRegionAvail();
+
+	size.y -= height;
 
 	int i = 0;
 	if (igBeginListBox("##list", size))
@@ -205,14 +211,6 @@ void fileBrowserRender()
 	igPopItemWidth();
 
 	igSameLine(0, -1);
-	if (igButton("mkdir", zero))
-	{
-		strncat(path, "/", 255);
-		strncat(path, filename, 255);
-		makeDir(path);
-		scanDir();
-	}
-	igSameLine(0, -1);
 	if (mode & MODE_LOAD)
 	{
 		if (igButton("open", zero))
@@ -226,6 +224,14 @@ void fileBrowserRender()
 	}
 	else
 	{
+		if (igButton("mkdir", zero))
+		{
+			strncat(path, "/", 255);
+			strncat(path, filename, 255);
+			makeDir(path);
+			scanDir();
+		}
+		igSameLine(0, -1);
 		if (igButton("save", zero))
 		{
 			strncat(path, "/", 255);

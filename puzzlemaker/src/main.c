@@ -27,15 +27,12 @@
 
 #include "camera.h"
 #include "compile/compileThread.h"
-#include "picker.h"
 #include "raycast.h"
 #include "selection.h"
 #include "ui.h"
 #include "ui/itemPanel.h"
 #include "voxel/voxel.h"
 #include "voxel/voxelModification.h"
-
-Picker picker;
 
 #define MODE_NONE 0
 #define MODE_ORBIT 1
@@ -45,8 +42,6 @@ Picker picker;
 #define MODE_ROTATE 5
 
 int mouseMode = 0;
-
-#define RAY_LEN 40
 
 int width = 1920;
 int height = 1080;
@@ -65,8 +60,6 @@ char viewportHovered = 0;
 unsigned int mouseOffsetX = 0;
 unsigned int mouseOffsetY = 0;
 
-Item** pickPtr = 0;
-
 extern char queueCompile;
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -75,8 +68,6 @@ void mouseMoveCallback(GLFWwindow* window, double x, double y);
 void mouseZoomCallback(GLFWwindow* window, double x, double y);
 
 extern float uiScale;
-static char snapRotation;
-
 const char* commandLine = 0;
 GLFWwindow* window;
 char running = 0;
@@ -159,8 +150,6 @@ int main(int argc, const char** argv)
 			lookUp *= editorSettings.arrowSens;
 			lookRight *= editorSettings.arrowSens;
 		}
-
-		snapRotation = !glfwGetKey(window, GLFW_KEY_LEFT_CONTROL);
 
 		float moveSpeed = editorSettings.moveSpeed;
 		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT))

@@ -29,6 +29,7 @@ void initUi(GLFWwindow* window)
 	io = igGetIO_Nil();
 	io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	io->FontDefault = ImFontAtlas_AddFontFromFileTTF(io->Fonts, "LexendDeca.ttf", 16, 0, 0);
 
 	ImGuiStyle* style = igGetStyle();
 	ImGuiStyle_ScaleAllSizes(style, uiScale);
@@ -215,7 +216,7 @@ void uiMenuBar()
 	renderEditorSettingsUi();
 	if (running)
 		packageManagerRender();
-	// igBegin("style editor", 0, 0);
-	// igShowStyleEditor(igGetStyle());
-	// igEnd();
+	igBegin("style editor", 0, 0);
+	igShowStyleEditor(igGetStyle());
+	igEnd();
 }

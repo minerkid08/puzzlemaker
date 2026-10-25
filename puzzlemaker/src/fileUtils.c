@@ -62,7 +62,7 @@ int listFiles(const char* path, const char*** dirs, const char*** files, const c
 		int fileCount = dynList_size(*files);
 		qsort(*files, fileCount, sizeof(const char*), pstrcmp);
 	}
-	else
+	if(dirs)
 	{
 		int dirCount = dynList_size(*dirs);
 		qsort(*dirs, dirCount, sizeof(const char*), pstrcmp);
@@ -139,7 +139,7 @@ int listFiles(const char* dirPath, const char*** dirs, const char*** files, cons
 		int fileCount = dynList_size(*files);
 		qsort(*files, fileCount, sizeof(const char*), pstrcmp);
 	}
-	else
+	if(dirs)
 	{
 		int dirCount = dynList_size(*dirs);
 		qsort(*dirs, dirCount, sizeof(const char*), pstrcmp);

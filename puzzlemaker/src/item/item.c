@@ -8,11 +8,12 @@
 #include "renderer/renderer.h"
 #include "renderer/texture.h"
 #include "selection.h"
+#include "settings.h"
 #include "utils.h"
 
-#include <glad/glad.h>
 #include <cjson.h>
 #include <dynList.h>
+#include <glad/glad.h>
 #include <string.h>
 
 extern Item* itemList;
@@ -64,7 +65,7 @@ void drawItems()
 		vec3 b;
 		highlightedItem->def->callbacks->getBoundingBox(highlightedItem, a, b);
 		drawDebugRect(a, b, highlightedItem->transform, 1);
-    highlightedItem->highlighted = 0;
+		highlightedItem->highlighted = 0;
 	}
 
 	if (selection.type == SELECTION_ITEM)
@@ -74,6 +75,49 @@ void drawItems()
 		Item* item = selection.item;
 		item->def->callbacks->getBoundingBox(item, a, b);
 		drawDebugRect(a, b, item->transform, 0);
+
+		int c = 1;
+		for (int i = 0; i < dynList_size(item->def->kvs); i++)
+		{
+			ItemKv* kv = &item->kv[i];
+			ItemKvDef* def = kv->def;
+			int type = def->type & ~(TYPE_INSTANCE);
+			if (type != TYPE_VEC3)
+				continue;
+			if (def->dropValues->i == GIZMO_NONE)
+				continue;
+			vec3 v;
+			memcpy(v, kv->value.v, sizeof(vec3));
+			if (def->dropValues->i == GIZMO_POS)
+			{
+				v[0] -= item->pos[0];
+				v[1] -= item->pos[1];
+				v[2] -= item->pos[2];
+			}
+			if (def->dropValues->i == GIZMO_ANGLE || def->dropValues->i == GIZMO_ANGLE_OFFSET)
+			{
+				v[0] = glm_rad(v[0]);
+				v[1] = glm_rad(v[1]);
+				v[2] = glm_rad(v[2]);
+				vec4 quat;
+				glm_euler_yxz_quat(v, quat);
+
+				if (def->dropValues->i == GIZMO_ANGLE_OFFSET)
+				{
+					vec4 quat2;
+					memcpy(quat2, item->quat, sizeof(vec4));
+					glm_quat_mul(quat2, quat, quat);
+				}
+
+				v[0] = 0;
+				v[1] = 0;
+				v[2] = editorSettings.gizmoLen;
+				mat4 m;
+				glm_quat_mat4(quat, m);
+				glm_mat4_mulv3(m, v, 1, v);
+			}
+			drawDebugPoint(v, item->pos, c++);
+		}
 	}
 }
 

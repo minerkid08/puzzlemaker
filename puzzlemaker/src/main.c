@@ -206,6 +206,7 @@ int main(int argc, const char** argv)
 }
 
 extern int queueItemAdd;
+extern int queueItemAddAntline;
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -357,7 +358,10 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 				voxelToggleSize();
 		}
 		if (key == GLFW_KEY_C)
+		{
+			queueItemAddAntline = 1;
 			queueItemAdd = 1;
+		}
 	}
 }
 

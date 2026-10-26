@@ -53,7 +53,8 @@
     "NavHighlight"              : [0.59, 0.54, 0.18, 1.00],
     "NavWindowingHighlight"     : [1.00, 1.00, 1.00, 0.70],
     "NavWindowingDimBg"         : [0.80, 0.80, 0.80, 0.20],
-    "ModalWindowDimBg"          : [0.80, 0.80, 0.80, 0.35]
+    "ModalWindowDimBg"          : [0.80, 0.80, 0.80, 0.35],
+    "TreeLines"									: [0.86, 0.86, 1.00, 0.50]
   },
   "style": {
     "FrameBorderSize": 1.0,

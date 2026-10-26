@@ -39,7 +39,7 @@ static void loadVoxelConfig(Theme* theme, cJSON* json)
 	theme->voxelCfg.whiteWallMini = jsonGetStrD(json, "whiteWallMini");
 	theme->voxelCfg.whiteCeilingMini = jsonGetStrD(json, "whiteCeilingMini");
 
-  char flags = 0;
+	char flags = 0;
 	const char* blackEditor = jsonGetStr(json, "blackEditor");
 	theme->voxelCfg.blackEditor = assetManagerLoadTexture(blackEditor, 0);
 
@@ -94,6 +94,7 @@ void loadPostProcessingPresets(Theme* theme, cJSON* json)
 		data->name = jsonGetStrD(item, "name");
 
 		cJSON* tonemap = jsonGetObject(item, "tonemap");
+		data->enableTonemap = jsonGetBoolC(tonemap, "enabled", 1);
 		data->maxExposure = jsonGetFloat(tonemap, "maxExposure");
 		data->minExposure = jsonGetFloat(tonemap, "minExposure");
 		data->tonemapRate = jsonGetFloat(tonemap, "tonemapRate");
@@ -101,6 +102,7 @@ void loadPostProcessingPresets(Theme* theme, cJSON* json)
 		popStackFrame();
 
 		cJSON* fog = jsonGetObject(item, "fog");
+		data->enableFog = jsonGetBoolC(fog, "enabled", 1);
 		jsonGetVec3(fog, "primaryColor", data->primaryFogColor);
 		jsonGetVec3(fog, "secondaryColor", data->secondaryFogColor);
 		data->primaryFogColor[0] /= 255.0f;
@@ -115,14 +117,15 @@ void loadPostProcessingPresets(Theme* theme, cJSON* json)
 		popStackFrame();
 
 		cJSON* colorCorrection = jsonGetObject(item, "colorCorrection");
+		data->enableColorCorrection = jsonGetBoolC(colorCorrection, "enabled", 1);
 		data->minFalloff = jsonGetFloat(colorCorrection, "minFalloff");
-		data->maxFalloff= jsonGetFloat(colorCorrection, "maxFalloff");
-		data->maxWeight= jsonGetFloat(colorCorrection, "maxWeight");
-		data->fadeInDuration= jsonGetFloat(colorCorrection, "fadeInDuration");
-		data->fadeOutDuration= jsonGetFloat(colorCorrection, "fadeOutDuration");
+		data->maxFalloff = jsonGetFloat(colorCorrection, "maxFalloff");
+		data->maxWeight = jsonGetFloat(colorCorrection, "maxWeight");
+		data->fadeInDuration = jsonGetFloat(colorCorrection, "fadeInDuration");
+		data->fadeOutDuration = jsonGetFloat(colorCorrection, "fadeOutDuration");
 		data->filename = jsonGetStrD(colorCorrection, "filename");
 		popStackFrame();
-		
+
 		popStackFrame();
 	}
 	if (arrSize == 0)
@@ -137,7 +140,7 @@ void loadTheme(const char* filename)
 
 	int res = 0;
 	initErrorStack(strdupf("__%s__/themes/%s", currentPackage->name, filename), res);
-	if(res)
+	if (res)
 		startErrorLoop();
 
 	int dataSize;
@@ -178,7 +181,7 @@ void setTheme(Theme* theme)
 	antlineConfig = &theme->antlineCfg;
 	char* filename = mapSettings.postProcess.filename;
 	memcpy(&mapSettings.postProcess, &theme->postProcessPresets[0], sizeof(PostProcessData));
-	
+
 	mapSettings.postProcessPreset = 0;
 
 	mapSettings.postProcess.filename = filename;

@@ -118,11 +118,17 @@ void itemDebugRender()
 	zero.x = 0;
 	zero.y = 0;
 
+	int treeNodeFlags = ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DefaultOpen;
+
 	igBegin("Item Debug", &open, 0);
 
-	igDragFloat3("cam", cameraPos, 0.1, -9999, 9999, "%.2f", 0);
-	if (igDragFloat3("rot", cameraRot, 0.01, -9999, 9999, "%.2f", 0))
-		cameraRot[2] = 0;
+	if (igTreeNodeEx_Str("Camera", treeNodeFlags))
+	{
+		igDragFloat3("Position", cameraPos, 0.1, -9999, 9999, "%.2f", 0);
+		if (igDragFloat3("Rotation", cameraRot, 0.01, -9999, 9999, "%.2f", 0))
+			cameraRot[2] = 0;
+		igTreePop();
+	}
 
 	if (selection.type != SELECTION_ITEM)
 	{
@@ -131,90 +137,93 @@ void itemDebugRender()
 		return;
 	}
 
-	ItemDefinition* def = selection.item->def;
-	int itemType = selection.item->def->type;
-
-	igSeparatorText("General Options");
-	int snapMode = def->snapMode;
-	if (igCombo_Str("snap mode", &snapMode, "corner\0center\0mini corner\0mini center\0", 4))
-		def->snapMode = snapMode;
-
-	if (itemType == ITEM_TYPE_ENTITY)
+	if (igTreeNodeEx_Str("Item", treeNodeFlags))
 	{
-		EntityItemDef* data = def->data;
-		igSeparatorText("Entity Item Options");
-		igDragFloat3("bound1", data->bound1, 0.25, -9999, 9999, "%.3f", 0);
-		igDragFloat3("bound2", data->bound2, 0.25, -9999, 9999, "%.3f", 0);
-		if (igTreeNode_Str("editor transform"))
-		{
-			drawTransform(data->editorPos, data->editorRot, data->editorTransform);
-			igTreePop();
-		}
+		ItemDefinition* def = selection.item->def;
+		int itemType = selection.item->def->type;
 
-		if (igTreeNode_Str("export transform"))
-		{
-			drawTransform(data->positionOffset, data->rotationOffset, 0);
-			igTreePop();
-		}
+		int snapMode = def->snapMode;
+		if (igCombo_Str("Snap Mode", &snapMode, "Corner\0Center\0Mini Corner\0Mini Center\0", 4))
+			def->snapMode = snapMode;
 
-		if (igButton("copy", zero))
-			copyEntityItem();
-	}
-
-	if (itemType == ITEM_TYPE_PANEL)
-	{
-		PanelDefData* data = def->data;
-		igSeparatorText("Entity Item Options");
-		for (int i = 0; i < 8; i++)
+		if (itemType == ITEM_TYPE_ENTITY)
 		{
-			Prop* prop = &data->props[i];
-			if (prop->mesh == 0)
-				continue;
-			const char* name = 0;
-			switch (i)
+			EntityItemDef* data = def->data;
+			igSeparatorText("Entity Item Options");
+			igDragFloat3("Bound 1", data->bound1, 0.25, -9999, 9999, "%.3f", 0);
+			igDragFloat3("Bound 2", data->bound2, 0.25, -9999, 9999, "%.3f", 0);
+			if (igTreeNode_Str("Editor Transform"))
 			{
-			case PANEL_ITEM_ID_BOTTOM_LEFT:
-				name = "bottom left prop";
-				break;
-			case PANEL_ITEM_ID_BOTTOM:
-				name = "bottom prop";
-				break;
-			case PANEL_ITEM_ID_BOTTOM_RIGHT:
-				name = "bottom right prop";
-				break;
-			case PANEL_ITEM_ID_LEFT:
-				name = "left prop";
-				break;
-			case PANEL_ITEM_ID_RIGHT:
-				name = "right prop";
-				break;
-			case PANEL_ITEM_ID_TOP_LEFT:
-				name = "top left prop";
-				break;
-			case PANEL_ITEM_ID_TOP:
-				name = "top prop";
-				break;
-			case PANEL_ITEM_ID_TOP_RIGHT:
-				name = "top right prop";
-				break;
-			}
-			if (igTreeNode_Str(name))
-			{
-				if (igTreeNode_Str("editor transform"))
-				{
-					drawTransform(prop->editorPos, prop->editorRot, prop->editorTransform);
-					igTreePop();
-				}
-				if (igTreeNode_Str("export transform"))
-				{
-					drawTransform(prop->pos, prop->rot, prop->transform);
-					igTreePop();
-				}
-				if (igButton("copy", zero))
-					copyPropTransforms(prop);
+				drawTransform(data->editorPos, data->editorRot, data->editorTransform);
 				igTreePop();
 			}
+
+			if (igTreeNode_Str("Export Transform"))
+			{
+				drawTransform(data->positionOffset, data->rotationOffset, 0);
+				igTreePop();
+			}
+
+			if (igButton("Copy To Clipboard", zero))
+				copyEntityItem();
 		}
+
+		if (itemType == ITEM_TYPE_PANEL)
+		{
+			PanelDefData* data = def->data;
+			igSeparatorText("Panel Item Options");
+			for (int i = 0; i < 8; i++)
+			{
+				Prop* prop = &data->props[i];
+				if (prop->mesh == 0)
+					continue;
+				const char* name = 0;
+				switch (i)
+				{
+				case PANEL_ITEM_ID_BOTTOM_LEFT:
+					name = "Bottom Left Prop";
+					break;
+				case PANEL_ITEM_ID_BOTTOM:
+					name = "Bottom Prop";
+					break;
+				case PANEL_ITEM_ID_BOTTOM_RIGHT:
+					name = "Bottom Right Prop";
+					break;
+				case PANEL_ITEM_ID_LEFT:
+					name = "Left Prop";
+					break;
+				case PANEL_ITEM_ID_RIGHT:
+					name = "Right Prop";
+					break;
+				case PANEL_ITEM_ID_TOP_LEFT:
+					name = "Top Left Prop";
+					break;
+				case PANEL_ITEM_ID_TOP:
+					name = "Top Prop";
+					break;
+				case PANEL_ITEM_ID_TOP_RIGHT:
+					name = "Top Right Prop";
+					break;
+				}
+				if (igTreeNodeEx_Str(name, ImGuiTreeNodeFlags_DrawLinesFull))
+				{
+					if (igTreeNode_Str("Editor transform"))
+					{
+						drawTransform(prop->editorPos, prop->editorRot, prop->editorTransform);
+						igTreePop();
+					}
+					if (igTreeNode_Str("Export transform"))
+					{
+						drawTransform(prop->pos, prop->rot, prop->transform);
+						igTreePop();
+					}
+					if (igButton("Copy To Clipboard", zero))
+						copyPropTransforms(prop);
+					igTreePop();
+				}
+			}
+		}
+		igTreePop();
 	}
 
 	igEnd();

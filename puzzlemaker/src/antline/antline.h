@@ -2,6 +2,10 @@
 
 #include "cglm/types.h"
 
+#define CORNER_MODE_AUTO 1
+#define CORNER_MODE_ENABLED 2
+#define CORNER_MODE_DISABLED 3
+
 typedef struct
 {
 	int editorAntlineTex;
@@ -34,6 +38,7 @@ typedef struct
 	mat4 transform;
 	mat4 invTransform;
 	char snapDir;
+	int cornerMode;
 } AntlineSegment;
 
 typedef struct

@@ -619,6 +619,13 @@
         "required": true
       },
       {
+        "kv": "launchdir",
+				"name": "Launch Direction",
+        "type": "vec3",
+				"gizmo": "angle",
+				"defaultValue": [0, 0, 0]
+      },
+      {
         "kv": "playerSpeed",
 				"name": "Player Speed",
         "type": "float",

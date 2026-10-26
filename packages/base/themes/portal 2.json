@@ -42,12 +42,14 @@
 	  {
 		  "name": "testchamber",
 			"tonemap": {
+				"enabled": true,
 				"maxExposure": 3,
 	    	"minExposure": 0.5,
 	    	"tonemapRate": 0.25,
 	    	"brightPixelPercent": 5
 			},
 			"fog": {
+				"enabled": true,
 				"primaryColor": [40, 53, 64],
 	    	"secondaryColor": [40, 53, 64],
 	    	"start": 128,
@@ -55,6 +57,7 @@
 	    	"density": 1
 			},
 			"colorCorrection": {
+				"enabled": false,
 				"minFalloff": 0,
 				"maxFalloff": 200,
 				"maxWeight": 1,

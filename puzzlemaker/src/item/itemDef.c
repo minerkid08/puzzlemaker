@@ -11,6 +11,7 @@
 #include "ui/itemPanel.h"
 #include "utils.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 ItemDefinition* definitions;
@@ -184,7 +185,9 @@ void loadItemDefinitionFile(Package* package, const char* filename)
 			{
 				kvDef->type = TYPE_PICKER;
 				kvDef->defaultValue.i = -1;
-				kvDef->defaultValue.b = jsonGetBoolC(kv, "required", 0);
+				V* v = malloc(sizeof(V));
+				v->b = jsonGetBoolC(kv, "required", 0);
+				kvDef->dropValues = v;
 			}
 			if (strcmp(type, "bitfield") == 0)
 			{
@@ -210,6 +213,28 @@ void loadItemDefinitionFile(Package* package, const char* filename)
 					i++;
 				}
 				popStackFrame();
+			}
+			if (strcmp(type, "vec3") == 0)
+			{
+				kvDef->type = TYPE_VEC3;
+				float* v = malloc(sizeof(vec3));
+				jsonGetVec3(kv, "defaultValue", v);
+				kvDef->defaultValue.v = v;
+				const char* gizmo = jsonGetStrC(kv, "gizmo", 0);
+				V* g = malloc(sizeof(V));
+				g->i = GIZMO_NONE;
+				if (gizmo)
+				{
+					if (strcmp(gizmo, "position") == 0)
+						g->i = GIZMO_POS;
+					if (strcmp(gizmo, "position-offset") == 0)
+						g->i = GIZMO_POS_OFFSET;
+					if (strcmp(gizmo, "angle") == 0)
+						g->i = GIZMO_ANGLE;
+					if (strcmp(gizmo, "angle-offset") == 0)
+						g->i = GIZMO_ANGLE_OFFSET;
+				}
+				kvDef->dropValues = g;
 			}
 			if (strcmp(type, "drop-string") == 0)
 			{

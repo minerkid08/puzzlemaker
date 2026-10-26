@@ -19,8 +19,9 @@ void loadEditorSettings()
 		editorSettings.orbitSens = 0.1;
 		editorSettings.panSens = 0.5;
 		editorSettings.fov = 90;
-		editorSettings.rotSnap = 90;
+		editorSettings.rotSnap = 15;
 		editorSettings.lockMouseOnPan = 1;
+		editorSettings.gizmoLen = 1;
 		return;
 	}
 
@@ -49,8 +50,9 @@ void loadEditorSettings()
 	editorSettings.orbitSens = jsonGetFloatC(json, "orbitSens", 0.1);
 	editorSettings.panSens = jsonGetFloatC(json, "panSens", 0.5);
 	editorSettings.fov = jsonGetFloatC(json, "fov", 90);
-	editorSettings.rotSnap = jsonGetFloatC(json, "rotSnap", 90);
+	editorSettings.rotSnap = jsonGetFloatC(json, "rotSnap", 15);
 	editorSettings.lockMouseOnPan = jsonGetBoolC(json, "lockMouseOnPan", 1);
+	editorSettings.gizmoLen = jsonGetFloatC(json, "gizmoLength", 1);
 	cJSON_Delete(json);
 }
 
@@ -65,6 +67,7 @@ void saveEditorSettings()
 	cJSON_AddNumberToObject(json, "fov", editorSettings.fov);
 	cJSON_AddNumberToObject(json, "rotSnap", editorSettings.rotSnap);
 	cJSON_AddBoolToObject(json, "lockMouseOnPan", editorSettings.lockMouseOnPan);
+	cJSON_AddNumberToObject(json, "gizmoLength", editorSettings.gizmoLen);
 
 	char* str = cJSON_Print(json);
 

@@ -76,13 +76,15 @@ void exportEntityAddKv(Entity* ent, ItemKv* kv)
 		if (type == TYPE_PICKER)
 		{
 			if (kv->value.i == -1)
-				buf = strdupf("\"replace%02d\" \"$%s (none)\"", len, def->name);
+				buf = strdupf("\"replace%02d\" \"$%s\"", len, def->name);
 			else
 			{
 				Item* target = getItem(kv->value.i);
 				buf = strdupf("\"replace%02d\" \"$%s %s%d\"", len, def->name, target->def->name, target->index);
 			}
 		}
+		if (type == TYPE_VEC3)
+			buf = strdupf("\"replace%d\" \"%s %.2f %.2f %.2f\"", len, def->name, kv->value.v[0], kv->value.v[1], kv->value.v[2]);
 		if (type & TYPE_DROPDOWN)
 		{
 			type &= ~(TYPE_DROPDOWN);
@@ -113,6 +115,8 @@ void exportEntityAddKv(Entity* ent, ItemKv* kv)
 			}
 			buf = strdupf("\"%s\" \"%d\"", def->name, value);
 		}
+		if (def->type == TYPE_VEC3)
+			buf = strdupf("\"%s\" \"%.2f %.2f %.2f\"", def->name, kv->value.v[0], kv->value.v[1], kv->value.v[2]);
 		if (def->type & TYPE_DROPDOWN)
 		{
 			int type = (def->type & (~TYPE_DROPDOWN));
@@ -124,7 +128,7 @@ void exportEntityAddKv(Entity* ent, ItemKv* kv)
 		if (def->type == TYPE_PICKER)
 		{
 			if (kv->value.i == -1)
-				buf = strdupf("\"%s\" \"(none)\"", def->name);
+				buf = strdupf("\"%s\" \"\"", def->name);
 			else
 			{
 				Item* target = getItem(kv->value.i);

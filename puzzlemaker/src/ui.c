@@ -151,40 +151,40 @@ void uiMenuBar()
 	zero.x = 0;
 	zero.y = 0;
 	igBeginMenuBar();
-	if (igBeginMenu("file", 1))
+	if (igBeginMenu("File", 1))
 	{
-		if (igMenuItem_Bool("new", 0, 0, 1))
+		if (igMenuItem_Bool("New", 0, 0, 1))
 			newMapPopup = 1;
-		if (igMenuItem_Bool("save", 0, 0, 1))
+		if (igMenuItem_Bool("Save", 0, 0, 1))
 			fileBrowserSave();
-		if (igMenuItem_Bool("save as", 0, 0, 1))
+		if (igMenuItem_Bool("Save As", 0, 0, 1))
 			fileBrowserOpen(MODE_SAVE);
-		if (igMenuItem_Bool("load", 0, 0, 1))
+		if (igMenuItem_Bool("Load", 0, 0, 1))
 			fileBrowserOpen(MODE_LOAD);
 		igEndMenu();
 	}
-	if (igBeginMenu("map", 1))
+	if (igBeginMenu("Map", 1))
 	{
-		if (igMenuItem_Bool("compile", 0, 0, 1))
+		if (igMenuItem_Bool("Compile", 0, 0, 1))
 		{
 			if (mapSettings.name[0] == 0)
 				fileBrowserOpen(MODE_SAVE | QUEUE_COMPILE);
 			else
 				queueCompile = 1;
 		}
-		if (igMenuItem_Bool("map settings", 0, 0, 1))
+		if (igMenuItem_Bool("Map Settings", 0, 0, 1))
 			openMapSettingsUi();
 		igEndMenu();
 	}
-	if (igBeginMenu("window", 1))
+	if (igBeginMenu("Window", 1))
 	{
-		if (igMenuItem_Bool("editor settings", 0, 0, 1))
+		if (igMenuItem_Bool("Editor Settings", 0, 0, 1))
 			openEditorSettingsUi();
-		if (igMenuItem_Bool("debug", 0, 0, 1))
-			openItemDebug();
-		if (igMenuItem_Bool("package manager", 0, 0, 1))
+		if (igMenuItem_Bool("Package Manager", 0, 0, 1))
 			openPackageManager();
-		if (igMenuItem_Bool("style editor", 0, 0, 1))
+		if (igMenuItem_Bool("Debug", 0, 0, 1))
+			openItemDebug();
+		if (igMenuItem_Bool("Style Editor", 0, 0, 1))
 			styleEditor = !styleEditor;
 		igEndMenu();
 	}
@@ -199,21 +199,21 @@ void uiMenuBar()
 
 	if (newMapPopup)
 	{
-		igOpenPopup_Str("new map", 0);
+		igOpenPopup_Str("New Map", 0);
 		newMapPopup = 0;
 	}
 
-	if (igBeginPopupModal("new map", 0, 0))
+	if (igBeginPopupModal("New Map", 0, 0))
 	{
-		igText("you are going to clear the current map");
-		igText("are you sure");
-		if (igButton("yes", zero))
+		igText("You are going to clear the current map");
+		igText("Are you sure?");
+		if (igButton("Yes", zero))
 		{
 			resetMap();
 			igCloseCurrentPopup();
 		}
 		igSameLine(0, -1);
-		if (igButton("no", zero))
+		if (igButton("No", zero))
 			igCloseCurrentPopup();
 		igEndPopup();
 	}
@@ -228,7 +228,7 @@ void uiMenuBar()
 		packageManagerRender();
 	if (styleEditor)
 	{
-		igBegin("style editor", (bool*)&styleEditor, 0);
+		igBegin("Style Editor", (bool*)&styleEditor, 0);
 		igShowStyleEditor(igGetStyle());
 		igEnd();
 	}

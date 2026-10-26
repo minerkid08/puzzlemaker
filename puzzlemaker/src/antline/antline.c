@@ -172,7 +172,7 @@ void renderAntlineHover()
 		if (antline->hovered == 0)
 			continue;
 		drawAntline(antline);
-    antline->hovered = 0;
+		antline->hovered = 0;
 	}
 	if (selection.type == SELECTION_ANTLINE)
 	{
@@ -281,47 +281,51 @@ void antlineExport()
 
 			vec3 start = {-antlineConfig->editorDotSize, -0.125f, -antlineConfig->editorDotSize};
 			vec3 end = {antlineConfig->editorDotSize, 0.125f, antlineConfig->editorDotSize};
-			OBB a;
-			start[0] += 0.01;
-			start[2] += 0.01;
-			end[0] -= 0.01;
-			end[2] -= 0.01;
-
-			vec3 rot;
-			memcpy(rot, segment->rot, sizeof(vec3));
-			rot[0] = glm_rad(rot[0]);
-			rot[1] = glm_rad(rot[1]);
-			rot[2] = glm_rad(rot[2]);
-			mat4 rotMat;
-			glm_euler_yxz(rot, rotMat);
-			genOBB(start, end, rotMat, segment->pos, &a);
-
-			for (int j = 0; j < segmentCount; j++)
+			if (segment->cornerMode == CORNER_MODE_ENABLED)
+				addCorner = 1;
+			else if (segment->cornerMode == CORNER_MODE_DISABLED)
+				addCorner = 0;
+			else
 			{
-				if (i == j)
-					continue;
-				AntlineSegment* segment2 = &antline->segments[j];
-				vec3 start = {-antlineConfig->editorDotSize, -antlineConfig->editorDotSize, -0.125f};
-				vec3 end = {antlineConfig->editorDotSize, antlineConfig->editorDotSize, 0.125f};
-				end[1] *= 2.0f * segment2->len - 1;
+				OBB a;
 				start[0] += 0.01;
-				start[1] += 0.01;
+				start[2] += 0.01;
 				end[0] -= 0.01;
-				end[1] -= 0.01;
-				OBB b;
+				end[2] -= 0.01;
 
 				vec3 rot;
-				memcpy(rot, segment2->rot, sizeof(vec3));
+				memcpy(rot, segment->rot, sizeof(vec3));
 				rot[0] = glm_rad(rot[0]);
 				rot[1] = glm_rad(rot[1]);
 				rot[2] = glm_rad(rot[2]);
 				mat4 rotMat;
 				glm_euler_yxz(rot, rotMat);
-				genOBB(start, end, rotMat, segment2->pos, &b);
-				if (getCollision(&a, &b))
+				genOBB(start, end, rotMat, segment->pos, &a);
+
+				for (int j = 0; j < segmentCount; j++)
 				{
-					printf("seg %d, %d collided\n", i, j);
-					addCorner = 0;
+					if (i == j)
+						continue;
+					AntlineSegment* segment2 = &antline->segments[j];
+					vec3 start = {-antlineConfig->editorDotSize, -antlineConfig->editorDotSize, -0.125f};
+					vec3 end = {antlineConfig->editorDotSize, antlineConfig->editorDotSize, 0.125f};
+					end[1] *= 2.0f * segment2->len - 1;
+					start[0] += 0.01;
+					start[1] += 0.01;
+					end[0] -= 0.01;
+					end[1] -= 0.01;
+					OBB b;
+
+					vec3 rot;
+					memcpy(rot, segment2->rot, sizeof(vec3));
+					rot[0] = glm_rad(rot[0]);
+					rot[1] = glm_rad(rot[1]);
+					rot[2] = glm_rad(rot[2]);
+					mat4 rotMat;
+					glm_euler_yxz(rot, rotMat);
+					genOBB(start, end, rotMat, segment2->pos, &b);
+					if (getCollision(&a, &b))
+						addCorner = 0;
 				}
 			}
 

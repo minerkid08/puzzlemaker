@@ -55,6 +55,7 @@
 #### struct TonemapDef
 |Key|Type|
 |---|----|
+|enabled|bool?|
 |maxExposure|number|
 |minExposure|number|
 |tonemapRate|number|
@@ -63,6 +64,7 @@
 #### struct FogDef
 |Key|Type|
 |---|----|
+|enabled|bool?|
 |primaryColor|vec3|
 |secondaryColor|vec3|
 |start|number|
@@ -72,6 +74,7 @@
 #### struct ColorCorrectionDef
 |Key|Type|
 |---|----|
+|enabled|bool?|
 |minFalloff|number|
 |maxFalloff|number|
 |maxWeight|number|

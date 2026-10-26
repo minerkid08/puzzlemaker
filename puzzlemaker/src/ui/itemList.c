@@ -35,7 +35,7 @@ void itemListRender()
 	igBegin("Item List", 0, 0);
 
 	int flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed;
-	if (igTreeNodeEx_Str("items", flags))
+	if (igTreeNodeEx_Str("Items", flags))
 	{
 		Item* items = getItemList();
 		int len = dynList_size(items);
@@ -100,7 +100,7 @@ void itemListRender()
 		igTreePop();
 	}
 
-	if (igTreeNodeEx_Str("antlines", flags))
+	if (igTreeNodeEx_Str("Antlines", flags))
 	{
 		if (igBeginTable("antlines", 1, ImGuiTableFlags_RowBg, zero, 0))
 		{
@@ -115,7 +115,7 @@ void itemListRender()
 				igTableNextRow(0, 0);
 				igTableSetColumnIndex(0);
 				igPushID_Int(i);
-				snprintf(buf, 64, "antline %d", antline->id);
+				snprintf(buf, 64, "Antline %d", antline->id);
 				char selected = 0;
 				if (selection.type == SELECTION_ANTLINE)
 					selected = (antline == selection.antline);

@@ -61,8 +61,8 @@ void packageManagerRender()
 			size.x = igGetContentRegionAvail().x - 150;
 			igBeginChild_Str("text", size, ImGuiChildFlags_Borders, 0);
 
-			igText("by %s", package->author);
-			igCheckbox("enabled", (bool*)&package->enabled);
+			igText("By %s", package->author);
+			igCheckbox("Enabled", (bool*)&package->enabled);
 			igSeparator();
 			igTextWrapped("%s", package->description);
 			igEndChild();
@@ -74,7 +74,7 @@ void packageManagerRender()
 			if (package->requiredAddons)
 			{
 				int s = dynList_size(package->requiredAddons);
-				igText("p2ce addons:");
+				igText("P2CE Addons:");
 				for (int j = 0; j < s; j++)
 					igText(package->requiredAddons[j]);
 			}
@@ -85,7 +85,7 @@ void packageManagerRender()
 	}
 	igEndChild();
 
-	if (igButton("apply", zero))
+	if (igButton("Apply", zero))
 	{
 		cJSON* json = cJSON_CreateObject();
 		for (int i = 0; i < packageCount; i++)

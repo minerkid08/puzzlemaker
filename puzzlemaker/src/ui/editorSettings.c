@@ -19,15 +19,16 @@ void renderEditorSettingsUi()
 
 	igBegin("Editor Settings", &open, ImGuiWindowFlags_NoDocking);
 
-	igInputFloat("move speed", &editorSettings.moveSpeed, 1, 1, "%.2f", 0);
-	igInputFloat("boost speed", &editorSettings.boostSpeed, 1, 1, "%.2f", 0);
-	igInputFloat("look sensitivity (arrow)", &editorSettings.arrowSens, 1, 1, "%.2f", 0);
-	igInputFloat("orbit sensitivity", &editorSettings.orbitSens, 1, 1, "%.2f", 0);
-	igInputFloat("pan sensitivity", &editorSettings.panSens, 1, 1, "%.2f", 0);
-	igCheckbox("capture mouse on pan", (bool*)&editorSettings.lockMouseOnPan);
-	if (igInputFloat("fov", &editorSettings.fov, 1, 1, "%.2f", 0))
+	igInputFloat("Move Speed", &editorSettings.moveSpeed, 0.25, 1, "%.2f", 0);
+	igInputFloat("Boost Speed", &editorSettings.boostSpeed, 0.25, 1, "%.2f", 0);
+	igInputFloat("Look Sensitivity (arrow)", &editorSettings.arrowSens, 0.25, 1, "%.2f", 0);
+	igInputFloat("Orbit Sensitivity", &editorSettings.orbitSens, 0.25, 1, "%.2f", 0);
+	igInputFloat("Pan Sensitivity", &editorSettings.panSens, 0.25, 1, "%.2f", 0);
+	igCheckbox("Capture Mouse on Pan", (bool*)&editorSettings.lockMouseOnPan);
+	if (igInputFloat("Fov", &editorSettings.fov, 1, 1, "%.2f", 0))
 		initCamera();
-	igInputFloat("rotation snap", &editorSettings.rotSnap, 1, 1, "%.2f", 0);
+	igInputFloat("Rotation Snap", &editorSettings.rotSnap, 1, 1, "%.2f", 0);
+	igInputFloat("Angle Gizmo Length", &editorSettings.gizmoLen, 0.25f, 1, "%.2f", 0);
 
 	igEnd();
 }

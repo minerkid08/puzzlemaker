@@ -54,71 +54,80 @@ void exportMapSettings()
 
 	PostProcessData* data = &mapSettings.postProcess;
 
-	Entity* fogController = exportCreateEntity();
-	fogController->name = strdup("fogController");
-	fogController->className = "env_fog_controller";
-	memcpy(fogController->pos, pos, sizeof(vec3));
+	if (data->enableFog)
+	{
+		Entity* fogController = exportCreateEntity();
+		fogController->name = strdup("fogController");
+		fogController->className = "env_fog_controller";
+		memcpy(fogController->pos, pos, sizeof(vec3));
 
-	fogController->rotation[0] = 0;
-	fogController->rotation[1] = 0;
-	fogController->rotation[2] = 0;
-	snprintf(buf, 32, "%.2f, %.2f, %.2f", data->primaryFogColor[0] * 255.0f, data->primaryFogColor[1] * 255.0f,
-			 data->primaryFogColor[2] * 255.0f);
-	exportEntityAddKvss(fogController, "fogcolor", buf);
-	snprintf(buf, 32, "%.2f, %.2f, %.2f", data->secondaryFogColor[0] * 255.0f, data->secondaryFogColor[1] * 255.0f,
-			 data->secondaryFogColor[2] * 255.0f);
-	exportEntityAddKvss(fogController, "fogcolor2", buf);
-	snprintf(buf, 32, "%.2f", data->fogStart);
-	exportEntityAddKvss(fogController, "fogstart", buf);
-	snprintf(buf, 32, "%.2f", data->fogEnd);
-	exportEntityAddKvss(fogController, "fogend", buf);
-	snprintf(buf, 32, "%.5f", data->fogDensity);
-	exportEntityAddKvss(fogController, "fogmaxdensity", buf);
+		fogController->rotation[0] = 0;
+		fogController->rotation[1] = 0;
+		fogController->rotation[2] = 0;
+		snprintf(buf, 32, "%.2f, %.2f, %.2f", data->primaryFogColor[0] * 255.0f, data->primaryFogColor[1] * 255.0f,
+				 data->primaryFogColor[2] * 255.0f);
+		exportEntityAddKvss(fogController, "fogcolor", buf);
+		snprintf(buf, 32, "%.2f, %.2f, %.2f", data->secondaryFogColor[0] * 255.0f, data->secondaryFogColor[1] * 255.0f,
+				 data->secondaryFogColor[2] * 255.0f);
+		exportEntityAddKvss(fogController, "fogcolor2", buf);
+		snprintf(buf, 32, "%.2f", data->fogStart);
+		exportEntityAddKvss(fogController, "fogstart", buf);
+		snprintf(buf, 32, "%.2f", data->fogEnd);
+		exportEntityAddKvss(fogController, "fogend", buf);
+		snprintf(buf, 32, "%.5f", data->fogDensity);
+		exportEntityAddKvss(fogController, "fogmaxdensity", buf);
+	}
 
-	Entity* tonemapper = exportCreateEntity();
-	tonemapper->name = strdup("tonemapper");
-	tonemapper->className = "env_tonemap_controller";
-	memcpy(tonemapper->pos, pos, sizeof(vec3));
+	if (data->enableTonemap)
+	{
+		Entity* tonemapper = exportCreateEntity();
+		tonemapper->name = strdup("tonemap");
+		tonemapper->className = "env_tonemap_controller";
+		memcpy(tonemapper->pos, pos, sizeof(vec3));
 
-	tonemapper->rotation[0] = 0;
-	tonemapper->rotation[1] = 0;
-	tonemapper->rotation[2] = 0;
+		tonemapper->rotation[0] = 0;
+		tonemapper->rotation[1] = 0;
+		tonemapper->rotation[2] = 0;
 
-	Entity* logicAuto = exportCreateEntity();
-	logicAuto->name = strdup("auto");
-	logicAuto->className = "logic_auto";
-	memcpy(logicAuto->pos, pos, sizeof(vec3));
+		Entity* logicAuto = exportCreateEntity();
+		logicAuto->name = strdup("auto");
+		logicAuto->className = "logic_auto";
+		memcpy(logicAuto->pos, pos, sizeof(vec3));
 
-	logicAuto->rotation[0] = 0;
-	logicAuto->rotation[1] = 0;
-	logicAuto->rotation[2] = 0;
+		logicAuto->rotation[0] = 0;
+		logicAuto->rotation[1] = 0;
+		logicAuto->rotation[2] = 0;
 
-	snprintf(buf, 32, "%.2f", data->minExposure);
-	exportEntityAddRawOutput(logicAuto, "OnMapSpawn", "tonemapper", "SetAutoExposureMin", buf, 0);
-	snprintf(buf, 32, "%.2f", data->maxExposure);
-	exportEntityAddRawOutput(logicAuto, "OnMapSpawn", "tonemapper", "SetAutoExposureMax", buf, 0);
-	snprintf(buf, 32, "%.2f", data->tonemapRate);
-	exportEntityAddRawOutput(logicAuto, "OnMapSpawn", "tonemapper", "SetTonemapRate", buf, 0);
-	snprintf(buf, 32, "%.2f", data->brightPixelPercent);
-	exportEntityAddRawOutput(logicAuto, "OnMapSpawn", "tonemapper", "SetTonemapPercentBrightPixels", buf, 0);
+		snprintf(buf, 32, "%.2f", data->minExposure);
+		exportEntityAddRawOutput(logicAuto, "OnMapSpawn", "tonemapper", "SetAutoExposureMin", buf, 0);
+		snprintf(buf, 32, "%.2f", data->maxExposure);
+		exportEntityAddRawOutput(logicAuto, "OnMapSpawn", "tonemapper", "SetAutoExposureMax", buf, 0);
+		snprintf(buf, 32, "%.2f", data->tonemapRate);
+		exportEntityAddRawOutput(logicAuto, "OnMapSpawn", "tonemapper", "SetTonemapRate", buf, 0);
+		snprintf(buf, 32, "%.2f", data->brightPixelPercent);
+		exportEntityAddRawOutput(logicAuto, "OnMapSpawn", "tonemapper", "SetTonemapPercentBrightPixels", buf, 0);
+	}
 
-	Entity* colorCorrection = exportCreateEntity();
-	colorCorrection->name = strdup("colorCorrection");
-	colorCorrection->className = "color_correction";
-	memcpy(colorCorrection->pos, pos, sizeof(vec3));
+	if (data->enableColorCorrection)
+	{
+		Entity* colorCorrection = exportCreateEntity();
+		colorCorrection->name = strdup("colorCorrection");
+		colorCorrection->className = "color_correction";
+		memcpy(colorCorrection->pos, pos, sizeof(vec3));
 
-	colorCorrection->rotation[0] = 0;
-	colorCorrection->rotation[1] = 0;
-	colorCorrection->rotation[2] = 0;
-	snprintf(buf, 32, "%.2f", data->minFalloff);
-	exportEntityAddKvss(colorCorrection, "minfalloff", buf);
-	snprintf(buf, 32, "%.2f", data->maxFalloff);
-	exportEntityAddKvss(colorCorrection, "maxfalloff", buf);
-	snprintf(buf, 32, "%.2f", data->maxWeight);
-	exportEntityAddKvss(colorCorrection, "maxweight", buf);
-	snprintf(buf, 32, "%.2f", data->fadeInDuration);
-	exportEntityAddKvss(colorCorrection, "fadeinduration", buf);
-	snprintf(buf, 32, "%.2f", data->fadeOutDuration);
-	exportEntityAddKvss(colorCorrection, "fadeoutduration", buf);
-	exportEntityAddKvss(colorCorrection, "filename", data->filename);
+		colorCorrection->rotation[0] = 0;
+		colorCorrection->rotation[1] = 0;
+		colorCorrection->rotation[2] = 0;
+		snprintf(buf, 32, "%.2f", data->minFalloff);
+		exportEntityAddKvss(colorCorrection, "minfalloff", buf);
+		snprintf(buf, 32, "%.2f", data->maxFalloff);
+		exportEntityAddKvss(colorCorrection, "maxfalloff", buf);
+		snprintf(buf, 32, "%.2f", data->maxWeight);
+		exportEntityAddKvss(colorCorrection, "maxweight", buf);
+		snprintf(buf, 32, "%.2f", data->fadeInDuration);
+		exportEntityAddKvss(colorCorrection, "fadeinduration", buf);
+		snprintf(buf, 32, "%.2f", data->fadeOutDuration);
+		exportEntityAddKvss(colorCorrection, "fadeoutduration", buf);
+		exportEntityAddKvss(colorCorrection, "filename", data->filename);
+	}
 }

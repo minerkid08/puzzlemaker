@@ -40,14 +40,14 @@ void scanDir()
 	{
 		textboxWidth += style->FramePadding.x * 4;
 		textboxWidth += style->ItemSpacing.x * 2.0f;
-		textboxWidth += igCalcTextSize("mkdir", 0, 0, -1).x;
-		textboxWidth += igCalcTextSize("save", 0, 0, -1).x;
+		textboxWidth += igCalcTextSize("Make Directory", 0, 0, -1).x;
+		textboxWidth += igCalcTextSize("Save", 0, 0, -1).x;
 	}
 	else
 	{
 		textboxWidth += style->FramePadding.x * 2;
 		textboxWidth += style->ItemSpacing.x * 1.0f;
-		textboxWidth += igCalcTextSize("open", 0, 0, -1).x;
+		textboxWidth += igCalcTextSize("Open", 0, 0, -1).x;
 	}
 
 	if (directories == 0)
@@ -88,33 +88,33 @@ void fileBrowserRender()
 	if (loadPopup)
 	{
 		loadPopup = 0;
-		igOpenPopup_Str("load", 0);
+		igOpenPopup_Str("Load", 0);
 	}
-	if (igBeginPopupModal("load", 0, 0))
+	if (igBeginPopupModal("Load", 0, 0))
 	{
-		igText("your current map might not be saved");
-		igText("would you like to save it");
+		igText("Your current map might not be saved");
+		igText("Would you like to save it?");
 
-		if (igButton("save", zero))
+		if (igButton("Save", zero))
 		{
 			fileBrowserSave();
 			igCloseCurrentPopup();
 		}
 		igSameLine(0, -1);
-		if (igButton("save as", zero))
+		if (igButton("Save As", zero))
 		{
 			fileBrowserOpen(MODE_SAVE);
 			igCloseCurrentPopup();
 		}
 		igSameLine(0, -1);
-		if (igButton("dont save", zero))
+		if (igButton("Don't Save", zero))
 		{
 			mode = MODE_LOAD;
 			open = 1;
 			igCloseCurrentPopup();
 		}
 		igSameLine(0, -1);
-		if (igButton("cancel", zero))
+		if (igButton("Cancel", zero))
 			igCloseCurrentPopup();
 
 		igEndPopup();
@@ -213,7 +213,7 @@ void fileBrowserRender()
 	igSameLine(0, -1);
 	if (mode & MODE_LOAD)
 	{
-		if (igButton("open", zero))
+		if (igButton("Open", zero))
 		{
 			strncat(path, "/", 255);
 			strncat(path, filename, 255);
@@ -224,7 +224,7 @@ void fileBrowserRender()
 	}
 	else
 	{
-		if (igButton("mkdir", zero))
+		if (igButton("Make Directory", zero))
 		{
 			strncat(path, "/", 255);
 			strncat(path, filename, 255);
@@ -232,7 +232,7 @@ void fileBrowserRender()
 			scanDir();
 		}
 		igSameLine(0, -1);
-		if (igButton("save", zero))
+		if (igButton("Save", zero))
 		{
 			strncat(path, "/", 255);
 			strncat(path, filename, 255);
@@ -250,13 +250,13 @@ void fileBrowserRender()
 	{
 		queuePopup = 0;
 		if (mode & MODE_SAVE)
-			igOpenPopup_Str("save as", 0);
+			igOpenPopup_Str("Save As", 0);
 	}
-	if (igBeginPopupModal("save as", 0, 0))
+	if (igBeginPopupModal("Save As", 0, 0))
 	{
-		igText("you are going to overwrite %s/%s", path, file);
-		igText("are you sure");
-		if (igButton("yes", zero))
+		igText("You are going to overwrite %s/%s", path, file);
+		igText("Are you sure?");
+		if (igButton("Yes", zero))
 		{
 			strncat(path, "/", 255);
 			strncat(path, file, 255);
@@ -281,7 +281,7 @@ void fileBrowserRender()
 			igCloseCurrentPopup();
 		}
 		igSameLine(0, -1);
-		if (igButton("no", zero))
+		if (igButton("No", zero))
 			igCloseCurrentPopup();
 		igEndPopup();
 	}

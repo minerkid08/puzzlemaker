@@ -149,6 +149,7 @@ static const ThemeElement colorMap[] = {{"Text", ImGuiCol_Text},
 										{"NavWindowingHighlight", ImGuiCol_NavWindowingHighlight},
 										{"NavWindowingDimBg", ImGuiCol_NavWindowingDimBg},
 										{"ModalWindowDimBg", ImGuiCol_ModalWindowDimBg},
+										{"TreeLines", ImGuiCol_TreeLines},
 										{0, 0}};
 
 void loadImguiTheme()

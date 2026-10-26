@@ -11,8 +11,15 @@
 #define TYPE_FLOAT 4
 #define TYPE_PICKER 5
 #define TYPE_BITFIELD 6
+#define TYPE_VEC3 7
 #define TYPE_INSTANCE 64
 #define TYPE_DROPDOWN 128
+
+#define GIZMO_NONE 0
+#define GIZMO_POS 1
+#define GIZMO_POS_OFFSET 2
+#define GIZMO_ANGLE 3
+#define GIZMO_ANGLE_OFFSET 4
 
 #define ITEM_TYPE_ENTITY 1
 #define ITEM_TYPE_PANEL 2
@@ -35,6 +42,7 @@ typedef union {
 	float f;
 	char b;
 	char* s;
+	float* v;
 } V;
 
 typedef struct

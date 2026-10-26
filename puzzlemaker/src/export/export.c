@@ -20,17 +20,35 @@ int exportMap()
 
 	Item* items = getItemList();
 	int len = dynList_size(items);
-	if (len == 0)
-		return 1;
+	for (int i = 0; i < len; i++)
+	{
+		Item* item = &items[i];
+		if (!isItemValid(item))
+			continue;
+		for (int j = 0; j < dynList_size(item->def->kvs); j++)
+		{
+			ItemKv* kv = &item->kv[j];
+			int type = kv->def->type & ~(TYPE_INSTANCE);
+			if (type != TYPE_PICKER)
+				continue;
+			if (kv->value.i == -1 && kv->def->dropValues->b)
+			{
+				writeMessagef("Error: required item kv %s is not set\n", kv->def->displayName);
+				writeMessagef("in item %s %d\n", item->def->name, item->index);
+				return 1;
+			}
+		}
+	}
+
 	char requiresPaint = 0;
 	for (int i = 0; i < len; i++)
 	{
 		Item* item = &items[i];
+		if (!isItemValid(item))
+			continue;
 		item->ioEnt = 0;
 		if (item->def->requiresPaint)
 			requiresPaint = 1;
-		if (item->def == 0)
-			continue;
 		if (item->def->exportScript)
 		{
 			if (runExportScript(item))
@@ -82,7 +100,7 @@ viewsettings
 	"maxblobcount" "250"
 	"maxprojectedtextures" "8")");
 
-  fprintf(file, "  \"paintinmap\" \"%d\"\n", requiresPaint);
+	fprintf(file, "  \"paintinmap\" \"%d\"\n", requiresPaint);
 
 	exportEndBrushes(file);
 	fprintf(file, "\n}\n");
@@ -102,8 +120,11 @@ cordons
 	for (int i = 0; i < len; i++)
 	{
 		Item* item = &items[i];
+		if (!isItemValid(item))
+			continue;
 		if (item->ioEnt)
 			free((char*)item->ioEnt);
+		item->ioEnt = 0;
 	}
 	return 0;
 }

@@ -2,6 +2,7 @@
 
 typedef struct
 {
+	float gizmoLen;
 	float moveSpeed;
 	float boostSpeed;
 	float arrowSens;

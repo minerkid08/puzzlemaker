@@ -85,7 +85,7 @@ void entityItemExport(Item* item)
 	EntityItemDef* defData = item->def->data;
 
 	char buf[100];
-	snprintf(buf, 100, "%s%d", item->def->name, item->index);
+	snprintf(buf, 100, "%s%d", item->def->id, item->index);
 
 	vec3 itemPos;
 	memcpy(itemPos, item->pos, sizeof(vec3));

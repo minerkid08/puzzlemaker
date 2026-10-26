@@ -8,11 +8,13 @@
 
 float frac = 0;
 
-char open;
+static char open = 0;
+static char compileRunning = 0;
 void openCompilePopup()
 {
 	open = 1;
 	frac = 0;
+	compileRunning = 1;
 	igOpenPopup_Str("compile", 0);
 }
 
@@ -20,6 +22,12 @@ void updateCompilePopup()
 {
 	CompileStep* steps = getCompileSteps();
 	ImVec2 zero = {0, 0};
+
+	if (open == 0 && compileRunning)
+	{
+		cancelCompile();
+		compileRunning = 0;
+	}
 
 	if (igBeginPopupModal("compile", (bool*)&open, 0))
 	{
@@ -49,25 +57,36 @@ void updateCompilePopup()
 
 		igTextEx(message, strchr(message, 0), 0);
 
-    if(igGetScrollY() >= igGetScrollMaxY())
-      igSetScrollHereY(1.0f);
+		if (igGetScrollY() >= igGetScrollMaxY())
+			igSetScrollHereY(1.0f);
 		igEndChild();
 
 		if (step != count && (failed == 0))
 		{
+      igBeginDisabled(step == 0);
 			if (igButton("cancel", zero))
 			{
+				compileRunning = 0;
 				cancelCompile();
 				igCloseCurrentPopup();
 			}
+      igEndDisabled();
 		}
 		else
 		{
+			compileRunning = 0;
 			if (igButton("done", zero))
 				igCloseCurrentPopup();
 		}
-		if(igIsKeyPressed_Bool(ImGuiKey_Escape, 0))
+		if (igIsKeyPressed_Bool(ImGuiKey_Escape, 0))
+		{
+			if (compileRunning)
+			{
+				compileRunning = 0;
+				cancelCompile();
+			}
 			igCloseCurrentPopup();
+		}
 		igEndPopup();
 	}
 }

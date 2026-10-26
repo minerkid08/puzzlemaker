@@ -169,7 +169,9 @@ Item* addItem(int defId, ivec3 position)
 		kv->def = &def->kvs[i];
 		int type = kv->def->type;
 		type &= ~(TYPE_INSTANCE);
-		if (type == TYPE_STRING)
+		if (type == TYPE_PICKER)
+			item->kv[i].value.i = -1;
+		else if (type == TYPE_STRING)
 		{
 			item->kv[i].value.s = malloc(256);
 			strncpy(item->kv[i].value.s, def->kvs[i].defaultValue.s, 256);
@@ -178,13 +180,13 @@ Item* addItem(int defId, ivec3 position)
 		{
 			int len = dynList_size(kv->def->dropNames);
 			kv->value.s = malloc(len);
-      for(int j = 0; j < len; j++)
-      {
-        if(kv->def->defaultValue.i & (1 << kv->def->dropValues[j].i))
-          kv->value.s[j] = 1;
-        else
-          kv->value.s[j] = 0;
-      }
+			for (int j = 0; j < len; j++)
+			{
+				if (kv->def->defaultValue.i & (1 << kv->def->dropValues[j].i))
+					kv->value.s[j] = 1;
+				else
+					kv->value.s[j] = 0;
+			}
 		}
 		else
 			item->kv[i].value = def->kvs[i].defaultValue;

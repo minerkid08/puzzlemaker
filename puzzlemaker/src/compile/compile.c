@@ -65,13 +65,16 @@ void startCompile()
   printf("%s\n", mapSettings.name);
 	getcwd(compileStatus.curPath, 512);
 	compileStatus.failed = 0;
+  compileStatus.currentStep = 0;
   openCompilePopup();
   resumeCompileThread();
 }
 
+void killCompileProcess();
 void cancelCompile()
 {
-	compileStatus.currentStep = -1;
+  killCompileProcess();
+  compileStatus.failed = 1;
 }
 
 int getCompileStep()

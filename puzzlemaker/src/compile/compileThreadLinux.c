@@ -1,3 +1,4 @@
+#include <signal.h>
 #ifdef linux
 
 #include "compileThread.h"
@@ -22,12 +23,11 @@ static pthread_t thread;
 static char buf[512];
 
 extern CompileStatus compileStatus;
+static pid_t pid = 0;
 
 int runCmd(char* cmd)
 {
 	processString(cmd, buf);
-
-	pid_t pid;
 
 	int stdoutPipe[2];
 	if (pipe(stdoutPipe) == -1)
@@ -110,6 +110,7 @@ int runCmd(char* cmd)
 		int status = 0;
 		waitpid(pid, &status, 0);
 		close(stdoutRead);
+		pid = 0;
 		if (status)
 			compileStatus.failed = 1;
 	}
@@ -146,6 +147,12 @@ void* compileThread(void* e)
 		}
 	}
 	return 0;
+}
+
+void killCompileProcess()
+{
+	if (pid)
+		kill(pid, 9);
 }
 
 void resumeCompileThread()

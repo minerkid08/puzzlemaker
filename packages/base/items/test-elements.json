@@ -586,5 +586,102 @@
         "falseInput": "Enable"
       }
     ]
+	},
+  {
+    "type": "entity",
+		"id": "faith-plate",
+		"name": "Arial Faith Plate",
+		"model": "faithplate.obj",
+    "instance": "faithplate",
+    "bound1": [-0.4, -0.75, -1],
+    "bound2": [0.4, 0.75, 0.1],
+    "editorTransform": {
+      "rotation": [90, 0, 0]
+    },
+    "transform": {
+      "rotation": [90, 0, 0]
+    },
+    "deleteIntersectingVoxels": true,
+    "deleteIntersectingVoxelsEditor": false,
+    "genMissingVoxels": true,
+		"snapMode": "mini-corner",
+    "keyvalues": [
+      {
+        "kv": "startdisabled",
+				"name": "Start Disabled",
+        "type": "bool",
+        "defaultValue": false
+      },
+      {
+        "kv": "target",
+				"name": "Target",
+        "type": "item",
+        "required": true
+      },
+      {
+        "kv": "playerSpeed",
+				"name": "Player Speed",
+        "type": "float",
+        "defaultValue": 450
+      },
+      {
+        "kv": "physicsSpeed",
+				"name": "Physics Object Speed",
+        "type": "float",
+        "defaultValue": 450
+      }
+    ],
+    "inputs": [
+      {
+        "name": "Disable",
+        "trueInput": "instance:relay;FireUser1",
+        "falseInput": "instance:relay;FireUser2"
+      }
+    ]
+	},
+  {
+    "type": "entity",
+		"id": "turret",
+		"name": "Turret",
+		"model": "turret.obj",
+    "entity": "npc_portal_turret_floor",
+    "bound1": [-0.4, -0.75, -1],
+    "bound2": [0.4, 0.75, 0.1],
+    "editorTransform": {
+      "rotation": [90, 0, 0]
+    },
+    "transform": {
+      "rotation": [90, 0, 0]
+    },
+    "deleteIntersectingVoxels": true,
+    "deleteIntersectingVoxelsEditor": false,
+    "genMissingVoxels": true,
+		"snapMode": "mini-corner",
+    "keyvalues": [
+      {
+        "kv": "damageforce",
+				"name": "Damage Pushes Player",
+        "type": "bool",
+        "defaultValue": false
+      },
+      {
+        "kv": "allowshootingthroughportals",
+				"name": "Allow Shooting Through Portals",
+        "type": "bool",
+        "defaultValue": false
+      },
+      {
+        "kv": "turretrange",
+				"name": "Max Range",
+        "type": "float",
+        "defaultValue": 1024
+      },
+      {
+        "kv": "usesuperdamage",
+				"name": "Use Super Damage",
+        "type": "bool",
+        "defaultValue": false
+      }
+    ]
 	}
 ]

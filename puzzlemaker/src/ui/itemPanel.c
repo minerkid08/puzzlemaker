@@ -301,7 +301,12 @@ void itemPanelRender()
 				else if (picker.active)
 					pressed = igButton("entity: picking", zero);
 				else
+        {
+          ImVec4 col = {.x = 1, .y = 0, .z = 0, .w = 1};
+          igPushStyleColor_Vec4(ImGuiCol_Border, col);
 					pressed = igButton("entity: none", zero);
+          igPopStyleColor(1);
+        }
 
 				if (pressed)
 				{

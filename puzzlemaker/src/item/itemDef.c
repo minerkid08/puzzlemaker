@@ -184,6 +184,7 @@ void loadItemDefinitionFile(Package* package, const char* filename)
 			{
 				kvDef->type = TYPE_PICKER;
 				kvDef->defaultValue.i = -1;
+				kvDef->defaultValue.b = jsonGetBoolC(kv, "required", 0);
 			}
 			if (strcmp(type, "bitfield") == 0)
 			{

@@ -1,6 +1,6 @@
 {
-	"logic":	true,
 	"base":	true,
-	"crazy_customs":	false,
-	"p1pbr":	false
+	"logic":	true,
+	"crazy_customs":	true,
+	"p1pbr":	true
 }

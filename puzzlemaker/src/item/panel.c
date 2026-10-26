@@ -546,7 +546,7 @@ void panelItemExport(Item* item)
 		entity = exportCreateEntity();
 
 		char buf[20];
-		snprintf(buf, 20, "%s%d", item->def->name, item->index);
+		snprintf(buf, 20, "%s%d", item->def->id, item->index);
 		entity->name = strdup(buf);
 		entity->className = defData->classname;
 

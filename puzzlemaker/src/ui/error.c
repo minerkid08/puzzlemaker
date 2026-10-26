@@ -15,6 +15,7 @@ static char queueErrorPopup = 0;
 extern GLFWwindow* window;
 extern char running;
 extern char metadataLoaded;
+char errorActive = 0;
 
 void startErrorLoop()
 {
@@ -34,6 +35,7 @@ void startErrorLoop()
 
 void openErrorPopup()
 {
+  errorActive = 1;
 	queueErrorPopup = 1;
 }
 
@@ -47,6 +49,7 @@ void renderErrorPopup()
 		if (running == 0)
 			exit(1);
 		clearError();
+    errorActive = 0;
 	}
 
 	if (open)

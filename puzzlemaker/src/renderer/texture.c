@@ -19,13 +19,20 @@ unsigned int loadTexture(Package* package, const char* filename, char* flags)
 	snprintf(buf, l, "assets/materials/%s\n", filename);
 	buf[l - 1] = 0;
 
-	int dataLen;
-	unsigned char* file = readPackageFile(package, buf, &dataLen);
-
 	int channels;
 	int width;
 	int height;
-	unsigned char* data = stbi_load_from_memory(file, dataLen, &width, &height, &channels, 0);
+	unsigned char* data;
+	if (package == 0)
+		data = stbi_load(filename, &width, &height, &channels, 0);
+	else
+	{
+		int dataLen;
+		unsigned char* file = readPackageFile(package, buf, &dataLen);
+
+		data = stbi_load_from_memory(file, dataLen, &width, &height, &channels, 0);
+		free(file);
+	}
 	if (data == 0)
 	{
 		printf("failed to load image: '%s'\n", buf);

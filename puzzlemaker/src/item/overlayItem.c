@@ -45,7 +45,7 @@ void overlayItemExport(Item* item)
 	overlay->texture = str;
 	overlay->script = 1;
   char buf[256];
-	snprintf(buf, 256, "%s%d", item->def->name, item->index);
+	snprintf(buf, 256, "%s%d", item->def->id, item->index);
 
 	overlay->name = strdup(buf);
 	memcpy(overlay->pos, item->pos, sizeof(vec3));

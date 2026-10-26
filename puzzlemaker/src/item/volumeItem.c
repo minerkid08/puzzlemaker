@@ -181,7 +181,7 @@ void volumeItemExport(Item* item)
 	{
 		Entity* ent = exportCreateEntity();
 		char buf[20];
-		snprintf(buf, 20, "%s%d", item->def->name, item->index);
+		snprintf(buf, 20, "%s%d", item->def->id, item->index);
 		memcpy(ent->pos, item->pos, sizeof(vec3));
     ent->rotation[0] = 0;
     ent->rotation[1] = 1;

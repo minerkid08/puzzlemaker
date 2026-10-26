@@ -1,0 +1,110 @@
+[
+	{
+    "type": "entity",
+		"id": "blue-gel",
+		"name": "Repulsion Gel",
+		"model": "bluePaint.obj",
+    "instance": "blueGel",
+    "snapMode": "mini-corner",
+	  "bound1":	[-1, -1, -1],
+	  "bound2":	[1, 0, 1],
+    "rotationRestriction": "xyz",
+    "requiresPaint": true,
+    "keyvalues": [
+      {
+        "kv": "startEnabled",
+				"name": "Start Enabled",
+        "type": "bool",
+        "defaultValue": true
+      }
+    ],
+    "inputs": [
+      {
+        "name": "Enable",
+        "trueInput": "enable",
+        "falseInput": "disable"
+      }
+    ]
+	},
+	{
+    "type": "entity",
+		"id": "orange-gel",
+		"name": "Propulsion Gel",
+		"model": "orangePaint.obj",
+    "instance": "orangeGel",
+    "snapMode": "mini-corner",
+	  "bound1":	[-1, -1, -1],
+	  "bound2":	[1, 0, 1],
+    "rotationRestriction": "xyz",
+    "requiresPaint": true,
+    "keyvalues": [
+      {
+        "kv": "startEnabled",
+				"name": "Start Enabled",
+        "type": "bool",
+        "defaultValue": true
+      }
+    ],
+    "inputs": [
+      {
+        "name": "Enable",
+        "trueInput": "enable",
+        "falseInput": "disable"
+      }
+    ]
+	},
+	{
+    "type": "entity",
+		"id": "water-gel",
+		"name": "Cleansing Gel",
+		"model": "waterPaint.obj",
+    "instance": "waterGel",
+    "snapMode": "mini-corner",
+	  "bound1":	[-1, -1, -1],
+	  "bound2":	[1, 0, 1],
+    "rotationRestriction": "xyz",
+    "requiresPaint": true,
+    "keyvalues": [
+      {
+        "kv": "startEnabled",
+				"name": "Start Enabled",
+        "type": "bool",
+        "defaultValue": true
+      }
+    ],
+    "inputs": [
+      {
+        "name": "Enable",
+        "trueInput": "enable",
+        "falseInput": "disable"
+      }
+    ]
+	},
+	{
+    "type": "entity",
+		"id": "white-gel",
+		"name": "Conversion Gel",
+		"model": "whitePaint.obj",
+    "instance": "whiteGel",
+    "snapMode": "mini-corner",
+	  "bound1":	[-1, -1, -1],
+	  "bound2":	[1, 0, 1],
+    "rotationRestriction": "xyz",
+    "requiresPaint": true,
+    "keyvalues": [
+      {
+        "kv": "startEnabled",
+				"name": "Start Enabled",
+        "type": "bool",
+        "defaultValue": true
+      }
+    ],
+    "inputs": [
+      {
+        "name": "Enable",
+        "trueInput": "enable",
+        "falseInput": "disable"
+      }
+    ]
+	}
+]

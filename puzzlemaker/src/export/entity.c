@@ -291,7 +291,7 @@ void exportEntitiesProcessOutputs()
 			if (item->ioEnt)
 				strncpy(ioEntName, item->ioEnt, 128);
 			else
-				snprintf(ioEntName, 128, "%s%d", item->def->name, output->entity);
+				snprintf(ioEntName, 128, "%s%d", item->def->id, output->entity);
 			char antlineName[64];
 			snprintf(antlineName, 64, "antline%d-tex", output->antline);
 			if (output->antline != -1)
@@ -350,7 +350,8 @@ void exportEndEntities(FILE* file)
 
 		fprintf(file, "  \"id\" \"%d\"\n", i + 1);
 		fprintf(file, "  \"classname\" \"%s\"\n", entity->className);
-		fprintf(file, "  \"origin\" \"%f %f %f\"\n", entity->pos[0], entity->pos[1], entity->pos[2]);
+		if (strcmp(entity->className, "func_detail"))
+			fprintf(file, "  \"origin\" \"%f %f %f\"\n", entity->pos[0], entity->pos[1], entity->pos[2]);
 		if (entity->brushes == 0)
 			fprintf(file, "  \"angles\" \"%f %f %f\"\n", entity->rotation[0], entity->rotation[1], entity->rotation[2]);
 		fprintf(file, "  \"targetname\" \"%s\"\n", entity->name);
@@ -386,7 +387,7 @@ void exportEndEntities(FILE* file)
 					if (item->ioEnt)
 						strncpy(buf, item->ioEnt, 100);
 					else
-						snprintf(buf, 100, "%s%d", item->def->name, output->entity);
+						snprintf(buf, 100, "%s%d", item->def->id, output->entity);
 					if (output->inverted)
 					{
 						if (input->falseInput)

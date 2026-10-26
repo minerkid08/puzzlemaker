@@ -12,6 +12,8 @@ HANDLE event;
 
 static char buf[512];
 static char proc[1024];
+static PROCESS_INFORMATION pi;
+static char procRunning = 0;
 
 void processString(const char* str, char* out);
 
@@ -50,7 +52,6 @@ int runCmd(char* cmd)
 	sa.bInheritHandle = 1;
 
 	STARTUPINFO si;
-	PROCESS_INFORMATION pi;
 
 	memset(&si, 0, sizeof(si));
 	si.cb = sizeof(si);
@@ -92,6 +93,7 @@ int runCmd(char* cmd)
 			writeMessage("bad working dir\n");
 		return 1;
 	}
+  procRunning = 1;
 	CloseHandle(hw);
 
 	char buf[512];
@@ -104,6 +106,7 @@ int runCmd(char* cmd)
 	}
 
 	WaitForSingleObject(pi.hProcess, INFINITE);
+  procRunning = 0;
 	CloseHandle(hr);
 
 	DWORD exitCode = 0;
@@ -177,6 +180,17 @@ void startCompileThread()
 	CloseHandle(thread);
 
 	loadTaskList();
+}
+
+void killCompileProcess()
+{
+	if (procRunning)
+  {
+    procRunning = 0;
+    TerminateProcess(pi.hProcess, 1);
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+  }
 }
 
 #endif

@@ -101,5 +101,31 @@
 				}
 			}
 		]
+	},
+	{
+    "type": "entity",
+		"id": "obroom",
+		"name": "Observation Room 4x2",
+		"model": "obroom.obj",
+    "instance": "obroom",
+    "snapMode": "mini-corner",
+	  "bound1":	[-3, -1, -4],
+	  "bound2":	[1, 1, 0.1],
+    "deleteIntersectingVoxels": true,
+    "deleteIntersectingVoxelsEditor": false,
+    "genMissingVoxels": false
+	},
+	{
+    "type": "entity",
+		"id": "obroom2",
+		"name": "Observation Room 2x2",
+		"model": "obroom2.obj",
+    "instance": "obroom2",
+    "snapMode": "mini-corner",
+	  "bound1":	[-1, -1, -4],
+	  "bound2":	[1, 1, 0.1],
+    "deleteIntersectingVoxels": true,
+    "deleteIntersectingVoxelsEditor": false,
+    "genMissingVoxels": false
 	}
 ]

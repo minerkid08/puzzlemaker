@@ -1,6 +1,7 @@
 #include "camera.h"
 #include "mapsettings.h"
 #include "renderer/framebuffer.h"
+#include "renderer/texture.h"
 #include "ui/fileBrowser.h"
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 #define CIMGUI_USE_OPENGL3
@@ -20,8 +21,13 @@ float uiScale = 1.0f;
 char queueCompile = 0;
 ImVec2 zero;
 
+unsigned int iconTexture = 0;
+
+void loadImguiTheme();
 void initUi(GLFWwindow* window)
 {
+	iconTexture = loadTexture(0, "icons.png", 0);
+
 	zero.x = 0;
 	zero.y = 0;
 
@@ -29,16 +35,16 @@ void initUi(GLFWwindow* window)
 	io = igGetIO_Nil();
 	io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-	io->FontDefault = ImFontAtlas_AddFontFromFileTTF(io->Fonts, "LexendDeca.ttf", 16, 0, 0);
+
+	igStyleColorsDark(0);
+	loadImguiTheme();
 
 	ImGuiStyle* style = igGetStyle();
 	ImGuiStyle_ScaleAllSizes(style, uiScale);
-	style->FontScaleMain = uiScale;
 
 	const char* glslVersion = "#version 330 core";
 	ImGui_ImplGlfw_InitForOpenGL(window, 1);
 	ImGui_ImplOpenGL3_Init(glslVersion);
-	igStyleColorsDark(0);
 }
 
 void uiNewFrame()
@@ -135,7 +141,9 @@ void uiViewport(FrameBuffer* framebuffer)
 }
 
 static char newMapPopup = 0;
+static char styleEditor = 0;
 extern char running;
+extern char errorActive;
 
 void uiMenuBar()
 {
@@ -176,6 +184,8 @@ void uiMenuBar()
 			openItemDebug();
 		if (igMenuItem_Bool("package manager", 0, 0, 1))
 			openPackageManager();
+		if (igMenuItem_Bool("style editor", 0, 0, 1))
+			styleEditor = !styleEditor;
 		igEndMenu();
 	}
 	igSeparator();
@@ -214,9 +224,12 @@ void uiMenuBar()
 
 	renderMapSettingsUi();
 	renderEditorSettingsUi();
-	if (running)
+	if (running && errorActive == 0)
 		packageManagerRender();
-	igBegin("style editor", 0, 0);
-	igShowStyleEditor(igGetStyle());
-	igEnd();
+	if (styleEditor)
+	{
+		igBegin("style editor", (bool*)&styleEditor, 0);
+		igShowStyleEditor(igGetStyle());
+		igEnd();
+	}
 }

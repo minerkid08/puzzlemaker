@@ -442,16 +442,19 @@ void itemPanelRender()
 		int defCount = dynList_size(selection.item->def->outputs);
 		if (igTreeNodeEx_Str("Outputs", treeNodeFlags))
 		{
-			if (igButton("Add Output", zero))
+			if (defCount > 0)
 			{
-				dynList_resize((void**)&selection.item->outputs, l + 1);
-				ItemOutput* output = &selection.item->outputs[l];
-				output->entity = -1;
-				output->def = selection.item->def->outputs;
-				output->input = 0;
-				output->antline = -1;
-				output->inverted = 0;
-				output->onlyPrimary = 0;
+				if (igButton("Add Output", zero))
+				{
+					dynList_resize((void**)&selection.item->outputs, l + 1);
+					ItemOutput* output = &selection.item->outputs[l];
+					output->entity = -1;
+					output->def = selection.item->def->outputs;
+					output->input = 0;
+					output->antline = -1;
+					output->inverted = 0;
+					output->onlyPrimary = 0;
+				}
 			}
 
 			ItemOutput* outputs = selection.item->outputs;

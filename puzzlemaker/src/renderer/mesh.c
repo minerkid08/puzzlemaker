@@ -18,13 +18,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#pragma pack(1)
+#pragma pack(push, 1)
 typedef struct
 {
-	vec3 pos;
-	vec2 texCoord;
+	float pos[3];
+	float texCoord[2];
 	int material;
 } Vertex;
+#pragma pack(pop)
 
 unsigned int meshShader;
 unsigned int uniformBuffer;

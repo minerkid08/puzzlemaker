@@ -7,6 +7,7 @@
 #include "jsonUtils.h"
 #include "mapsettings.h"
 #include "packages/theme.h"
+#include "selection.h"
 #include "utils.h"
 #include "voxel/voxel.h"
 #include <stdio.h>
@@ -20,6 +21,7 @@ static char filename[256];
 
 void load()
 {
+	selection.type = SELECTION_NONE;
 	cJSON* json = 0;
 	char* data = 0;
 	FILE* file = 0;
@@ -44,7 +46,8 @@ void load()
 				removeItem(item);
 		}
 		initVoxels();
-    mapSettings.name[5] = 0;
+		mapSettings.name[5] = 0;
+		mapSettings.name[0] = 0;
 		openErrorPopup();
 		return;
 	}
@@ -427,11 +430,11 @@ void load()
 			data->fogEnd = jsonGetFloat(settings, "fogEnd");
 			data->fogDensity = jsonGetFloat(settings, "fogDensity");
 
-			data->minFalloff= jsonGetFloat(settings, "minFalloff");
-			data->maxFalloff= jsonGetFloat(settings, "maxFalloff");
-			data->maxWeight= jsonGetFloat(settings, "maxWeight");
-			data->fadeInDuration= jsonGetFloat(settings, "fadeInDuration");
-			data->fadeOutDuration= jsonGetFloat(settings, "fadeOutDuration");
+			data->minFalloff = jsonGetFloat(settings, "minFalloff");
+			data->maxFalloff = jsonGetFloat(settings, "maxFalloff");
+			data->maxWeight = jsonGetFloat(settings, "maxWeight");
+			data->fadeInDuration = jsonGetFloat(settings, "fadeInDuration");
+			data->fadeOutDuration = jsonGetFloat(settings, "fadeOutDuration");
 			const char* filename = jsonGetStr(settings, "filename");
 			strncpy(data->filename, filename, 256);
 		}
@@ -452,7 +455,9 @@ void load()
 
 void resetMap()
 {
+	selection.type = SELECTION_NONE;
 	mapSettings.name[5] = 0;
+	mapSettings.name[0] = 0;
 
 	setTheme(themeList);
 

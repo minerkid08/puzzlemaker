@@ -7,7 +7,11 @@ MapSettings mapSettings;
 
 PostProcessData* postProcessPresets;
 
-static __attribute__((constructor)) void init()
+#ifdef __linux__
+__attribute__((constructor)) static void mapSettingsInit()
+#else
+void mapSettingsInit()
+#endif
 {
 	mapSettings.name = malloc(256);
 	mapSettings.name[0] = 0;
@@ -25,3 +29,11 @@ static __attribute__((constructor)) void init()
 	data->filename = malloc(256);
 	data->filename[0] = 0;
 }
+
+#if defined(_MSC_VER)
+#pragma section(".CRT$XCU", read)
+
+__declspec(allocate(".CRT$XCU")) void (*mapSettingsInitPtr)(void) = mapSettingsInit;
+
+#pragma comment(linker, "/include:mapSettingsInitPtr")
+#endif

@@ -1,9 +1,14 @@
 #include "compileThread.h"
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 #include "jsonUtils.h"
 #include "mapsettings.h"
+
+#ifdef __linux__
+#include <unistd.h>
+#else
+#include <windows.h>
+#endif
 
 CompileStatus compileStatus;
 
@@ -62,8 +67,12 @@ void openCompilePopup();
 
 void startCompile()
 {
-  printf("%s\n", mapSettings.name);
+	printf("%s\n", mapSettings.name);
+#ifdef __linux__
 	getcwd(compileStatus.curPath, 512);
+#else
+	GetCurrentDirectory(512, compileStatus.curPath);
+#endif
 	compileStatus.failed = 0;
   compileStatus.currentStep = 0;
   openCompilePopup();

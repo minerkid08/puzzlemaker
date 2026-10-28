@@ -9,7 +9,11 @@
 
 static ItemCallbacks callbacks;
 
-static __attribute__((constructor)) void init()
+#ifdef __linux__
+__attribute__((constructor)) static void overlayItemProcInit()
+#else
+void overlayItemProcInit()
+#endif
 {
 	callbacks.init = overlayItemInit;
 	callbacks.exportItem = overlayItemExport;
@@ -18,6 +22,14 @@ static __attribute__((constructor)) void init()
 	callbacks.save = overlayItemSave;
 	callbacks.load = overlayItemLoad;
 }
+
+#if defined(_MSC_VER)
+#pragma section(".CRT$XCU", read)
+
+__declspec(allocate(".CRT$XCU")) void (*overlayItemProcInitPtr)(void) = overlayItemProcInit;
+
+#pragma comment(linker, "/include:overlayItemProcInitPtr")
+#endif
 
 void* loadOverlayItemDef(cJSON* item, ItemDefinition* itemDef)
 {

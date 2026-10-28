@@ -11,11 +11,23 @@ static Brush* brushes;
 
 static int sideId = 0;
 
-static __attribute__((constructor)) void init()
+#ifdef __linux__
+__attribute__((constructor)) static void brushInit()
+#else
+void brushInit()
+#endif
 {
 	brushes = dynList_new(0, sizeof(Brush));
 	dynList_reserve((void**)&brushes, 128);
 }
+
+#if defined(_MSC_VER)
+#pragma section(".CRT$XCU", read)
+
+__declspec(allocate(".CRT$XCU")) void (*brushInitPtr)(void) = brushInit;
+
+#pragma comment(linker, "/include:brushInitPtr")
+#endif
 
 Brush* getBrushArray()
 {

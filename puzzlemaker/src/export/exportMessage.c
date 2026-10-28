@@ -12,11 +12,16 @@
 #ifdef _WIN32
 static HANDLE out;
 
-static __attribute((constructor)) void init()
+void exportMessageInit()
 {
-  out = GetStdHandle(STD_OUTPUT_HANDLE);
+	out = GetStdHandle(STD_OUTPUT_HANDLE);
 }
 
+#pragma section(".CRT$XCU", read)
+
+__declspec(allocate(".CRT$XCU")) void (*exportMessageInitPtr)(void) = exportMessageInit;
+
+#pragma comment(linker, "/include:exportMessageInitPtr")
 #endif
 
 char message[BUFSIZE];

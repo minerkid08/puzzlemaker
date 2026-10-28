@@ -67,38 +67,37 @@ int exportMap()
 	snprintf(filename, 256, "%s.vmf", name);
 	printf("exporting '%s'\n", filename);
 	FILE* file = fopen(filename, "wb");
-	fprintf(file, R"(versioninfo
-{
-  "editorversion" "400"
-  "editorbuild" "3325"
-  "mapversion" "0"
-  "formatversion" "100"
-  "prefab" "0"
-}
-visgroups
-{
-}
-viewsettings
-{
-  "bSnapToGrid" "1"
-  "bShowGrid" "1"
-  "bShowLogicalGrid" "0"
-  "nGridSpacing" "64"
-  "bShow3DGrid" "0"
-}
-)");
+	fprintf(file, "versioninfo\n");
+	fprintf(file, "{\n");
+	fprintf(file, "  \"editorversion\" \"400\"\n");
+	fprintf(file, "  \"editorbuild\" \"3325\"\n");
+	fprintf(file, "  \"mapversion\" \"0\"\n");
+	fprintf(file, "  \"formatversion\" \"100\"\n");
+	fprintf(file, "  \"prefab\" \"0\"\n");
+	fprintf(file, "}\n");
+	fprintf(file, "visgroups\n");
+	fprintf(file, "{\n");
+	fprintf(file, "}\n");
+	fprintf(file, "viewsettings\n");
+	fprintf(file, "{\n");
+	fprintf(file, "  \"bSnapToGrid\" \"1\"\n");
+	fprintf(file, "  \"bShowGrid\" \"1\"\n");
+	fprintf(file, "  \"bShowLogicalGrid\" \"0\"\n");
+	fprintf(file, "  \"nGridSpacing\" \"64\"\n");
+	fprintf(file, "  \"bShow3DGrid\" \"0\"\n");
+	fprintf(file, "}\n");
 
-	fprintf(file, R"(world
-{
-	"id" "1"
-	"mapversion" "1"
-	"classname" "worldspawn"
-	"skyname" "sky_black_nofog"
-	"maxpropscreenwidth" "-1"
-	"detailvbsp" "detail.vbsp"
-	"detailmaterial" "detail/detailsprites"
-	"maxblobcount" "250"
-	"maxprojectedtextures" "8")");
+	fprintf(file, "world\n");
+	fprintf(file, "{\n");
+	fprintf(file, "	\"id\" \"1\"\n");
+	fprintf(file, "	\"mapversion\" \"1\"\n");
+	fprintf(file, "	\"classname\" \"worldspawn\"\n");
+	fprintf(file, "	\"skyname\" \"sky_black_nofog\"\n");
+	fprintf(file, "	\"maxpropscreenwidth\" \"-1\"\n");
+	fprintf(file, "	\"detailvbsp\" \"detail.vbsp\"\n");
+	fprintf(file, "	\"detailmaterial\" \"detail/detailsprites\"\n");
+	fprintf(file, "	\"maxblobcount\" \"250\"\n");
+	fprintf(file, "	\"maxprojectedtextures\" \"8\"\n");
 
 	fprintf(file, "  \"paintinmap\" \"%d\"\n", requiresPaint);
 
@@ -106,15 +105,15 @@ viewsettings
 	fprintf(file, "\n}\n");
 	exportEndEntities(file);
 	exportEndOverlays(file);
-	fprintf(file, R"(
-cameras
-{
-  "activecamera" "-1"
-}
-cordons
-{
-  "active" "0"
-})");
+	fprintf(file, "\n");
+	fprintf(file, "cameras\n");
+	fprintf(file, "{\n");
+	fprintf(file, "  \"activecamera\" \"-1\"\n");
+	fprintf(file, "}\n");
+	fprintf(file, "cordons\n");
+	fprintf(file, "{\n");
+	fprintf(file, "  \"active\" \"0\"\n");
+	fprintf(file, "}");
 	fclose(file);
 
 	for (int i = 0; i < len; i++)

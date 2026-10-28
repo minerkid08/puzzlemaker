@@ -6,7 +6,11 @@
 
 Item* itemList;
 
-static __attribute__((constructor)) void init()
+#ifdef __linux__
+__attribute__((constructor)) static void itemListInit()
+#else
+void itemListInit()
+#endif
 {
 	itemList = dynList_new(0, sizeof(Item));
 	dynList_reserve((void**)&itemList, 32);
@@ -17,6 +21,14 @@ static __attribute__((constructor)) void init()
 		itemList[i].def = 0;
 	}
 }
+
+#if defined(_MSC_VER)
+#pragma section(".CRT$XCU", read)
+
+__declspec(allocate(".CRT$XCU")) void (*itemListInitPtr)(void) = itemListInit;
+
+#pragma comment(linker, "/include:itemListInitPtr")
+#endif
 
 Item* getItemList()
 {

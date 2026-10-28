@@ -4,8 +4,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef __linux__
 #define min(x, y) ((x) > (y) ? (y) : (x))
 #define max(x, y) ((x) < (y) ? (y) : (x))
+#endif
+
 #define absf(x) ((x) < 0.0f ? -(x) : (x))
 
 #define DIR_POS_X 0

@@ -25,10 +25,22 @@ static float textboxWidth = 0;
 
 extern char queueCompile;
 
-static __attribute__((constructor)) void init()
+#ifdef __linux__
+__attribute__((constructor)) static void fileBrowserInit()
+#else
+void fileBrowserInit()
+#endif
 {
 	path[0] = 0;
 }
+
+#if defined(_MSC_VER)
+#pragma section(".CRT$XCU", read)
+
+__declspec(allocate(".CRT$XCU")) void (*fileBrowserInitPtr)(void) = fileBrowserInit;
+
+#pragma comment(linker, "/include:fileBrowserInitPtr")
+#endif
 
 void scanDir()
 {

@@ -17,7 +17,11 @@
 
 static ItemCallbacks callbacks;
 
-static __attribute__((constructor)) void init()
+#ifdef __linux__
+__attribute__((constructor)) static void panelInit()
+#else
+void panelInit()
+#endif
 {
 	callbacks.init = panelItemInit;
 	callbacks.exportItem = panelItemExport;
@@ -26,6 +30,14 @@ static __attribute__((constructor)) void init()
 	callbacks.save = panelItemSave;
 	callbacks.load = panelItemLoad;
 }
+
+#if defined(_MSC_VER)
+#pragma section(".CRT$XCU", read)
+
+__declspec(allocate(".CRT$XCU")) void (*panelInitPtr)(void) = panelInit;
+
+#pragma comment(linker, "/include:panelInitPtr")
+#endif
 
 void* loadPanelItemDef(cJSON* item, ItemDefinition* itemDef)
 {

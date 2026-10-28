@@ -6,10 +6,22 @@
 #include "packages/package.h"
 #include "stb/stbimage.h"
 
-static __attribute__((constructor)) void init()
+#ifdef __linux__
+__attribute__((constructor)) static void textureInit()
+#else
+void textureInit()
+#endif
 {
 	stbi_set_flip_vertically_on_load(1);
 }
+
+#if defined(_MSC_VER)
+#pragma section(".CRT$XCU", read)
+
+__declspec(allocate(".CRT$XCU")) void (*textureInitPtr)(void) = textureInit;
+
+#pragma comment(linker, "/include:textureInitPtr")
+#endif
 
 unsigned int loadTexture(Package* package, const char* filename, char* flags)
 {

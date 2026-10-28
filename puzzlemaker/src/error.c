@@ -13,10 +13,22 @@ static char jmpActive = 0;
 static const char** stackTrace;
 static const char* error = 0;
 
-static __attribute__((constructor)) void init()
+#ifdef __linux__
+__attribute__((constructor)) static void errorInit()
+#else
+void errorInit()
+#endif
 {
 	stackTrace = dynList_new(0, sizeof(const char*));
 }
+
+#if defined(_MSC_VER)
+#pragma section(".CRT$XCU", read)
+
+__declspec(allocate(".CRT$XCU")) void (*errorInitPtr)(void) = errorInit;
+
+#pragma comment(linker, "/include:errorInitPtr")
+#endif
 
 void _initErrorStack(const char* initalFrame)
 {

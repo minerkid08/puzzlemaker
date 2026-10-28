@@ -25,7 +25,11 @@ typedef struct
 TextureAsset* textures;
 MeshAsset* meshes;
 
-__attribute__((constructor)) static void init()
+#ifdef __linux__
+__attribute__((constructor)) static void assetManagerInit()
+#else
+void assetManagerInit()
+#endif
 {
 	textures = dynList_new(0, sizeof(TextureAsset));
 	dynList_reserve((void**)&textures, 5);
@@ -33,6 +37,14 @@ __attribute__((constructor)) static void init()
 	meshes = dynList_new(0, sizeof(MeshAsset));
 	dynList_reserve((void**)&meshes, 5);
 }
+
+#if defined(_MSC_VER)
+#pragma section(".CRT$XCU", read)
+
+__declspec(allocate(".CRT$XCU")) void (*assetManagerInitPtr)(void) = assetManagerInit;
+
+#pragma comment(linker, "/include:assetManagerInitPtr")
+#endif
 
 void assetManagerCleanup()
 {

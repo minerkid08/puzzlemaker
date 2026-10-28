@@ -16,7 +16,11 @@
 
 static ItemCallbacks callbacks;
 
-static __attribute__((constructor)) void init()
+#ifdef __linux__
+__attribute__((constructor)) static void entityItemProcInit()
+#else
+void entityItemProcInit()
+#endif
 {
 	callbacks.init = entityItemInit;
 	callbacks.exportItem = entityItemExport;
@@ -25,6 +29,14 @@ static __attribute__((constructor)) void init()
 	callbacks.save = entityItemSave;
 	callbacks.load = entityItemLoad;
 }
+
+#if defined(_MSC_VER)
+#pragma section(".CRT$XCU", read)
+
+__declspec(allocate(".CRT$XCU")) void (*entityItemProcInitPtr)(void) = entityItemProcInit;
+
+#pragma comment(linker, "/include:entityItemProcInitPtr")
+#endif
 
 void* loadEntityItemDef(cJSON* item, ItemDefinition* itemDef)
 {

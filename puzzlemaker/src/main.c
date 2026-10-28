@@ -10,7 +10,6 @@
 #include "settings.h"
 #include "ui/fileBrowser.h"
 #include "utils.h"
-#include <dirent.h>
 #include <math.h>
 #include <sys/stat.h>
 

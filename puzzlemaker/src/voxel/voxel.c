@@ -70,9 +70,11 @@ void initVoxels()
 
 Voxel* getVoxel(int x, int y, int z)
 {
+#ifdef DEBUG
 	assert(x >= 0 && x < MAP_SIZE);
 	assert(y >= 0 && y < MAP_SIZE);
 	assert(z >= 0 && z < MAP_SIZE);
+#endif
 	return &voxels[x + (y * MAP_SIZE) + (z * MAP_SIZE * MAP_SIZE)];
 }
 

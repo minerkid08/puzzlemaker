@@ -9,11 +9,23 @@
 
 static Entity* entities;
 
-static __attribute__((constructor)) void init()
+#ifdef __linux__
+__attribute__((constructor)) static void entityInit()
+#else
+void entityInit()
+#endif
 {
 	entities = dynList_new(0, sizeof(Entity));
 	dynList_reserve((void**)&entities, 32);
 }
+
+#if defined(_MSC_VER)
+#pragma section(".CRT$XCU", read)
+
+__declspec(allocate(".CRT$XCU")) void (*entityInitPtr)(void) = entityInit;
+
+#pragma comment(linker, "/include:entityInitPtr")
+#endif
 
 Entity* getEntityList()
 {

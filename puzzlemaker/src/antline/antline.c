@@ -15,10 +15,23 @@
 Antline* antlines;
 AntlineConfig* antlineConfig;
 
-static __attribute__((constructor)) void init()
+
+#ifdef __linux__
+__attribute__((constructor)) static void antlineInit()
+#else
+void antlineInit()
+#endif
 {
 	antlines = dynList_new(0, sizeof(Antline));
 }
+
+#if defined(_MSC_VER)
+#pragma section(".CRT$XCU", read)
+
+__declspec(allocate(".CRT$XCU")) void (*antlineInitPtr)(void) = antlineInit;
+
+#pragma comment(linker, "/include:antlineInitPtr")
+#endif
 
 Antline* addAntline()
 {

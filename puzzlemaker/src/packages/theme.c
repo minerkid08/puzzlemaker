@@ -15,10 +15,22 @@
 Theme* currentTheme;
 Theme* themeList;
 
-static __attribute__((constructor)) void init()
+#ifdef __linux__
+__attribute__((constructor)) static void themeInit()
+#else
+void themeInit()
+#endif
 {
 	themeList = dynList_new(0, sizeof(Theme));
 }
+
+#if defined(_MSC_VER)
+#pragma section(".CRT$XCU", read)
+
+__declspec(allocate(".CRT$XCU")) void (*themeInitPtr)(void) = themeInit;
+
+#pragma comment(linker, "/include:themeInitPtr")
+#endif
 
 static void loadVoxelConfig(Theme* theme, cJSON* json)
 {

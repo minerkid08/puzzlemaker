@@ -5,7 +5,6 @@
 #include "renderer/mesh.h"
 #include "renderer/shader.h"
 #include "renderer/texture.h"
-#include <GL/gl.h>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,14 +15,15 @@ static unsigned int va;
 static unsigned int vb;
 static unsigned int ib;
 
-#pragma pack(1)
+#pragma pack(push, 1)
 typedef struct
 {
-	vec4 pos;
-	vec2 uv;
-	vec4 tint;
+	float pos[4];
+	float uv[2];
+	float tint[4];
 	int mat;
 } Vertex;
+#pragma pack(pop)
 
 static Vertex* verts;
 static Vertex* vertBase;

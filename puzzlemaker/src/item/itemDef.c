@@ -17,11 +17,23 @@
 ItemDefinition* definitions;
 ItemGroup* groups;
 
-static __attribute__((constructor)) void init()
+#ifdef __linux__
+__attribute__((constructor)) static void itemDefInit()
+#else
+void itemDefInit()
+#endif
 {
 	definitions = dynList_new(0, sizeof(ItemDefinition));
 	groups = dynList_new(0, sizeof(ItemGroup));
 }
+
+#if defined(_MSC_VER)
+#pragma section(".CRT$XCU", read)
+
+__declspec(allocate(".CRT$XCU")) void (*itemDefInitPtr)(void) = itemDefInit;
+
+#pragma comment(linker, "/include:itemDefInitPtr")
+#endif
 
 ItemDefinition* getItemDefinitions()
 {

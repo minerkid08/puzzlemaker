@@ -12,10 +12,22 @@
 Package* packageList;
 char metadataLoaded = 0;
 
-static __attribute__((constructor)) void init()
+#ifdef __linux__
+__attribute__((constructor)) static void packageListInit()
+#else
+void packageListInit()
+#endif
 {
 	packageList = dynList_new(0, sizeof(Package));
 }
+
+#if defined(_MSC_VER)
+#pragma section(".CRT$XCU", read)
+
+__declspec(allocate(".CRT$XCU")) void (*packageListInitPtr)(void) = packageListInit;
+
+#pragma comment(linker, "/include:packageListInitPtr")
+#endif
 
 void loadInstances();
 void loadPackageList()

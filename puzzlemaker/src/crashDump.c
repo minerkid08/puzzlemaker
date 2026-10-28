@@ -15,7 +15,7 @@ long createCrashDump(EXCEPTION_POINTERS* exceptionInfo)
 		dumpInfo.ClientPointers = TRUE;
 
 		char success = MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), hFile,
-										 MiniDumpWithProcessThreadData, &dumpInfo, NULL, NULL);
+										 MiniDumpNormal, &dumpInfo, NULL, NULL);
 
 		CloseHandle(hFile);
 	}

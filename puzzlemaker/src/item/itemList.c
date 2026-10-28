@@ -12,8 +12,7 @@ __attribute__((constructor)) static void itemListInit()
 void itemListInit()
 #endif
 {
-	itemList = dynList_new(0, sizeof(Item));
-	dynList_reserve((void**)&itemList, 32);
+	itemList = dynList_new(32, sizeof(Item));
 	for (int i = 0; i < 32; i++)
 	{
 		itemList[i].index = -1;
@@ -139,6 +138,7 @@ Item* addItem(int defId, ivec3 position)
 	Item* item = &itemList[index];
 	item->index = index;
 	item->id = defId;
+  item->ioEnt = 0;
 
 	item->snapDir = DIR_NONE;
 

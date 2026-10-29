@@ -3,7 +3,6 @@
 #include "cglm/types.h"
 #include "item/item.h"
 #include <math.h>
-#include <string.h>
 
 float getPlaneAxis(vec3 axis, float size, vec3 plane)
 {
@@ -56,29 +55,23 @@ void genOBB(vec3 a, vec3 b, mat4 rotMatrix, vec3 posOffset, OBB* obb)
 	obb->halfSize[1] = (b[1] - a[1]) / 2.0f;
 	obb->halfSize[2] = (b[2] - a[2]) / 2.0f;
 
-	vec3 center;
-	center[0] = (b[0] + a[0]) / 2.0f;
-	center[1] = (b[1] + a[1]) / 2.0f;
-	center[2] = (b[2] + a[2]) / 2.0f;
+	obb->center[0] = (b[0] + a[0]) / 2.0f;
+	obb->center[1] = (b[1] + a[1]) / 2.0f;
+	obb->center[2] = (b[2] + a[2]) / 2.0f;
 	if (posOffset)
 	{
-		glm_mat4_mulv3(rotMatrix, center, 1, center);
-		center[0] += posOffset[0];
-		center[1] += posOffset[1];
-		center[2] += posOffset[2];
+		glm_mat4_mulv3(rotMatrix, obb->center, 1, obb->center);
+		obb->center[0] += posOffset[0];
+		obb->center[1] += posOffset[1];
+		obb->center[2] += posOffset[2];
 	}
-	memcpy(&obb->center, &center, sizeof(vec3));
 
 	vec3 dirx = {1, 0, 0};
 	vec3 diry = {0, 1, 0};
 	vec3 dirz = {0, 0, 1};
-	vec3 axis;
-	glm_mat4_mulv3(rotMatrix, dirx, 1, axis);
-	memcpy(obb->axes[0], axis, sizeof(vec3));
-	glm_mat4_mulv3(rotMatrix, diry, 1, axis);
-	memcpy(obb->axes[1], axis, sizeof(vec3));
-	glm_mat4_mulv3(rotMatrix, dirz, 1, axis);
-	memcpy(obb->axes[2], axis, sizeof(vec3));
+	glm_mat4_mulv3(rotMatrix, dirx, 1, obb->axes[0]);
+	glm_mat4_mulv3(rotMatrix, diry, 1, obb->axes[1]);
+	glm_mat4_mulv3(rotMatrix, dirz, 1, obb->axes[2]);
 }
 
 char itemIntersectsVoxel(Item* item, vec3 pos, float size)
@@ -91,9 +84,7 @@ char itemIntersectsVoxel(Item* item, vec3 pos, float size)
 	vec3 posB = {pos[0] + size, pos[1] + size, pos[2] + size};
 	genOBB(pos, posB, rotMatrix, 0, &a);
 
-	vec4 quat;
-	memcpy(quat, item->quat, sizeof(vec4));
-	glm_quat_mat4(quat, rotMatrix);
+	glm_quat_mat4(item->quat, rotMatrix);
 	vec3 boundA;
 	vec3 boundB;
 	item->def->callbacks->getBoundingBox(item, boundA, boundB);

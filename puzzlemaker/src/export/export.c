@@ -47,7 +47,7 @@ int exportMap()
 		if (!isItemValid(item))
 			continue;
 		item->ioEnt = 0;
-		if (item->def->requiresPaint)
+		if (item->def->flags & ITEM_FLAGS_REQUIRES_PAINT)
 			requiresPaint = 1;
 		if (item->def->exportScript)
 		{

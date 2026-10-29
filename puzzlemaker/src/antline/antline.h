@@ -31,24 +31,23 @@ typedef struct
 
 typedef struct
 {
+	mat4 transform;
+	vec4 quat;
 	vec3 pos;
 	vec3 rot;
 	int len;
-	vec4 quat;
-	mat4 transform;
-	mat4 invTransform;
-	char snapDir;
 	int cornerMode;
+	char snapDir;
 } AntlineSegment;
 
 typedef struct
 {
+	AntlineSegment baseSegment;
+	AntlineSegment* segments;
 	int id;
 	int prevId;
 	char hovered;
-	AntlineSegment* segments;
 	char hasCheck;
-	AntlineSegment baseSegment;
 } Antline;
 
 extern AntlineConfig* antlineConfig;

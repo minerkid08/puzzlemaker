@@ -15,8 +15,7 @@ __attribute__((constructor)) static void entityInit()
 void entityInit()
 #endif
 {
-	entities = dynList_new(0, sizeof(Entity));
-	dynList_reserve((void**)&entities, 32);
+	entities = dynList_newR(0, 32, sizeof(Entity));
 }
 
 #if defined(_MSC_VER)

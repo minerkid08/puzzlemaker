@@ -18,12 +18,12 @@
 
 typedef struct
 {
+  mat4 transform;
+  mat4 editorTransform;
   const char* model;
   Mesh* mesh;
-  mat4 transform;
   vec3 pos;
   vec3 rot;
-  mat4 editorTransform;
   vec3 editorPos;
   vec3 editorRot;
 } Prop;

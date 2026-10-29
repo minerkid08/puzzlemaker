@@ -255,7 +255,7 @@ void itemPanelRender()
 			}
 			if (updateVoxel)
 			{
-				if (selection.item->def->deleteIntersectingVoxels)
+				if (selection.item->def->flags & ITEM_FLAGS_DELVOXELSEDITOR)
 					updateCulledVoxels();
 			}
 

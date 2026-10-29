@@ -26,14 +26,23 @@
 #define ITEM_TYPE_VOLUME 3
 #define ITEM_TYPE_OVERLAY 4
 
+#define ITEM_FLAGS_SNAP_MODE ((1 << 0) | (1 << 1))
+#define ITEM_FLAGS_ROT_RESTRICT ((1 << 2) | (1 << 3) | (1 << 4))
+#define ITEM_FLAGS_TRANSPARENT (1 << 5)
+#define ITEM_FLAGS_OPAQUE (1 << 6)
+#define ITEM_FLAGS_REQUIRES_PAINT (1 << 7)
+#define ITEM_FLAGS_DELVOXELS (1 << 8)
+#define ITEM_FLAGS_DELVOXELSEDITOR (1 << 9)
+#define ITEM_FLAGS_GENVOXELS (1 << 10)
+
 #define SNAP_CORNER 0
 #define SNAP_CENTER 1
 #define SNAP_MINI_CORNER 2
 #define SNAP_MINI_CENTER 3
 
-#define RESTRICT_X 1
-#define RESTRICT_Y 2
-#define RESTRICT_Z 3
+#define RESTRICT_X (1 << 2)
+#define RESTRICT_Y (1 << 3)
+#define RESTRICT_Z (1 << 4)
 
 typedef struct Item Item;
 
@@ -83,10 +92,8 @@ typedef struct
 
 typedef struct
 {
-	char type;
-
 	void* data;
-  Package* package;
+	Package* package;
 
 	const char* id;
 	const char* name;
@@ -99,17 +106,10 @@ typedef struct
 
 	ItemKvDef* kvs;
 	char** staticKvs;
-
-	char snapMode;
-	char requiresPaint;
-	char deleteIntersectingVoxels;
-	char deleteIntersectingVoxelsEditor;
-	char genMissingVoxels;
-
-	char flags;
-	char rotationRestriction;
-
 	ItemCallbacks* callbacks;
+
+	int type;
+	int flags;
 } ItemDefinition;
 
 typedef struct
@@ -130,25 +130,21 @@ typedef struct
 
 struct Item
 {
-	int index;
-	int loadIndex;
-	int id;
-	char highlighted;
-	char hidden;
+	mat4 transform;
+	vec4 quat;
 	vec3 pos;
 	vec3 dir;
-	vec4 quat;
-	mat4 transform;
-	mat4 invTransform;
-	char snapDir;
-	const char* ioEnt;
-
+	int index;
+	int loadIndex;
 	ItemKv* kv;
 	ItemOutput* outputs;
-
+	const char* ioEnt;
 	ItemDefinition* def;
-
 	void* data;
+	int id;
+	char highlighted;
+	char snapDir;
+	char hidden;
 };
 
 typedef struct
@@ -159,6 +155,7 @@ typedef struct
 } ItemGroup;
 
 void loadItemDefinitionFile(Package* package, const char* filename);
+void itemLoaderEnd();
 
 void drawItems();
 

@@ -44,11 +44,11 @@ void itemListRender()
 		{
 			for (int i = 0; i < len; i++)
 			{
-				igTableNextRow(0, 0);
-				igTableSetColumnIndex(0);
 				Item* item = &items[i];
 				if (!isItemValid(item))
 					continue;
+				igTableNextRow(0, 0);
+				igTableSetColumnIndex(0);
 				igPushID_Int(i);
 				snprintf(buf, 64, "%s: %d", item->def->name, item->index);
 				char selected = 0;

@@ -45,6 +45,12 @@ ItemGroup* getItemGroups()
 	return groups;
 }
 
+void itemLoaderEnd()
+{
+	dynList_trim((void**)&definitions);
+	dynList_trim((void**)&groups);
+}
+
 void loadItemDefinitionFile(Package* package, const char* filename)
 {
 	char filenameBuf[64];
@@ -135,27 +141,30 @@ void loadItemDefinitionFile(Package* package, const char* filename)
 		else
 			errorf("invalid value for key type type");
 
-		def->deleteIntersectingVoxels = jsonGetBoolC(item, "deleteIntersectingVoxels", 0);
-		def->deleteIntersectingVoxelsEditor =
-			jsonGetBoolC(item, "deleteIntersectingVoxelsEditor", def->deleteIntersectingVoxels);
-		def->genMissingVoxels = jsonGetBoolC(item, "genMissingVoxels", 1);
-		def->exportScript = jsonGetStrCD(item, "exportScript", 0);
-		def->requiresPaint = jsonGetBoolC(item, "requiresPaint", 0);
+		if (jsonGetBoolC(item, "deleteIntersectingVoxels", 0))
+			def->flags |= ITEM_FLAGS_DELVOXELS;
+		if (jsonGetBoolC(item, "deleteIntersectingVoxelsEditor", 0))
+			def->flags |= ITEM_FLAGS_DELVOXELSEDITOR;
+		if (jsonGetBoolC(item, "genMissingVoxels", 0))
+			def->flags |= ITEM_FLAGS_GENVOXELS;
+		if (jsonGetBoolC(item, "requiresPaint", 0))
+			def->flags |= ITEM_FLAGS_REQUIRES_PAINT;
 
-		def->rotationRestriction = 0;
+		def->exportScript = jsonGetStrCD(item, "exportScript", 0);
+
 		const char* rotRestrict = jsonGetStrC(item, "rotationRestriction", "");
 		for (int i = 0; i < strlen(rotRestrict); i++)
 		{
 			switch (rotRestrict[i])
 			{
 			case 'x':
-				def->rotationRestriction |= RESTRICT_X;
+				def->flags |= RESTRICT_X;
 				break;
 			case 'y':
-				def->rotationRestriction |= RESTRICT_Y;
+				def->flags |= RESTRICT_Y;
 				break;
 			case 'z':
-				def->rotationRestriction |= RESTRICT_Z;
+				def->flags |= RESTRICT_Z;
 				break;
 			}
 		}
@@ -374,18 +383,19 @@ void loadItemDefinitionFile(Package* package, const char* filename)
 		}
 
 		const char* snapMode = jsonGetStrC(item, "snapMode", 0);
-		def->snapMode = SNAP_CORNER;
 		if (snapMode)
 		{
 			if (strcmp(snapMode, "corner") == 0)
-				def->snapMode = SNAP_CORNER;
+				def->flags |= SNAP_CORNER;
 			if (strcmp(snapMode, "center") == 0)
-				def->snapMode = SNAP_CENTER;
+				def->flags |= SNAP_CENTER;
 			if (strcmp(snapMode, "mini-corner") == 0)
-				def->snapMode = SNAP_MINI_CORNER;
+				def->flags |= SNAP_MINI_CORNER;
 			if (strcmp(snapMode, "mini-center") == 0)
-				def->snapMode = SNAP_MINI_CENTER;
+				def->flags |= SNAP_MINI_CENTER;
 		}
+		else
+			def->flags |= SNAP_CORNER;
 		popStackFrame();
 	}
 	cJSON_Delete(json);

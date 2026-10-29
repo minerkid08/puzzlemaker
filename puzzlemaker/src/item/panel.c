@@ -445,13 +445,10 @@ void panelItemRender(Item* item)
 				pos[2] = tmp;
 
 				mat4 transform;
-				mat4 mat2;
-				memcpy(transform, prop->editorTransform, sizeof(mat4));
-				glm_mat4_identity(mat2);
-				glm_translate(mat2, pos);
-				glm_mat4_mul(mat2, transform, transform);
-				memcpy(mat2, item->transform, sizeof(mat4));
-				glm_mat4_mul(mat2, transform, transform);
+				glm_mat4_identity(transform);
+				glm_translate(transform, pos);
+				glm_mat4_mul(transform, prop->editorTransform, transform);
+				glm_mat4_mul(item->transform, transform, transform);
 
 				renderMesh(prop->mesh, transform);
 			}

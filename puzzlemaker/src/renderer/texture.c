@@ -3,6 +3,7 @@
 #include "glad/glad.h"
 #include <string.h>
 
+#include "item/item.h"
 #include "packages/package.h"
 #include "stb/stbimage.h"
 
@@ -63,14 +64,14 @@ unsigned int loadTexture(Package* package, const char* filename, char* flags)
 					unsigned long long index = (y * width + x) * 4 + 3;
 					unsigned char a = data[index];
 					if (a == 255)
-						*flags |= TEX_OPAQUE;
+						*flags |= ITEM_FLAGS_OPAQUE;
 					if (a != 0 && a != 255)
-						*flags |= TEX_TRANSPARENT;
+						*flags |= ITEM_FLAGS_TRANSPARENT;
 				}
 			}
 		}
 		else
-			*flags = TEX_OPAQUE;
+			*flags |= ITEM_FLAGS_OPAQUE;
 	}
 
 	int format;

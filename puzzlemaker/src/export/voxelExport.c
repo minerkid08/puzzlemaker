@@ -1,8 +1,8 @@
-#include "voxel/voxel.h"
 #include "dynList.h"
 #include "export/brush.h"
 #include "item/item.h"
 #include "utils.h"
+#include "voxel/voxel.h"
 #include "voxel/voxelConfig.h"
 
 const char* getMat(Voxel* voxel, int dir, char forceMini)
@@ -402,11 +402,11 @@ void exportVoxels()
 						Item* item = &items[i];
 						if (item->def == 0)
 							continue;
-						if (item->def->deleteIntersectingVoxels == 0)
+						if ((item->def->flags & ITEM_FLAGS_DELVOXELS) == 0)
 							continue;
 						if (itemIntersectsVoxel(item, pos, 1))
 						{
-							char genMissingVoxels = item->def->genMissingVoxels;
+							char genMissingVoxels = (item->def->flags & ITEM_FLAGS_GENVOXELS) > 0;
 							checkSubVoxel(item, pos, 0, 0, 0, voxel, genMissingVoxels);
 							checkSubVoxel(item, pos, 1, 0, 0, voxel, genMissingVoxels);
 							checkSubVoxel(item, pos, 0, 1, 0, voxel, genMissingVoxels);
@@ -720,13 +720,13 @@ void exportVoxels()
 			}
 		}
 	}
-  mapReigonStart[0]--;
-  mapReigonStart[1]--;
-  mapReigonStart[2]--;
+	mapReigonStart[0]--;
+	mapReigonStart[1]--;
+	mapReigonStart[2]--;
 
-  mapReigonEnd[0] += 2;
-  mapReigonEnd[1] += 2;
-  mapReigonEnd[2] += 2;
+	mapReigonEnd[0] += 2;
+	mapReigonEnd[1] += 2;
+	mapReigonEnd[2] += 2;
 
 	updateVoxelFaces();
 }

@@ -1,4 +1,5 @@
 #include "antline/antline.h"
+#include "cglm/mat4.h"
 #include "dynList.h"
 #include "export/entity.h"
 #include "export/overlay.h"
@@ -15,14 +16,13 @@
 Antline* antlines;
 AntlineConfig* antlineConfig;
 
-
 #ifdef __linux__
 __attribute__((constructor)) static void antlineInit()
 #else
 void antlineInit()
 #endif
 {
-	antlines = dynList_new(0, sizeof(Antline));
+	antlines = dynList_newR(0, 8, sizeof(Antline));
 }
 
 #if defined(_MSC_VER)
@@ -41,7 +41,7 @@ Antline* addAntline()
 	memset(antline, 0, sizeof(Antline));
 	antline->id = len;
 	antlineUpdateTransformRot(&antline->baseSegment);
-	antline->segments = dynList_new(0, sizeof(AntlineSegment));
+	antline->segments = dynList_newR(0, 8, sizeof(AntlineSegment));
 	return antline;
 }
 
@@ -95,11 +95,8 @@ void antlineUpdateTransform(AntlineSegment* antline)
 	antline->rot[2] = glm_deg(dir[2]);
 
 	glm_mat4_mul(transform, rotMat, transform);
-	mat4 invTransform;
-	glm_mat4_inv_fast(transform, invTransform);
 
 	memcpy(antline->transform, transform, sizeof(mat4));
-	memcpy(antline->invTransform, invTransform, sizeof(mat4));
 }
 
 void antlineUpdateTransformRot(AntlineSegment* antline)
@@ -118,12 +115,9 @@ void antlineUpdateTransformRot(AntlineSegment* antline)
 	glm_quat_mat4(itemQuat, rotMat);
 
 	glm_mat4_mul(transform, rotMat, transform);
-	mat4 invTransform;
-	glm_mat4_inv_fast(transform, invTransform);
 
 	memcpy(antline->quat, itemQuat, sizeof(vec4));
 	memcpy(antline->transform, transform, sizeof(mat4));
-	memcpy(antline->invTransform, invTransform, sizeof(mat4));
 }
 
 static void drawAntline(Antline* antline)
@@ -218,8 +212,10 @@ Antline* getIntersectingAntline(vec3 pos, AntlineSegment** seg)
 			continue;
 		vec4 pos2 = {pos[0], pos[1], pos[2], 1};
 		mat4 transform;
-		memcpy(transform, antline->baseSegment.invTransform, sizeof(mat4));
-		glm_mat4_mulv(transform, pos2, pos2);
+		mat4 invTransform;
+		memcpy(transform, antline->baseSegment.transform, sizeof(mat4));
+		glm_mat4_inv_fast(transform, invTransform);
+		glm_mat4_mulv(invTransform, pos2, pos2);
 		vec3 bound1 = {-antlineConfig->editorCheckSize, -antlineConfig->editorCheckSize, -0.125f};
 		vec3 bound2 = {antlineConfig->editorCheckSize, antlineConfig->editorCheckSize, 0.125f};
 
@@ -241,7 +237,9 @@ Antline* getIntersectingAntline(vec3 pos, AntlineSegment** seg)
 			AntlineSegment* segment = &antline->segments[k];
 			vec4 pos2 = {pos[0], pos[1], pos[2], 1};
 			mat4 transform;
-			memcpy(transform, segment->invTransform, sizeof(mat4));
+			mat4 invTransform;
+			memcpy(transform, segment->transform, sizeof(mat4));
+			glm_mat4_inv_fast(transform, invTransform);
 			glm_mat4_mulv(transform, pos2, pos2);
 			vec3 bound1 = {-antlineConfig->editorDotSize, -antlineConfig->editorDotSize, -0.125f};
 			vec3 bound2 = {antlineConfig->editorDotSize, antlineConfig->editorDotSize, 0.125f};

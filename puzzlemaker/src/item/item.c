@@ -6,7 +6,6 @@
 #include "raycast.h"
 #include "renderer/debug.h"
 #include "renderer/renderer.h"
-#include "renderer/texture.h"
 #include "selection.h"
 #include "settings.h"
 #include "utils.h"
@@ -34,7 +33,7 @@ void drawItems()
 		Item* item = &itemList[i];
 		if (!isItemValid(item))
 			continue;
-		if (!(item->def->flags & TEX_OPAQUE))
+		if (!(item->def->flags & ITEM_FLAGS_OPAQUE))
 			continue;
 		if (item->highlighted)
 			highlightedItem = item;
@@ -50,7 +49,7 @@ void drawItems()
 		Item* item = &itemList[i];
 		if (!isItemValid(item))
 			continue;
-		if (!(item->def->flags & TEX_TRANSPARENT))
+		if (!(item->def->flags & ITEM_FLAGS_TRANSPARENT))
 			continue;
 		if (item->hidden)
 			continue;
@@ -153,8 +152,10 @@ Item** getIntersectingItems(vec3 pos, Item** ignore)
 		if (item->def == 0)
 			continue;
 		mat4 transform;
-		memcpy(transform, item->invTransform, sizeof(mat4));
-		glm_mat4_mulv(transform, pos2, pos2);
+		memcpy(transform, item->transform, sizeof(mat4));
+		mat4 invTransform;
+		glm_mat4_inv_fast(transform, invTransform);
+		glm_mat4_mulv(invTransform, pos2, pos2);
 		vec3 bound1;
 		vec3 bound2;
 
@@ -205,8 +206,10 @@ Item* getIntersectingItem(vec3 pos, Item** ignore)
 		if (item->def == 0)
 			continue;
 		mat4 transform;
-		memcpy(transform, item->invTransform, sizeof(mat4));
-		glm_mat4_mulv(transform, pos2, pos2);
+		memcpy(transform, item->transform, sizeof(mat4));
+		mat4 invTransform;
+		glm_mat4_inv_fast(transform, invTransform);
+		glm_mat4_mulv(invTransform, pos2, pos2);
 		vec3 bound1;
 		vec3 bound2;
 
@@ -225,14 +228,11 @@ Item* getIntersectingItem(vec3 pos, Item** ignore)
 
 void updateItemTransform(Item* item)
 {
-	mat4 transform;
-	glm_mat4_identity(transform);
-	glm_translate(transform, item->pos);
+	glm_mat4_identity(item->transform);
+	glm_translate(item->transform, item->pos);
 
 	mat4 rotMat;
-	vec4 itemQuat;
-	memcpy(itemQuat, item->quat, sizeof(vec4));
-	glm_quat_mat4(itemQuat, rotMat);
+	glm_quat_mat4(item->quat, rotMat);
 
 	vec3 dir;
 	getEulerAngles(rotMat, dir);
@@ -240,34 +240,21 @@ void updateItemTransform(Item* item)
 	item->dir[1] = glm_deg(dir[1]);
 	item->dir[2] = glm_deg(dir[2]);
 
-	glm_mat4_mul(transform, rotMat, transform);
-	mat4 invTransform;
-	glm_mat4_inv_fast(transform, invTransform);
-
-	memcpy(item->transform, transform, sizeof(mat4));
-	memcpy(item->invTransform, invTransform, sizeof(mat4));
+	glm_mat4_mul(item->transform, rotMat, item->transform);
 }
 
 void updateItemTransformRot(Item* item)
 {
-	mat4 transform;
-	glm_mat4_identity(transform);
-	glm_translate(transform, item->pos);
+	glm_mat4_identity(item->transform);
+	glm_translate(item->transform, item->pos);
 
 	vec3 dir;
-	vec4 itemQuat;
 	dir[0] = glm_rad(item->dir[0]);
 	dir[1] = glm_rad(item->dir[1]);
 	dir[2] = glm_rad(item->dir[2]);
-	glm_euler_yxz_quat(dir, itemQuat);
+	glm_euler_yxz_quat(dir, item->quat);
 	mat4 rotMat;
-	glm_quat_mat4(itemQuat, rotMat);
+	glm_quat_mat4(item->quat, rotMat);
 
-	glm_mat4_mul(transform, rotMat, transform);
-	mat4 invTransform;
-	glm_mat4_inv_fast(transform, invTransform);
-
-	memcpy(item->quat, itemQuat, sizeof(vec4));
-	memcpy(item->transform, transform, sizeof(mat4));
-	memcpy(item->invTransform, invTransform, sizeof(mat4));
+	glm_mat4_mul(item->transform, rotMat, item->transform);
 }

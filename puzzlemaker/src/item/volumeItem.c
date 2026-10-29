@@ -66,7 +66,9 @@ void* loadVolumeItemDef(cJSON* item, ItemDefinition* itemDef)
 		data->defaultSize[2] = 4;
 	}
 
-	jsonGetEditorTex(item, "editorTexture", &data->material, &itemDef->flags);
+	char flags = 0;
+	jsonGetEditorTex(item, "editorTexture", &data->material, &flags);
+	itemDef->flags |= flags;
 
 	if (cJSON_GetObjectItem(item, "texture"))
 	{

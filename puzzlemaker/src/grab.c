@@ -33,7 +33,7 @@ void updateGrab(vec3 cameraPos, vec3 mouseDir)
 				snapMode = 6;
 		}
 		if (selection.type == SELECTION_ITEM)
-			snapMode = selection.item->def->snapMode;
+			snapMode = selection.item->def->flags & ITEM_FLAGS_SNAP_MODE;
 		switch (snapMode)
 		{
 		case SNAP_CORNER:
@@ -164,11 +164,11 @@ void updateGrab(vec3 cameraPos, vec3 mouseDir)
 
 			if (selection.type == SELECTION_ITEM)
 			{
-				if (selection.item->def->rotationRestriction & RESTRICT_X)
+				if (selection.item->def->flags & RESTRICT_X)
 					newRot[0] = 0;
-				if (selection.item->def->rotationRestriction & RESTRICT_Y)
+				if (selection.item->def->flags & RESTRICT_Y)
 					newRot[1] = 0;
-				if (selection.item->def->rotationRestriction & RESTRICT_Z)
+				if (selection.item->def->flags & RESTRICT_Z)
 					newRot[2] = 0;
 
 				memcpy(selection.item->pos, newPos, sizeof(vec3));

@@ -17,8 +17,7 @@ __attribute__((constructor)) static void brushInit()
 void brushInit()
 #endif
 {
-	brushes = dynList_new(0, sizeof(Brush));
-	dynList_reserve((void**)&brushes, 128);
+	brushes = dynList_newR(0, 128, sizeof(Brush));
 }
 
 #if defined(_MSC_VER)

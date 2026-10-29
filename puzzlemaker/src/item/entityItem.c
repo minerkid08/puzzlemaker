@@ -57,8 +57,8 @@ void* loadEntityItemDef(cJSON* item, ItemDefinition* itemDef)
 	def->bound2[1] = fmaxf(bound1[1], bound2[1]);
 	def->bound2[2] = fmaxf(bound1[2], bound2[2]);
 
-  jsonGetTransform(item, "transform", def->positionOffset, def->rotationOffset, 0);
-  jsonGetTransform(item, "editorTransform", def->editorPos, def->editorRot, def->editorTransform);
+	jsonGetTransform(item, "transform", def->positionOffset, def->rotationOffset, 0);
+	jsonGetTransform(item, "editorTransform", def->editorPos, def->editorRot, def->editorTransform);
 
 	if (cJSON_HasObjectItem(item, "instance"))
 	{
@@ -72,7 +72,7 @@ void* loadEntityItemDef(cJSON* item, ItemDefinition* itemDef)
 	}
 
 	def->mesh = assetManagerLoadMesh(modelName);
-	itemDef->flags = def->mesh->flags;
+	itemDef->flags |= def->mesh->flags;
 	return def;
 }
 
@@ -85,10 +85,7 @@ void entityItemRender(Item* item)
 {
 	EntityItemDef* def = item->def->data;
 	mat4 transform;
-	mat4 editorTransform;
-	memcpy(editorTransform, def->editorTransform, sizeof(mat4));
-	memcpy(transform, item->transform, sizeof(mat4));
-	glm_mat4_mul(transform, editorTransform, transform);
+	glm_mat4_mul(item->transform, def->editorTransform, transform);
 	renderMesh(def->mesh, transform);
 }
 
@@ -144,13 +141,13 @@ void entityItemExport(Item* item)
 	if (defData->instanceName)
 	{
 		entity->className = "func_instance";
-    char* instanceName = itemProcessString(defData->instanceName, item->kv);
+		char* instanceName = itemProcessString(defData->instanceName, item->kv);
 		int offset = 0;
 		Package* package = processPackageString(item->def->package, instanceName, &offset);
 		char* n = strdupf("pmInstances/%s/%s", package->name, instanceName + offset);
 		exportEntityAddKvss(entity, "file", n);
-    free(instanceName);
-    free(n);
+		free(instanceName);
+		free(n);
 	}
 	else
 		entity->className = defData->entityName;

@@ -12,7 +12,7 @@ __attribute__((constructor)) static void itemListInit()
 void itemListInit()
 #endif
 {
-	itemList = dynList_new(32, sizeof(Item));
+	itemList = dynList_newR(0, 32, sizeof(Item));
 	for (int i = 0; i < 32; i++)
 	{
 		itemList[i].index = -1;

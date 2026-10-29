@@ -27,7 +27,7 @@ void copyEntityItem()
 
 	cJSON* json = cJSON_CreateObject();
 
-	switch (def->snapMode)
+	switch (def->flags & ITEM_FLAGS_SNAP_MODE)
 	{
 	case SNAP_CENTER:
 		cJSON_AddStringToObject(json, "snapMode", "center");
@@ -142,9 +142,12 @@ void itemDebugRender()
 		ItemDefinition* def = selection.item->def;
 		int itemType = selection.item->def->type;
 
-		int snapMode = def->snapMode;
+		int snapMode = def->flags & ITEM_FLAGS_SNAP_MODE;
 		if (igCombo_Str("Snap Mode", &snapMode, "Corner\0Center\0Mini Corner\0Mini Center\0", 4))
-			def->snapMode = snapMode;
+		{
+			def->flags &= ~ITEM_FLAGS_SNAP_MODE;
+			def->flags |= snapMode;
+		}
 
 		if (itemType == ITEM_TYPE_ENTITY)
 		{

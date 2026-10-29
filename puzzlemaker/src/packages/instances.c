@@ -17,14 +17,14 @@ int off = 10;
 extern CompileStatus compileStatus;
 extern Package* packageList;
 
-long getWriteTime(const char* path)
+unsigned long long getWriteTime(const char* path)
 {
 #ifdef __linux__
 	struct stat s;
 	if (stat(path, &s))
 		return 0;
 
-	return s.st_mtim.tv_sec;
+	return (unsigned long long)s.st_mtim.tv_sec;
 #else
 	HANDLE hFile = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 
@@ -40,7 +40,11 @@ long getWriteTime(const char* path)
 
 	CloseHandle(hFile);
 
-	return ftWrite.dwLowDateTime;
+	ULARGE_INTEGER u;
+	u.u.LowPart = ftWrite.dwLowDateTime;
+	u.u.HighPart = ftWrite.dwHighDateTime;
+
+	return u.QuadPart;
 #endif
 }
 

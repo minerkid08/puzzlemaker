@@ -1,9 +1,9 @@
 #include "assetManager.h"
 #include "dynList.h"
 #include "error.h"
+#include "item/item.h"
 #include "packages/package.h"
 #include "renderer/renderer.h"
-#include "renderer/texture.h"
 #include "utils.h"
 #include <stdio.h>
 #include <zip.h>
@@ -187,9 +187,9 @@ void loadMesh(Package* package, const char* filename, Mesh* mesh)
 		meshMat->tint[2] = mat->Kd[2];
 		meshMat->tint[3] = mat->d;
 		if (mat->d > 0 && mat->d < 1)
-			mesh->flags |= TEX_TRANSPARENT;
+			mesh->flags |= ITEM_FLAGS_TRANSPARENT;
 		if (mat->d == 1)
-			mesh->flags |= TEX_OPAQUE;
+			mesh->flags |= ITEM_FLAGS_OPAQUE;
 	}
 
 	Vertex* vertices = malloc(sizeof(Vertex) * m->index_count);

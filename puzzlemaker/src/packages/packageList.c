@@ -1,4 +1,5 @@
 #include "cjson.h"
+#include "item/item.h"
 #include "dynList.h"
 #include "error.h"
 #include "jsonUtils.h"
@@ -150,6 +151,10 @@ void loadPackageList()
 	if (dynList_size(themeList) == 0)
 		errorf("no themes found in any enabled package");
 
+	dynList_trim((void**)&themeList);
+	dynList_trim((void**)&packageList);
+
 	setTheme(&themeList[0]);
 	loadInstances();
+	itemLoaderEnd();
 }

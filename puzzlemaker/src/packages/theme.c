@@ -142,6 +142,7 @@ void loadPostProcessingPresets(Theme* theme, cJSON* json)
 	}
 	if (arrSize == 0)
 		errorf("no post processing presets set");
+	dynList_trim((void**)&theme->postProcessPresets);
 }
 
 void loadTheme(const char* filename)

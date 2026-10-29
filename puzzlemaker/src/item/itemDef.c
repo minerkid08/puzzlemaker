@@ -143,8 +143,12 @@ void loadItemDefinitionFile(Package* package, const char* filename)
 
 		if (jsonGetBoolC(item, "deleteIntersectingVoxels", 0))
 			def->flags |= ITEM_FLAGS_DELVOXELS;
-		if (jsonGetBoolC(item, "deleteIntersectingVoxelsEditor", 0))
+    char d = (def->flags & ITEM_FLAGS_DELVOXELS) > 0;
+		if (jsonGetBoolC(item, "deleteIntersectingVoxelsEditor", d))
+    {
 			def->flags |= ITEM_FLAGS_DELVOXELSEDITOR;
+      printf("%d\n", def->flags & ITEM_FLAGS_DELVOXELSEDITOR);
+    }
 		if (jsonGetBoolC(item, "genMissingVoxels", 0))
 			def->flags |= ITEM_FLAGS_GENVOXELS;
 		if (jsonGetBoolC(item, "requiresPaint", 0))

@@ -95,7 +95,7 @@ void exportEntityAddKv(Entity* ent, ItemKv* kv)
 			}
 		}
 		if (type == TYPE_VEC3)
-			buf = strdupf("\"replace%d\" \"%s %.2f %.2f %.2f\"", len, def->name, kv->value.v[0], kv->value.v[1], kv->value.v[2]);
+			buf = strdupf("\"replace%d\" \"$%s %.2f %.2f %.2f\"", len, def->name, kv->value.v[0], kv->value.v[1], kv->value.v[2]);
 		if (type & TYPE_DROPDOWN)
 		{
 			type &= ~(TYPE_DROPDOWN);

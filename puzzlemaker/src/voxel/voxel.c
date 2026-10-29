@@ -231,7 +231,7 @@ void updateCulledVoxels()
 						Item* item = &items[i];
 						if (!isItemValid(item))
 							continue;
-						if ((item->def->flags | ITEM_FLAGS_DELVOXELSEDITOR) == 0)
+						if ((item->def->flags & ITEM_FLAGS_DELVOXELSEDITOR) == 0)
 							continue;
 						if (itemIntersectsVoxel(item, pos, 1))
 						{

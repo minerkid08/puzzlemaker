@@ -237,9 +237,7 @@ Antline* getIntersectingAntline(vec3 pos, AntlineSegment** seg)
 			AntlineSegment* segment = &antline->segments[k];
 			vec4 pos2 = {pos[0], pos[1], pos[2], 1};
 			mat4 transform;
-			mat4 invTransform;
-			memcpy(transform, segment->transform, sizeof(mat4));
-			glm_mat4_inv_fast(transform, invTransform);
+			glm_mat4_inv_fast(segment->transform, transform);
 			glm_mat4_mulv(transform, pos2, pos2);
 			vec3 bound1 = {-antlineConfig->editorDotSize, -antlineConfig->editorDotSize, -0.125f};
 			vec3 bound2 = {antlineConfig->editorDotSize, antlineConfig->editorDotSize, 0.125f};

@@ -124,6 +124,13 @@ void save()
 				item = cJSON_CreateBool(kv->value.b);
 			if (type == TYPE_STRING)
 				item = cJSON_CreateString(kv->value.s);
+			if (type == TYPE_VEC3)
+      {
+				item = cJSON_CreateArray();
+        cJSON_AddItemToArray(item, cJSON_CreateNumber(kv->value.v[0]));
+        cJSON_AddItemToArray(item, cJSON_CreateNumber(kv->value.v[1]));
+        cJSON_AddItemToArray(item, cJSON_CreateNumber(kv->value.v[2]));
+      }
 			if (type == TYPE_BITFIELD)
 			{
 				int value = 0;

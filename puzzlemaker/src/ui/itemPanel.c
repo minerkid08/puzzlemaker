@@ -1,7 +1,10 @@
 #include "antline/antline.h"
+#include "cglm/euler.h"
+#include "cglm/quat.h"
 #include "cglm/vec3.h"
 #include "item/panel.h"
 #include "item/volumeItem.h"
+#include "utils.h"
 #include "voxel/voxel.h"
 #include <math.h>
 #include <stdbool.h>
@@ -167,7 +170,7 @@ void itemPanelRender()
 			}
 
 			char pressed;
-			if (picker.active && pickType == PICK_POINT_AT)
+			if (picker.active && pickType == PICK_POINT_AT && pickItemId == -1)
 				pressed = igButton("Picking Item", zero);
 			else
 				pressed = igButton("Point At Item", zero);
@@ -316,7 +319,7 @@ void itemPanelRender()
 						else
 							item->highlighted = 0;
 					}
-					else if (picker.active)
+					else if (picker.active && pickEntity && pickItemId == i && pickType == PICK_KV)
 						pressed = igButton("Entity: Picking", zero);
 					else
 					{
@@ -364,7 +367,7 @@ void itemPanelRender()
 				if (type == TYPE_VEC3)
 				{
 					char pressed;
-					if (picker.active && pickType == PICK_POINT_AT)
+					if (picker.active && pickType == PICK_POINT_AT && pickItemId == i)
 						pressed = igButton("Picking Item", zero);
 					else
 						pressed = igButton("Point At Item", zero);
@@ -405,11 +408,37 @@ void itemPanelRender()
 							angles[1] = atan2f(-left[0], left[1]);
 						}
 
-						angles[0] = glm_deg(angles[0]);
-						angles[1] = glm_deg(angles[1]);
 						angles[2] = 0.0f;
-						memcpy(kv->value.v, angles, sizeof(vec3));
-						updateItemTransformRot(selection.item);
+
+						vec4 quat;
+						glm_quat_identity(quat);
+						if (kv->def->dropValues->i == GIZMO_ANGLE_OFFSET)
+							memcpy(quat, selection.item->quat, sizeof(vec4));
+						if (kv->def->dropValues->i == GIZMO_ANGLE_OFFSET_FLOOR)
+						{
+							vec4 quat2;
+							vec3 off = {GLM_PI_2, 0, 0};
+							glm_euler_yxz_quat(off, quat2);
+							glm_quat_mul(selection.item->quat, quat2, quat);
+						}
+						if (kv->def->dropValues->i == GIZMO_ANGLE_OFFSET_CEILING)
+						{
+							vec4 quat2;
+							vec3 off = {-GLM_PI_2, 0, 0};
+							glm_euler_yxz_quat(off, quat2);
+							glm_quat_mul(selection.item->quat, quat2, quat);
+						}
+
+						vec4 quat2;
+						glm_euler_yxz_quat(angles, quat2);
+						glm_quat_inv(quat, quat);
+						glm_quat_mul(quat, quat2, quat);
+						mat4 m;
+						glm_quat_mat4(quat, m);
+						getEulerAngles(m, kv->value.v);
+						kv->value.v[0] = glm_deg(kv->value.v[0]);
+						kv->value.v[1] = glm_deg(kv->value.v[1]);
+						kv->value.v[2] = glm_deg(kv->value.v[2]);
 
 						pickEntity = 0;
 					}

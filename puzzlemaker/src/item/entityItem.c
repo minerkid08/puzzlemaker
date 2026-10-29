@@ -57,6 +57,31 @@ void* loadEntityItemDef(cJSON* item, ItemDefinition* itemDef)
 	def->bound2[1] = fmaxf(bound1[1], bound2[1]);
 	def->bound2[2] = fmaxf(bound1[2], bound2[2]);
 
+	def->positionOffset[0] = 0;
+	def->positionOffset[1] = 0;
+	def->positionOffset[2] = 0;
+	def->rotationOffset[0] = 0;
+	def->rotationOffset[1] = 0;
+	def->rotationOffset[2] = 0;
+	def->editorPos[0] = 0;
+	def->editorPos[1] = 0;
+	def->editorPos[2] = 0;
+	def->editorRot[0] = 0;
+	def->editorRot[1] = 0;
+	def->editorRot[2] = 0;
+
+	if (jsonGetBoolC(item, "floor", 0))
+	{
+		def->rotationOffset[0] = 90;
+		def->editorRot[0] = 90;
+	}
+
+	if (jsonGetBoolC(item, "ceiling", 0))
+	{
+		def->rotationOffset[0] = -90;
+		def->editorRot[0] = -90;
+	}
+
 	jsonGetTransform(item, "transform", def->positionOffset, def->rotationOffset, 0);
 	jsonGetTransform(item, "editorTransform", def->editorPos, def->editorRot, def->editorTransform);
 

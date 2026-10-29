@@ -1,4 +1,5 @@
 #include <signal.h>
+#include <sys/stat.h>
 #ifdef linux
 
 #include "compileThread.h"
@@ -163,9 +164,27 @@ void resumeCompileThread()
 
 void startCompileThread()
 {
+	loadTaskList();
+	char* p2ce = strdup(compileStatus.p2ce);
+	int j = 0;
+	for (int k = 0; k < strlen(p2ce); k++)
+	{
+		if (p2ce[k] == '%')
+			continue;
+		p2ce[j++] = p2ce[k];
+	}
+	p2ce[j] = 0;
+
+	compileStatus.compileActive = 1;
+
+	getcwd(compileStatus.curPath, 512);
+
+	struct stat s;
+	if (stat(p2ce, &s))
+		compileStatus.compileActive = 0;
+	free(p2ce);
 	pipe(pipefd);
 	pthread_create(&thread, 0, compileThread, 0);
-	loadTaskList();
 }
 
 #endif

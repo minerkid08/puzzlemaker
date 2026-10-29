@@ -1,5 +1,6 @@
 #include "compile/compileThread.h"
 #include "dynList.h"
+#include "error.h"
 #include "packages/package.h"
 #include "utils.h"
 #include <stdio.h>
@@ -143,8 +144,15 @@ void copyDir(Package* package, const char* dirname, const char* destDir)
 	dynList_free(dirs);
 }
 
+void openP2ceErrorPopup();
 void loadInstances()
 {
+	if (compileStatus.compileActive == 0)
+	{
+		printf("[instance loader] p2ce dir does not exist\n");
+		openP2ceErrorPopup();
+		return;
+	}
 	printf("[instance loader] loading instances\n");
 	char* p2ce = strdup(compileStatus.p2ce);
 	int j = 0;

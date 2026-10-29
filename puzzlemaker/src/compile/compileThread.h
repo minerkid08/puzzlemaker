@@ -13,6 +13,7 @@ typedef struct
 	char buf[256];
   char workingDir[512];
 	char failed;
+	char compileActive;
 } CompileStatus;
 
 void startCompileThread();

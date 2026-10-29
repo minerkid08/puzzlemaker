@@ -71,7 +71,7 @@ int runCmd(char* cmd)
 	{
 		CloseHandle(hw);
 		CloseHandle(hr);
-		writeMessagef("CreateProcess failed (%d).\n", GetLastError());
+		writeMessagef("CreateProcess failed (%lu).\n", GetLastError());
 		writeMessagef("command line: '%s'\n", proc);
 		writeMessagef("working dir: '%s'\n", compileStatus.workingDir);
 
@@ -166,6 +166,24 @@ DWORD WINAPI compileThread(LPVOID data)
 
 void startCompileThread()
 {
+	loadTaskList();
+	char* p2ce = strdup(compileStatus.p2ce);
+	int j = 0;
+	for (int k = 0; k < strlen(p2ce); k++)
+	{
+		if (p2ce[k] == '%')
+			continue;
+		p2ce[j++] = p2ce[k];
+	}
+	p2ce[j] = 0;
+
+	compileStatus.compileActive = 1;
+	GetCurrentDirectory(512, compileStatus.curPath);
+	if (GetFileAttributesA(p2ce) == INVALID_FILE_ATTRIBUTES)
+		compileStatus.compileActive = 0;
+
+	free(p2ce);
+
 	event = CreateEvent(0, 1, 0, 0);
 	int data = 100;
 	DWORD threadId;
@@ -174,12 +192,10 @@ void startCompileThread()
 
 	if (thread == NULL)
 	{
-		printf("CreateThread failed (%d)\n", GetLastError());
+		printf("CreateThread failed (%lu)\n", GetLastError());
 		return;
 	}
 	CloseHandle(thread);
-
-	loadTaskList();
 }
 
 void killCompileProcess()

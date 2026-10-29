@@ -258,6 +258,10 @@ void loadItemDefinitionFile(Package* package, const char* filename)
 						g->i = GIZMO_ANGLE;
 					if (strcmp(gizmo, "angle-offset") == 0)
 						g->i = GIZMO_ANGLE_OFFSET;
+					if (strcmp(gizmo, "angle-offset-floor") == 0)
+						g->i = GIZMO_ANGLE_OFFSET_FLOOR;
+					if (strcmp(gizmo, "angle-offset-ceiling") == 0)
+						g->i = GIZMO_ANGLE_OFFSET_CEILING;
 				}
 				kvDef->dropValues = g;
 			}

@@ -95,7 +95,8 @@ void exportEntityAddKv(Entity* ent, ItemKv* kv)
 			}
 		}
 		if (type == TYPE_VEC3)
-			buf = strdupf("\"replace%d\" \"$%s %.2f %.2f %.2f\"", len, def->name, kv->value.v[0], kv->value.v[1], kv->value.v[2]);
+			buf = strdupf("\"replace%d\" \"$%s %.2f %.2f %.2f\"", len, def->name, kv->value.v[0], kv->value.v[1],
+						  kv->value.v[2]);
 		if (type & TYPE_DROPDOWN)
 		{
 			type &= ~(TYPE_DROPDOWN);
@@ -338,12 +339,16 @@ void exportEntitiesProcessOutputs()
 				else
 					exportEntityAddRawOutput(relay, "OnUser1", ioEntName, input->trueInput, "", 0);
 
-				if (input->falseInput && output->def->falseOutput && !output->onlyPrimary)
+				if (output->def->falseOutput && !output->onlyPrimary)
 				{
-					if (input->falseArg)
-						exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->falseInput, input->falseArg, 0);
-					else
-						exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->falseInput, "", 0);
+					if (input->falseInput)
+					{
+						if (input->falseArg)
+							exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->falseInput, input->falseArg,
+													 0);
+						else
+							exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->falseInput, "", 0);
+					}
 					if (output->antline != -1)
 						exportEntityAddRawOutput(relay, "OnUser2", antlineName, "SetTextureIndex", "0", 0);
 				}

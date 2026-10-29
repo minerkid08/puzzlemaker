@@ -38,13 +38,32 @@
     "editorCenterTexture": "glass.png",
     "centerTexture": "GLASS/GLASSWINDOW_FROSTED_002",
     "zTexture": "ANIM_WP/FRAMEWORK/BACKPANELS",
-    "texSize": 512,
     "thickness": 2,
     "minSize": [0.5, 0.5],
     "maxSize": [99999, 99999],
     "snapMode": "mini-center",
     "defaultSize": [2, 2],
-		"transparent": true
+		"transparent": true,
+		"exportScript": "glass.lua"
+  },
+  {
+    "type": "panel",
+    "id": "grate",
+    "name": "Grating",
+    "editorCenterTexture": {
+			"filename": "grate.png",
+      "size": 1,
+      "alignment": "none"
+    },
+    "centerTexture": "GLASS/GLASSWINDOW_FROSTED_002",
+    "zTexture": "ANIM_WP/FRAMEWORK/BACKPANELS",
+    "thickness": 2,
+    "minSize": [0.5, 0.5],
+    "maxSize": [99999, 99999],
+    "snapMode": "mini-center",
+    "defaultSize": [2, 2],
+		"transparent": true,
+		"exportScript": "grate.lua"
   },
 	{
     "type": "overlay",

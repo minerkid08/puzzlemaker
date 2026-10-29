@@ -235,7 +235,7 @@ void jsonGetTex(const cJSON* json, const char* name, Texture* out)
 			errorf("invalid alignment mode");
 	}
 	out->size = jsonGetFloatC(tex, "size", 512);
-  popStackFrame();
+	popStackFrame();
 }
 
 void jsonGetEditorTex(const cJSON* json, const char* name, Texture* out, char* flags)
@@ -273,15 +273,16 @@ void jsonGetEditorTex(const cJSON* json, const char* name, Texture* out, char* f
 void jsonGetTransform(const cJSON* json, const char* name, vec3 pos, vec3 rot, mat4 mat)
 {
 	cJSON* transform = jsonGetObjectC(json, name);
-	pos[0] = 0;
-	pos[1] = 0;
-	pos[2] = 0;
-
-	rot[0] = 0;
-	rot[1] = 0;
-	rot[2] = 0;
 	if (transform)
 	{
+		pos[0] = 0;
+		pos[1] = 0;
+		pos[2] = 0;
+
+		rot[0] = 0;
+		rot[1] = 0;
+		rot[2] = 0;
+
 		cJSON* position = cJSON_GetObjectItem(transform, "position");
 		cJSON* rotation = cJSON_GetObjectItem(transform, "rotation");
 		if (position)

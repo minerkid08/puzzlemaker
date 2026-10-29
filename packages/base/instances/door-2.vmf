@@ -83,7 +83,7 @@ entity
 {
 	"id" "65"
 	"classname" "func_instance"
-	"angles" "-0 90 0"
+	"angles" "-0 -90 0"
 	"file" "instances/door frame mixed.vmf"
 	"origin" "0 0 64"
 	editor
@@ -99,7 +99,7 @@ entity
 	"id" "2"
 	"classname" "prop_testchamber_door"
 	"AllowSilentDissolve" "1"
-	"angles" "0 180 0"
+	"angles" "0 0 0"
 	"areaportalfadeend" "0"
 	"areaportalfadestart" "0"
 	"body" "0"
@@ -134,7 +134,7 @@ entity
 		"OnOpen" "!selfSkin10-1"
 		"OnClose" "!selfSkin00-1"
 	}
-	"origin" "-16 0 0"
+	"origin" "16 0 0"
 	editor
 	{
 		"color" "220 30 220"

@@ -93,7 +93,8 @@ void drawItems()
 				v[1] -= item->pos[1];
 				v[2] -= item->pos[2];
 			}
-			if (def->dropValues->i == GIZMO_ANGLE || def->dropValues->i == GIZMO_ANGLE_OFFSET)
+			if (def->dropValues->i == GIZMO_ANGLE || def->dropValues->i == GIZMO_ANGLE_OFFSET ||
+				def->dropValues->i == GIZMO_ANGLE_OFFSET_FLOOR || def->dropValues->i == GIZMO_ANGLE_OFFSET_CEILING)
 			{
 				v[0] = glm_rad(v[0]);
 				v[1] = glm_rad(v[1]);
@@ -103,9 +104,23 @@ void drawItems()
 
 				if (def->dropValues->i == GIZMO_ANGLE_OFFSET)
 				{
+					glm_quat_mul(item->quat, quat, quat);
+				}
+				if (def->dropValues->i == GIZMO_ANGLE_OFFSET_FLOOR)
+				{
 					vec4 quat2;
-					memcpy(quat2, item->quat, sizeof(vec4));
+					vec3 off = {GLM_PI_2, 0, 0};
+					glm_euler_yxz_quat(off, quat2);
 					glm_quat_mul(quat2, quat, quat);
+					glm_quat_mul(item->quat, quat, quat);
+				}
+				if (def->dropValues->i == GIZMO_ANGLE_OFFSET_CEILING)
+				{
+					vec4 quat2;
+					vec3 off = {-GLM_PI_2, 0, 0};
+					glm_euler_yxz_quat(off, quat2);
+					glm_quat_mul(quat2, quat, quat);
+					glm_quat_mul(item->quat, quat, quat);
 				}
 
 				v[0] = 0;

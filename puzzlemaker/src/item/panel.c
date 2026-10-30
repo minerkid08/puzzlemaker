@@ -66,15 +66,16 @@ void* loadPanelItemDef(cJSON* item, ItemDefinition* itemDef)
 		data->defaultSize[1] = 4;
 	}
 
-	if (cJSON_GetObjectItem(item, "horizTile"))
-		data->horizTile = jsonGetBool(item, "horizTile");
-	else
-		data->horizTile = 0;
-
-	if (cJSON_GetObjectItem(item, "vertTile"))
-		data->vertTile = jsonGetBool(item, "vertTile");
-	else
-		data->vertTile = 0;
+	data->vertTile = jsonGetBoolC(item, "vertTile", 0);
+	data->vertTile = jsonGetBoolC(item, "horizTile", 0);
+	data->slice9 = jsonGetBoolC(item, "9slice", 0);
+	if (data->slice9)
+	{
+		data->uStart = jsonGetFloat(item, "uStart");
+		data->uEnd = jsonGetFloat(item, "uEnd");
+		data->vStart = jsonGetFloat(item, "vStart");
+		data->vEnd = jsonGetFloat(item, "vEnd");
+	}
 
 	for (int i = 0; i < 8; i++)
 	{
@@ -82,9 +83,9 @@ void* loadPanelItemDef(cJSON* item, ItemDefinition* itemDef)
 		data->items[i].minSize = 0;
 	}
 
-  char flags = 0;
+	char flags = 0;
 	jsonGetEditorTex(item, "editorCenterTexture", &data->editorCenterTexture, &flags);
-  itemDef->flags |= flags;
+	itemDef->flags |= flags;
 
 	cJSON* arr = jsonGetArrayC(item, "borders");
 	if (arr)
@@ -115,9 +116,20 @@ void* loadPanelItemDef(cJSON* item, ItemDefinition* itemDef)
 				errorf("bad id '%s'", id);
 
 			PanelItemDef* item = &data->items[index];
-      char flags = 0;
-			jsonGetEditorTex(border, "editorTexture", &item->editorTexture, &flags);
-      itemDef->flags |= flags;
+			if (data->slice9)
+			{
+				item->uStart = jsonGetFloat(border, "uStart");
+				item->uEnd = jsonGetFloat(border, "uEnd");
+				item->vStart = jsonGetFloat(border, "vStart");
+				item->vEnd = jsonGetFloat(border, "vEnd");
+				// item->tile = jsonGetBoolC(border, "tile", 0);
+			}
+			else
+			{
+				char flags = 0;
+				jsonGetEditorTex(border, "editorTexture", &item->editorTexture, &flags);
+				itemDef->flags |= flags;
+			}
 
 			item->maxSize = 9999;
 			if (cJSON_GetObjectItem(border, "maxSize"))
@@ -170,7 +182,7 @@ void* loadPanelItemDef(cJSON* item, ItemDefinition* itemDef)
 			prop->model = jsonGetStr(propJson, "model");
 			const char* meshName = jsonGetStr(propJson, "editorModel");
 			prop->mesh = assetManagerLoadMesh(meshName);
-      itemDef->flags |= prop->mesh->flags;
+			itemDef->flags |= prop->mesh->flags;
 
 			jsonGetTransform(propJson, "transform", prop->pos, prop->rot, prop->transform);
 			jsonGetTransform(propJson, "editorTransform", prop->editorPos, prop->editorRot, prop->editorTransform);
@@ -319,7 +331,10 @@ void panelItemRender(Item* item)
 				start[1] = yOff;
 				end[0] = sizes.leftSize + xOff;
 				end[1] = sizes.bottomSize + yOff;
-				panelDrawRect(start, end, &border[PANEL_ITEM_ID_BOTTOM_LEFT].editorTexture);
+				if (def->slice9)
+					panelDrawRectTile(start, end, border->uStart, border->uEnd, border->vStart, border->vEnd);
+				else
+					panelDrawRect(start, end, &border[PANEL_ITEM_ID_BOTTOM_LEFT].editorTexture);
 			}
 
 			if (sizes.leftSize > 0 && sizes.centerHeight > 0)
@@ -328,7 +343,10 @@ void panelItemRender(Item* item)
 				start[1] = sizes.bottomSize + yOff;
 				end[0] = sizes.leftSize + xOff;
 				end[1] = sizes.bottomSize + sizes.centerHeight + yOff;
-				panelDrawRect(start, end, &border[PANEL_ITEM_ID_LEFT].editorTexture);
+				if (def->slice9)
+					panelDrawRectTile(start, end, border->uStart, border->uEnd, border->vStart, border->vEnd);
+				else
+					panelDrawRect(start, end, &border[PANEL_ITEM_ID_LEFT].editorTexture);
 			}
 
 			if (sizes.leftSize > 0 && sizes.topSize > 0)
@@ -337,7 +355,10 @@ void panelItemRender(Item* item)
 				start[1] = sizes.bottomSize + sizes.centerHeight + yOff;
 				end[0] = sizes.leftSize + xOff;
 				end[1] = data->size[1] + yOff;
-				panelDrawRect(start, end, &border[PANEL_ITEM_ID_TOP_LEFT].editorTexture);
+				if (def->slice9)
+					panelDrawRectTile(start, end, border->uStart, border->uEnd, border->vStart, border->vEnd);
+				else
+					panelDrawRect(start, end, &border[PANEL_ITEM_ID_TOP_LEFT].editorTexture);
 			}
 
 			if (sizes.centerWidth > 0 && sizes.bottomSize > 0)
@@ -346,7 +367,10 @@ void panelItemRender(Item* item)
 				start[1] = yOff;
 				end[0] = sizes.leftSize + sizes.centerWidth + xOff;
 				end[1] = sizes.bottomSize + yOff;
-				panelDrawRect(start, end, &border[PANEL_ITEM_ID_BOTTOM].editorTexture);
+				if (def->slice9)
+					panelDrawRectTile(start, end, border->uStart, border->uEnd, border->vStart, border->vEnd);
+				else
+					panelDrawRect(start, end, &border[PANEL_ITEM_ID_BOTTOM].editorTexture);
 			}
 
 			if (sizes.centerWidth > 0 && sizes.centerHeight > 0)
@@ -355,7 +379,10 @@ void panelItemRender(Item* item)
 				start[1] = sizes.bottomSize + yOff;
 				end[0] = sizes.leftSize + sizes.centerWidth + xOff;
 				end[1] = sizes.bottomSize + sizes.centerHeight + yOff;
-				panelDrawRect(start, end, &def->editorCenterTexture);
+				if (def->slice9)
+					panelDrawRectTile(start, end, def->uStart, def->uEnd, def->vStart, def->vEnd);
+				else
+					panelDrawRect(start, end, &def->editorCenterTexture);
 			}
 
 			if (sizes.centerWidth > 0 && sizes.topSize > 0)
@@ -364,7 +391,10 @@ void panelItemRender(Item* item)
 				start[1] = sizes.bottomSize + sizes.centerHeight + yOff;
 				end[0] = sizes.leftSize + sizes.centerWidth + xOff;
 				end[1] = data->size[1] + yOff;
-				panelDrawRect(start, end, &border[PANEL_ITEM_ID_TOP].editorTexture);
+				if (def->slice9)
+					panelDrawRectTile(start, end, border->uStart, border->uEnd, border->vStart, border->vEnd);
+				else
+					panelDrawRect(start, end, &border[PANEL_ITEM_ID_TOP].editorTexture);
 			}
 
 			if (sizes.rightSize > 0 && sizes.bottomSize > 0)
@@ -373,7 +403,10 @@ void panelItemRender(Item* item)
 				start[1] = yOff;
 				end[0] = data->size[0] + xOff;
 				end[1] = sizes.bottomSize + yOff;
-				panelDrawRect(start, end, &border[PANEL_ITEM_ID_BOTTOM_RIGHT].editorTexture);
+				if (def->slice9)
+					panelDrawRectTile(start, end, border->uStart, border->uEnd, border->vStart, border->vEnd);
+				else
+					panelDrawRect(start, end, &border[PANEL_ITEM_ID_BOTTOM_RIGHT].editorTexture);
 			}
 
 			if (sizes.rightSize > 0 && sizes.centerHeight > 0)
@@ -382,7 +415,10 @@ void panelItemRender(Item* item)
 				start[1] = sizes.bottomSize + yOff;
 				end[0] = data->size[0] + xOff;
 				end[1] = sizes.bottomSize + sizes.centerHeight + yOff;
-				panelDrawRect(start, end, &border[PANEL_ITEM_ID_RIGHT].editorTexture);
+				if (def->slice9)
+					panelDrawRectTile(start, end, border->uStart, border->uEnd, border->vStart, border->vEnd);
+				else
+					panelDrawRect(start, end, &border[PANEL_ITEM_ID_RIGHT].editorTexture);
 			}
 
 			if (sizes.rightSize > 0 && sizes.topSize > 0)
@@ -391,9 +427,14 @@ void panelItemRender(Item* item)
 				start[1] = sizes.bottomSize + sizes.centerHeight + yOff;
 				end[0] = data->size[0] + xOff;
 				end[1] = data->size[1] + yOff;
-				panelDrawRect(start, end, &border[PANEL_ITEM_ID_TOP_RIGHT].editorTexture);
+				if (def->slice9)
+					panelDrawRectTile(start, end, border->uStart, border->uEnd, border->vStart, border->vEnd);
+				else
+					panelDrawRect(start, end, &border[PANEL_ITEM_ID_TOP_RIGHT].editorTexture);
 			}
 
+			if (def->slice9)
+				bindTexture(def->editorCenterTexture.tex);
 			panelEndFrame(item->transform, 0, 1);
 
 			for (int i = 0; i < 8; i++)

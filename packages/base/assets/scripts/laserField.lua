@@ -4,7 +4,7 @@ require("utils");
 ---@type FizzlerProp
 local propConfig = {
   static = false,
-  model = "models/props/fizzler_dynamic",
+  model = "models/props/fizzler_dynamic.mdl",
   openAnim = "open",
   closeAnim = "close",
   skin = 2
@@ -15,9 +15,6 @@ local size = Item.getSize();
 local tile = Item.getTile();
 
 local transform = Item.getFloorTransform();
-
-local p1 = transform:getPosition();
-print(p1[1], p1[2], p1[3]);
 
 local ent = Entity.new("trigger", "trigger_hurt", pos, { 0, 0, 0 });
 ent:markAsIO();
@@ -49,8 +46,8 @@ for i = 1, tile[2] do
   laser:setTexture(Direction.NEG_X, "TOOLS/TOOLSNODRAW");
   laser:setTexture(Direction.POS_Y, "TOOLS/TOOLSNODRAW");
   laser:setTexture(Direction.NEG_Y, "TOOLS/TOOLSNODRAW");
-  laser:setTexture(Direction.POS_Z, "EFFECTS/LASERPLANE", { texSize = 512, fit = true });
-  laser:setTexture(Direction.NEG_Z, "EFFECTS/LASERPLANE", { texSize = 512, fit = true });
+  laser:setTexture(Direction.POS_Z, "EFFECTS/LASERPLANE", { texSize = 512, fit = true , vOffset = 256});
+  laser:setTexture(Direction.NEG_Z, "EFFECTS/LASERPLANE", { texSize = 512, fit = true , vOffset = 256});
   laser:transformMat(transform);
   laserEnt:attachBrush(laser);
 end

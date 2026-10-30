@@ -6,13 +6,15 @@ typedef struct
 {
   int id;
   vec3 verts[4];
-  vec2 uvs[4];
+  vec3 normal;
   const char* material;
   int lightmapscale;
   int texWidth;
   int texHeight;
+	float rotation;
+	float uoff;
+	float voff;
   char fit;
-	vec3 normal;
 } Side;
 
 typedef struct

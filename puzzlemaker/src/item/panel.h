@@ -3,8 +3,8 @@
 #include "item/item.h"
 #include "renderer/texture.h"
 
-#include <cjson.h>
 #include <cglm/cglm.h>
+#include <cjson.h>
 
 #define PANEL_ITEM_ID_TOP 0
 #define PANEL_ITEM_ID_BOTTOM 1
@@ -18,41 +18,57 @@
 
 typedef struct
 {
-  mat4 transform;
-  mat4 editorTransform;
-  const char* model;
-  Mesh* mesh;
-  vec3 pos;
-  vec3 rot;
-  vec3 editorPos;
-  vec3 editorRot;
+	mat4 transform;
+	mat4 editorTransform;
+	const char* model;
+	Mesh* mesh;
+	vec3 pos;
+	vec3 rot;
+	vec3 editorPos;
+	vec3 editorRot;
 } Prop;
 
 typedef struct
 {
-  Texture editorTexture;
-  Texture texture;
+	union {
+		Texture editorTexture;
+		struct
+		{
+			float uStart;
+			float uEnd;
+			float vStart;
+			float vEnd;
+			char tile;
+		};
+	};
+	Texture texture;
 	float minSize;
 	float maxSize;
 } PanelItemDef;
 
 typedef struct
 {
-  PanelItemDef items[8];
-  Prop props[8];
+	PanelItemDef items[8];
+	Prop props[8];
 
-  Texture editorCenterTexture;
-  Texture centerTexture;
-  Texture zTexture;
+	Texture editorCenterTexture;
+	Texture centerTexture;
+	Texture zTexture;
 
-  int exportThickness;
-  const char* classname;
+	int exportThickness;
+	const char* classname;
 
-  vec2 minSize;
-  vec2 maxSize;
-  vec2 defaultSize;
-  char horizTile;
-  char vertTile;
+	float uStart;
+	float uEnd;
+	float vStart;
+	float vEnd;
+
+	vec2 minSize;
+	vec2 maxSize;
+	vec2 defaultSize;
+	char horizTile;
+	char vertTile;
+	char slice9;
 } PanelDefData;
 
 typedef struct

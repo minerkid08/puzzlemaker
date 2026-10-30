@@ -12,7 +12,7 @@ local startDisabled = Item.getKv("startdisabled");
 ---@type FizzlerProp
 local propConfig = {
 	static = false,
-	model = "models/props/fizzler_dynamic",
+	model = "models/props/fizzler_dynamic.mdl",
 	openAnim = "open",
 	closeAnim = "close"
 };

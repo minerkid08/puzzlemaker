@@ -303,6 +303,45 @@ void panelDrawRect(vec2 start, vec2 end, Texture* texture)
 	quadCount++;
 }
 
+void panelDrawRectTile(vec2 start, vec2 end, float uStart, float uEnd, float vStart, float vEnd)
+{
+	for (int i = 0; i < 4; i++)
+	{
+		verts[i].pos[3] = 1.0f;
+		verts[i].mat = 0;
+	}
+
+	verts[0].pos[0] = start[0];
+	verts[0].pos[1] = 0;
+	verts[0].pos[2] = start[1];
+
+	verts[1].pos[0] = end[0];
+	verts[1].pos[1] = 0;
+	verts[1].pos[2] = start[1];
+
+	verts[2].pos[0] = start[0];
+	verts[2].pos[1] = 0;
+	verts[2].pos[2] = end[1];
+
+	verts[3].pos[0] = end[0];
+	verts[3].pos[1] = 0;
+	verts[3].pos[2] = end[1];
+
+	verts[0].uv[0] = uStart;
+	verts[0].uv[1] = vStart;
+	verts[1].uv[0] = uEnd;
+	verts[1].uv[1] = vStart;
+	verts[2].uv[0] = uStart;
+	verts[2].uv[1] = vEnd;
+	verts[3].uv[0] = uEnd;
+	verts[3].uv[1] = vEnd;
+
+	verts += 4;
+
+	vertCount += 4;
+	quadCount++;
+}
+
 void overlayDrawRect(vec2 start, vec2 end, unsigned int texture, int tile)
 {
 	for (int i = 0; i < 4; i++)

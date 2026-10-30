@@ -40,32 +40,48 @@ clibDFiles = $(patsubst $(libDir)/%.c, $(build)/%.d, $(clibFiles))
 
 all: $(build)/puzzlemaker.exe
 
-$(build)/puzzlemaker.exe: $(objFiles) $(luaObjFiles) $(gladObjFiles) $(cjsonObjFiles) $(clibObjFiles)
-	clang --target=x86_64-windows-msvc -fuse-ld=lld -g $^ $(libs) -o $(build)/puzzlemaker.exe
+$(build)/puzzlemaker.exe: $(build)/lua.lib $(build)/glad.lib $(build)/cjson.lib $(build)/clib.lib $(objFiles)
+	@echo linking $@
+	@clang --target=x86_64-windows-msvc -fuse-ld=lld -g $^ $(libs) -o $@
+
+$(build)/lua.lib: $(luaObjFiles)
+	@echo linking $@
+	@ar rcs $@ $^
+$(build)/glad.lib: $(gladObjFiles)
+	@echo linking $@
+	@ar rcs $@ $^
+$(build)/cjson.lib: $(cjsonObjFiles)
+	@echo linking $@
+	@ar rcs $@ $^
+$(build)/clib.lib: $(clibObjFiles)
+	@echo linking $@
+	@ar rcs $@ $^
 
 $(puzBuild)/%.o: $(src)/%.c | $(build)
-	clang --target=x86_64-windows-msvc $(inc) -g -c $< -o $@ -Wno-deprecated-declarations -MMD -MP
+	@echo building $<
+	@clang --target=x86_64-windows-msvc $(inc) -g -c $< -o $@ -Wno-deprecated-declarations -MMD -MP
 
 $(build)/%.o: $(libDir)/%.c | $(build)
-	clang --target=x86_64-windows-msvc $(inc) -g -c $< -o $@ -Wno-deprecated-declarations -MMD -MP
+	@echo building $<
+	@clang --target=x86_64-windows-msvc $(inc) -g -c $< -o $@ -Wno-deprecated-declarations -MMD -MP
 
 $(build):
-	mkdir -p $(build)/puzzlemaker
-	mkdir -p $(build)/puzzlemaker/antline
-	mkdir -p $(build)/puzzlemaker/export
-	mkdir -p $(build)/puzzlemaker/item
-	mkdir -p $(build)/puzzlemaker/packages
-	mkdir -p $(build)/puzzlemaker/compile
-	mkdir -p $(build)/puzzlemaker/ui
-	mkdir -p $(build)/puzzlemaker/voxel
-	mkdir -p $(build)/puzzlemaker/renderer
-	mkdir -p $(build)/puzzlemaker/export/script
-	mkdir -p $(build)/lua/src
-	mkdir -p $(build)/glad/src/glad
-	mkdir -p $(build)/clib/src/math
-	mkdir -p $(build)/cjson/src
+	@mkdir -p $(build)/puzzlemaker
+	@mkdir -p $(build)/puzzlemaker/antline
+	@mkdir -p $(build)/puzzlemaker/export
+	@mkdir -p $(build)/puzzlemaker/item
+	@mkdir -p $(build)/puzzlemaker/packages
+	@mkdir -p $(build)/puzzlemaker/compile
+	@mkdir -p $(build)/puzzlemaker/ui
+	@mkdir -p $(build)/puzzlemaker/voxel
+	@mkdir -p $(build)/puzzlemaker/renderer
+	@mkdir -p $(build)/puzzlemaker/export/script
+	@mkdir -p $(build)/lua/src
+	@mkdir -p $(build)/glad/src/glad
+	@mkdir -p $(build)/clib/src/math
+	@mkdir -p $(build)/cjson/src
 
 clean:
-	rm -r $(build)
+	@rm -r $(build)
 
 -include $(dFiles) $(luaDFiles) $(gladDFiles) $(cjsonDFiles) $(libDFiles)

@@ -152,6 +152,9 @@ function mat4.right(mat) end
 ---@field texSize number?
 ---@field fit boolean?
 ---@field lightmapSize number?
+---@field rotation number?
+---@field uOffset number?
+---@field vOffset number?
 
 ---@class Brush
 Brush = {}

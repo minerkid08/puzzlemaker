@@ -631,12 +631,9 @@
 		"name": "Turret",
 		"model": "turret.obj",
     "entity": "npc_portal_turret_floor",
-    "bound1": [-0.4, -0.75, -1],
-    "bound2": [0.4, 0.75, 0.1],
+    "bound1": [-0.4, -0.75, 0],
+    "bound2": [0.4, 0.75, 1.6],
 		"floor": true,
-    "deleteIntersectingVoxels": true,
-    "deleteIntersectingVoxelsEditor": false,
-    "genMissingVoxels": true,
 		"snapMode": "mini-corner",
     "keyvalues": [
       {

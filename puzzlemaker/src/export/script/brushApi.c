@@ -128,6 +128,36 @@ static int brushSetTexture(lua_State* l)
 			side->fit = lua_toboolean(l, -1);
 		}
 		lua_pop(l, 1);
+
+		lua_getfield(l, 4, "uOffset");
+		type = lua_type(l, -1);
+		if (type != LUA_TNIL)
+		{
+			if (type != LUA_TNUMBER)
+				luaL_argerror(l, 4, "bad type for field 'uOffset', expected number?");
+			side->uoff = lua_tonumber(l, -1);
+		}
+		lua_pop(l, 1);
+
+		lua_getfield(l, 4, "vOffset");
+		type = lua_type(l, -1);
+		if (type != LUA_TNIL)
+		{
+			if (type != LUA_TNUMBER)
+				luaL_argerror(l, 4, "bad type for field 'vOffset', expected number?");
+			side->voff = lua_tonumber(l, -1);
+		}
+		lua_pop(l, 1);
+
+		lua_getfield(l, 4, "rotation");
+		type = lua_type(l, -1);
+		if (type != LUA_TNIL)
+		{
+			if (type != LUA_TNUMBER)
+				luaL_argerror(l, 4, "bad type for field 'rotation', expected number?");
+			side->rotation = lua_tonumber(l, -1);
+		}
+		lua_pop(l, 1);
 	}
 
 	return 0;

@@ -1,8 +1,10 @@
 #include "export/brush.h"
+#include "cglm/mat4.h"
+#include "cglm/quat.h"
 #include "cglm/vec3.h"
 #include "dynList.h"
-#include "utils.h"
 #include "export/exportUtils.h"
+#include "utils.h"
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -93,10 +95,9 @@ Brush* exportCreateBrush(vec3 start, vec3 end)
 		side->texHeight = 512;
 		side->texWidth = 512;
 		side->material = 0;
-		memcpy(side->uvs[0], uvxy, sizeof(vec2));
-		memcpy(side->uvs[1], uvXy, sizeof(vec2));
-		memcpy(side->uvs[2], uvxY, sizeof(vec2));
-		memcpy(side->uvs[3], uvXY, sizeof(vec2));
+		side->uoff = 0;
+		side->voff = 0;
+		side->rotation = 0;
 	}
 
 	Side* side = &brush->sides[DIR_POS_X];
@@ -156,10 +157,10 @@ void exportBrush(FILE* file, Brush* brush)
 	for (int j = 0; j < 6; j++)
 	{
 		Side* side = &brush->sides[j];
-    transformPos(side->verts[0]);
-    transformPos(side->verts[1]);
-    transformPos(side->verts[2]);
-    transformPos(side->verts[3]);
+		transformPos(side->verts[0]);
+		transformPos(side->verts[1]);
+		transformPos(side->verts[2]);
+		transformPos(side->verts[3]);
 		char v1[40];
 		char v2[40];
 		char v3[40];
@@ -210,6 +211,18 @@ void exportBrush(FILE* file, Brush* brush)
 		vDir[1] = side->verts[1][1] - side->verts[2][1];
 		vDir[2] = side->verts[1][2] - side->verts[2][2];
 
+		vec3 normal;
+		glm_cross(uDir, vDir, normal);
+		glm_normalize(normal);
+		memcpy(side->normal, normal, sizeof(vec3));
+
+		mat4 m;
+		vec4 q;
+		glm_quat(q, glm_rad(side->rotation), normal[0], normal[1], normal[2]);
+		glm_quat_mat4(q, m);
+		glm_mat4_mulv3(m, uDir, 1, uDir);
+		glm_mat4_mulv3(m, vDir, 1, vDir);
+
 		float vertScale = 0.25;
 		if (side->fit)
 		{
@@ -221,10 +234,6 @@ void exportBrush(FILE* file, Brush* brush)
 
 		float xoff = 0;
 		float yoff = 0;
-		vec3 normal;
-		glm_cross(uDir, vDir, normal);
-		glm_normalize(normal);
-		memcpy(side->normal, normal, sizeof(vec3));
 		if (side->fit)
 		{
 			vec3 zero = {0, 0, 0};
@@ -251,6 +260,8 @@ void exportBrush(FILE* file, Brush* brush)
 			yoff /= vertScale;
 			yoff = fmodf(yoff, side->texHeight);
 		}
+		xoff += side->uoff;
+		yoff += side->voff;
 
 		fprintf(file, "    \"uaxis\" \"[%.4f %.4f %.4f %.4f] %.4f\"\n", uDir[0], uDir[1], uDir[2], xoff, horizScale);
 		fprintf(file, "    \"vaxis\" \"[%.4f %.4f %.4f %.4f] %.4f\"\n", vDir[0], vDir[1], vDir[2], yoff, vertScale);

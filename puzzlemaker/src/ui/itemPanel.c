@@ -150,6 +150,7 @@ void itemPanelRender()
 			igText("%s, %d", selection.item->def->name, selection.item->index);
 			if (igButton("Remove", zero))
 			{
+        igTreePop();
 				removeItem(selection.item);
 				selection.item = 0;
 				selection.type = SELECTION_NONE;

@@ -248,6 +248,7 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 				pos[2] = offset[2] + cameraPos[2];
 
 				selection.item = pasteItem();
+				selection.type = SELECTION_NONE;
 				if (selection.item)
 				{
 					selection.type = SELECTION_ITEM;

@@ -67,7 +67,7 @@ void* loadPanelItemDef(cJSON* item, ItemDefinition* itemDef)
 	}
 
 	data->vertTile = jsonGetBoolC(item, "vertTile", 0);
-	data->vertTile = jsonGetBoolC(item, "horizTile", 0);
+	data->horizTile = jsonGetBoolC(item, "horizTile", 0);
 	data->slice9 = jsonGetBoolC(item, "9slice", 0);
 	if (data->slice9)
 	{

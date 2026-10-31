@@ -23,16 +23,9 @@ local mainEnt = nil;
 for i = 1, tile[2] do
 	local postfix = tostring(i);
 	local ent = Entity.new("trigger" .. postfix, "trigger_portal_cleanser", pos, { 0, 0, 0 });
-	ent:setKv("visible", true);
 	ent:setKv("usescanline", true);
 	ent:setKv("spawnflags", 9);
-	ent:setKv("rendercolor", "255 255 255");
-	ent:setKv("viewhideflags", false);
-	ent:setKv("rendermode", 0);
-	ent:setKv("renderfx", 0);
 	ent:setKv("solid", 6);
-	ent:setKv("disablereceiveshadows", false);
-	ent:setKv("drawinfastreflection", false);
 	ent:setKv("startdisabled", startDisabled);
 	if (mainEnt == nil) then
 		mainEnt = ent;

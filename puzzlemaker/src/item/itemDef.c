@@ -149,7 +149,7 @@ void loadItemDefinitionFile(Package* package, const char* filename)
 			def->flags |= ITEM_FLAGS_DELVOXELSEDITOR;
       printf("%d\n", def->flags & ITEM_FLAGS_DELVOXELSEDITOR);
     }
-		if (jsonGetBoolC(item, "genMissingVoxels", 0))
+		if (jsonGetBoolC(item, "genMissingVoxels", 1))
 			def->flags |= ITEM_FLAGS_GENVOXELS;
 		if (jsonGetBoolC(item, "requiresPaint", 0))
 			def->flags |= ITEM_FLAGS_REQUIRES_PAINT;

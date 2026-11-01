@@ -527,7 +527,7 @@ static void addBrush(Entity* entity, vec3 start, vec3 end, Texture* mat, Texture
 		else if (i == DIR_POS_Y && altTex)
 		{
 			side->material = altTex->filename;
-			side->allignment = mat->alignment;
+			side->allignment = altTex->alignment;
 			side->texWidth = altTex->size;
 			side->texHeight = altTex->size;
 		}

@@ -26,6 +26,7 @@ for i = 1, tile[2] do
 	ent:setKv("usescanline", true);
 	ent:setKv("spawnflags", 9);
 	ent:setKv("solid", 6);
+	ent:setKv("visible", 1);
 	ent:setKv("startdisabled", startDisabled);
 	if (mainEnt == nil) then
 		mainEnt = ent;

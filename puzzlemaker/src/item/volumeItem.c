@@ -82,12 +82,12 @@ void* loadVolumeItemDef(cJSON* item, ItemDefinition* itemDef)
 		cJSON* textureJson = cJSON_GetObjectItem(item, "textures");
 		if (textureJson)
 		{
-			jsonGetTex(textureJson, "right", &data->exportMaterial[DIR_POS_Y]);
-			jsonGetTex(textureJson, "left", &data->exportMaterial[DIR_NEG_Y]);
-			jsonGetTex(textureJson, "top", &data->exportMaterial[DIR_POS_Z]);
-			jsonGetTex(textureJson, "bottom", &data->exportMaterial[DIR_NEG_Z]);
-			jsonGetTex(textureJson, "back", &data->exportMaterial[DIR_POS_X]);
-			jsonGetTex(textureJson, "front", &data->exportMaterial[DIR_NEG_X]);
+			jsonGetTex(textureJson, "right", &data->exportMaterial[DIR_POS_X]);
+			jsonGetTex(textureJson, "left", &data->exportMaterial[DIR_NEG_X]);
+			jsonGetTex(textureJson, "top", &data->exportMaterial[DIR_POS_Y]);
+			jsonGetTex(textureJson, "bottom", &data->exportMaterial[DIR_NEG_Y]);
+			jsonGetTex(textureJson, "back", &data->exportMaterial[DIR_POS_Z]);
+			jsonGetTex(textureJson, "front", &data->exportMaterial[DIR_NEG_Z]);
 		}
 		else
 			errorf("no textures defined");
@@ -170,7 +170,11 @@ void volumeItemExport(Item* item)
 	{
 		Side* side = &brush->sides[i];
 
-		side->material = def->exportMaterial[i].filename;
+		Texture* tex = &def->exportMaterial[i];
+		side->material = tex->filename;
+		side->texHeight = tex->size;
+		side->texWidth = tex->size;
+		side->allignment = tex->alignment;
 		for (int j = 0; j < 4; j++)
 		{
 			vec3 res;

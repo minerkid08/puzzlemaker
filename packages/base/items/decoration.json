@@ -43,11 +43,51 @@
     "textures": {
       "top": "TILE/WHITE_CEILING_TILE002A",
       "bottom": "TILE/WHITE_FLOOR_TILE002A",
-      "left": "TILE/WHITE_WALL_TILE003A",
-      "right": "TILE/WHITE_WALL_TILE003A",
-      "front": "TILE/WHITE_WALL_TILE003A",
-      "back": "TILE/WHITE_WALL_TILE003A"
+      "left": "TILE/WHITE_WALL_TILE003F",
+      "right": "TILE/WHITE_WALL_TILE003F",
+      "front": "TILE/WHITE_WALL_TILE003F",
+      "back": "TILE/WHITE_WALL_TILE003F"
     },
+    "editorFit": false,
+    "minSize": [0.5, 0.5, 0.5],
+    "snapMode": "mini-corner",
+    "defaultSize": [0.5, 0.5, 0.5]
+  },
+  {
+    "type": "volume",
+    "id": "medium-white-blocks",
+    "name": "Medium White Blocks",
+    "editorTexture": {
+      "filename": "whiteVoxel.png",
+      "size": 1,
+      "alignment": "none"
+    },
+    "textures": {
+      "top": "TILE/WHITE_CEILING_TILE002A",
+      "bottom": "TILE/WHITE_FLOOR_TILE002A",
+      "left": {
+        "filename": "TILE/WHITE_WALL_TILE001A",
+        "size": 512,
+        "alignment": "bottom-left"
+      },
+      "right": {
+        "filename": "TILE/WHITE_WALL_TILE001A",
+        "size": 512,
+        "alignment": "bottom-left"
+      },
+      "front": {
+        "filename": "TILE/WHITE_WALL_TILE001A",
+        "size": 512,
+        "alignment": "bottom-left"
+      },
+      "back": {
+        "filename": "TILE/WHITE_WALL_TILE001A",
+        "size": 512,
+        "alignment": "bottom-left"
+      }
+    },
+    "deleteIntersectingVoxels": true,
+    "genMissingVoxels": false,
     "editorFit": false,
     "minSize": [0.5, 0.5, 0.5],
     "snapMode": "mini-corner",

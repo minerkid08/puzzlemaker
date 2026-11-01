@@ -29,11 +29,11 @@ void addBrushApi(lua_State* l)
 {
 	lua_newtable(l);
 	lua_pushnumber(l, TEX_ALIGNMENT_NONE);
-	lua_setfield(l, -1, "None");
+	lua_setfield(l, -2, "None");
 	lua_pushnumber(l, TEX_ALIGNMENT_BOTTOM_LEFT);
-	lua_setfield(l, -1, "BottomLeft");
+	lua_setfield(l, -2, "BottomLeft");
 	lua_pushnumber(l, TEX_ALIGNMENT_FIT);
-	lua_setfield(l, -1, "Fit");
+	lua_setfield(l, -2, "Fit");
 	lua_setglobal(l, "BrushAllignment");
 
 	lua_newtable(l);

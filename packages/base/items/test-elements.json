@@ -494,6 +494,41 @@
 	},
   {
     "type": "entity",
+		"id": "laser-relay",
+		"name": "Laser Relay",
+		"model": "laser-relay.obj",
+    "entity": "prop_laser_relay",
+    "bound1": [-0.5, -0.5, -0.5],
+    "bound2": [0.5, 0.5, 0.1],
+    "snapMode": "mini-corner",
+    "floor": true,
+		"deleteIntersectingVoxels": true,
+		"deleteIntersectingVoxelsEditor": false,
+    "keyvalues": [
+			{
+    	  "kv": "skintype",
+				"name": "Skin",
+    	  "type": "drop-int",
+    	  "defaultValue": 0,
+				"options": {
+					"Clean": 0,
+					"Dirty": 1
+				}
+      }
+    ],
+    "statickvs": {
+      "model": "models/props/laser_receptacle.mdl"
+    },
+    "outputs": [
+      {
+        "name": "On Powered",
+        "trueOutput": "OnPowered",
+        "falseOutput": "OnUnpowered"
+      }
+    ]
+	},
+  {
+    "type": "entity",
 		"id": "funnel",
 		"name": "Funnel",
 		"model": "funnel.obj",

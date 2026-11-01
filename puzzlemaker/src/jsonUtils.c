@@ -211,7 +211,7 @@ void jsonGetVec3(const cJSON* json, const char* name, vec3 out)
 void jsonGetTex(const cJSON* json, const char* name, Texture* out)
 {
 	cJSON* tex = cJSON_GetObjectItem(json, name);
-	out->alignment = TEX_ALIGNMENT_FIT;
+	out->alignment = TEX_ALIGNMENT_NONE;
 	out->size = 512;
 	if (tex == 0)
 		errorf("unknown key '%s'", name);

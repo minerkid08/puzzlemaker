@@ -267,7 +267,7 @@ void panelDrawRect(vec2 start, vec2 end, Texture* texture)
 	verts[3].pos[1] = 0;
 	verts[3].pos[2] = end[1];
 
-	if (texture->alignment == TEX_ALIGNMENT_NONE)
+	if (texture->alignment != TEX_ALIGNMENT_FIT)
 	{
 		float width = end[0] - start[0];
 		float height = end[1] - start[1];
@@ -397,7 +397,7 @@ void drawRect(vec3 v1, vec3 v2, vec3 v3, vec3 v4, Texture* texture)
 	memcpy(verts[2].pos, v3, sizeof(vec3));
 	memcpy(verts[3].pos, v4, sizeof(vec3));
 
-	if (texture->alignment == TEX_ALIGNMENT_NONE)
+	if (texture->alignment != TEX_ALIGNMENT_FIT)
 	{
 		vec3 horiz = {v1[0] - v2[0], v1[1] - v2[1], v1[2] - v2[2]};
 		vec3 vert = {v4[0] - v2[0], v4[1] - v2[1], v4[2] - v2[2]};

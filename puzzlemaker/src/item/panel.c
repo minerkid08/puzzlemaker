@@ -519,17 +519,15 @@ static void addBrush(Entity* entity, vec3 start, vec3 end, Texture* mat, Texture
 
 		if (i == DIR_NEG_Y || (i == DIR_POS_Y && altTex == 0))
 		{
-			char fit = (mat->alignment == TEX_ALIGNMENT_FIT);
 			side->material = mat->filename;
-			side->fit = fit;
+			side->allignment = mat->alignment;
 			side->texWidth = mat->size;
 			side->texHeight = mat->size;
 		}
 		else if (i == DIR_POS_Y && altTex)
 		{
-			char fit = (altTex->alignment == TEX_ALIGNMENT_FIT);
 			side->material = altTex->filename;
-			side->fit = fit;
+			side->allignment = mat->alignment;
 			side->texWidth = altTex->size;
 			side->texHeight = altTex->size;
 		}

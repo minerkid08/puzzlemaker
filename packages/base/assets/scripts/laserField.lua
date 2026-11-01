@@ -3,11 +3,11 @@ require("utils");
 
 ---@type FizzlerProp
 local propConfig = {
-  static = false,
-  model = "models/props/fizzler_dynamic.mdl",
-  openAnim = "open",
-  closeAnim = "close",
-  skin = 2
+	static = false,
+	model = "models/props/fizzler_dynamic.mdl",
+	openAnim = "open",
+	closeAnim = "close",
+	skin = 2
 };
 
 local pos = Item.getPosition();
@@ -41,15 +41,21 @@ laserEnt:setKv("solidity", 1);
 laserEnt:setKv("renderfx", 14);
 
 for i = 1, tile[2] do
-  local laser = Brush.new({ 0, (i - 1) * 2, -1 / 64 }, { size[1], size[2] + (i - 1) * 2, 1 / 64 });
-  laser:setTexture(Direction.POS_X, "TOOLS/TOOLSNODRAW");
-  laser:setTexture(Direction.NEG_X, "TOOLS/TOOLSNODRAW");
-  laser:setTexture(Direction.POS_Y, "TOOLS/TOOLSNODRAW");
-  laser:setTexture(Direction.NEG_Y, "TOOLS/TOOLSNODRAW");
-  laser:setTexture(Direction.POS_Z, "EFFECTS/LASERPLANE", { texSize = 512, fit = true , vOffset = 256});
-  laser:setTexture(Direction.NEG_Z, "EFFECTS/LASERPLANE", { texSize = 512, fit = true , vOffset = 256});
-  laser:transformMat(transform);
-  laserEnt:attachBrush(laser);
+	local laser = Brush.new({ 0, (i - 1) * 2, -1 / 64 }, { size[1], size[2] + (i - 1) * 2, 1 / 64 });
+	laser:setTexture(Direction.POS_X, "TOOLS/TOOLSNODRAW");
+	laser:setTexture(Direction.NEG_X, "TOOLS/TOOLSNODRAW");
+	laser:setTexture(Direction.POS_Y, "TOOLS/TOOLSNODRAW");
+	laser:setTexture(Direction.NEG_Y, "TOOLS/TOOLSNODRAW");
+	---@type BrushTexOpts
+	local opts = {
+		allignment = BrushAllignment.Fit,
+		texSize = 1024,
+		vOffset = 256
+	};
+	laser:setTexture(Direction.POS_Z, "EFFECTS/LASERPLANE", opts);
+	laser:setTexture(Direction.NEG_Z, "EFFECTS/LASERPLANE", opts);
+	laser:transformMat(transform);
+	laserEnt:attachBrush(laser);
 end
 
 addFizzlerProps(propConfig, false, ent, transform);

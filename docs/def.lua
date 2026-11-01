@@ -148,13 +148,22 @@ function mat4.up(mat) end
 ---@return vec3
 function mat4.right(mat) end
 
+---@enum BrushAllignment
+BrushAllignment = {
+	None = 0,
+	BottomLeft= 1,
+	Fit = 5
+}
+
 ---@class BrushTexOpts
 ---@field texSize number?
----@field fit boolean?
+---@field allignment BrushAllignment?
 ---@field lightmapSize number?
 ---@field rotation number?
 ---@field uOffset number?
 ---@field vOffset number?
+---@field uScale number?
+---@field vScale number?
 
 ---@class Brush
 Brush = {}

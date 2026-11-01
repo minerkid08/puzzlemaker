@@ -4,6 +4,7 @@
 #include "cglm/vec3.h"
 #include "dynList.h"
 #include "export/exportUtils.h"
+#include "renderer/texture.h"
 #include "utils.h"
 #include <math.h>
 #include <stdio.h>
@@ -91,12 +92,14 @@ Brush* exportCreateBrush(vec3 start, vec3 end)
 		side->id = sideId;
 		sideId++;
 		side->lightmapscale = 16;
-		side->fit = 0;
+		side->allignment = TEX_ALIGNMENT_NONE;
 		side->texHeight = 512;
 		side->texWidth = 512;
 		side->material = 0;
 		side->uoff = 0;
 		side->voff = 0;
+		side->uScale = 0.25;
+		side->vScale = 0.25;
 		side->rotation = 0;
 	}
 
@@ -200,8 +203,8 @@ void exportBrush(FILE* file, Brush* brush)
 		uDir[1] = side->verts[3][1] - side->verts[2][1];
 		uDir[2] = side->verts[3][2] - side->verts[2][2];
 
-		float horizScale = 0.25;
-		if (side->fit)
+		float horizScale = side->uScale;
+		if (side->allignment == TEX_ALIGNMENT_FIT)
 		{
 			float width = sqrtf(uDir[0] * uDir[0] + uDir[1] * uDir[1] + uDir[2] * uDir[2]);
 			horizScale = width / side->texWidth;
@@ -223,8 +226,8 @@ void exportBrush(FILE* file, Brush* brush)
 		glm_mat4_mulv3(m, uDir, 1, uDir);
 		glm_mat4_mulv3(m, vDir, 1, vDir);
 
-		float vertScale = 0.25;
-		if (side->fit)
+		float vertScale = side->vScale;
+		if (side->allignment == TEX_ALIGNMENT_FIT)
 		{
 			float height = sqrtf(vDir[0] * vDir[0] + vDir[1] * vDir[1] + vDir[2] * vDir[2]);
 			vertScale = height / side->texHeight;
@@ -234,7 +237,7 @@ void exportBrush(FILE* file, Brush* brush)
 
 		float xoff = 0;
 		float yoff = 0;
-		if (side->fit)
+		if (side->allignment != TEX_ALIGNMENT_NONE)
 		{
 			vec3 zero = {0, 0, 0};
 			vec3 intersect;

@@ -4,17 +4,19 @@
 
 typedef struct
 {
+  const char* material;
   int id;
   vec3 verts[4];
   vec3 normal;
-  const char* material;
   int lightmapscale;
   int texWidth;
   int texHeight;
 	float rotation;
 	float uoff;
+	float uScale;
 	float voff;
-  char fit;
+	float vScale;
+  char allignment;
 } Side;
 
 typedef struct

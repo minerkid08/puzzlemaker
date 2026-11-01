@@ -37,20 +37,27 @@ for i = 1, tile[2] do
 	local leftBrush = Brush.new({ 0, yMin, -1 / 64 }, { 1, yMax, 1 / 64 });
 	local rightBrush = Brush.new({ size[1] - 1, yMin, -1 / 64 }, { size[1], yMax, 1 / 64 });
 
+	---@type BrushTexOpts
+	local opts = {
+		allignment = BrushAllignment.Fit,
+		texSize = 1024
+	};
+
 	local brushes = { leftBrush, rightBrush };
 	if (size[1] > 2) then
 		local centerBrush = Brush.new({ 1, yMin, -1 / 64 }, { size[1] - 1, yMax, 1 / 64 });
 		table.insert(brushes, centerBrush);
 
-		centerBrush:setTexture(Direction.POS_Z, "EFFECTS/FIZZLER_CENTER", { texSize = 1024, fit = true });
-		centerBrush:setTexture(Direction.NEG_Z, "EFFECTS/FIZZLER_CENTER", { texSize = 1024, fit = true });
+
+		centerBrush:setTexture(Direction.POS_Z, "EFFECTS/FIZZLER_CENTER", opts);
+		centerBrush:setTexture(Direction.NEG_Z, "EFFECTS/FIZZLER_CENTER", opts);
 	end
 
-	leftBrush:setTexture(Direction.POS_Z, "EFFECTS/FIZZLER_L", { texSize = 1024, fit = true });
-	leftBrush:setTexture(Direction.NEG_Z, "EFFECTS/FIZZLER_R", { texSize = 1024, fit = true });
+	leftBrush:setTexture(Direction.POS_Z, "EFFECTS/FIZZLER_L", opts);
+	leftBrush:setTexture(Direction.NEG_Z, "EFFECTS/FIZZLER_R", opts);
 
-	rightBrush:setTexture(Direction.POS_Z, "EFFECTS/FIZZLER_R", { texSize = 1024, fit = true });
-	rightBrush:setTexture(Direction.NEG_Z, "EFFECTS/FIZZLER_L", { texSize = 1024, fit = true });
+	rightBrush:setTexture(Direction.POS_Z, "EFFECTS/FIZZLER_R", opts);
+	rightBrush:setTexture(Direction.NEG_Z, "EFFECTS/FIZZLER_L", opts);
 
 	for _, brush in pairs(brushes) do
 		brush:setTexture(Direction.POS_X, "TOOLS/TOOLSTRIGGER");

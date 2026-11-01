@@ -2,6 +2,7 @@
 #include "export/brush.h"
 #include "lua/lauxlib.h"
 #include "lua/lua.h"
+#include "renderer/texture.h"
 #include "utils.h"
 #include <string.h>
 
@@ -26,6 +27,15 @@ Brush* luaGetBrush(lua_State* l, int pos)
 
 void addBrushApi(lua_State* l)
 {
+	lua_newtable(l);
+	lua_pushnumber(l, TEX_ALIGNMENT_NONE);
+	lua_setfield(l, -1, "None");
+	lua_pushnumber(l, TEX_ALIGNMENT_BOTTOM_LEFT);
+	lua_setfield(l, -1, "BottomLeft");
+	lua_pushnumber(l, TEX_ALIGNMENT_FIT);
+	lua_setfield(l, -1, "Fit");
+	lua_setglobal(l, "BrushAllignment");
+
 	lua_newtable(l);
 
 	luaL_newmetatable(l, "brush");
@@ -124,8 +134,14 @@ static int brushSetTexture(lua_State* l)
 		if (type != LUA_TNIL)
 		{
 			if (type != LUA_TBOOLEAN)
-				luaL_argerror(l, 4, "bad type for field 'fit', expected bool?");
-			side->fit = lua_toboolean(l, -1);
+				luaL_argerror(l, 4, "bad type for field 'allignment', expected number?");
+			const char* s = lua_tostring(l, -1);
+			if (strcmp(s, "none") == 0)
+				side->allignment = TEX_ALIGNMENT_NONE;
+			if (strcmp(s, "bottom-left") == 0)
+				side->allignment = TEX_ALIGNMENT_BOTTOM_LEFT;
+			if (strcmp(s, "fit") == 0)
+				side->allignment = TEX_ALIGNMENT_FIT;
 		}
 		lua_pop(l, 1);
 
@@ -146,6 +162,26 @@ static int brushSetTexture(lua_State* l)
 			if (type != LUA_TNUMBER)
 				luaL_argerror(l, 4, "bad type for field 'vOffset', expected number?");
 			side->voff = lua_tonumber(l, -1);
+		}
+		lua_pop(l, 1);
+
+		lua_getfield(l, 4, "uScale");
+		type = lua_type(l, -1);
+		if (type != LUA_TNIL)
+		{
+			if (type != LUA_TNUMBER)
+				luaL_argerror(l, 4, "bad type for field 'uScale', expected number?");
+			side->uScale = lua_tonumber(l, -1);
+		}
+		lua_pop(l, 1);
+
+		lua_getfield(l, 4, "vScale");
+		type = lua_type(l, -1);
+		if (type != LUA_TNIL)
+		{
+			if (type != LUA_TNUMBER)
+				luaL_argerror(l, 4, "bad type for field 'vScale', expected number?");
+			side->vScale = lua_tonumber(l, -1);
 		}
 		lua_pop(l, 1);
 

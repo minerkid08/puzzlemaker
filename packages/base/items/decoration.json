@@ -14,8 +14,8 @@
     "id": "small-blocks",
     "name": "Small Blocks",
     "editorTexture": {
-      "filename": "blackVoxel.png",
-      "size": 0.5,
+      "filename": "blackMiniVoxel.png",
+      "size": 1,
       "alignment": "none"
     },
     "textures": {
@@ -36,8 +36,8 @@
     "id": "small-white-blocks",
     "name": "Small White Blocks",
     "editorTexture": {
-      "filename": "whiteVoxel.png",
-      "size": 0.5,
+      "filename": "whiteMiniVoxel.png",
+      "size": 1,
       "alignment": "none"
     },
     "textures": {

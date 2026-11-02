@@ -4,15 +4,8 @@
     "id": "fizzler",
     "name": "Fizzler",
     "editorCenterTexture": "fizzler-center.png",
-    "centerTexture": {
-      "filename": "EFFECTS/FIZZLER_CENTER",
-      "size": 1024,
-      "alignment": "fit"
-    },
-    "zTexture": "TOOLS/TOOLSTRIGGER",
-    "entity": "trigger_portal_cleanser",
+		"noDefaultExport": true,
     "exportScript": "fizzler.lua",
-    "thickness": 2,
     "minSize": [0, 2],
     "maxSize": [99999, 2],
     "snapMode": "mini-center",
@@ -22,22 +15,12 @@
       {
         "id": "left",
         "editorTexture": "fizzler-left.png",
-        "texture": {
-          "filename": "EFFECTS/FIZZLER_L",
-          "size": 1024,
-          "alignment": "fit"
-        },
         "minSize": 1,
         "maxSize": 1
       },
       {
         "id": "right",
         "editorTexture": "fizzler-right.png",
-        "texture": {
-          "filename": "EFFECTS/FIZZLER_R",
-          "size": 1024,
-          "alignment": "fit"
-        },
         "texSize": 1024,
         "minSize": 1,
         "maxSize": 1
@@ -47,7 +30,6 @@
 			{
 				"id": "left",
 				"editorModel": "fizzler.obj",
-				"model": "help",
 				"editorTransform": {
 					"rotation": [0, 90, 90]
 				}
@@ -55,7 +37,6 @@
 			{
 				"id": "right",
 				"editorModel": "fizzler.obj",
-				"model": "help",
 				"editorTransform": {
 					"rotation": [0, -90, -90]
 				}
@@ -74,33 +55,14 @@
 				"type": "bool",
 				"defaultValue": false 
 			}
-		],
-    "statickvs": {
-      "visible": "1",
-      "usescanline": "1",
-      "spawnflags": "9",
-      "rendercolor": "255 255 255",
-      "viewhideflags": "0",
-      "rendermode": "0",
-      "renderfx": "0",
-      "solid": "6",
-      "disablereceiveshadows": "0",
-      "drawinfastreflection": "0"
-    }
+		]
   },
   {
     "type": "panel",
     "id": "laser-panel",
     "name": "Laser Field",
+		"noDefaultExport": true,
     "editorCenterTexture": "laserfield.png",
-    "centerTexture": {
-      "filename": "TOOLS/TOOLSTRIGGER",
-      "size": 1024,
-      "alignment": "fit"
-    },
-    "zTexture": "TOOLS/TOOLSTRIGGER",
-    "entity": "trigger_hurt",
-    "thickness": 2,
     "minSize": [2, 2],
     "maxSize": [99999, 2],
     "snapMode": "mini-center",
@@ -138,13 +100,7 @@
 				"type": "bool",
 				"defaultValue": false
 			}
-		],
-    "statickvs": {
-      "spawnflags": "4097",
-      "rendercolor": "255 255 255",
-      "solid": "6",
-      "damage": "100000"
-    }
+		]
   },
 	{
     "type": "entity",

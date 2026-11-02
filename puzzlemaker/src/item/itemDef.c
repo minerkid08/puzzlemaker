@@ -117,6 +117,9 @@ void loadItemDefinitionFile(Package* package, const char* filename)
 
 		def->flags = 0;
 
+		if (jsonGetBoolC(item, "noDefaultExport", 0))
+			def->flags |= ITEM_FLAGS_NODEFAULTEXPORT;
+
 		const char* type = jsonGetStr(item, "type");
 		if (strcmp(type, "entity") == 0)
 		{

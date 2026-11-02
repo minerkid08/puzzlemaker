@@ -22,6 +22,7 @@ typedef struct
 	mat4 editorTransform;
 	const char* model;
 	Mesh* mesh;
+	int id;
 	vec3 pos;
 	vec3 rot;
 	vec3 editorPos;
@@ -49,7 +50,7 @@ typedef struct
 typedef struct
 {
 	PanelItemDef items[8];
-	Prop props[8];
+	Prop* props;
 
 	Texture editorCenterTexture;
 	Texture centerTexture;

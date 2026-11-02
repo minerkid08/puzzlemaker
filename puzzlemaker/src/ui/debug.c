@@ -1,5 +1,6 @@
 #include "cglm/mat4.h"
 #include "cjson.h"
+#include "dynList.h"
 #include "item/entityItem.h"
 #include "item/panel.h"
 #include "jsonUtils.h"
@@ -175,13 +176,11 @@ void itemDebugRender()
 		{
 			PanelDefData* data = def->data;
 			igSeparatorText("Panel Item Options");
-			for (int i = 0; i < 8; i++)
+			for (int i = 0; i < dynList_size(data->props); i++)
 			{
 				Prop* prop = &data->props[i];
-				if (prop->mesh == 0)
-					continue;
 				const char* name = 0;
-				switch (i)
+				switch (prop->id)
 				{
 				case PANEL_ITEM_ID_BOTTOM_LEFT:
 					name = "Bottom Left Prop";

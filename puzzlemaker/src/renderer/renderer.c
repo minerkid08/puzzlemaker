@@ -166,6 +166,13 @@ void bindTexture(unsigned int texture)
 	glBindTexture(GL_TEXTURE_2D, texture);
 }
 
+void bindPanelTexture(unsigned int texture)
+{
+	glUseProgram(panelShader);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+}
+
 void endFrame()
 {
 	glBindVertexArray(va);
@@ -307,24 +314,21 @@ void panelDrawRectTile(vec2 start, vec2 end, float uStart, float uEnd, float vSt
 {
 	for (int i = 0; i < 4; i++)
 	{
+		verts[i].pos[1] = 0.0f;
 		verts[i].pos[3] = 1.0f;
 		verts[i].mat = 0;
 	}
 
 	verts[0].pos[0] = start[0];
-	verts[0].pos[1] = 0;
 	verts[0].pos[2] = start[1];
 
 	verts[1].pos[0] = end[0];
-	verts[1].pos[1] = 0;
 	verts[1].pos[2] = start[1];
 
 	verts[2].pos[0] = start[0];
-	verts[2].pos[1] = 0;
 	verts[2].pos[2] = end[1];
 
 	verts[3].pos[0] = end[0];
-	verts[3].pos[1] = 0;
 	verts[3].pos[2] = end[1];
 
 	verts[0].uv[0] = uStart;
@@ -446,6 +450,35 @@ void panelEndFrame(mat4 transform, char backfaceCull, char depthTest)
 		glDisable(GL_CULL_FACE);
 	if (depthTest == 0)
 		glDisable(GL_DEPTH_TEST);
+
+	setUniformMat4(panelShader, "cam", camMat);
+	setUniformMat4(panelShader, "mat", projMat);
+	setUniformMat4(panelShader, "transform", transform);
+	setUniformi(panelShader, "pass", renderPass);
+
+	glDrawElements(GL_TRIANGLES, quadCount * 6, GL_UNSIGNED_INT, 0);
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
+
+	verts = vertBase;
+	vertCount = 0;
+	quadCount = 0;
+}
+
+void panelEndFrame2(mat4 transform, char backfaceCull, char depthTest, unsigned int tex)
+{
+	glBindVertexArray(va);
+	glBindBuffer(GL_ARRAY_BUFFER, vb);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * vertCount, vertBase);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib);
+	glUseProgram(panelShader);
+	if (backfaceCull == 0)
+		glDisable(GL_CULL_FACE);
+	if (depthTest == 0)
+		glDisable(GL_DEPTH_TEST);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, tex);
 
 	setUniformMat4(panelShader, "cam", camMat);
 	setUniformMat4(panelShader, "mat", projMat);

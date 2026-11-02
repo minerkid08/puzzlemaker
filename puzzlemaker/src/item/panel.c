@@ -76,15 +76,71 @@ void* loadPanelItemDef(cJSON* item, ItemDefinition* itemDef)
 		data->vEnd = jsonGetFloat(item, "vEnd");
 	}
 
-	for (int i = 0; i < 8; i++)
-	{
-		data->items[i].maxSize = 0;
-		data->items[i].minSize = 0;
-	}
-
 	char flags = 0;
 	jsonGetEditorTex(item, "editorCenterTexture", &data->editorCenterTexture, &flags);
 	itemDef->flags |= flags;
+
+	for (int i = 0; i < 8; i++)
+	{
+		PanelItemDef* item = &data->items[i];
+		item->maxSize = 0;
+		item->minSize = 0;
+		item->texture.filename = 0;
+		if (data->slice9)
+		{
+			switch (i)
+			{
+			case PANEL_ITEM_ID_TOP_LEFT:
+				item->uStart = 0;
+				item->uEnd = data->uStart;
+				item->vStart = data->vEnd;
+				item->vEnd = 1;
+				break;
+			case PANEL_ITEM_ID_TOP:
+				item->uStart = data->uStart;
+				item->uEnd = data->uEnd;
+				item->vStart = data->vEnd;
+				item->vEnd = 1;
+				break;
+			case PANEL_ITEM_ID_TOP_RIGHT:
+				item->uStart = data->uEnd;
+				item->uEnd = 1;
+				item->vStart = data->vEnd;
+				item->vEnd = 1;
+				break;
+			case PANEL_ITEM_ID_LEFT:
+				item->uStart = 0;
+				item->uEnd = data->uStart;
+				item->vStart = data->vStart;
+				item->vEnd = data->vEnd;
+				break;
+			case PANEL_ITEM_ID_RIGHT:
+				item->uStart = data->uEnd;
+				item->uEnd = 1;
+				item->vStart = data->vStart;
+				item->vEnd = data->vEnd;
+				break;
+			case PANEL_ITEM_ID_BOTTOM_LEFT:
+				item->uStart = 0;
+				item->uEnd = data->uStart;
+				item->vStart = 0;
+				item->vEnd = data->vStart;
+				break;
+			case PANEL_ITEM_ID_BOTTOM:
+				item->uStart = data->uStart;
+				item->uEnd = data->uEnd;
+				item->vStart = 0;
+				item->vEnd = data->vStart;
+				break;
+			case PANEL_ITEM_ID_BOTTOM_RIGHT:
+				item->uStart = data->uEnd;
+				item->uEnd = 1;
+				item->vStart = 0;
+				item->vEnd = data->vStart;
+				break;
+			}
+		}
+	}
 
 	cJSON* arr = jsonGetArrayC(item, "borders");
 	if (arr)
@@ -117,10 +173,10 @@ void* loadPanelItemDef(cJSON* item, ItemDefinition* itemDef)
 			PanelItemDef* item = &data->items[index];
 			if (data->slice9)
 			{
-				item->uStart = jsonGetFloat(border, "uStart");
-				item->uEnd = jsonGetFloat(border, "uEnd");
-				item->vStart = jsonGetFloat(border, "vStart");
-				item->vEnd = jsonGetFloat(border, "vEnd");
+				item->uStart = jsonGetFloatC(border, "uStart", item->uStart);
+				item->uEnd = jsonGetFloatC(border, "uEnd", item->uEnd);
+				item->vStart = jsonGetFloatC(border, "vStart", item->vStart);
+				item->vEnd = jsonGetFloatC(border, "vEnd", item->vEnd);
 				// item->tile = jsonGetBoolC(border, "tile", 0);
 			}
 			else
@@ -130,31 +186,30 @@ void* loadPanelItemDef(cJSON* item, ItemDefinition* itemDef)
 				itemDef->flags |= flags;
 			}
 
-			item->maxSize = 9999;
-			if (cJSON_GetObjectItem(border, "maxSize"))
-				item->maxSize = jsonGetFloat(border, "maxSize");
+			item->maxSize = jsonGetFloatC(border, "maxSize", 1);
+			item->minSize = jsonGetFloatC(border, "minSize", 0);
 
-			item->minSize = 0;
-			if (cJSON_GetObjectItem(border, "minSize"))
-				item->minSize = jsonGetFloat(border, "minSize");
-
-			jsonGetTex(border, "texture", &item->texture);
+			if ((itemDef->flags & ITEM_FLAGS_NODEFAULTEXPORT) == 0)
+				jsonGetTex(border, "texture", &item->texture);
 
 			popStackFrame();
 		}
 		popStackFrame();
 	}
 
-	for (int i = 0; i < 8; i++)
-		data->props[i].mesh = 0;
+	data->props = 0;
 
 	cJSON* propArr = jsonGetArrayC(item, "props");
 	if (propArr)
 	{
 		int size = cJSON_GetArraySize(propArr);
+		data->props = dynList_new(size, sizeof(Prop));
 		for (int i = 0; i < size; i++)
 		{
 			cJSON* propJson = jsonArrGetObject(propArr, i);
+
+			Prop* prop = &data->props[i];
+
 			int index = 0;
 			const char* id = jsonGetStr(propJson, "id");
 			if (strcmp(id, "top") == 0)
@@ -176,19 +231,59 @@ void* loadPanelItemDef(cJSON* item, ItemDefinition* itemDef)
 			else
 				errorf("bad id '%s'", id);
 
-			Prop* prop = &data->props[index];
+			prop->id = index;
 
-			prop->model = jsonGetStr(propJson, "model");
+			if ((itemDef->flags & ITEM_FLAGS_NODEFAULTEXPORT) == 0)
+			{
+				prop->model = jsonGetStr(propJson, "model");
+				jsonGetTransform(propJson, "transform", prop->pos, prop->rot, prop->transform);
+			}
 			const char* meshName = jsonGetStr(propJson, "editorModel");
 			prop->mesh = assetManagerLoadMesh(meshName);
 			itemDef->flags |= prop->mesh->flags;
 
-			jsonGetTransform(propJson, "transform", prop->pos, prop->rot, prop->transform);
 			jsonGetTransform(propJson, "editorTransform", prop->editorPos, prop->editorRot, prop->editorTransform);
 
 			popStackFrame();
 		}
 		popStackFrame();
+	}
+
+	data->classname = 0;
+
+	if ((itemDef->flags & ITEM_FLAGS_NODEFAULTEXPORT) == 0)
+	{
+		char left = data->items[PANEL_ITEM_ID_LEFT].texture.filename > 0;
+		char right = data->items[PANEL_ITEM_ID_RIGHT].texture.filename > 0;
+		char top = data->items[PANEL_ITEM_ID_TOP].texture.filename > 0;
+		char bottom = data->items[PANEL_ITEM_ID_BOTTOM].texture.filename > 0;
+
+		if (left && top)
+		{
+			if (data->items[PANEL_ITEM_ID_TOP_LEFT].texture.filename == 0)
+				errorf("border top-left must be defined");
+		}
+		if (left && bottom)
+		{
+			if (data->items[PANEL_ITEM_ID_BOTTOM_LEFT].texture.filename == 0)
+				errorf("border bottom-left must be defined");
+		}
+		if (right && top)
+		{
+			if (data->items[PANEL_ITEM_ID_TOP_RIGHT].texture.filename == 0)
+				errorf("border top-right must be defined");
+		}
+		if (right && bottom)
+		{
+			if (data->items[PANEL_ITEM_ID_BOTTOM_RIGHT].texture.filename == 0)
+				errorf("border bottom-right must be defined");
+		}
+
+		jsonGetTex(item, "centerTexture", &data->centerTexture);
+		jsonGetTex(item, "zTexture", &data->zTexture);
+		data->exportThickness = jsonGetInt(item, "thickness");
+
+		data->classname = jsonGetStrCD(item, "entity", 0);
 	}
 
 	float size1 = data->items[PANEL_ITEM_ID_RIGHT].minSize;
@@ -200,15 +295,6 @@ void* loadPanelItemDef(cJSON* item, ItemDefinition* itemDef)
 	size2 = data->items[PANEL_ITEM_ID_BOTTOM].minSize;
 	if (data->minSize[1] < size1 + size2)
 		data->minSize[1] = size1 + size2;
-
-	jsonGetTex(item, "centerTexture", &data->centerTexture);
-	jsonGetTex(item, "zTexture", &data->zTexture);
-	data->exportThickness = jsonGetInt(item, "thickness");
-
-	if (cJSON_GetObjectItem(item, "entity"))
-		data->classname = jsonGetStrD(item, "entity");
-	else
-		data->classname = 0;
 
 	return data;
 }
@@ -326,50 +412,54 @@ void panelItemRender(Item* item)
 
 			if (sizes.leftSize > 0 && sizes.bottomSize > 0)
 			{
+				PanelItemDef* item = &border[PANEL_ITEM_ID_BOTTOM_LEFT];
 				start[0] = xOff;
 				start[1] = yOff;
 				end[0] = sizes.leftSize + xOff;
 				end[1] = sizes.bottomSize + yOff;
 				if (def->slice9)
-					panelDrawRectTile(start, end, border->uStart, border->uEnd, border->vStart, border->vEnd);
+					panelDrawRectTile(start, end, item->uStart, item->uEnd, item->vStart, item->vEnd);
 				else
-					panelDrawRect(start, end, &border[PANEL_ITEM_ID_BOTTOM_LEFT].editorTexture);
+					panelDrawRect(start, end, &item->editorTexture);
 			}
 
 			if (sizes.leftSize > 0 && sizes.centerHeight > 0)
 			{
+				PanelItemDef* item = &border[PANEL_ITEM_ID_LEFT];
 				start[0] = xOff;
 				start[1] = sizes.bottomSize + yOff;
 				end[0] = sizes.leftSize + xOff;
 				end[1] = sizes.bottomSize + sizes.centerHeight + yOff;
 				if (def->slice9)
-					panelDrawRectTile(start, end, border->uStart, border->uEnd, border->vStart, border->vEnd);
+					panelDrawRectTile(start, end, item->uStart, item->uEnd, item->vStart, item->vEnd);
 				else
-					panelDrawRect(start, end, &border[PANEL_ITEM_ID_LEFT].editorTexture);
+					panelDrawRect(start, end, &item->editorTexture);
 			}
 
 			if (sizes.leftSize > 0 && sizes.topSize > 0)
 			{
+				PanelItemDef* item = &border[PANEL_ITEM_ID_TOP_LEFT];
 				start[0] = xOff;
 				start[1] = sizes.bottomSize + sizes.centerHeight + yOff;
 				end[0] = sizes.leftSize + xOff;
 				end[1] = data->size[1] + yOff;
 				if (def->slice9)
-					panelDrawRectTile(start, end, border->uStart, border->uEnd, border->vStart, border->vEnd);
+					panelDrawRectTile(start, end, item->uStart, item->uEnd, item->vStart, item->vEnd);
 				else
-					panelDrawRect(start, end, &border[PANEL_ITEM_ID_TOP_LEFT].editorTexture);
+					panelDrawRect(start, end, &item->editorTexture);
 			}
 
 			if (sizes.centerWidth > 0 && sizes.bottomSize > 0)
 			{
+				PanelItemDef* item = &border[PANEL_ITEM_ID_BOTTOM];
 				start[0] = sizes.leftSize + xOff;
 				start[1] = yOff;
 				end[0] = sizes.leftSize + sizes.centerWidth + xOff;
 				end[1] = sizes.bottomSize + yOff;
 				if (def->slice9)
-					panelDrawRectTile(start, end, border->uStart, border->uEnd, border->vStart, border->vEnd);
+					panelDrawRectTile(start, end, item->uStart, item->uEnd, item->vStart, item->vEnd);
 				else
-					panelDrawRect(start, end, &border[PANEL_ITEM_ID_BOTTOM].editorTexture);
+					panelDrawRect(start, end, &item->editorTexture);
 			}
 
 			if (sizes.centerWidth > 0 && sizes.centerHeight > 0)
@@ -386,64 +476,72 @@ void panelItemRender(Item* item)
 
 			if (sizes.centerWidth > 0 && sizes.topSize > 0)
 			{
+				PanelItemDef* item = &border[PANEL_ITEM_ID_TOP];
 				start[0] = sizes.leftSize + xOff;
 				start[1] = sizes.bottomSize + sizes.centerHeight + yOff;
 				end[0] = sizes.leftSize + sizes.centerWidth + xOff;
 				end[1] = data->size[1] + yOff;
 				if (def->slice9)
-					panelDrawRectTile(start, end, border->uStart, border->uEnd, border->vStart, border->vEnd);
+					panelDrawRectTile(start, end, item->uStart, item->uEnd, item->vStart, item->vEnd);
 				else
-					panelDrawRect(start, end, &border[PANEL_ITEM_ID_TOP].editorTexture);
+					panelDrawRect(start, end, &item->editorTexture);
 			}
 
 			if (sizes.rightSize > 0 && sizes.bottomSize > 0)
 			{
+				PanelItemDef* item = &border[PANEL_ITEM_ID_BOTTOM_RIGHT];
 				start[0] = sizes.leftSize + sizes.centerWidth + xOff;
 				start[1] = yOff;
 				end[0] = data->size[0] + xOff;
 				end[1] = sizes.bottomSize + yOff;
 				if (def->slice9)
-					panelDrawRectTile(start, end, border->uStart, border->uEnd, border->vStart, border->vEnd);
+					panelDrawRectTile(start, end, item->uStart, item->uEnd, item->vStart, item->vEnd);
 				else
-					panelDrawRect(start, end, &border[PANEL_ITEM_ID_BOTTOM_RIGHT].editorTexture);
+					panelDrawRect(start, end, &item->editorTexture);
 			}
 
 			if (sizes.rightSize > 0 && sizes.centerHeight > 0)
 			{
+				PanelItemDef* item = &border[PANEL_ITEM_ID_RIGHT];
 				start[0] = sizes.leftSize + sizes.centerWidth + xOff;
 				start[1] = sizes.bottomSize + yOff;
 				end[0] = data->size[0] + xOff;
 				end[1] = sizes.bottomSize + sizes.centerHeight + yOff;
 				if (def->slice9)
-					panelDrawRectTile(start, end, border->uStart, border->uEnd, border->vStart, border->vEnd);
+					panelDrawRectTile(start, end, item->uStart, item->uEnd, item->vStart, item->vEnd);
 				else
-					panelDrawRect(start, end, &border[PANEL_ITEM_ID_RIGHT].editorTexture);
+					panelDrawRect(start, end, &item->editorTexture);
 			}
 
 			if (sizes.rightSize > 0 && sizes.topSize > 0)
 			{
+				PanelItemDef* item = &border[PANEL_ITEM_ID_TOP_RIGHT];
 				start[0] = sizes.leftSize + sizes.centerWidth + xOff;
 				start[1] = sizes.bottomSize + sizes.centerHeight + yOff;
 				end[0] = data->size[0] + xOff;
 				end[1] = data->size[1] + yOff;
 				if (def->slice9)
-					panelDrawRectTile(start, end, border->uStart, border->uEnd, border->vStart, border->vEnd);
+					panelDrawRectTile(start, end, item->uStart, item->uEnd, item->vStart, item->vEnd);
 				else
-					panelDrawRect(start, end, &border[PANEL_ITEM_ID_TOP_RIGHT].editorTexture);
+					panelDrawRect(start, end, &item->editorTexture);
 			}
 
 			if (def->slice9)
-				bindTexture(def->editorCenterTexture.tex);
-			panelEndFrame(item->transform, 0, 1);
+				panelEndFrame2(item->transform, 0, 1, def->editorCenterTexture.tex);
+			else
+				panelEndFrame(item->transform, 0, 1);
 
-			for (int i = 0; i < 8; i++)
+			if(def->props == 0)
+				return;
+			for (int i = 0; i < dynList_size(def->props); i++)
 			{
 				Prop* prop = &def->props[i];
 				if (prop->mesh == 0)
 					continue;
 				vec3 pos;
 				pos[2] = 0;
-				switch (i)
+				int index = prop->id;
+				switch (index)
 				{
 				case PANEL_ITEM_ID_BOTTOM_LEFT:
 					pos[0] = 0;

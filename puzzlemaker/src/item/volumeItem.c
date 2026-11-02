@@ -71,32 +71,33 @@ void* loadVolumeItemDef(cJSON* item, ItemDefinition* itemDef)
 	jsonGetEditorTex(item, "editorTexture", &data->material, &flags);
 	itemDef->flags |= flags;
 
-	if (cJSON_GetObjectItem(item, "texture"))
+	data->entity = 0;
+	if ((itemDef->flags & ITEM_FLAGS_NODEFAULTEXPORT) == 0)
 	{
-		jsonGetTex(item, "texture", &data->exportMaterial[0]);
-		for (int i = 0; i < 5; i++)
-			memcpy(&data->exportMaterial[i + 1], &data->exportMaterial[0], sizeof(Texture));
-	}
-	else
-	{
-		cJSON* textureJson = cJSON_GetObjectItem(item, "textures");
-		if (textureJson)
+		if (cJSON_GetObjectItem(item, "texture"))
 		{
-			jsonGetTex(textureJson, "right", &data->exportMaterial[DIR_POS_X]);
-			jsonGetTex(textureJson, "left", &data->exportMaterial[DIR_NEG_X]);
-			jsonGetTex(textureJson, "top", &data->exportMaterial[DIR_POS_Y]);
-			jsonGetTex(textureJson, "bottom", &data->exportMaterial[DIR_NEG_Y]);
-			jsonGetTex(textureJson, "back", &data->exportMaterial[DIR_POS_Z]);
-			jsonGetTex(textureJson, "front", &data->exportMaterial[DIR_NEG_Z]);
+			jsonGetTex(item, "texture", &data->exportMaterial[0]);
+			for (int i = 0; i < 5; i++)
+				memcpy(&data->exportMaterial[i + 1], &data->exportMaterial[0], sizeof(Texture));
 		}
 		else
-			errorf("no textures defined");
-	}
+		{
+			cJSON* textureJson = cJSON_GetObjectItem(item, "textures");
+			if (textureJson)
+			{
+				jsonGetTex(textureJson, "right", &data->exportMaterial[DIR_POS_X]);
+				jsonGetTex(textureJson, "left", &data->exportMaterial[DIR_NEG_X]);
+				jsonGetTex(textureJson, "top", &data->exportMaterial[DIR_POS_Y]);
+				jsonGetTex(textureJson, "bottom", &data->exportMaterial[DIR_NEG_Y]);
+				jsonGetTex(textureJson, "back", &data->exportMaterial[DIR_POS_Z]);
+				jsonGetTex(textureJson, "front", &data->exportMaterial[DIR_NEG_Z]);
+			}
+			else
+				errorf("no textures defined");
+		}
 
-	if (cJSON_GetObjectItem(item, "entity"))
-		data->entity = jsonGetStrD(item, "entity");
-	else
-		data->entity = 0;
+		data->entity = jsonGetStrCD(item, "entity", 0);
+	}
 
 	return data;
 }

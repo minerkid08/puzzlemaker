@@ -1,0 +1,86 @@
+{
+	"$schema": "https://json-schema.org/draft-07/schema#",
+	"$defs": {
+		"vec2": {
+			"type": "array",
+			"minItems": 2,
+			"maxItems": 2,
+			"items": {
+				"type": "number"
+			}
+		},
+		"vec3": {
+			"type": "array",
+			"minItems": 3,
+			"maxItems": 3,
+			"items": {
+				"type": "number"
+			}
+		},
+		"transform": {
+			"type": "object",
+			"properties": {
+				"position": {
+					"$ref": "#/$defs/vec3"
+				},
+				"rotation": {
+					"$ref": "#/$defs/vec3"
+				}
+			}
+		},
+		"texture": {
+			"oneOf": [
+				{
+					"type": "string"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"filename": {
+							"type": "string"
+						},
+						"size": {
+							"type": "number",
+							"default": 512
+						},
+						"alignment": {
+							"enum": [
+								"none",
+								"bottom-left",
+								"fit"
+							],
+							"default": "none"
+						}
+					}
+				}
+			]
+		},
+		"editorTexture": {
+			"oneOf": [
+				{
+					"type": "string"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"filename": {
+							"type": "string"
+						},
+						"size": {
+							"type": "number",
+							"default": 1 
+						},
+						"alignment": {
+							"enum": [
+								"none",
+								"bottom-left",
+								"fit"
+							],
+							"default": "fit"
+						}
+					}
+				}
+			]
+		}
+	}
+}

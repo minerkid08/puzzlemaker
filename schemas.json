@@ -1,0 +1,6 @@
+[
+	{
+		"fileMatch": ["items/*.json"],
+		"url": "docs/itemSchema.json"
+	}
+]

@@ -1,0 +1,237 @@
+{
+	"$schema": "https://json-schema.org/draft-07/schema#",
+	"properties": {
+		"minSize": {
+			"$ref": "utilsSchema.json#/$defs/vec2",
+			"default": [
+				0,
+				0
+			]
+		},
+		"maxSize": {
+			"$ref": "utilsSchema.json#/$defs/vec2",
+			"default": [
+				99999,
+				99999
+			]
+		},
+		"defaultSize": {
+			"$ref": "utilsSchema.json#/$defs/vec2",
+			"default": [
+				4,
+				4
+			]
+		},
+		"vertTile": {
+			"type": "boolean",
+			"default": false
+		},
+		"horizTile": {
+			"type": "boolean",
+			"default": false
+		},
+		"9slice": {
+			"type": "boolean",
+			"default": false
+		},
+		"editorCenterTexture": {
+			"$ref": "utilsSchema.json#/$defs/editorTexture"
+		},
+		"borders": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"enum": [
+							"top-left",
+							"top",
+							"top-right",
+							"left",
+							"right",
+							"bottom-left",
+							"bottom",
+							"bottom-right"
+						]
+					},
+					"maxSize": {
+						"type": "number",
+						"default": 1
+					},
+					"minSize": {
+						"type": "number",
+						"default": 0
+					}
+				},
+				"required": [
+					"id"
+				]
+			}
+		},
+		"props": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"enum": [
+							"top-left",
+							"top",
+							"top-right",
+							"left",
+							"right",
+							"bottom-left",
+							"bottom",
+							"bottom-right"
+						]
+					},
+					"model": {
+						"type": "string"
+					},
+					"editorTransform": {
+						"$ref": "utilsSchema.json#/$defs/transform"
+					}
+				},
+				"required": [
+					"id",
+					"model"
+				]
+			}
+		}
+	},
+	"required": [
+		"editorCenterTexture"
+	],
+	"allOf": [
+		{
+			"if": {
+				"properties": {
+					"9slice": {
+						"const": true
+					}
+				},
+				"required": [
+					"9slice"
+				]
+			},
+			"then": {
+				"properties": {
+					"uStart": {
+						"type": "number"
+					},
+					"uEnd": {
+						"type": "number"
+					},
+					"vStart": {
+						"type": "number"
+					},
+					"vEnd": {
+						"type": "number"
+					},
+					"borders": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"uStart": {
+									"type": "number"
+								},
+								"uEnd": {
+									"type": "number"
+								},
+								"vStart": {
+									"type": "number"
+								},
+								"vEnd": {
+									"type": "number"
+								}
+							}
+						}
+					}
+				}
+			},
+			"else": {
+				"properties": {
+					"borders": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"editorTexture": {
+									"$ref": "utilsSchema.json#/$defs/editorTexture"
+								}
+							},
+							"required": [
+								"editorTexture"
+							]
+						}
+					}
+				}
+			}
+		},
+		{
+			"if": {
+				"not": {
+					"properties": {
+						"noDefaultExport": {
+							"const": true
+						}
+					},
+					"required": [
+						"noDefaultExport"
+					]
+				}
+			},
+			"then": {
+				"properties": {
+					"centerTexture": {
+						"$ref": "utilsSchema.json#/$defs/editorTexture"
+					},
+					"zTexture": {
+						"$ref": "utilsSchema.json#/$defs/editorTexture"
+					},
+					"thickness": {
+						"type": "number"
+					},
+					"borders": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"texture": {
+									"$ref": "utilsSchema.json#/$defs/texture"
+								}
+							},
+							"required": [
+								"texture"
+							]
+						}
+					},
+					"props": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"model": {
+									"type": "string"
+								},
+								"transform": {
+									"$ref": "utilsSchema.json#/$defs/transform"
+								}
+							},
+							"required": [
+								"model",
+								"transform"
+							]
+						}
+					}
+				},
+				"required": [
+					"centerTexture",
+					"zTexture",
+					"thickness"
+				]
+			}
+		}
+	]
+}

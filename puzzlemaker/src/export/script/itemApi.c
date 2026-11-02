@@ -1,9 +1,9 @@
-#include "item/item.h"
 #include "dynList.h"
 #include "error.h"
 #include "export/brush.h"
 #include "export/entity.h"
 #include "export/script/api.h"
+#include "item/item.h"
 #include "item/panel.h"
 #include "item/volumeItem.h"
 #include "lua/lauxlib.h"
@@ -228,6 +228,8 @@ int itemInstanceStr(lua_State* l)
 
 int itemDefaultExport(lua_State* l)
 {
+	if (item->def->flags & ITEM_FLAGS_NODEFAULTEXPORT)
+		luaL_error(l, "default export has been disabled for this item");
 	Entity* entityList = getEntityList();
 	Brush* brushList = getBrushArray();
 	int entityCount = dynList_size(entityList);

@@ -39,27 +39,27 @@ void* loadOverlayItemDef(cJSON* item, ItemDefinition* itemDef)
 	char flags = 0;
 	def->texture = assetManagerLoadTexture(textureName, &flags);
 	itemDef->flags |= flags;
-	def->exportTexture = jsonGetStrD(item, "texture");
+	if ((itemDef->flags & ITEM_FLAGS_NODEFAULTEXPORT) == 0)
+		def->exportTexture = jsonGetStrD(item, "texture");
 	jsonGetVec2(item, "size", def->size);
 	return def;
 }
 
 void overlayItemInit(Item* item)
 {
-  item->data = 0;
+	item->data = 0;
 }
-
 
 void overlayItemExport(Item* item)
 {
 	OverlayItemDef* def = item->def->data;
 
-  char* str = itemProcessString(def->exportTexture, item->kv); 
+	char* str = itemProcessString(def->exportTexture, item->kv);
 
 	Overlay* overlay = exportCreateOverlay();
 	overlay->texture = str;
 	overlay->script = 1;
-  char buf[256];
+	char buf[256];
 	snprintf(buf, 256, "%s%d", item->def->id, item->index);
 
 	overlay->name = strdup(buf);

@@ -1,0 +1,35 @@
+{
+	"$schema": "https://json-schema.org/draft-07/schema#",
+	"properties": {
+		"editorTexture": {
+			"$ref": "./utilsSchema.json#/$defs/editorTexture"
+		},
+		"size": {
+			"description": "size of the overlay in hammer units",
+			"$ref": "./utilsSchema.json#/$defs/vec2"
+		}
+	},
+	"required": [
+		"editorTexture",
+		"size"
+	],
+	"if": {
+		"not": {
+			"properties": {
+				"noDefaultExport": {
+					"const": true
+				}
+			},
+			"required": [
+				"noDefaultExport"
+			]
+		}
+	},
+	"then": {
+		"properties": {
+			"texture": {
+				"$ref": "./utilsSchema.json#/$defs/texture"
+			}
+		}
+	}
+}

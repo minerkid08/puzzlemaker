@@ -74,7 +74,6 @@ char running = 0;
 void initCrashHandler();
 int main(int argc, const char** argv)
 {
-	initCrashHandler();
 	commandLine = argv[0];
 	makeDir("maps");
 

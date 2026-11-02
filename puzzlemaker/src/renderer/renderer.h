@@ -13,6 +13,7 @@ void drawVerts2(vec3* verts, vec4 tint, char portalable);
 void setProjMat(mat4 mat);
 void setCamMat(mat4 mat);
 void bindTexture(unsigned int texture);
+void bindPanelTexture(unsigned int texture);
 void bindVoxelTextures(unsigned int black, unsigned int white, unsigned int miniBlack, unsigned int miniWhite);
 
 void panelDrawRect(vec2 start, vec2 end, Texture* texture);
@@ -20,6 +21,7 @@ void panelDrawRectTile(vec2 start, vec2 end, float uStart, float uEnd, float vSt
 void overlayDrawRect(vec2 start, vec2 end, unsigned int texture, int tile);
 void drawRect(vec3 v1, vec3 v2, vec3 v3, vec3 v4, Texture* texture);
 void panelEndFrame(mat4 transform, char backfaceCull, char depthTest);
+void panelEndFrame2(mat4 transform, char backfaceCull, char depthTest, unsigned int tex);
 
 mat4* getProjMat();
 mat4* getCamMat();

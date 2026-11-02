@@ -82,18 +82,21 @@ void* loadEntityItemDef(cJSON* item, ItemDefinition* itemDef)
 		def->editorRot[0] = -90;
 	}
 
-	jsonGetTransform(item, "transform", def->positionOffset, def->rotationOffset, 0);
 	jsonGetTransform(item, "editorTransform", def->editorPos, def->editorRot, def->editorTransform);
 
-	if (cJSON_HasObjectItem(item, "instance"))
+	if ((itemDef->flags & ITEM_FLAGS_NODEFAULTEXPORT) == 0)
 	{
-		def->entityName = 0;
-		def->instanceName = jsonGetStrD(item, "instance");
-	}
-	else
-	{
-		def->instanceName = 0;
-		def->entityName = jsonGetStrD(item, "entity");
+		jsonGetTransform(item, "transform", def->positionOffset, def->rotationOffset, 0);
+		if (cJSON_HasObjectItem(item, "instance"))
+		{
+			def->entityName = 0;
+			def->instanceName = jsonGetStrD(item, "instance");
+		}
+		else
+		{
+			def->instanceName = 0;
+			def->entityName = jsonGetStrD(item, "entity");
+		}
 	}
 
 	def->mesh = assetManagerLoadMesh(modelName);

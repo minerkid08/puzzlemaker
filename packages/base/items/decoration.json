@@ -3,16 +3,40 @@
     "type": "panel",
     "id": "window",
     "name": "Window",
-    "editorCenterTexture": "glass.png",
-    "centerTexture": "GLASS/GLASSWINDOW_FROSTED_002",
-    "zTexture": "ANIM_WP/FRAMEWORK/BACKPANELS",
-    "thickness": 2,
+    "editorCenterTexture": "test.png",
     "minSize": [0.5, 0.5],
     "maxSize": [99999, 99999],
     "snapMode": "mini-center",
     "defaultSize": [2, 2],
-		"transparent": true,
-		"exportScript": "glass.lua"
+		"exportScript": "glass.lua",
+		"9slice": true,
+		"uStart": 0.333333,
+		"vStart": 0.333333,
+		"uEnd": 0.666666,
+		"vEnd": 0.666666,
+		"noDefaultExport": true,
+		"borders": [
+			{
+				"id": "top",
+				"minSize": 0.5,
+				"maxSize": 0.5
+			},
+			{
+				"id": "left",
+				"minSize": 0.5,
+				"maxSize": 0.5
+			},
+			{
+				"id": "right",
+				"minSize": 0.5,
+				"maxSize": 0.5
+			},
+			{
+				"id": "bottom",
+				"minSize": 0.5,
+				"maxSize": 0.5
+			}
+		]
   },
   {
     "type": "panel",
@@ -23,14 +47,11 @@
       "size": 1,
       "alignment": "none"
     },
-    "centerTexture": "GLASS/GLASSWINDOW_FROSTED_002",
-    "zTexture": "ANIM_WP/FRAMEWORK/BACKPANELS",
-    "thickness": 2,
     "minSize": [0.5, 0.5],
     "maxSize": [99999, 99999],
     "snapMode": "mini-center",
     "defaultSize": [2, 2],
-		"transparent": true,
+		"noDefaultExport": true,
 		"exportScript": "grate.lua"
   }
 ]

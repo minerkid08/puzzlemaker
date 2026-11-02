@@ -77,7 +77,7 @@ unsigned int assetManagerLoadTexture(const char* filename, char* flags)
 	const char* file = filename + offset;
 
 	int len = dynList_size(textures);
-	char* textureName = strdupf("packages/%s/assets/materials/%s", package->name, file);
+	char* textureName = strdupf("packages/%s/materials/%s", package->name, file);
 	for (int i = 0; i < len; i++)
 	{
 		TextureAsset* asset = &textures[i];
@@ -111,7 +111,7 @@ Mesh* assetManagerLoadMesh(const char* filename)
 	Package* package = processPackageString(currentPackage, filename, &offset);
 	const char* file = filename + offset;
 
-	char* meshName = strdupf("packages/%s/assets/models/%s", package->name, file);
+	char* meshName = strdupf("packages/%s/models/%s", package->name, file);
 	int len = dynList_size(meshes);
 	for (int i = 0; i < len; i++)
 	{

@@ -16,7 +16,7 @@ typedef struct
 	float uScale;
 	float voff;
 	float vScale;
-  char allignment;
+  char alignment;
 } Side;
 
 typedef struct

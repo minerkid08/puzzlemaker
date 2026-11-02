@@ -29,7 +29,7 @@ unsigned int loadTexture(Package* package, const char* filename, char* flags)
 	int l = strlen(filename) + 18;
 	char* buf = malloc(l);
 
-	snprintf(buf, l, "assets/materials/%s\n", filename);
+	snprintf(buf, l, "materials/%s", filename);
 	buf[l - 1] = 0;
 
 	int channels;

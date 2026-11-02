@@ -46,9 +46,9 @@ for i = 1, tile[2] do
 	laser:setTexture(Direction.NEG_X, "TOOLS/TOOLSNODRAW");
 	laser:setTexture(Direction.POS_Y, "TOOLS/TOOLSNODRAW");
 	laser:setTexture(Direction.NEG_Y, "TOOLS/TOOLSNODRAW");
-	---@type BrushTexOpts
+	---@type TextureOpts
 	local opts = {
-		allignment = BrushAllignment.Fit,
+		alignment = TextureAlignment.Fit,
 		texSize = 1024,
 		vOffset = 256
 	};

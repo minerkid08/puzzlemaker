@@ -91,7 +91,7 @@ void exportEntityAddKv(Entity* ent, ItemKv* kv)
 			else
 			{
 				Item* target = getItem(kv->value.i);
-				buf = strdupf("\"replace%02d\" \"$%s %s%d\"", len, def->name, target->def->name, target->index);
+				buf = strdupf("\"replace%02d\" \"$%s %s%d\"", len, def->name, target->def->id, target->index);
 			}
 		}
 		if (type == TYPE_VEC3)
@@ -144,7 +144,7 @@ void exportEntityAddKv(Entity* ent, ItemKv* kv)
 			else
 			{
 				Item* target = getItem(kv->value.i);
-				buf = strdupf("\"%s\" \"%s%d\"", def->name, target->def->name, target->index);
+				buf = strdupf("\"%s\" \"%s%d\"", def->name, target->def->id, target->index);
 			}
 		}
 	}

@@ -92,7 +92,7 @@ Brush* exportCreateBrush(vec3 start, vec3 end)
 		side->id = sideId;
 		sideId++;
 		side->lightmapscale = 16;
-		side->allignment = TEX_ALIGNMENT_NONE;
+		side->alignment = TEX_ALIGNMENT_NONE;
 		side->texHeight = 512;
 		side->texWidth = 512;
 		side->material = 0;
@@ -204,7 +204,7 @@ void exportBrush(FILE* file, Brush* brush)
 		uDir[2] = side->verts[3][2] - side->verts[2][2];
 
 		float horizScale = side->uScale;
-		if (side->allignment == TEX_ALIGNMENT_FIT)
+		if (side->alignment == TEX_ALIGNMENT_FIT)
 		{
 			float width = sqrtf(uDir[0] * uDir[0] + uDir[1] * uDir[1] + uDir[2] * uDir[2]);
 			horizScale = width / side->texWidth;
@@ -227,7 +227,7 @@ void exportBrush(FILE* file, Brush* brush)
 		glm_mat4_mulv3(m, vDir, 1, vDir);
 
 		float vertScale = side->vScale;
-		if (side->allignment == TEX_ALIGNMENT_FIT)
+		if (side->alignment == TEX_ALIGNMENT_FIT)
 		{
 			float height = sqrtf(vDir[0] * vDir[0] + vDir[1] * vDir[1] + vDir[2] * vDir[2]);
 			vertScale = height / side->texHeight;
@@ -237,7 +237,7 @@ void exportBrush(FILE* file, Brush* brush)
 
 		float xoff = 0;
 		float yoff = 0;
-		if (side->allignment != TEX_ALIGNMENT_NONE)
+		if (side->alignment != TEX_ALIGNMENT_NONE)
 		{
 			vec3 zero = {0, 0, 0};
 			vec3 intersect;

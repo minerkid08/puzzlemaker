@@ -174,7 +174,7 @@ void volumeItemExport(Item* item)
 		side->material = tex->filename;
 		side->texHeight = tex->size;
 		side->texWidth = tex->size;
-		side->allignment = tex->alignment;
+		side->alignment = tex->alignment;
 		for (int j = 0; j < 4; j++)
 		{
 			vec3 res;

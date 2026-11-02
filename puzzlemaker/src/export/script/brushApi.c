@@ -2,7 +2,6 @@
 #include "export/brush.h"
 #include "lua/lauxlib.h"
 #include "lua/lua.h"
-#include "renderer/texture.h"
 #include "utils.h"
 #include <string.h>
 
@@ -27,15 +26,6 @@ Brush* luaGetBrush(lua_State* l, int pos)
 
 void addBrushApi(lua_State* l)
 {
-	lua_newtable(l);
-	lua_pushnumber(l, TEX_ALIGNMENT_NONE);
-	lua_setfield(l, -2, "None");
-	lua_pushnumber(l, TEX_ALIGNMENT_BOTTOM_LEFT);
-	lua_setfield(l, -2, "BottomLeft");
-	lua_pushnumber(l, TEX_ALIGNMENT_FIT);
-	lua_setfield(l, -2, "Fit");
-	lua_setglobal(l, "BrushAllignment");
-
 	lua_newtable(l);
 
 	luaL_newmetatable(l, "brush");
@@ -129,19 +119,15 @@ static int brushSetTexture(lua_State* l)
 		}
 		lua_pop(l, 1);
 
-		lua_getfield(l, 4, "fit");
+		lua_getfield(l, 4, "alignment");
 		type = lua_type(l, -1);
 		if (type != LUA_TNIL)
 		{
-			if (type != LUA_TBOOLEAN)
-				luaL_argerror(l, 4, "bad type for field 'allignment', expected number?");
-			const char* s = lua_tostring(l, -1);
-			if (strcmp(s, "none") == 0)
-				side->allignment = TEX_ALIGNMENT_NONE;
-			if (strcmp(s, "bottom-left") == 0)
-				side->allignment = TEX_ALIGNMENT_BOTTOM_LEFT;
-			if (strcmp(s, "fit") == 0)
-				side->allignment = TEX_ALIGNMENT_FIT;
+			if (type != LUA_TNUMBER)
+				luaL_argerror(l, 4, "bad type for field 'alignment', expected number?");
+			side->alignment = lua_tonumber(l, -1);
+			if (side->alignment < 0 || side->alignment > 5)
+				luaL_argerror(l, 4, "bad type for field 'alignment', value out of range");
 		}
 		lua_pop(l, 1);
 
@@ -219,44 +205,33 @@ static int brushTransform(lua_State* l)
 	transform[3][1] = pos[1];
 	transform[3][2] = pos[2];
 
-	memcpy(pos, brush->pos, sizeof(vec3));
-	memcpy(rot, brush->rot, sizeof(vec3));
-
-	rot[0] = glm_rad(rot[0]);
-	rot[1] = glm_rad(rot[1]);
-	rot[2] = glm_rad(rot[2]);
+	rot[0] = glm_rad(brush->rot[0]);
+	rot[1] = glm_rad(brush->rot[1]);
+	rot[2] = glm_rad(brush->rot[2]);
 
 	mat4 trans2;
 	glm_euler_yxz(rot, trans2);
-	trans2[3][0] = pos[0];
-	trans2[3][1] = pos[1];
-	trans2[3][2] = pos[2];
+	trans2[3][0] = brush->pos[0];
+	trans2[3][1] = brush->pos[1];
+	trans2[3][2] = brush->pos[2];
 
 	glm_mat4_mul(transform, trans2, trans2);
 
-	pos[0] = trans2[3][0];
-	pos[1] = trans2[3][1];
-	pos[2] = trans2[3][2];
+	brush->pos[0] = trans2[3][0];
+	brush->pos[1] = trans2[3][1];
+	brush->pos[2] = trans2[3][2];
 
 	getEulerAngles(trans2, rot);
-	rot[0] = glm_deg(rot[0]);
-	rot[1] = glm_deg(rot[1]);
-	rot[2] = glm_deg(rot[2]);
-	memcpy(brush->pos, pos, sizeof(vec3));
-	memcpy(brush->rot, rot, sizeof(vec3));
+	brush->rot[0] = glm_deg(rot[0]);
+	brush->rot[1] = glm_deg(rot[1]);
+	brush->rot[2] = glm_deg(rot[2]);
 
 	for (int i = 0; i < 6; i++)
 	{
 		Side* side = &brush->sides[i];
 
 		for (int j = 0; j < 4; j++)
-		{
-			vec3 res;
-			vec3 vert;
-			memcpy(vert, side->verts[j], sizeof(vec3));
-			glm_mat4_mulv3(transform, vert, 1, res);
-			memcpy(side->verts[j], res, sizeof(vec3));
-		}
+			glm_mat4_mulv3(transform, side->verts[j], 1, side->verts[j]);
 	}
 	return 0;
 }
@@ -268,46 +243,35 @@ static int brushTransformMat(lua_State* l)
 	mat4 transform;
 	luaGetMat4(l, 2, transform);
 
-	vec3 pos;
 	vec3 rot;
-	memcpy(pos, brush->pos, sizeof(vec3));
-	memcpy(rot, brush->rot, sizeof(vec3));
+	rot[0] = glm_rad(brush->rot[0]);
+	rot[1] = glm_rad(brush->rot[1]);
+	rot[2] = glm_rad(brush->rot[2]);
 
-	rot[0] = glm_rad(rot[0]);
-	rot[1] = glm_rad(rot[1]);
-	rot[2] = glm_rad(rot[2]);
-
+	vec3 pos;
 	mat4 trans2;
 	glm_euler_yxz(rot, trans2);
-	trans2[3][0] = pos[0];
-	trans2[3][1] = pos[1];
-	trans2[3][2] = pos[2];
+	trans2[3][0] = brush->pos[0];
+	trans2[3][1] = brush->pos[1];
+	trans2[3][2] = brush->pos[2];
 
 	glm_mat4_mul(transform, trans2, trans2);
 
-	pos[0] = trans2[3][0];
-	pos[1] = trans2[3][1];
-	pos[2] = trans2[3][2];
+	brush->pos[0] = trans2[3][0];
+	brush->pos[1] = trans2[3][1];
+	brush->pos[2] = trans2[3][2];
 
 	getEulerAngles(trans2, rot);
-	rot[0] = glm_deg(rot[0]);
-	rot[1] = glm_deg(rot[1]);
-	rot[2] = glm_deg(rot[2]);
-	memcpy(brush->pos, pos, sizeof(vec3));
-	memcpy(brush->rot, rot, sizeof(vec3));
+	brush->rot[0] = glm_deg(rot[0]);
+	brush->rot[1] = glm_deg(rot[1]);
+	brush->rot[2] = glm_deg(rot[2]);
 
 	for (int i = 0; i < 6; i++)
 	{
 		Side* side = &brush->sides[i];
 
 		for (int j = 0; j < 4; j++)
-		{
-			vec3 res;
-			vec3 vert;
-			memcpy(vert, side->verts[j], sizeof(vec3));
-			glm_mat4_mulv3(transform, vert, 1, res);
-			memcpy(side->verts[j], res, sizeof(vec3));
-		}
+			glm_mat4_mulv3(transform, side->verts[j], 1, side->verts[j]);
 	}
 	return 0;
 }

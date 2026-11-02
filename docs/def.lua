@@ -8,6 +8,23 @@ Direction = {
 	NEG_Z = 5
 };
 
+---@enum TextureAlignment
+TextureAlignment = {
+	None = 0,
+	BottomLeft= 1,
+	Fit = 5
+};
+
+---@class TextureOpts
+---@field texSize number?
+---@field alignment TextureAlignment?
+---@field lightmapSize number?
+---@field rotation number?
+---@field uOffset number?
+---@field vOffset number?
+---@field uScale number?
+---@field vScale number?
+
 ---@class vec2 : [number, number]
 vec2 = {};
 ---@param x number
@@ -148,23 +165,6 @@ function mat4.up(mat) end
 ---@return vec3
 function mat4.right(mat) end
 
----@enum BrushAllignment
-BrushAllignment = {
-	None = 0,
-	BottomLeft= 1,
-	Fit = 5
-}
-
----@class BrushTexOpts
----@field texSize number?
----@field allignment BrushAllignment?
----@field lightmapSize number?
----@field rotation number?
----@field uOffset number?
----@field vOffset number?
----@field uScale number?
----@field vScale number?
-
 ---@class Brush
 Brush = {}
 
@@ -175,7 +175,7 @@ function Brush.new(startPos, endPos) end
 
 ---@param dir Direction
 ---@param texture string
----@param opts BrushTexOpts?
+---@param opts TextureOpts?
 function Brush:setTexture(dir, texture, opts) end
 
 ---@param pos vec3

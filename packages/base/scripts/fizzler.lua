@@ -38,9 +38,9 @@ for i = 1, tile[2] do
 	local leftBrush = Brush.new({ 0, yMin, -1 / 64 }, { 1, yMax, 1 / 64 });
 	local rightBrush = Brush.new({ size[1] - 1, yMin, -1 / 64 }, { size[1], yMax, 1 / 64 });
 
-	---@type BrushTexOpts
+	---@type TextureOpts
 	local opts = {
-		allignment = BrushAllignment.Fit,
+		alignment = TextureAlignment.Fit,
 		texSize = 1024
 	};
 
@@ -61,10 +61,10 @@ for i = 1, tile[2] do
 	rightBrush:setTexture(Direction.NEG_Z, "EFFECTS/FIZZLER_L", opts);
 
 	for _, brush in pairs(brushes) do
-		brush:setTexture(Direction.POS_X, "TOOLS/TOOLSTRIGGER");
-		brush:setTexture(Direction.NEG_X, "TOOLS/TOOLSTRIGGER");
-		brush:setTexture(Direction.POS_Y, "TOOLS/TOOLSTRIGGER");
-		brush:setTexture(Direction.NEG_Y, "TOOLS/TOOLSTRIGGER");
+		brush:setTexture(Direction.POS_X, "TOOLS/TOOLSNODRAW");
+		brush:setTexture(Direction.NEG_X, "TOOLS/TOOLSNODRAW");
+		brush:setTexture(Direction.POS_Y, "TOOLS/TOOLSNODRAW");
+		brush:setTexture(Direction.NEG_Y, "TOOLS/TOOLSNODRAW");
 
 		brush:transformMat(transform);
 		ent:attachBrush(brush);

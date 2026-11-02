@@ -266,7 +266,7 @@ void jsonGetEditorTex(const cJSON* json, const char* name, Texture* out, char* f
 		else if (strcmp(alignment, "fit") == 0)
 			out->alignment = TEX_ALIGNMENT_FIT;
 		else if (strcmp(alignment, "bottom-left") == 0)
-			out->alignment = TEX_ALIGNMENT_BOTTOM_LEFT;
+			out->alignment = TEX_ALIGNMENT_NONE;
 		else
 			errorf("invalid alignment mode");
 	}

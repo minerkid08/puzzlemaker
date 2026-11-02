@@ -132,7 +132,7 @@ void loadMesh(Package* package, const char* filename, Mesh* mesh)
 	int l = strlen(filename) + 14;
 	char* buf = malloc(l + 1);
 
-	sprintf(buf, "assets/models/%s", filename);
+	sprintf(buf, "models/%s", filename);
 	buf[l] = 0;
 
 	fastObjCallbacks callbacks;

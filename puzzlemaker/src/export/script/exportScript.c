@@ -61,7 +61,7 @@ static int searcher(lua_State* l)
 {
 	int offset = 0;
 	const char* filename = luaL_checkstring(l, -1);
-	const char* path = "assets/scripts/?.lua;assets/scripts/?/init.lua";
+	const char* path = "scripts/?.lua;scripts/?/init.lua";
 
 	filename = luaL_gsub(l, filename, ".", "/");
 	int res = 0;
@@ -144,7 +144,7 @@ int runExportScript(Item* item2)
 	addMat4Api(l);
 
 	char buf[256];
-	snprintf(buf, sizeof(buf) - 1, "assets/scripts/%s", item->def->exportScript);
+	snprintf(buf, sizeof(buf) - 1, "scripts/%s", item->def->exportScript);
 	int fileLen;
 	int offset = 0;
 	Package* package = processPackageString(item->def->package, buf, &offset);

@@ -65,5 +65,33 @@
         "falseOutput": "OnHitMin"
       }
     ]
+	},
+	{
+    "type": "entity",
+		"id": "auto",
+		"name": "Auto",
+		"model": "relay.obj",
+    "entity": "logic_auto",
+    "snapMode": "mini-corner",
+    "bound1": [-0.25, -0.25, -0.25],
+    "bound2": [0.25, 0.25, 0.25],
+    "outputs": [
+      {
+        "name": "On Map Spawn",
+        "trueOutput": "OnMapSpawn"
+      },
+      {
+        "name": "On New Game",
+        "trueOutput": "OnNewGame"
+      },
+      {
+        "name": "On Map Transition",
+        "trueOutput": "OnMapTransition"
+      },
+      {
+        "name": "On Background Map",
+        "trueOutput": "OnBackgroundMap"
+      }
+    ]
 	}
 ]

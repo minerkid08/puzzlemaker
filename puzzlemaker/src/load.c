@@ -316,6 +316,7 @@ void load()
 				jsonGetVec3(segmentJson, "pos", seg->pos);
 				jsonGetVec3(segmentJson, "rot", seg->rot);
 				seg->len = jsonGetInt(segmentJson, "length");
+				seg->cornerMode = jsonGetIntC(segmentJson, "cornerMode", 0);
 				antlineUpdateTransformRot(seg);
 				popStackFrame();
 			}

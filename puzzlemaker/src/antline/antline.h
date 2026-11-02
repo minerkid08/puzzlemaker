@@ -2,9 +2,9 @@
 
 #include "cglm/types.h"
 
-#define CORNER_MODE_AUTO 1
-#define CORNER_MODE_ENABLED 2
-#define CORNER_MODE_DISABLED 3
+#define CORNER_MODE_AUTO 0
+#define CORNER_MODE_ENABLED 1
+#define CORNER_MODE_DISABLED 2
 
 typedef struct
 {

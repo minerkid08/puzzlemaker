@@ -3,7 +3,7 @@ versioninfo
 	"editorextension" "strata"
 	"editorversion" "400"
 	"editorbuild" "10903"
-	"mapversion" "6"
+	"mapversion" "11"
 	"formatversion" "100"
 	"prefab" "0"
 }
@@ -15,7 +15,7 @@ viewsettings
 	"bSnapToGrid" "1"
 	"bShowGrid" "1"
 	"bShowLogicalGrid" "1"
-	"nGridSpacing" "16"
+	"nGridSpacing" "1"
 	"bShow3DGrid" "0"
 	"nInstanceVisibility" "2"
 	views
@@ -23,33 +23,33 @@ viewsettings
 		v0
 		{
 			"3d" "1"
-			"position" "(-88.7184 -157.3 179.632)"
-			"angle" "[52.6 27.6801 0]"
+			"position" "(53.3722 -120.271 92.8082)"
+			"angle" "[38.11 121.73 0]"
 		}
 		v1
 		{
 			"3d" "0"
-			"position" "(58.5058 77.3284 65536)"
-			"zoom" "3.2098"
+			"position" "(0.561022 -14.8914 65536)"
+			"zoom" "99.229"
 		}
 		v2
 		{
 			"3d" "0"
-			"position" "(0 54.8034 -4.10568)"
-			"zoom" "5.54653"
+			"position" "(65536 1.3875 1.87692)"
+			"zoom" "4.62211"
 		}
 		v3
 		{
 			"3d" "0"
-			"position" "(68.9848 0 0.30914)"
-			"zoom" "123.056"
+			"position" "(8.79661 -65536 -3.447)"
+			"zoom" "13.8015"
 		}
 	}
 }
 world
 {
 	"id" "1"
-	"mapversion" "6"
+	"mapversion" "11"
 	"classname" "worldspawn"
 	"detailmaterial" "detail/detailsprites"
 	"detailvbsp" "detail.vbsp"
@@ -62,7 +62,7 @@ entity
 {
 	"id" "12"
 	"classname" "prop_static"
-	"angles" "-89.9999 270 0"
+	"angles" "0 0 -90"
 	"fademindist" "-1"
 	"fadescale" "1"
 	"model" "models/props_lab/glass_lightcover.mdl"
@@ -72,7 +72,7 @@ entity
 	"skin" "0"
 	"solid" "6"
 	"uniformscale" "1"
-	"origin" "0 -16 1"
+	"origin" "1 -16 0"
 	editor
 	{
 		"color" "255 255 0"
@@ -110,7 +110,7 @@ entity
 	"nearz" "4.0"
 	"spawnflags" "0"
 	"style" "0"
-	"origin" "0 -16 32"
+	"origin" "32 -16 0"
 	editor
 	{
 		"color" "255 255 0"

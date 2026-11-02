@@ -21,14 +21,6 @@
     "deleteIntersectingVoxels": true,
     "deleteIntersectingVoxelsEditor": false,
     "genMissingVoxels": false,
-		"keyvalues": [
-			{
-				"type": "bool",
-				"kv": "startOn",
-				"name": "Start On",
-				"defaultValue": true
-			}
-		],
 		"inputs": [
 			{
 				"name": "Turn On",
@@ -49,14 +41,6 @@
     "deleteIntersectingVoxels": true,
     "deleteIntersectingVoxelsEditor": false,
     "genMissingVoxels": false,
-		"keyvalues": [
-			{
-				"type": "bool",
-				"kv": "startOn",
-				"name": "Start On",
-				"defaultValue": true
-			}
-		],
 		"inputs": [
 			{
 				"name": "Turn On",

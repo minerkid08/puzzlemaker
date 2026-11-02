@@ -199,6 +199,7 @@ void save()
 			jsonArrSetFloat(rot, antlineSeg->rot[1]);
 			jsonArrSetFloat(rot, antlineSeg->rot[2]);
 			cJSON_AddNumberToObject(segJson, "length", antlineSeg->len);
+			cJSON_AddNumberToObject(segJson, "cornerMode", antlineSeg->cornerMode);
 		}
 	}
 

@@ -46,6 +46,7 @@ void* loadOverlayItemDef(cJSON* item, ItemDefinition* itemDef)
 
 void overlayItemInit(Item* item)
 {
+  item->data = 0;
 }
 
 

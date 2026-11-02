@@ -12,7 +12,6 @@
 #include "renderer/renderer.h"
 #include "renderer/texture.h"
 #include "utils.h"
-#include <stdio.h>
 #include <string.h>
 
 static ItemCallbacks callbacks;
@@ -593,9 +592,7 @@ void panelItemExport(Item* item)
 	{
 		entity = exportCreateEntity();
 
-		char buf[20];
-		snprintf(buf, 20, "%s%d", item->def->id, item->index);
-		entity->name = strdup(buf);
+		entity->name = strdupf("%s%d", item->def->id, item->index);
 		entity->className = defData->classname;
 
 		memcpy(entity->pos, item->pos, sizeof(vec3));

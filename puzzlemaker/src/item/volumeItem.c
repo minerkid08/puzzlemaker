@@ -188,13 +188,11 @@ void volumeItemExport(Item* item)
 	if (def->entity)
 	{
 		Entity* ent = exportCreateEntity();
-		char buf[20];
-		snprintf(buf, 20, "%s%d", item->def->id, item->index);
 		memcpy(ent->pos, item->pos, sizeof(vec3));
 		ent->rotation[0] = 0;
 		ent->rotation[1] = 0;
 		ent->rotation[2] = 0;
-		ent->name = strdup(buf);
+		ent->name = strdupf("%s%d", item->def->id, item->index);
 		ent->className = def->entity;
 		exportEntityAddBrush(ent, brush);
 		int l = dynList_size(item->def->staticKvs);

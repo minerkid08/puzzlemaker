@@ -118,9 +118,6 @@ void entityItemExport(Item* item)
 {
 	EntityItemDef* defData = item->def->data;
 
-	char buf[100];
-	snprintf(buf, 100, "%s%d", item->def->id, item->index);
-
 	vec3 itemPos;
 	memcpy(itemPos, item->pos, sizeof(vec3));
 	vec4 itemRot;
@@ -162,7 +159,7 @@ void entityItemExport(Item* item)
 	entRot[2] = glm_deg(entRot[2]);
 	memcpy(entity->rotation, entRot, sizeof(vec3));
 
-	entity->name = strdup(buf);
+	entity->name = strdupf("%s%d", item->def->id, item->index);
 	if (defData->instanceName)
 	{
 		entity->className = "func_instance";

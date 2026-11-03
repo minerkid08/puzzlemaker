@@ -159,7 +159,7 @@ void itemPanelRender()
 			}
 
 			char updateVoxel = 0;
-			if (igDragFloat3("Position", selection.item->pos, 0.01f, 0.0f, 0.0f, "%.3f", 0))
+			if (igDragFloat3("Position", selection.item->pos, 0.01f, 0.0f, 0.0f, 0, 0))
 			{
 				updateVoxel = 1;
 				updateItemTransform(selection.item);

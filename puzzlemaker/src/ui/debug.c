@@ -20,6 +20,8 @@
 static bool open = 0;
 
 extern GLFWwindow* window;
+extern float fps;
+extern float fps2;
 
 void copyEntityItem()
 {
@@ -122,6 +124,9 @@ void itemDebugRender()
 	int treeNodeFlags = ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DefaultOpen;
 
 	igBegin("Item Debug", &open, 0);
+
+  igText("fps:  %.2f", fps);
+  igText("fps2: %.2f", fps2);
 
 	if (igTreeNodeEx_Str("Camera", treeNodeFlags))
 	{

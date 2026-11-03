@@ -204,8 +204,6 @@ void killCompileProcess()
   {
     procRunning = 0;
     TerminateProcess(pi.hProcess, 1);
-    CloseHandle(pi.hProcess);
-    CloseHandle(pi.hThread);
   }
 }
 

@@ -71,6 +71,9 @@ const char* commandLine = 0;
 GLFWwindow* window;
 char running = 0;
 
+float fps = 0;
+float fps2 = 0;
+
 void initCrashHandler();
 int main(int argc, const char** argv)
 {
@@ -131,6 +134,7 @@ int main(int argc, const char** argv)
 		now = glfwGetTime();
 		dt = now - lastTime;
 		lastTime = now;
+		fps = 1 / dt;
 
 		float moveForward = 0.0f;
 		float moveRight = 0.0f;
@@ -191,6 +195,9 @@ int main(int argc, const char** argv)
 
 		uiEndFrame();
 
+		double now2 = glfwGetTime();
+		dt = now2 - now;
+		fps2 = 1 / dt;
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}

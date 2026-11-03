@@ -213,6 +213,8 @@ void jsonGetTex(const cJSON* json, const char* name, Texture* out)
 	cJSON* tex = cJSON_GetObjectItem(json, name);
 	out->alignment = TEX_ALIGNMENT_NONE;
 	out->size = 512;
+	out->scale[0] = 1;
+	out->scale[1] = 1;
 	if (tex == 0)
 		errorf("unknown key '%s'", name);
 	if (cJSON_IsString(tex))
@@ -243,6 +245,8 @@ void jsonGetTex(const cJSON* json, const char* name, Texture* out)
 void jsonGetEditorTex(const cJSON* json, const char* name, Texture* out, char* flags)
 {
 	cJSON* tex = cJSON_GetObjectItem(json, name);
+	out->scale[0] = 1;
+	out->scale[1] = 1;
 	out->alignment = TEX_ALIGNMENT_FIT;
 	out->size = 1;
 	if (tex == 0)

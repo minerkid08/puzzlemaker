@@ -1,57 +1,100 @@
 [
-  {
-    "type": "panel",
-    "id": "window",
-    "name": "Window",
-    "editorCenterTexture": "test.png",
-    "minSize": [0.5, 0.5],
-    "maxSize": [99999, 99999],
-    "snapMode": "mini-center",
-    "defaultSize": [2, 2],
+	{
+		"type": "panel",
+		"id": "window",
+		"name": "Window",
+		"editorCenterTexture": "glassItem.png",
+		"minSize": [
+			0.5,
+			0.5
+		],
+		"maxSize": [
+			99999,
+			99999
+		],
+		"snapMode": "mini-center",
+		"defaultSize": [
+			2,
+			2
+		],
 		"exportScript": "glass.lua",
 		"9slice": true,
-		"uStart": 0.333333,
-		"vStart": 0.333333,
-		"uEnd": 0.666666,
-		"vEnd": 0.666666,
+		"uStart": 0.03125,
+		"vStart": 0.03125,
+		"uEnd": 0.96875,
+		"vEnd": 0.96875,
 		"noDefaultExport": true,
 		"borders": [
 			{
 				"id": "top",
-				"minSize": 0.5,
-				"maxSize": 0.5
+				"minSize": 0.1,
+				"maxSize": 0.1
 			},
 			{
 				"id": "left",
-				"minSize": 0.5,
-				"maxSize": 0.5
+				"minSize": 0.1,
+				"maxSize": 0.1
 			},
 			{
 				"id": "right",
-				"minSize": 0.5,
-				"maxSize": 0.5
+				"minSize": 0.1,
+				"maxSize": 0.1
 			},
 			{
 				"id": "bottom",
-				"minSize": 0.5,
-				"maxSize": 0.5
+				"minSize": 0.1,
+				"maxSize": 0.1
 			}
 		]
-  },
-  {
-    "type": "panel",
-    "id": "grate",
-    "name": "Grating",
-    "editorCenterTexture": {
-			"filename": "grate.png",
-      "size": 1,
-      "alignment": "none"
-    },
-    "minSize": [0.5, 0.5],
-    "maxSize": [99999, 99999],
-    "snapMode": "mini-center",
-    "defaultSize": [2, 2],
+	},
+	{
+		"type": "panel",
+		"id": "grate",
+		"name": "Grating",
+		"editorCenterTexture": "grate.png",
+		"minSize": [
+			0.5,
+			0.5
+		],
+		"maxSize": [
+			99999,
+			99999
+		],
+		"snapMode": "mini-center",
+		"defaultSize": [
+			2,
+			2
+		],
 		"noDefaultExport": true,
-		"exportScript": "grate.lua"
-  }
+		"exportScript": "grate.lua",
+		"9slice": true,
+		"uStart": 0.015625,
+		"vStart": 0.015625,
+		"uEnd": 0.984375,
+		"vEnd": 0.984375,
+		"tileWidth": 1,
+		"tileHeight": 1,
+		"borders": [
+			{
+				"id": "top",
+				"minSize": 0.1,
+				"maxSize": 0.1
+			},
+			{
+				"id": "bottom",
+				"minSize": 0.1,
+				"maxSize": 0.1
+			},
+			{
+				"id": "left",
+				"minSize": 0.1,
+				"maxSize": 0.1
+			},
+			{
+				"id": "right",
+				"minSize": 0.1,
+				"maxSize": 0.1
+			}
+		]
+	}
 ]

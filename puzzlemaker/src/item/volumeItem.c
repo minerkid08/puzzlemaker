@@ -121,6 +121,8 @@ static inline void setVec(vec3 vec, float x, float y, float z)
 
 void volumeItemRender(Item* item)
 {
+	setTransform(item->transform);
+
 	VolumeItemDef* def = item->def->data;
 	VolumeItemData* data = item->data;
 
@@ -128,24 +130,52 @@ void volumeItemRender(Item* item)
 	float y = data->size[1];
 	float z = data->size[2];
 
-	vec3 verts[8];
-	setVec(verts[0], 0, 0, 0);
-	setVec(verts[1], x, 0, 0);
-	setVec(verts[2], 0, y, 0);
-	setVec(verts[3], x, y, 0);
-	setVec(verts[4], 0, 0, z);
-	setVec(verts[5], x, 0, z);
-	setVec(verts[6], 0, y, z);
-	setVec(verts[7], x, y, z);
+	vec3 vertxyz = {0, 0, 0};
+	vec3 vertXyz = {x, 0, 0};
+	vec3 vertxYz = {0, y, 0};
+	vec3 vertXYz = {x, y, 0};
+	vec3 vertxyZ = {0, 0, z};
+	vec3 vertXyZ = {x, 0, z};
+	vec3 vertxYZ = {0, y, z};
+	vec3 vertXYZ = {x, y, z};
 
-	drawRect(verts[1], verts[0], verts[3], verts[2], &def->material);
-	drawRect(verts[4], verts[5], verts[6], verts[7], &def->material);
-	drawRect(verts[0], verts[4], verts[2], verts[6], &def->material);
-	drawRect(verts[5], verts[1], verts[7], verts[3], &def->material);
-	drawRect(verts[0], verts[1], verts[4], verts[5], &def->material);
-	drawRect(verts[2], verts[6], verts[3], verts[7], &def->material);
+	vec3 rectVerts[4];
 
-	panelEndFrame(item->transform, 1, 1);
+	memcpy(rectVerts[0], vertXyz, sizeof(vec3));
+	memcpy(rectVerts[1], vertXyZ, sizeof(vec3));
+	memcpy(rectVerts[2], vertXYZ, sizeof(vec3));
+	memcpy(rectVerts[3], vertXYz, sizeof(vec3));
+	drawRect(rectVerts, &def->material);
+
+	memcpy(rectVerts[0], vertxyZ, sizeof(vec3));
+	memcpy(rectVerts[1], vertxyz, sizeof(vec3));
+	memcpy(rectVerts[2], vertxYz, sizeof(vec3));
+	memcpy(rectVerts[3], vertxYZ, sizeof(vec3));
+	drawRect(rectVerts, &def->material);
+
+	memcpy(rectVerts[0], vertxYz, sizeof(vec3));
+	memcpy(rectVerts[1], vertXYz, sizeof(vec3));
+	memcpy(rectVerts[2], vertXYZ, sizeof(vec3));
+	memcpy(rectVerts[3], vertxYZ, sizeof(vec3));
+	drawRect(rectVerts, &def->material);
+
+	memcpy(rectVerts[0], vertXyz, sizeof(vec3));
+	memcpy(rectVerts[1], vertxyz, sizeof(vec3));
+	memcpy(rectVerts[2], vertxyZ, sizeof(vec3));
+	memcpy(rectVerts[3], vertXyZ, sizeof(vec3));
+	drawRect(rectVerts, &def->material);
+
+	memcpy(rectVerts[0], vertXyZ, sizeof(vec3));
+	memcpy(rectVerts[1], vertxyZ, sizeof(vec3));
+	memcpy(rectVerts[2], vertxYZ, sizeof(vec3));
+	memcpy(rectVerts[3], vertXYZ, sizeof(vec3));
+	drawRect(rectVerts, &def->material);
+
+	memcpy(rectVerts[0], vertxyz, sizeof(vec3));
+	memcpy(rectVerts[1], vertXyz, sizeof(vec3));
+	memcpy(rectVerts[2], vertXYz, sizeof(vec3));
+	memcpy(rectVerts[3], vertxYz, sizeof(vec3));
+	drawRect(rectVerts, &def->material);
 }
 
 void volumeItemExport(Item* item)

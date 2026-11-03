@@ -1,11 +1,12 @@
 #include "cjson.h"
 #include "item/item.h"
+#include "renderer/texture.h"
 
 typedef struct
 {
 	const char* exportTexture;
 	vec2 size;
-	unsigned int texture;
+	Texture texture;
 } OverlayItemDef;
 
 void* loadOverlayItemDef(cJSON* json, ItemDefinition* def);

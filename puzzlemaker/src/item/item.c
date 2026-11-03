@@ -41,6 +41,7 @@ void drawItems()
 			continue;
 		item->def->callbacks->render(item);
 	}
+	endFrame();
 
 	setRenderPass(1);
 	glDepthMask(GL_FALSE);
@@ -55,6 +56,7 @@ void drawItems()
 			continue;
 		item->def->callbacks->render(item);
 	}
+	endFrame();
 	setRenderPass(0);
 	glDepthMask(GL_TRUE);
 

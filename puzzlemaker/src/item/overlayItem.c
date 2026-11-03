@@ -1,10 +1,10 @@
 #include "overlayItem.h"
-#include "assetManager.h"
 #include "export/overlay.h"
 #include "item.h"
 #include "item/item.h"
 #include "jsonUtils.h"
 #include "renderer/renderer.h"
+#include "utils.h"
 #include <string.h>
 
 static ItemCallbacks callbacks;
@@ -35,10 +35,11 @@ void* loadOverlayItemDef(cJSON* item, ItemDefinition* itemDef)
 {
 	itemDef->callbacks = &callbacks;
 	OverlayItemDef* def = malloc(sizeof(OverlayItemDef));
-	const char* textureName = jsonGetStr(item, "editorTexture");
+
 	char flags = 0;
-	def->texture = assetManagerLoadTexture(textureName, &flags);
+	jsonGetEditorTex(item, "editorTexture", &def->texture, &flags);
 	itemDef->flags |= flags;
+
 	if ((itemDef->flags & ITEM_FLAGS_NODEFAULTEXPORT) == 0)
 		def->exportTexture = jsonGetStrD(item, "texture");
 	jsonGetVec2(item, "size", def->size);
@@ -75,11 +76,15 @@ void overlayItemExport(Item* item)
 }
 void overlayItemRender(Item* item)
 {
+	setTransform(item->transform);
 	OverlayItemDef* def = item->def->data;
-	vec2 start = {-def->size[0] / 128.0f, -def->size[1] / 128.0f};
-	vec2 end = {def->size[0] / 128.0f, def->size[1] / 128.0f};
-	overlayDrawRect(start, end, def->texture, 1);
-	panelEndFrame(item->transform, 1, 1);
+	vec3 start = {-def->size[0] / 128.0f, -def->size[1] / 128.0f, 0.05};
+	vec2 size = {def->size[0] / 64.0f, def->size[1] / 64.0f};
+
+	vec3 verts[4];
+	genVerts(DIR_POS_Z, start, size, verts);
+
+	drawRect(verts, &def->texture);
 }
 void overlayItemGetBoundingBox(Item* item, vec3 min, vec3 max)
 {

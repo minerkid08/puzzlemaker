@@ -7,6 +7,7 @@
 #include "jsonUtils.h"
 #include "renderer/debug.h"
 #include "renderer/renderer.h"
+#include "renderer/texture.h"
 #include "selection.h"
 #include "utils.h"
 #include "voxel/itemIntersection.h"
@@ -120,8 +121,15 @@ void antlineUpdateTransformRot(AntlineSegment* antline)
 	memcpy(antline->transform, transform, sizeof(mat4));
 }
 
+static Texture t = {.scale = {1, 1}, .alignment = TEX_ALIGNMENT_FIT};
+
 static void drawAntline(Antline* antline)
 {
+	if (antline->hovered)
+	{
+		setBackfaceCull(0);
+		setDepthTest(0);
+	}
 	if (antline->hasCheck)
 	{
 		int tex = 0;
@@ -129,10 +137,15 @@ static void drawAntline(Antline* antline)
 			tex = antlineConfig->editorCheckActiveTex;
 		else
 			tex = antlineConfig->editorCheckTex;
-		vec2 start = {-antlineConfig->editorCheckSize, -antlineConfig->editorCheckSize};
-		vec2 end = {antlineConfig->editorCheckSize, antlineConfig->editorCheckSize};
-		overlayDrawRect(start, end, tex, 1);
-		panelEndFrame(antline->baseSegment.transform, antline->hovered == 0, antline->hovered == 0);
+		vec3 start = {-antlineConfig->editorCheckSize, -antlineConfig->editorCheckSize, 0.05};
+		vec2 size = {antlineConfig->editorCheckSize * 2, antlineConfig->editorCheckSize * 2};
+
+		vec3 verts[4];
+		genVerts(DIR_POS_Z, start, size, verts);
+		setTransform(antline->baseSegment.transform);
+		t.tex = tex;
+		t.scale[1] = 1;
+		drawRect(verts, &t);
 	}
 
 	int tex = 0;
@@ -145,11 +158,21 @@ static void drawAntline(Antline* antline)
 	{
 		AntlineSegment* segment = &antline->segments[j];
 
-		vec3 start = {-antlineConfig->editorDotSize, -antlineConfig->editorDotSize};
-		vec3 end = {antlineConfig->editorDotSize, antlineConfig->editorDotSize};
-		end[1] *= 2.0f * segment->len - 1;
-		overlayDrawRect(start, end, tex, segment->len);
-		panelEndFrame(segment->transform, antline->hovered == 0, antline->hovered == 0);
+		vec3 start = {-antlineConfig->editorDotSize, -antlineConfig->editorDotSize, 0.05};
+		vec2 size = {antlineConfig->editorDotSize * 2, antlineConfig->editorDotSize};
+		size[1] *= 2.0f * segment->len;
+
+		vec3 verts[4];
+		genVerts(DIR_POS_Z, start, size, verts);
+		setTransform(segment->transform);
+		t.tex = tex;
+		t.scale[1] = segment->len;
+		drawRect(verts, &t);
+	}
+	if (antline->hovered)
+	{
+		setBackfaceCull(1);
+		setDepthTest(1);
 	}
 }
 

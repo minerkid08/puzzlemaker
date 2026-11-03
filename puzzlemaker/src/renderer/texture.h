@@ -11,9 +11,10 @@
 
 typedef struct 
 {
-  unsigned int tex;
   const char* filename;
+  unsigned int tex;
   float size;
+	float scale[2];
   char alignment;
 } Texture;
 

@@ -12,6 +12,7 @@
 #include "renderer/renderer.h"
 #include "renderer/texture.h"
 #include "utils.h"
+#include <math.h>
 #include <string.h>
 
 static ItemCallbacks callbacks;
@@ -70,10 +71,12 @@ void* loadPanelItemDef(cJSON* item, ItemDefinition* itemDef)
 	data->slice9 = jsonGetBoolC(item, "9slice", 0);
 	if (data->slice9)
 	{
-		data->uStart = jsonGetFloat(item, "uStart");
-		data->uEnd = jsonGetFloat(item, "uEnd");
-		data->vStart = jsonGetFloat(item, "vStart");
-		data->vEnd = jsonGetFloat(item, "vEnd");
+		data->slice9Data.uStart = jsonGetFloat(item, "uStart");
+		data->slice9Data.uEnd = jsonGetFloat(item, "uEnd");
+		data->slice9Data.vStart = jsonGetFloat(item, "vStart");
+		data->slice9Data.vEnd = jsonGetFloat(item, "vEnd");
+		data->slice9Data.tileWidth = jsonGetFloatC(item, "tileWidth", 0);
+		data->slice9Data.tileHeight = jsonGetFloatC(item, "tileHeight", 0);
 	}
 
 	char flags = 0;
@@ -88,55 +91,58 @@ void* loadPanelItemDef(cJSON* item, ItemDefinition* itemDef)
 		item->texture.filename = 0;
 		if (data->slice9)
 		{
+			Slice9Data* d = &item->slice9;
+			d->tileWidth = 0;
+			d->tileHeight = 0;
 			switch (i)
 			{
 			case PANEL_ITEM_ID_TOP_LEFT:
-				item->uStart = 0;
-				item->uEnd = data->uStart;
-				item->vStart = data->vEnd;
-				item->vEnd = 1;
+				d->uStart = 0;
+				d->uEnd = data->slice9Data.uStart;
+				d->vStart = data->slice9Data.vEnd;
+				d->vEnd = 1;
 				break;
 			case PANEL_ITEM_ID_TOP:
-				item->uStart = data->uStart;
-				item->uEnd = data->uEnd;
-				item->vStart = data->vEnd;
-				item->vEnd = 1;
+				d->uStart = data->slice9Data.uStart;
+				d->uEnd = data->slice9Data.uEnd;
+				d->vStart = data->slice9Data.vEnd;
+				d->vEnd = 1;
 				break;
 			case PANEL_ITEM_ID_TOP_RIGHT:
-				item->uStart = data->uEnd;
-				item->uEnd = 1;
-				item->vStart = data->vEnd;
-				item->vEnd = 1;
+				d->uStart = data->slice9Data.uEnd;
+				d->uEnd = 1;
+				d->vStart = data->slice9Data.vEnd;
+				d->vEnd = 1;
 				break;
 			case PANEL_ITEM_ID_LEFT:
-				item->uStart = 0;
-				item->uEnd = data->uStart;
-				item->vStart = data->vStart;
-				item->vEnd = data->vEnd;
+				d->uStart = 0;
+				d->uEnd = data->slice9Data.uStart;
+				d->vStart = data->slice9Data.vStart;
+				d->vEnd = data->slice9Data.vEnd;
 				break;
 			case PANEL_ITEM_ID_RIGHT:
-				item->uStart = data->uEnd;
-				item->uEnd = 1;
-				item->vStart = data->vStart;
-				item->vEnd = data->vEnd;
+				d->uStart = data->slice9Data.uEnd;
+				d->uEnd = 1;
+				d->vStart = data->slice9Data.vStart;
+				d->vEnd = data->slice9Data.vEnd;
 				break;
 			case PANEL_ITEM_ID_BOTTOM_LEFT:
-				item->uStart = 0;
-				item->uEnd = data->uStart;
-				item->vStart = 0;
-				item->vEnd = data->vStart;
+				d->uStart = 0;
+				d->uEnd = data->slice9Data.uStart;
+				d->vStart = 0;
+				d->vEnd = data->slice9Data.vStart;
 				break;
 			case PANEL_ITEM_ID_BOTTOM:
-				item->uStart = data->uStart;
-				item->uEnd = data->uEnd;
-				item->vStart = 0;
-				item->vEnd = data->vStart;
+				d->uStart = data->slice9Data.uStart;
+				d->uEnd = data->slice9Data.uEnd;
+				d->vStart = 0;
+				d->vEnd = data->slice9Data.vStart;
 				break;
 			case PANEL_ITEM_ID_BOTTOM_RIGHT:
-				item->uStart = data->uEnd;
-				item->uEnd = 1;
-				item->vStart = 0;
-				item->vEnd = data->vStart;
+				d->uStart = data->slice9Data.uEnd;
+				d->uEnd = 1;
+				d->vStart = 0;
+				d->vEnd = data->slice9Data.vStart;
 				break;
 			}
 		}
@@ -173,11 +179,12 @@ void* loadPanelItemDef(cJSON* item, ItemDefinition* itemDef)
 			PanelItemDef* item = &data->items[index];
 			if (data->slice9)
 			{
-				item->uStart = jsonGetFloatC(border, "uStart", item->uStart);
-				item->uEnd = jsonGetFloatC(border, "uEnd", item->uEnd);
-				item->vStart = jsonGetFloatC(border, "vStart", item->vStart);
-				item->vEnd = jsonGetFloatC(border, "vEnd", item->vEnd);
-				// item->tile = jsonGetBoolC(border, "tile", 0);
+				item->slice9.uStart = jsonGetFloatC(border, "uStart", item->slice9.uStart);
+				item->slice9.uEnd = jsonGetFloatC(border, "uEnd", item->slice9.uEnd);
+				item->slice9.vStart = jsonGetFloatC(border, "vStart", item->slice9.vStart);
+				item->slice9.vEnd = jsonGetFloatC(border, "vEnd", item->slice9.vEnd);
+				item->slice9.tileWidth = jsonGetFloatC(border, "tileWidth", 0);
+				item->slice9.tileHeight = jsonGetFloatC(border, "tileHeight", 0);
 			}
 			else
 			{
@@ -390,6 +397,98 @@ void getPanelSizes(Item* item, PanelSizes* sizes)
 		sizes->centerHeight = data->size[1] - sizes->topSize - sizes->bottomSize;
 }
 
+void drawPanelSegment(PanelItemDef* border, PanelDefData* def, vec2 start, vec2 size)
+{
+	vec3 startPos = {start[0], 0, start[1]};
+	vec3 verts[4];
+	if (def->slice9)
+	{
+		Slice9Data* data;
+		if (border == 0)
+			data = &def->slice9Data;
+		else
+			data = &border->slice9;
+
+		if (data->tileWidth == 0 && data->tileHeight == 0)
+		{
+			genVerts(DIR_POS_Y, startPos, size, verts);
+			drawRectTile(verts, data->uStart, data->uEnd, data->vStart, data->vEnd, &def->editorCenterTexture);
+		}
+		else
+		{
+			float wTile = size[0] / data->tileWidth;
+			float hTile = size[1] / data->tileHeight;
+			int wQuads = floorf(wTile);
+			int hQuads = floorf(hTile);
+			vec3 quadStart = {0, 0, 0};
+			vec2 quadSize = {0, 0};
+
+			float wFrac = wTile - wQuads;
+			float hFrac = hTile - hQuads;
+
+			for (int y = 0; y < hQuads; y++)
+			{
+				quadStart[2] = y * data->tileHeight + start[1];
+				quadSize[1] = data->tileHeight;
+				for (int x = 0; x < wQuads; x++)
+				{
+					quadStart[0] = x * data->tileWidth + start[0];
+					quadSize[0] = data->tileWidth;
+
+					genVerts(DIR_POS_Y, quadStart, quadSize, verts);
+					drawRectTile(verts, data->uStart, data->uEnd, data->vStart, data->vEnd, &def->editorCenterTexture);
+				}
+
+				if (wFrac > 0)
+				{
+					quadStart[0] = wQuads * data->tileWidth + start[0];
+					quadSize[0] = data->tileWidth * wFrac;
+					float uEnd = data->uStart + (data->uEnd - data->uStart) * wFrac;
+
+					genVerts(DIR_POS_Y, quadStart, quadSize, verts);
+					drawRectTile(verts, data->uStart, uEnd, data->vStart, data->vEnd, &def->editorCenterTexture);
+				}
+			}
+
+			if (hFrac > 0)
+			{
+				quadStart[2] = hQuads * data->tileHeight + start[1];
+				quadSize[1] = data->tileHeight * hFrac;
+				for (int x = 0; x < wQuads; x++)
+				{
+					quadStart[0] = x * data->tileWidth + start[0];
+					quadSize[0] = data->tileWidth;
+					float vEnd = data->vStart + (data->vEnd - data->vStart) * hFrac;
+
+					genVerts(DIR_POS_Y, quadStart, quadSize, verts);
+					drawRectTile(verts, data->uStart, data->uEnd, data->vStart, vEnd, &def->editorCenterTexture);
+				}
+			}
+
+			if (wFrac > 0 && hFrac > 0)
+			{
+				quadStart[0] = wQuads * data->tileWidth + start[0];
+				quadSize[0] = data->tileWidth * wFrac;
+				quadStart[2] = hQuads * data->tileHeight + start[1];
+				quadSize[1] = data->tileHeight * hFrac;
+				float uEnd = data->uStart + (data->uEnd - data->uStart) * wFrac;
+				float vEnd = data->vStart + (data->vEnd - data->vStart) * hFrac;
+
+				genVerts(DIR_POS_Y, quadStart, quadSize, verts);
+				drawRectTile(verts, data->uStart, uEnd, data->vStart, vEnd, &def->editorCenterTexture);
+			}
+		}
+	}
+	else
+	{
+		genVerts(DIR_POS_Y, startPos, size, verts);
+		if (border != 0)
+			drawRect(verts, &border->editorTexture);
+		else
+			drawRect(verts, &def->editorCenterTexture);
+	}
+}
+
 void panelItemRender(Item* item)
 {
 	PanelData* data = item->data;
@@ -401,8 +500,9 @@ void panelItemRender(Item* item)
 	getPanelSizes(item, &sizes);
 
 	vec2 start;
-	vec2 end;
+	vec2 size;
 
+	setTransform(item->transform);
 	for (int xTile = 0; xTile < data->tile[0]; xTile++)
 	{
 		float xOff = data->size[0] * xTile;
@@ -410,129 +510,99 @@ void panelItemRender(Item* item)
 		{
 			float yOff = data->size[1] * yTile;
 
-			if (sizes.leftSize > 0 && sizes.bottomSize > 0)
-			{
-				PanelItemDef* item = &border[PANEL_ITEM_ID_BOTTOM_LEFT];
-				start[0] = xOff;
-				start[1] = yOff;
-				end[0] = sizes.leftSize + xOff;
-				end[1] = sizes.bottomSize + yOff;
-				if (def->slice9)
-					panelDrawRectTile(start, end, item->uStart, item->uEnd, item->vStart, item->vEnd);
-				else
-					panelDrawRect(start, end, &item->editorTexture);
-			}
-
-			if (sizes.leftSize > 0 && sizes.centerHeight > 0)
-			{
-				PanelItemDef* item = &border[PANEL_ITEM_ID_LEFT];
-				start[0] = xOff;
-				start[1] = sizes.bottomSize + yOff;
-				end[0] = sizes.leftSize + xOff;
-				end[1] = sizes.bottomSize + sizes.centerHeight + yOff;
-				if (def->slice9)
-					panelDrawRectTile(start, end, item->uStart, item->uEnd, item->vStart, item->vEnd);
-				else
-					panelDrawRect(start, end, &item->editorTexture);
-			}
-
-			if (sizes.leftSize > 0 && sizes.topSize > 0)
-			{
-				PanelItemDef* item = &border[PANEL_ITEM_ID_TOP_LEFT];
-				start[0] = xOff;
-				start[1] = sizes.bottomSize + sizes.centerHeight + yOff;
-				end[0] = sizes.leftSize + xOff;
-				end[1] = data->size[1] + yOff;
-				if (def->slice9)
-					panelDrawRectTile(start, end, item->uStart, item->uEnd, item->vStart, item->vEnd);
-				else
-					panelDrawRect(start, end, &item->editorTexture);
-			}
-
-			if (sizes.centerWidth > 0 && sizes.bottomSize > 0)
-			{
-				PanelItemDef* item = &border[PANEL_ITEM_ID_BOTTOM];
-				start[0] = sizes.leftSize + xOff;
-				start[1] = yOff;
-				end[0] = sizes.leftSize + sizes.centerWidth + xOff;
-				end[1] = sizes.bottomSize + yOff;
-				if (def->slice9)
-					panelDrawRectTile(start, end, item->uStart, item->uEnd, item->vStart, item->vEnd);
-				else
-					panelDrawRect(start, end, &item->editorTexture);
-			}
-
-			if (sizes.centerWidth > 0 && sizes.centerHeight > 0)
-			{
-				start[0] = sizes.leftSize + xOff;
-				start[1] = sizes.bottomSize + yOff;
-				end[0] = sizes.leftSize + sizes.centerWidth + xOff;
-				end[1] = sizes.bottomSize + sizes.centerHeight + yOff;
-				if (def->slice9)
-					panelDrawRectTile(start, end, def->uStart, def->uEnd, def->vStart, def->vEnd);
-				else
-					panelDrawRect(start, end, &def->editorCenterTexture);
-			}
-
-			if (sizes.centerWidth > 0 && sizes.topSize > 0)
-			{
-				PanelItemDef* item = &border[PANEL_ITEM_ID_TOP];
-				start[0] = sizes.leftSize + xOff;
-				start[1] = sizes.bottomSize + sizes.centerHeight + yOff;
-				end[0] = sizes.leftSize + sizes.centerWidth + xOff;
-				end[1] = data->size[1] + yOff;
-				if (def->slice9)
-					panelDrawRectTile(start, end, item->uStart, item->uEnd, item->vStart, item->vEnd);
-				else
-					panelDrawRect(start, end, &item->editorTexture);
-			}
-
+			setBackfaceCull(0);
 			if (sizes.rightSize > 0 && sizes.bottomSize > 0)
 			{
-				PanelItemDef* item = &border[PANEL_ITEM_ID_BOTTOM_RIGHT];
-				start[0] = sizes.leftSize + sizes.centerWidth + xOff;
+				PanelItemDef* panItem = &border[PANEL_ITEM_ID_BOTTOM_RIGHT];
+				start[0] = xOff;
 				start[1] = yOff;
-				end[0] = data->size[0] + xOff;
-				end[1] = sizes.bottomSize + yOff;
-				if (def->slice9)
-					panelDrawRectTile(start, end, item->uStart, item->uEnd, item->vStart, item->vEnd);
-				else
-					panelDrawRect(start, end, &item->editorTexture);
+				size[0] = sizes.rightSize;
+				size[1] = sizes.bottomSize;
+				drawPanelSegment(panItem, def, start, size);
 			}
 
 			if (sizes.rightSize > 0 && sizes.centerHeight > 0)
 			{
-				PanelItemDef* item = &border[PANEL_ITEM_ID_RIGHT];
-				start[0] = sizes.leftSize + sizes.centerWidth + xOff;
+				PanelItemDef* panItem = &border[PANEL_ITEM_ID_RIGHT];
+				start[0] = xOff;
 				start[1] = sizes.bottomSize + yOff;
-				end[0] = data->size[0] + xOff;
-				end[1] = sizes.bottomSize + sizes.centerHeight + yOff;
-				if (def->slice9)
-					panelDrawRectTile(start, end, item->uStart, item->uEnd, item->vStart, item->vEnd);
-				else
-					panelDrawRect(start, end, &item->editorTexture);
+				size[0] = sizes.rightSize;
+				size[1] = sizes.centerHeight;
+				drawPanelSegment(panItem, def, start, size);
 			}
 
 			if (sizes.rightSize > 0 && sizes.topSize > 0)
 			{
-				PanelItemDef* item = &border[PANEL_ITEM_ID_TOP_RIGHT];
-				start[0] = sizes.leftSize + sizes.centerWidth + xOff;
+				PanelItemDef* panItem = &border[PANEL_ITEM_ID_TOP_RIGHT];
+				start[0] = xOff;
 				start[1] = sizes.bottomSize + sizes.centerHeight + yOff;
-				end[0] = data->size[0] + xOff;
-				end[1] = data->size[1] + yOff;
-				if (def->slice9)
-					panelDrawRectTile(start, end, item->uStart, item->uEnd, item->vStart, item->vEnd);
-				else
-					panelDrawRect(start, end, &item->editorTexture);
+				size[0] = sizes.rightSize;
+				size[1] = sizes.topSize;
+				drawPanelSegment(panItem, def, start, size);
 			}
 
-			if (def->slice9)
-				panelEndFrame2(item->transform, 0, 1, def->editorCenterTexture.tex);
-			else
-				panelEndFrame(item->transform, 0, 1);
+			if (sizes.centerWidth > 0 && sizes.bottomSize > 0)
+			{
+				PanelItemDef* panItem = &border[PANEL_ITEM_ID_BOTTOM];
+				start[0] = sizes.rightSize + xOff;
+				start[1] = yOff;
+				size[0] = sizes.centerWidth;
+				size[1] = sizes.bottomSize;
+				drawPanelSegment(panItem, def, start, size);
+			}
 
-			if(def->props == 0)
-				return;
+			if (sizes.centerWidth > 0 && sizes.centerHeight > 0)
+			{
+				start[0] = sizes.rightSize + xOff;
+				start[1] = sizes.bottomSize + yOff;
+				size[0] = sizes.centerWidth;
+				size[1] = sizes.centerHeight;
+				drawPanelSegment(0, def, start, size);
+			}
+
+			if (sizes.centerWidth > 0 && sizes.topSize > 0)
+			{
+				PanelItemDef* panItem = &border[PANEL_ITEM_ID_TOP];
+				start[0] = sizes.rightSize + xOff;
+				start[1] = sizes.bottomSize + sizes.centerHeight + yOff;
+				size[0] = sizes.centerWidth;
+				size[1] = sizes.topSize;
+				drawPanelSegment(panItem, def, start, size);
+			}
+
+			if (sizes.leftSize > 0 && sizes.bottomSize > 0)
+			{
+				PanelItemDef* panItem = &border[PANEL_ITEM_ID_BOTTOM_LEFT];
+				start[0] = sizes.rightSize + sizes.centerWidth + xOff;
+				start[1] = yOff;
+				size[0] = sizes.leftSize;
+				size[1] = sizes.bottomSize;
+				drawPanelSegment(panItem, def, start, size);
+			}
+
+			if (sizes.leftSize > 0 && sizes.centerHeight > 0)
+			{
+				PanelItemDef* panItem = &border[PANEL_ITEM_ID_LEFT];
+				start[0] = sizes.rightSize + sizes.centerWidth + xOff;
+				start[1] = sizes.bottomSize + yOff;
+				size[0] = sizes.leftSize;
+				size[1] = sizes.centerHeight;
+				drawPanelSegment(panItem, def, start, size);
+			}
+
+			if (sizes.leftSize > 0 && sizes.topSize > 0)
+			{
+				PanelItemDef* panItem = &border[PANEL_ITEM_ID_TOP_LEFT];
+				start[0] = sizes.rightSize + sizes.centerWidth + xOff;
+				start[1] = sizes.bottomSize + sizes.centerHeight + yOff;
+				size[0] = sizes.leftSize;
+				size[1] = sizes.topSize;
+				drawPanelSegment(panItem, def, start, size);
+			}
+			setBackfaceCull(1);
+
+			if (def->props == 0)
+				continue;
 			for (int i = 0; i < dynList_size(def->props); i++)
 			{
 				Prop* prop = &def->props[i];

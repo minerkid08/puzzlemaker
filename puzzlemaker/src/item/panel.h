@@ -31,16 +31,19 @@ typedef struct
 
 typedef struct
 {
+	float uStart;
+	float uEnd;
+	float vStart;
+	float vEnd;
+	float tileWidth;
+	float tileHeight;
+} Slice9Data;
+
+typedef struct
+{
 	union {
 		Texture editorTexture;
-		struct
-		{
-			float uStart;
-			float uEnd;
-			float vStart;
-			float vEnd;
-			char tile;
-		};
+		Slice9Data slice9;
 	};
 	Texture texture;
 	float minSize;
@@ -59,10 +62,7 @@ typedef struct
 	int exportThickness;
 	const char* classname;
 
-	float uStart;
-	float uEnd;
-	float vStart;
-	float vEnd;
+	Slice9Data slice9Data;
 
 	vec2 minSize;
 	vec2 maxSize;

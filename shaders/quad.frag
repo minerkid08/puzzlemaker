@@ -30,10 +30,12 @@ void main()
 		case 14:  color = texture(textures[14],  iuv); break;
 		case 15:  color = texture(textures[15],  iuv); break;
 	}
-	color *= itint;
+	color.x *= itint.x;
+	color.y *= itint.y;
+	color.z *= itint.z;
 	if(pass == 0)
 	{
-		if(color.a != 1)
+		if(color.a < 1)
 			discard;
 	}
 	else

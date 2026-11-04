@@ -1,4 +1,5 @@
 #include "renderer.h"
+#include "camera.h"
 #include "cglm/mat4.h"
 #include "cglm/types.h"
 #include "debug.h"
@@ -41,7 +42,6 @@ static char depthTest = 1;
 #define NUM_VERTS NUM_QUADS * 4
 
 static mat4 camMat;
-static mat4 projMat;
 static mat4 transform;
 
 void setRenderPass(int i)
@@ -72,11 +72,6 @@ mat4* getProjMat()
 mat4* getCamMat()
 {
 	return &camMat;
-}
-
-void setProjMat(mat4 mat)
-{
-	memcpy(projMat, mat, sizeof(mat4));
 }
 
 void setCamMat(mat4 mat)
@@ -181,6 +176,7 @@ void endFrame()
 	if (vertCount == 0)
 		return;
 
+	// printf("end frame %d\n", quadCount);
 	glBindVertexArray(va);
 	glBindBuffer(GL_ARRAY_BUFFER, vb);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * vertCount, vertBase);
@@ -336,8 +332,6 @@ void drawRect(vec3* positions, Texture* texture)
 {
 	vec4 tint = {1, 1, 1, 1};
 	drawRectTint(positions, tint, texture);
-	if (!backfaceCull)
-		drawRectTintInv(positions, tint, texture);
 }
 
 void drawRectTint(vec3* positions, vec4 tint, Texture* texture)

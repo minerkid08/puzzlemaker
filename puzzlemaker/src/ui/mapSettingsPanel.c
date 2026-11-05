@@ -99,7 +99,7 @@ void renderMapSettingsUi()
 		igPopID();
 		igBeginDisabled(data->enableFog == 0);
 		igColorEdit3("Primary Color", data->primaryFogColor, 0);
-		igColorEdit3("Secondary Color", data->primaryFogColor, 0);
+		igColorEdit3("Secondary Color", data->secondaryFogColor, 0);
 		igDragFloat("Start", &data->fogStart, 1, 0, 9999, "%.2f", 0);
 		igDragFloat("End", &data->fogEnd, 1, 0, 9999, "%.2f", 0);
 		igDragFloat("Density", &data->fogDensity, 0.001, 0, 1, "%.5f", 0);

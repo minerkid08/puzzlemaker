@@ -1,7 +1,10 @@
 #include "cjson.h"
 #include "error.h"
 #include "jsonUtils.h"
+#include "settings.h"
+#include "utils.h"
 #include <stdlib.h>
+#include <string.h>
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 
 #include <cimgui.h>
@@ -152,9 +155,35 @@ static const ThemeElement colorMap[] = {{"Text", ImGuiCol_Text},
 										{"TreeLines", ImGuiCol_TreeLines},
 										{0, 0}};
 
+static char themeLoaded = 0;
+static int colorsLoaded = 0;
+static int stylesLoaded = 0;
+
+void unloadImguiTheme()
+{
+	if (themeLoaded)
+	{
+		igPopStyleVar(stylesLoaded);
+		igPopStyleColor(colorsLoaded);
+		stylesLoaded = 0;
+		colorsLoaded = 0;
+		themeLoaded = 0;
+	}
+}
+
 void loadImguiTheme()
 {
-	FILE* file = fopen("imguiTheme.json", "rb");
+	unloadImguiTheme();
+	
+	igStyleColorsDark(0);
+
+	if (strcmp(editorSettings.theme, "none") == 0)
+		return;
+
+
+	char* name = strdupf("editorThemes/%s", editorSettings.theme);
+	FILE* file = fopen(name, "rb");
+	free(name);
 	if (file == 0)
 		return;
 
@@ -209,8 +238,6 @@ void loadImguiTheme()
 				if (strlen(v) < 7)
 					errorf("string must be at least 7 chars long\n");
 
-				printf("color %s is string\n", elem->name);
-
 				unsigned int col = strtoul(v + 1, 0, 16);
 
 				ImVec4 vec;
@@ -239,6 +266,7 @@ void loadImguiTheme()
 				vec.w /= 255;
 
 				igPushStyleColor_Vec4(elem->value, vec);
+				colorsLoaded++;
 				continue;
 			}
 
@@ -251,6 +279,7 @@ void loadImguiTheme()
 			v.z = jsonArrGetFloat(item, 2);
 			v.w = jsonArrGetFloat(item, 3);
 			igPushStyleColor_Vec4(elem->value, v);
+			colorsLoaded++;
 			popStackFrame();
 		}
 		popStackFrame();
@@ -273,6 +302,7 @@ void loadImguiTheme()
 			if (cJSON_IsNumber(item))
 			{
 				float v = cJSON_GetNumberValue(item);
+				stylesLoaded++;
 				igPushStyleVar_Float(elem->value, v);
 				continue;
 			}
@@ -286,10 +316,12 @@ void loadImguiTheme()
 			v.x = jsonArrGetFloat(item, 0);
 			v.y = jsonArrGetFloat(item, 1);
 			igPushStyleVar_Vec2(elem->value, v);
+			stylesLoaded++;
 			popStackFrame();
 		}
 		popStackFrame();
 	}
 
 	cJSON_Delete(json);
+	themeLoaded = 1;
 }

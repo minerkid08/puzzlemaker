@@ -7,5 +7,6 @@
 	"fov":	90,
 	"rotSnap":	15,
 	"lockMouseOnPan":	true,
-	"gizmoLength":	1
+	"gizmoLength":	1,
+	"theme":	"strata.json"
 }

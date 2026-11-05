@@ -2,6 +2,8 @@
 
 typedef struct
 {
+	const char* theme;
+	const char** themeList;
 	float gizmoLen;
 	float moveSpeed;
 	float boostSpeed;

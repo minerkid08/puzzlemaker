@@ -102,13 +102,14 @@ int main(int argc, const char** argv)
 
 	initRenderer();
 
+	loadEditorSettings();
+
 	initUi(window);
 
 	startCompileThread();
 
 	loadPackageList();
 
-	loadEditorSettings();
 	initVoxels();
 
 	aspect = (float)width / (float)height;
@@ -175,7 +176,7 @@ int main(int argc, const char** argv)
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    //printf("new frame\n");
+		// printf("new frame\n");
 		drawVoxels();
 
 		renderAntlines();
@@ -243,6 +244,15 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 				copyItem(selection.item);
 				return;
 			}
+			if (key == GLFW_KEY_X)
+			{
+				if (selection.type != SELECTION_ITEM)
+					return;
+				copyItem(selection.item);
+				removeItem(selection.item);
+				selection.type = SELECTION_NONE;
+				return;
+			}
 			if (key == GLFW_KEY_V)
 			{
 				vec3 offset;
@@ -292,6 +302,14 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 			{
 				if (selection.antlineSeg->len > 1)
 					selection.antlineSeg->len--;
+			}
+		}
+		if (key == GLFW_KEY_Z)
+		{
+			if (selection.type == SELECTION_ANTLINE)
+			{
+				addAntlineSegment(selection.antline);
+				mouseMode = MODE_GRAB;
 			}
 		}
 		if (key == GLFW_KEY_R)

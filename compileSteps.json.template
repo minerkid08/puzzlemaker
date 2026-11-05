@@ -14,7 +14,7 @@
 		},
 		{
 			"name": "vrad",
-			"cmd": "%b/vrad -game p2ce sdk_content/maps/puzzlemakerMaps/%f.vmf"
+			"cmd": "%b/vrad -game p2ce -staticproppolys -staticproplightingold -ao sdk_content/maps/puzzlemakerMaps/%f.vmf"
 		},
 		{
 			"name": "cp2",
@@ -22,5 +22,6 @@
 		}
 	],
 	"p2ce": "/home/user/.steam/steam/steamapps/common/Portal% 2% Community% Edition",
+	"maps": "sdk_content/maps",
 	"bin": "bin/linux64"
 }

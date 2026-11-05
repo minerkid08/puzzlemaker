@@ -25,3 +25,5 @@ void openErrorPopup();
 void renderErrorPopup();
 void openErrorPopup();
 void startErrorLoop();
+void openKeybindsPanel();
+void renderKeybinds();

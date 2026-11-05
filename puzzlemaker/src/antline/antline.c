@@ -78,6 +78,17 @@ char isAntlineValid(Antline* antline)
 	return antline->id != -1;
 }
 
+void addAntlineSegment(Antline* antline)
+{
+	int segmentCount = dynList_size(antline->segments);
+	dynList_resize((void**)&antline->segments, segmentCount + 1);
+	memset(&antline->segments[segmentCount], 0, sizeof(AntlineSegment));
+	antlineUpdateTransformRot(&antline->segments[segmentCount]);
+	selection.antlineSeg = &antline->segments[segmentCount];
+	selection.antlineSeg->len = 1;
+	selection.antlineSeg->cornerMode = CORNER_MODE_AUTO;
+}
+
 void antlineUpdateTransform(AntlineSegment* antline)
 {
 	mat4 transform;
@@ -158,7 +169,7 @@ static void drawAntline(Antline* antline)
 	{
 		AntlineSegment* segment = &antline->segments[j];
 
-		vec3 start = {-antlineConfig->editorDotSize, -antlineConfig->editorDotSize, 0.05};
+		vec3 start = {-antlineConfig->editorDotSize, -antlineConfig->editorDotSize, 0.01};
 		vec2 size = {antlineConfig->editorDotSize * 2, antlineConfig->editorDotSize};
 		size[1] *= 2.0f * segment->len;
 

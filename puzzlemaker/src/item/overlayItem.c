@@ -78,7 +78,7 @@ void overlayItemRender(Item* item)
 {
 	setTransform(item->transform);
 	OverlayItemDef* def = item->def->data;
-	vec3 start = {-def->size[0] / 128.0f, -def->size[1] / 128.0f, 0.05};
+	vec3 start = {-def->size[0] / 128.0f, -def->size[1] / 128.0f, 0.01};
 	vec2 size = {def->size[0] / 64.0f, def->size[1] / 64.0f};
 
 	vec3 verts[4];

@@ -56,6 +56,7 @@ AntlineConfig* getAntlineConfig();
 Antline* addAntline();
 void removeAntline(Antline* antline);
 char isAntlineValid(Antline* antline);
+void addAntlineSegment(Antline* antline);
 void renderAntlines();
 void renderAntlineHover();
 void antlineUpdateTransformRot(AntlineSegment* antline);

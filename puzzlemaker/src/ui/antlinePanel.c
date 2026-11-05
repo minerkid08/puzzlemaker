@@ -56,12 +56,7 @@ void antlinePanelRender()
 
 	if (igButton("Add", zero))
 	{
-		dynList_resize((void**)&selection.antline->segments, segmentCount + 1);
-		memset(&selection.antline->segments[segmentCount], 0, sizeof(AntlineSegment));
-		antlineUpdateTransformRot(&selection.antline->segments[segmentCount]);
-		selection.antlineSeg = &selection.antline->segments[segmentCount];
-		selection.antlineSeg->len = 1;
-		selection.antlineSeg->cornerMode = CORNER_MODE_AUTO;
+		addAntlineSegment(selection.antline);
 		updateGrab(cameraPos, forward);
 		segmentCount++;
 	}

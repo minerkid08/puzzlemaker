@@ -70,7 +70,7 @@
     "type": "entity",
 		"id": "auto",
 		"name": "Auto",
-		"model": "relay.obj",
+		"model": "auto.obj",
     "entity": "logic_auto",
     "snapMode": "mini-corner",
     "bound1": [-0.25, -0.25, -0.25],

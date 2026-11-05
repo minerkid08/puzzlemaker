@@ -23,7 +23,10 @@ ImVec2 zero;
 
 unsigned int iconTexture = 0;
 
+char queueThemeUpdate = 0;
 void loadImguiTheme();
+void unloadImguiTheme();
+
 void initUi(GLFWwindow* window)
 {
 	iconTexture = loadTexture(0, "icons.png", 0);
@@ -94,6 +97,13 @@ void uiEndFrame()
 		igUpdatePlatformWindows();
 		igRenderPlatformWindowsDefault(0, 0);
 		glfwMakeContextCurrent(ctx);
+	}
+
+	if(queueThemeUpdate)
+	{
+		unloadImguiTheme();
+		loadImguiTheme();
+		queueThemeUpdate = 0;
 	}
 }
 
@@ -184,6 +194,8 @@ void uiMenuBar()
 			openPackageManager();
 		if (igMenuItem_Bool("Debug", 0, 0, 1))
 			openItemDebug();
+		if (igMenuItem_Bool("Keybinds", 0, 0, 1))
+			openKeybindsPanel();
 		if (igMenuItem_Bool("Style Editor", 0, 0, 1))
 			styleEditor = !styleEditor;
 		igEndMenu();
@@ -222,6 +234,7 @@ void uiMenuBar()
 	renderErrorPopup();
 	igEndMenuBar();
 
+	renderKeybinds();
 	renderMapSettingsUi();
 	renderEditorSettingsUi();
 	if (running && errorActive == 0)

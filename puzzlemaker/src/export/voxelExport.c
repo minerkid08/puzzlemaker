@@ -279,6 +279,62 @@ void checkSubVoxel(Item* item, vec3 pos, float xoff, float yoff, float zoff, Vox
 			voxel->subVoxels |= (1 << SUBVOXEL_xYZ);
 		if (xoff == 1 && yoff == 1 && zoff == 1)
 			voxel->subVoxels |= (1 << SUBVOXEL_XYZ);
+
+		/*
+		if (xoff == 0 && !(voxel->faces & (1 << DIR_NEG_X)))
+		{
+			if (pos[0] - 1 >= 0)
+			{
+				Voxel* v2 = getVoxel(pos[0] - 1, pos[1], pos[2]);
+				if (v2->faces)
+					voxel->portalability[DIR_NEG_X] = 5;
+			}
+		}
+		if (xoff == 1 && !(voxel->faces & (1 << DIR_POS_X)))
+		{
+			if (pos[0] + 1 < MAP_SIZE)
+			{
+				Voxel* v2 = getVoxel(pos[0] + 1, pos[1], pos[2]);
+				if (v2->faces)
+					voxel->portalability[DIR_POS_X] = 5;
+			}
+		}
+		if (yoff == 0 && !(voxel->faces & (1 << DIR_NEG_Y)))
+		{
+			if (pos[1] - 1 >= 0)
+			{
+				Voxel* v2 = getVoxel(pos[0], pos[1] - 1, pos[2]);
+				if (v2->faces)
+					voxel->portalability[DIR_NEG_Y] = 5;
+			}
+		}
+		if (yoff == 1 && !(voxel->faces & (1 << DIR_POS_Y)))
+		{
+			if (pos[1] + 1 < MAP_SIZE)
+			{
+				Voxel* v2 = getVoxel(pos[0], pos[1] + 1, pos[2]);
+				if (v2->faces)
+					voxel->portalability[DIR_POS_Y] = 5;
+			}
+		}
+		if (zoff == 0 && !(voxel->faces & (1 << DIR_NEG_Z)))
+		{
+			if (pos[2] - 1 >= 0)
+			{
+				Voxel* v2 = getVoxel(pos[0], pos[1], pos[2] - 1);
+				if (v2->faces)
+					voxel->portalability[DIR_NEG_Z] = 5;
+			}
+		}
+		if (zoff == 1 && !(voxel->faces & (1 << DIR_POS_Z)))
+		{
+			if (pos[2] + 1 < MAP_SIZE)
+			{
+				Voxel* v2 = getVoxel(pos[0], pos[1], pos[2] + 1);
+				if (v2->faces)
+					voxel->portalability[DIR_POS_Z] = 5;
+			}
+		}*/
 	}
 }
 void exportSubVoxels(int x, int y, int z, Voxel* voxel)
@@ -451,7 +507,7 @@ void exportVoxels()
 							subVoxels[SUBVOXEL_XYZ])
 						{
 							v2->portalability[DIR_NEG_Z] = 4;
-							if (voxel->portalability[DIR_POS_Z] == 5)
+							if (voxel->portalability[DIR_POS_Z] == 5 || v2->faces)
 								v2->faces |= (1 << DIR_NEG_Z);
 						}
 					}
@@ -466,7 +522,7 @@ void exportVoxels()
 							subVoxels[SUBVOXEL_XYz])
 						{
 							v2->portalability[DIR_POS_Z] = 4;
-							if (voxel->portalability[DIR_NEG_Z] == 5)
+							if (voxel->portalability[DIR_NEG_Z] == 5 || v2->faces)
 								v2->faces |= (1 << DIR_POS_Z);
 						}
 					}
@@ -481,7 +537,7 @@ void exportVoxels()
 							subVoxels[SUBVOXEL_XYZ])
 						{
 							v2->portalability[DIR_NEG_X] = 4;
-							if (voxel->portalability[DIR_POS_X] == 5)
+							if (voxel->portalability[DIR_POS_X] == 5 || v2->faces)
 								v2->faces |= (1 << DIR_NEG_X);
 						}
 					}
@@ -496,7 +552,7 @@ void exportVoxels()
 							subVoxels[SUBVOXEL_xYZ])
 						{
 							v2->portalability[DIR_POS_X] = 4;
-							if (voxel->portalability[DIR_NEG_X] == 5)
+							if (voxel->portalability[DIR_NEG_X] == 5 || v2->faces)
 								v2->faces |= (1 << DIR_POS_X);
 						}
 					}
@@ -511,7 +567,7 @@ void exportVoxels()
 							subVoxels[SUBVOXEL_XYZ])
 						{
 							v2->portalability[DIR_NEG_Y] = 4;
-							if (voxel->portalability[DIR_POS_Y] == 5)
+							if (voxel->portalability[DIR_POS_Y] == 5 || v2->faces)
 								v2->faces |= (1 << DIR_NEG_Y);
 						}
 					}
@@ -526,7 +582,7 @@ void exportVoxels()
 							subVoxels[SUBVOXEL_XyZ])
 						{
 							v2->portalability[DIR_POS_Y] = 4;
-							if (voxel->portalability[DIR_NEG_Y] == 5)
+							if (voxel->portalability[DIR_NEG_Y] == 5 || v2->faces)
 								v2->faces |= (1 << DIR_POS_Y);
 						}
 					}

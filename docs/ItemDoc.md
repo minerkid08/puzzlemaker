@@ -53,7 +53,7 @@ corner, center, mini-corner, mini-center
 |rotation|vec3|[0, 0, 0]|rotations happen in the yxz (yaw pitch roll) order|
 
 #### enum KvType (string)  
-int, float, bool, string, bitfield, drop-int, drop-string
+int, float, bool, string, bitfield, item, vec3, vec4, color3, color4, drop-int, drop-string
 
 #### enum TextureAlignment (string)  
 none, fit

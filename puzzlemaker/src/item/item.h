@@ -12,6 +12,9 @@
 #define TYPE_PICKER 5
 #define TYPE_BITFIELD 6
 #define TYPE_VEC3 7
+#define TYPE_VEC4 8
+#define TYPE_COLOR3 9
+#define TYPE_COLOR4 10
 #define TYPE_INSTANCE 64
 #define TYPE_DROPDOWN 128
 

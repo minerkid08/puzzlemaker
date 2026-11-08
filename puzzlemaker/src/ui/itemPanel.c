@@ -150,7 +150,7 @@ void itemPanelRender()
 			igText("%s, %d", selection.item->def->name, selection.item->index);
 			if (igButton("Remove", zero))
 			{
-        igTreePop();
+				igTreePop();
 				removeItem(selection.item);
 				selection.item = 0;
 				selection.type = SELECTION_NONE;
@@ -446,6 +446,12 @@ void itemPanelRender()
 					igSameLine(0, -1);
 					igDragFloat3(kv->def->displayName, kv->value.v, 0.25f, 0.0f, 0.0f, "%.2f", 0);
 				}
+				if (type == TYPE_VEC4)
+					igDragFloat4(kv->def->displayName, kv->value.v, 0.25f, 0.0f, 0.0f, "%.2f", 0);
+				if (type == TYPE_VEC4)
+					igColorEdit3(kv->def->displayName, kv->value.v, 0.0f);
+				if (type == TYPE_VEC4)
+					igColorEdit4(kv->def->displayName, kv->value.v, 0.0f);
 
 				if (type & TYPE_DROPDOWN)
 				{

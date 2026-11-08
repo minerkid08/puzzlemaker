@@ -1,231 +1,301 @@
 {
-	"$schema": "https://json-schema.org/draft-07/schema#",
-	"type": "object",
-	"properties": {
-		"type": {
-			"type": "string",
-			"enum": [
-				"int",
-				"float",
-				"bool",
-				"string",
-				"bitfield",
-				"vec3",
-				"drop-int",
-				"drop-string",
-				"item"
-			]
-		},
-		"kv": {
-			"type": "string"
-		},
-		"name": {
-			"type": "string"
-		}
-	},
-	"required": [
-		"type",
-		"kv"
-	],
-	"allOf": [
-		{
-			"if": {
-				"properties": {
-					"type": {
-						"const": "int"
-					}
-				}
-			},
-			"then": {
-				"properties": {
-					"defaultValue": {
-						"type": "integer"
-					}
-				},
-				"required": [
-					"defaultValue"
-				]
-			}
-		},
-		{
-			"if": {
-				"properties": {
-					"type": {
-						"const": "float"
-					}
-				}
-			},
-			"then": {
-				"properties": {
-					"defaultValue": {
-						"type": "number"
-					}
-				},
-				"required": [
-					"defaultValue"
-				]
-			}
-		},
-		{
-			"if": {
-				"properties": {
-					"type": {
-						"const": "bool"
-					}
-				}
-			},
-			"then": {
-				"properties": {
-					"defaultValue": {
-						"type": "boolean"
-					}
-				},
-				"required": [
-					"defaultValue"
-				]
-			}
-		},
-		{
-			"if": {
-				"properties": {
-					"type": {
-						"const": "string"
-					}
-				}
-			},
-			"then": {
-				"properties": {
-					"defaultValue": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"defaultValue"
-				]
-			}
-		},
-		{
-			"if": {
-				"properties": {
-					"type": {
-						"const": "bitfield"
-					}
-				}
-			},
-			"then": {
-				"properties": {
-					"defaultValue": {
-						"type": "integer"
-					},
-					"options": {
-						"type": "object",
-						"patternProperties": {
-							"^.*$": {
-								"type": "integer"
-							}
-						}
-					}
-				},
-				"required": [
-					"defaultValue",
-					"options"
-				]
-			}
-		},
-		{
-			"if": {
-				"properties": {
-					"type": {
-						"const": "vec3"
-					}
-				}
-			},
-			"then": {
-				"properties": {
-					"defaultValue": {
-						"$ref": "./utilsSchema.json#/$defs/vec3"
-					}
-				},
-				"required": [
-					"defaultValue"
-				]
-			}
-		},
-		{
-			"if": {
-				"properties": {
-					"type": {
-						"const": "drop-int"
-					}
-				}
-			},
-			"then": {
-				"properties": {
-					"defaultValue": {
-						"type": "integer"
-					},
-					"options": {
-						"type": "object",
-						"patternProperties": {
-							"^.*$": {
-								"type": "integer"
-							}
-						}
-					}
-				},
-				"required": [
-					"defaultValue",
-					"options"
-				]
-			}
-		},
-		{
-			"if": {
-				"properties": {
-					"type": {
-						"const": "drop-string"
-					}
-				}
-			},
-			"then": {
-				"properties": {
-					"defaultValue": {
-						"type": "integer"
-					},
-					"options": {
-						"type": "object",
-						"patternProperties": {
-							"^.*$": {
-								"type": "string"
-							}
-						}
-					}
-				},
-				"required": [
-					"defaultValue",
-					"options"
-				]
-			}
-		},
-		{
-			"if": {
-				"properties": {
-					"type": {
-						"const": "item"
-					}
-				}
-			},
-			"then": {
-				"properties": {
-					"required": {
-						"type": "boolean",
-						"default": false
-					}
-				},
-				"required": [
-					"required"
-				]
-			}
-		}
-	]
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": [
+        "int",
+        "float",
+        "bool",
+        "string",
+        "bitfield",
+        "vec3",
+        "vec4",
+        "color3",
+        "color4",
+        "drop-int",
+        "drop-string",
+        "item"
+      ]
+    },
+    "kv": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "type",
+    "kv"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "int"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "defaultValue": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "defaultValue"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "float"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "defaultValue": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "defaultValue"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "bool"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "defaultValue": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "defaultValue"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "string"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "defaultValue": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "defaultValue"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "bitfield"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "defaultValue": {
+            "type": "integer"
+          },
+          "options": {
+            "type": "object",
+            "patternProperties": {
+              "^.*$": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        "required": [
+          "defaultValue",
+          "options"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "vec3"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "defaultValue": {
+            "$ref": "./utilsSchema.json#/$defs/vec3"
+          }
+        },
+        "required": [
+          "defaultValue"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "vec4"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "defaultValue": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 4,
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "defaultValue"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "color3"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "defaultValue": {
+            "$ref": "./utilsSchema.json#/$defs/vec3"
+          }
+        },
+        "required": [
+          "defaultValue"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "color4"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "defaultValue": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 4,
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "defaultValue"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "drop-int"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "defaultValue": {
+            "type": "integer"
+          },
+          "options": {
+            "type": "object",
+            "patternProperties": {
+              "^.*$": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        "required": [
+          "defaultValue",
+          "options"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "drop-string"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "defaultValue": {
+            "type": "integer"
+          },
+          "options": {
+            "type": "object",
+            "patternProperties": {
+              "^.*$": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "defaultValue",
+          "options"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "item"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "required": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "required"
+        ]
+      }
+    }
+  ]
 }

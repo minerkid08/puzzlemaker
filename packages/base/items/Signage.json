@@ -1,29 +1,25 @@
 [
 	{
-    "type": "overlay",
+		"type": "overlay",
 		"id": "arrowSignage",
 		"name": "Arrow Signage",
 		"editorTexture": "arrow.png",
-		"size": [32, 32],
-		"texture": "signage/{texture}",
-		"snapMode": "mini-center",
-		"keyvalues": [
-			{
-				"type": "drop-string",
-				"kv": "texture",
-				"defaultValue": 0,
-				"options": {
-					"arrow": "signage_arrow"
-				}
-			}
-		]
-  },
+		"size": [
+			32,
+			32
+		],
+		"texture": "signage/signage_arrow",
+		"snapMode": "mini-center"
+	},
 	{
-    "type": "overlay",
+		"type": "overlay",
 		"id": "dotsSignage",
 		"name": "Dots Signage",
-		"editorTexture": "arrow.png",
-		"size": [32, 32],
+		"editorTexture": "dots.png",
+		"size": [
+			32,
+			32
+		],
 		"texture": "signage/{texture}",
 		"snapMode": "mini-center",
 		"keyvalues": [
@@ -39,13 +35,16 @@
 				}
 			}
 		]
-  },
+	},
 	{
-    "type": "overlay",
+		"type": "overlay",
 		"id": "indicatorSignage",
 		"name": "Indicator Signage",
-		"editorTexture": "arrow.png",
-		"size": [32, 32],
+		"editorTexture": "indicatorSignage.png",
+		"size": [
+			32,
+			32
+		],
 		"texture": "signage/{texture}",
 		"snapMode": "mini-center",
 		"keyvalues": [
@@ -62,13 +61,16 @@
 				}
 			}
 		]
-  },
-  {
-    "type": "overlay",
+	},
+	{
+		"type": "overlay",
 		"id": "itemSignage",
 		"name": "Item Signage",
 		"editorTexture": "exitSign.png",
-		"size": [32, 32],
+		"size": [
+			32,
+			32
+		],
 		"texture": "signage/{texture}",
 		"snapMode": "mini-center",
 		"keyvalues": [

@@ -19,6 +19,7 @@ float jsonGetFloat(const cJSON* json, const char* name);
 int jsonGetInt(const cJSON* json, const char* name);
 void jsonGetVec2(const cJSON* json, const char* name, vec2 out);
 void jsonGetVec3(const cJSON* json, const char* name, vec3 out);
+void jsonGetVec4(const cJSON* json, const char* name, vec4 out);
 void jsonGetTex(const cJSON* json, const char* name, Texture* out);
 void jsonGetEditorTex(const cJSON* json, const char* name, Texture* out, char* flags);
 void jsonGetTransform(const cJSON* json, const char* name, vec3 pos, vec3 dir, mat4 transform);

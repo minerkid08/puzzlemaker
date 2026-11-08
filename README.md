@@ -33,4 +33,9 @@ Some of the basic key binds are:
  - Q to rotate item 90 deg left
  - E to rotate item 90 deg right
  - C to open item placement menu
-For a full list of key binds open the keymap window at window -> keybinds
+For a full list of key binds open the keybinds window at window -> keybinds
+
+# Community Packages
+### Portal 1 Theme and Helper Items by Crazy.Hair
+[Github](https://github.com/crazy-hair/p2ce-puzzlemaker-assets)
+![alt](images/p1pbr.png)

@@ -1,13 +1,21 @@
 [
 	{
-    "type": "entity",
+		"type": "entity",
 		"id": "target",
 		"name": "Target",
 		"model": "target.obj",
-    "entity": "info_target",
-    "snapMode": "mini-corner",
-    "bound1": [-0.25, -0.25, -0.25],
-    "bound2": [0.25, 0.25, 0.25],
+		"entity": "info_target",
+		"snapMode": "mini-corner",
+		"bound1": [
+			-0.25,
+			-0.25,
+			-0.25
+		],
+		"bound2": [
+			0.25,
+			0.25,
+			0.25
+		],
 		"keyvalues": [
 			{
 				"kv": "spawnflags",
@@ -22,47 +30,79 @@
 		]
 	},
 	{
-    "type": "entity",
+		"type": "entity",
 		"id": "start",
 		"name": "Player Spawn",
 		"model": "start.obj",
-    "entity": "info_player_start",
-    "snapMode": "mini-corner",
-    "bound1": [-0.25, -0.25, -0.25],
-    "bound2": [0.25, 0.25, 0.25],
-    "editorTransform": {
-      "rotation": [90, 0, 0]
-    },
-    "transform": {
-      "rotation": [90, 0, 0]
-    }
+		"entity": "info_player_start",
+		"snapMode": "mini-corner",
+		"bound1": [
+			-0.25,
+			-0.25,
+			-0.25
+		],
+		"bound2": [
+			0.25,
+			0.25,
+			0.25
+		],
+		"editorTransform": {
+			"rotation": [
+				90,
+				0,
+				0
+			]
+		},
+		"transform": {
+			"rotation": [
+				90,
+				0,
+				0
+			]
+		}
 	},
 	{
-    "type": "entity",
+		"type": "entity",
 		"id": "end",
 		"name": "Map End",
 		"model": "end.obj",
-    "entity": "point_clientcommand",
-    "snapMode": "mini-corner",
-    "bound1": [-0.25, -0.25, -0.25],
-    "bound2": [0.25, 0.25, 0.25],
+		"entity": "point_clientcommand",
+		"snapMode": "mini-corner",
+		"bound1": [
+			-0.25,
+			-0.25,
+			-0.25
+		],
+		"bound2": [
+			0.25,
+			0.25,
+			0.25
+		],
 		"inputs": [
 			{
 				"name": "Trigger",
 				"trueInput": "Command",
-        "trueArg": "disconnect"
+				"trueArg": "disconnect"
 			}
 		]
 	},
 	{
-    "type": "entity",
+		"type": "entity",
 		"id": "campaign-manager",
 		"name": "Campaign Manager",
 		"model": "campaignManager.obj",
-    "entity": "info_campaign_manager",
-    "snapMode": "mini-corner",
-    "bound1": [-0.25, -0.25, -0.25],
-    "bound2": [0.25, 0.25, 0.25],
+		"entity": "info_campaign_manager",
+		"snapMode": "mini-corner",
+		"bound1": [
+			-0.25,
+			-0.25,
+			-0.25
+		],
+		"bound2": [
+			0.25,
+			0.25,
+			0.25
+		],
 		"inputs": [
 			{
 				"name": "Next Map",
@@ -79,6 +119,64 @@
 			{
 				"name": "End Campaign",
 				"trueInput": "ExitGame"
+			}
+		]
+	},
+	{
+		"type": "entity",
+		"name": "Portal Placement Helper",
+		"id": "placementHelper",
+		"model": "placementHelper.obj",
+		"entity": "info_placement_helper",
+		"snapMode": "mini-corner",
+		"bound1": [
+			-0.5,
+			-0.85,
+			0
+		],
+		"bound2": [
+			0.5,
+			0.85,
+			0.05
+		],
+		"editorTransform": {
+			"rotation": [
+				0,
+				90,
+				0
+			]
+		},
+		"keyvalues": [
+			{
+				"name": "Correction Radius",
+				"kv": "radius",
+				"type": "int",
+				"defaultValue": 16
+			},
+			{
+				"name": "Force Correction",
+				"kv": "force_placement",
+				"type": "bool",
+				"defaultValue": false
+			},
+			{
+				"name": "Snap To Helper Angles",
+				"kv": "snap_to_helper_angles",
+				"type": "bool",
+				"defaultValue": false
+			},
+			{
+				"name": "Start Disabled",
+				"kv": "startdisabled",
+				"type": "bool",
+				"defaultValue": false
+			}
+		],
+		"inputs": [
+			{
+				"name": "Disable",
+				"trueInput": "Disable",
+				"falseInput": "Enable"
 			}
 		]
 	}

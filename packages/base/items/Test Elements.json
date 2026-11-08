@@ -1,0 +1,979 @@
+[
+	{
+		"type": "entity",
+		"id": "cube",
+		"name": "Cube",
+		"model": "weighted-cube.obj",
+		"entity": "prop_weighted_cube",
+		"transform": {
+			"position": [
+				32,
+				0,
+				0
+			],
+			"rotation": [
+				90,
+				0,
+				0
+			]
+		},
+		"editorTransform": {
+			"rotation": [
+				90,
+				0,
+				0
+			]
+		},
+		"bound1": [
+			-0.3,
+			-0.3,
+			0
+		],
+		"bound2": [
+			0.3,
+			0.3,
+			0.6
+		],
+		"keyvalues": [
+			{
+				"kv": "CubeBehavior",
+				"name": "Behavior",
+				"type": "drop-int",
+				"defaultValue": 0,
+				"options": {
+					"Auto (from Cube Type)": 0,
+					"Standard Cube": 1,
+					"Reflection Cube": 2,
+					"Schrodinger's Cube": 3
+				}
+			},
+			{
+				"kv": "CubeShape",
+				"name": "Shape",
+				"type": "drop-int",
+				"defaultValue": 0,
+				"options": {
+					"Auto (from Cube Type)": 0,
+					"Cubic": 1,
+					"Spherical": 2
+				}
+			},
+			{
+				"kv": "model",
+				"name": "Cube Type",
+				"type": "drop-string",
+				"defaultValue": 0,
+				"options": {
+					"Weighted Storage Cube": "models/props/cubes/standard_cube.mdl",
+					"Weighted Storage Cube (rusty)": "models/props/cubes/standard_cube_rusty.mdl",
+					"Weighted Companion Cube": "models/props/cubes/companion_cube.mdl",
+					"Discouragement Redirection Cube": "models/props/cubes/reflection_cube.mdl",
+					"Discouragement Redirection Cube (rusty)": "models/props/cubes/reflection_cube_rusty.mdl",
+					"Edgeless Safety Cube": "models/props/cubes/sphere.mdl",
+					"Antique Cube": "models/props/cubes/antique_cube.mdl",
+					"Schrodinger's Cube": "models/props/cubes/schrodinger_cube.mdl",
+					"Schrodinger's Cube (rusty)": "models/props/cubes/schrodinger_cube_rusty.mdl"
+				}
+			}
+		],
+		"statickvs": {
+			"newskins": "2"
+		}
+	},
+	{
+		"type": "entity",
+		"id": "dropper",
+		"name": "Cube Dropper",
+		"model": "dropper.obj",
+		"instance": "dropper",
+		"bound1": [
+			-1,
+			-1,
+			0
+		],
+		"bound2": [
+			1,
+			1,
+			2
+		],
+		"snapMode": "mini-corner",
+		"ceiling": true,
+		"keyvalues": [
+			{
+				"kv": "autorespawn",
+				"name": "Auto Respawn",
+				"type": "bool",
+				"defaultValue": true
+			},
+			{
+				"kv": "dropinitial",
+				"name": "Drop Initial",
+				"type": "bool",
+				"defaultValue": true
+			},
+			{
+				"kv": "cubeType",
+				"name": "Cube Type",
+				"type": "drop-string",
+				"defaultValue": 0,
+				"options": {
+					"Weighted Storage Cube": "models/props/cubes/standard_cube.mdl",
+					"Weighted Storage Cube (rusty)": "models/props/cubes/standard_cube_rusty.mdl",
+					"Weighted Companion Cube": "models/props/cubes/companion_cube.mdl",
+					"Discouragement Redirection Cube": "models/props/cubes/reflection_cube.mdl",
+					"Discouragement Redirection Cube (rusty)": "models/props/cubes/reflection_cube_rusty.mdl",
+					"Edgeless Safety Cube": "models/props/cubes/sphere.mdl",
+					"Antique Cube": "models/props/cubes/antique_cube.mdl",
+					"Schrodinger's Cube": "models/props/cubes/schrodinger_cube.mdl",
+					"Schrodinger's Cube (rusty)": "models/props/cubes/schrodinger_cube_rusty.mdl"
+				}
+			}
+		],
+		"inputs": [
+			{
+				"name": "Drop Cube",
+				"trueInput": "instance:drop;Test"
+			}
+		]
+	},
+	{
+		"type": "entity",
+		"id": "button",
+		"name": "Floor Button",
+		"model": "button.obj",
+		"instance": "button",
+		"exportScript": "baseTexture.lua",
+		"bound1": [
+			-1,
+			-1,
+			0
+		],
+		"bound2": [
+			1,
+			1,
+			0.3
+		],
+		"floor": true,
+		"keyvalues": [
+			{
+				"name": "Portaliblity",
+				"kv": "portal",
+				"type": "drop-string",
+				"defaultValue": 0,
+				"options": {
+					"Black": "%buttonBaseBlack%surf%.vmf",
+					"Wlack": "%buttonBaseWhite%surf%.vmf"
+				}
+			}
+		],
+		"inputs": [],
+		"snapMode": "corner",
+		"outputs": [
+			{
+				"name": "On Press",
+				"trueOutput": "instance:button;OnPressed",
+				"falseOutput": "instance:button;OnUnPressed"
+			}
+		]
+	},
+	{
+		"type": "entity",
+		"id": "ped-button",
+		"name": "Pedistal Button",
+		"model": "pillar-button.obj",
+		"entity": "prop_button",
+		"bound1": [
+			-0.2,
+			-0.2,
+			0
+		],
+		"bound2": [
+			0.2,
+			0.2,
+			1.125
+		],
+		"snapMode": "mini-corner",
+		"floor": true,
+		"keyvalues": [
+			{
+				"kv": "skin",
+				"name": "Skin",
+				"type": "drop-int",
+				"defaultValue": 0,
+				"options": {
+					"Clean": 0,
+					"Dirty": 1
+				}
+			},
+			{
+				"kv": "delay",
+				"name": "Time Until Reset",
+				"type": "float",
+				"defaultValue": 1.0
+			},
+			{
+				"kv": "istimer",
+				"name": "Play Timer Sound",
+				"type": "bool",
+				"defaultValue": false
+			},
+			{
+				"kv": "preventfastreset",
+				"name": "Prevent Fast Reset",
+				"type": "bool",
+				"defaultValue": false
+			}
+		],
+		"outputs": [
+			{
+				"name": "On Press",
+				"trueOutput": "OnPressed",
+				"falseOutput": "OnButtonReset"
+			}
+		],
+		"statickvs": {
+			"solid": "1"
+		}
+	},
+	{
+		"type": "entity",
+		"id": "door",
+		"name": "Door",
+		"model": "door.obj",
+		"mat": "door.png",
+		"instance": "door-{portalability}",
+		"bound1": [
+			-1,
+			-0.5,
+			0
+		],
+		"bound2": [
+			1,
+			0,
+			2
+		],
+		"floor": true,
+		"snapMode": "mini-corner",
+		"keyvalues": [
+			{
+				"kv": "portalability",
+				"name": "Portalibility",
+				"type": "bitfield",
+				"defaultValue": 0,
+				"options": {
+					"front": 0,
+					"back": 1
+				}
+			},
+			{
+				"kv": "open",
+				"name": "Start Open",
+				"type": "bool",
+				"defaultValue": false
+			}
+		],
+		"inputs": [
+			{
+				"name": "Open",
+				"trueInput": "instance:door;Open",
+				"falseInput": "instance:door;Close"
+			},
+			{
+				"name": "Lock",
+				"trueInput": "instance:door;Lock",
+				"falseInput": "instance:door;Unlock"
+			}
+		]
+	},
+	{
+		"type": "entity",
+		"id": "laser",
+		"name": "Laser Emitter",
+		"model": "laser.obj",
+		"entity": "env_portal_laser",
+		"bound1": [
+			-0.5,
+			-0.5,
+			-0.5
+		],
+		"bound2": [
+			0.5,
+			0.5,
+			0.1
+		],
+		"snapMode": "mini-corner",
+		"deleteIntersectingVoxels": true,
+		"deleteIntersectingVoxelsEditor": false,
+		"transform": {
+			"position": [
+				-16,
+				0,
+				0
+			]
+		},
+		"keyvalues": [
+			{
+				"kv": "startstate",
+				"name": "Start Disabled",
+				"type": "bool",
+				"defaultValue": false
+			},
+			{
+				"kv": "model",
+				"type": "drop-string",
+				"name": "Model",
+				"defaultValue": 0,
+				"options": {
+					"centered": "models/props/laser_emitter_center.mdl",
+					"offset": "models/props/laser_emitter.mdl"
+				}
+			},
+			{
+				"kv": "skin",
+				"name": "Skin",
+				"type": "drop-int",
+				"defaultValue": 0,
+				"options": {
+					"Clean": 0,
+					"Dirty": 1
+				}
+			},
+			{
+				"kv": "noplacementhelper",
+				"name": "Disable Placment Helper",
+				"type": "bool",
+				"defaultValue": false
+			},
+			{
+				"kv": "disableplayercollision",
+				"name": "Disable Player Collision",
+				"type": "bool",
+				"defaultValue": true
+			},
+			{
+				"kv": "lethaldamage",
+				"name": "Lethal",
+				"type": "bool",
+				"defaultValue": false
+			}
+		],
+		"inputs": [
+			{
+				"name": "Enable",
+				"trueInput": "TurnOn",
+				"falseInput": "TurnOff"
+			}
+		]
+	},
+	{
+		"type": "entity",
+		"id": "laser-catcher",
+		"name": "Laser Catcher",
+		"model": "laser-catcher.obj",
+		"entity": "prop_laser_catcher",
+		"bound1": [
+			-0.5,
+			-0.5,
+			-0.5
+		],
+		"bound2": [
+			0.5,
+			0.5,
+			0.1
+		],
+		"snapMode": "mini-corner",
+		"deleteIntersectingVoxels": true,
+		"deleteIntersectingVoxelsEditor": false,
+		"transform": {
+			"position": [
+				-16,
+				0,
+				0
+			]
+		},
+		"keyvalues": [
+			{
+				"kv": "model",
+				"name": "Model",
+				"type": "drop-string",
+				"defaultValue": 0,
+				"options": {
+					"centered": "models/props/laser_catcher_center.mdl",
+					"offset": "models/props/laser_catcher.mdl"
+				}
+			},
+			{
+				"kv": "skintype",
+				"name": "Skin",
+				"type": "drop-int",
+				"defaultValue": 0,
+				"options": {
+					"Clean": 0,
+					"Dirty": 1
+				}
+			}
+		],
+		"outputs": [
+			{
+				"name": "On Powered",
+				"trueOutput": "OnPowered",
+				"falseOutput": "OnUnpowered"
+			}
+		]
+	},
+	{
+		"type": "entity",
+		"id": "laser-relay",
+		"name": "Laser Relay",
+		"model": "laser-relay.obj",
+		"entity": "prop_laser_relay",
+		"bound1": [
+			-0.5,
+			-0.5,
+			-0.5
+		],
+		"bound2": [
+			0.5,
+			0.5,
+			0.1
+		],
+		"snapMode": "mini-corner",
+		"floor": true,
+		"deleteIntersectingVoxels": true,
+		"deleteIntersectingVoxelsEditor": false,
+		"keyvalues": [
+			{
+				"kv": "skintype",
+				"name": "Skin",
+				"type": "drop-int",
+				"defaultValue": 0,
+				"options": {
+					"Clean": 0,
+					"Dirty": 1
+				}
+			}
+		],
+		"statickvs": {
+			"model": "models/props/laser_receptacle.mdl"
+		},
+		"outputs": [
+			{
+				"name": "On Powered",
+				"trueOutput": "OnPowered",
+				"falseOutput": "OnUnpowered"
+			}
+		]
+	},
+	{
+		"type": "panel",
+		"id": "fizzler",
+		"name": "Fizzler",
+		"editorCenterTexture": "fizzler-center.png",
+		"noDefaultExport": true,
+		"exportScript": "fizzler.lua",
+		"minSize": [
+			0,
+			2
+		],
+		"maxSize": [
+			99999,
+			2
+		],
+		"snapMode": "mini-center",
+		"defaultSize": [
+			4,
+			2
+		],
+		"vertTile": true,
+		"borders": [
+			{
+				"id": "left",
+				"editorTexture": "fizzler-left.png",
+				"minSize": 1,
+				"maxSize": 1
+			},
+			{
+				"id": "right",
+				"editorTexture": "fizzler-right.png",
+				"texSize": 1024,
+				"minSize": 1,
+				"maxSize": 1
+			}
+		],
+		"props": [
+			{
+				"id": "left",
+				"editorModel": "fizzler.obj",
+				"editorTransform": {
+					"rotation": [
+						0,
+						90,
+						90
+					]
+				}
+			},
+			{
+				"id": "right",
+				"editorModel": "fizzler.obj",
+				"editorTransform": {
+					"rotation": [
+						0,
+						-90,
+						-90
+					]
+				}
+			}
+		],
+		"inputs": [
+			{
+				"name": "disable",
+				"trueInput": "FireUser1",
+				"falseInput": "FireUser2"
+			}
+		],
+		"keyvalues": [
+			{
+				"kv": "startdisabled",
+				"type": "bool",
+				"defaultValue": false
+			}
+		]
+	},
+	{
+		"type": "panel",
+		"id": "laser-panel",
+		"name": "Laser Field",
+		"noDefaultExport": true,
+		"editorCenterTexture": "laserfield.png",
+		"minSize": [
+			2,
+			2
+		],
+		"maxSize": [
+			99999,
+			2
+		],
+		"snapMode": "mini-center",
+		"vertTile": true,
+		"defaultSize": [
+			4,
+			2
+		],
+		"exportScript": "laserField.lua",
+		"props": [
+			{
+				"id": "left",
+				"editorModel": "laserfield.obj",
+				"model": "help",
+				"editorTransform": {
+					"rotation": [
+						0,
+						90,
+						90
+					]
+				}
+			},
+			{
+				"id": "right",
+				"editorModel": "laserfield.obj",
+				"model": "help",
+				"editorTransform": {
+					"rotation": [
+						0,
+						-90,
+						-90
+					]
+				}
+			}
+		],
+		"inputs": [
+			{
+				"name": "disable",
+				"trueInput": "Disable",
+				"falseInput": "Enable"
+			}
+		],
+		"keyvalues": [
+			{
+				"kv": "startdisabled",
+				"type": "bool",
+				"defaultValue": false
+			}
+		]
+	},
+	{
+		"type": "entity",
+		"id": "bridge",
+		"name": "Light Bridge",
+		"model": "bridge.obj",
+		"entity": "prop_wall_projector",
+		"bound1": [
+			-1.25,
+			-0.25,
+			0
+		],
+		"bound2": [
+			0.75,
+			0.25,
+			0.25
+		],
+		"transform": {
+			"position": [
+				0,
+				-16,
+				0
+			]
+		},
+		"snapMode": "mini-center",
+		"keyvalues": [
+			{
+				"kv": "startenabled",
+				"name": "Enabled",
+				"type": "bool",
+				"defaultValue": true
+			},
+			{
+				"kv": "disablehelper",
+				"name": "Disable Placment Helper",
+				"type": "drop-int",
+				"defaultValue": 0,
+				"options": {
+					"Forward": 250,
+					"Reverse": -250
+				}
+			}
+		],
+		"inputs": [
+			{
+				"name": "Disable",
+				"trueInput": "Disable",
+				"falseInput": "Enable"
+			}
+		]
+	},
+	{
+		"type": "entity",
+		"id": "funnel",
+		"name": "Funnel",
+		"model": "funnel.obj",
+		"instance": "funnel",
+		"bound1": [
+			-1,
+			-1,
+			-1
+		],
+		"bound2": [
+			1,
+			1,
+			0.5
+		],
+		"transform": {
+			"rotation": [
+				90,
+				0,
+				0
+			]
+		},
+		"deleteIntersectingVoxels": true,
+		"deleteIntersectingVoxelsEditor": false,
+		"keyvalues": [
+			{
+				"kv": "enabled",
+				"name": "Enabled",
+				"type": "bool",
+				"defaultValue": true
+			},
+			{
+				"kv": "speed",
+				"name": "Direction",
+				"type": "drop-int",
+				"defaultValue": 0,
+				"options": {
+					"Forward": 250,
+					"Reverse": -250
+				}
+			}
+		],
+		"inputs": [
+			{
+				"name": "Enable",
+				"trueInput": "instance:tractorbeam;Enable",
+				"falseInput": "instance:tractorbeam;Disable"
+			},
+			{
+				"name": "Reverse",
+				"trueInput": "instance:reverse;Trigger",
+				"falseInput": "instance:forward;Trigger"
+			}
+		]
+	},
+	{
+		"type": "entity",
+		"id": "faith-plate",
+		"name": "Arial Faith Plate",
+		"model": "faithplate.obj",
+		"instance": "faithplate",
+		"bound1": [
+			-0.4,
+			-0.75,
+			-1
+		],
+		"bound2": [
+			0.4,
+			0.75,
+			0.1
+		],
+		"floor": true,
+		"deleteIntersectingVoxels": true,
+		"deleteIntersectingVoxelsEditor": false,
+		"genMissingVoxels": true,
+		"snapMode": "mini-corner",
+		"keyvalues": [
+			{
+				"kv": "startdisabled",
+				"name": "Start Disabled",
+				"type": "bool",
+				"defaultValue": false
+			},
+			{
+				"kv": "target",
+				"name": "Target",
+				"type": "item",
+				"required": true
+			},
+			{
+				"kv": "launchDir",
+				"name": "Launch Direction",
+				"type": "vec3",
+				"gizmo": "angle-offset-floor",
+				"defaultValue": [
+					0,
+					0,
+					0
+				]
+			},
+			{
+				"kv": "playerSpeed",
+				"name": "Player Speed",
+				"type": "float",
+				"defaultValue": 450
+			},
+			{
+				"kv": "physicsSpeed",
+				"name": "Physics Object Speed",
+				"type": "float",
+				"defaultValue": 450
+			}
+		],
+		"inputs": [
+			{
+				"name": "Disable",
+				"trueInput": "instance:relay;FireUser1",
+				"falseInput": "instance:relay;FireUser2"
+			}
+		]
+	},
+	{
+		"type": "entity",
+		"id": "turret",
+		"name": "Turret",
+		"model": "turret.obj",
+		"entity": "npc_portal_turret_floor",
+		"bound1": [
+			-0.4,
+			-0.75,
+			0
+		],
+		"bound2": [
+			0.4,
+			0.75,
+			1.6
+		],
+		"floor": true,
+		"snapMode": "mini-corner",
+		"keyvalues": [
+			{
+				"kv": "damageforce",
+				"name": "Damage Pushes Player",
+				"type": "bool",
+				"defaultValue": false
+			},
+			{
+				"kv": "allowshootingthroughportals",
+				"name": "Allow Shooting Through Portals",
+				"type": "bool",
+				"defaultValue": false
+			},
+			{
+				"kv": "turretrange",
+				"name": "Max Range",
+				"type": "float",
+				"defaultValue": 1024
+			},
+			{
+				"kv": "usesuperdamage",
+				"name": "Use Super Damage",
+				"type": "bool",
+				"defaultValue": false
+			}
+		]
+	},
+	{
+		"type": "entity",
+		"id": "blue-gel",
+		"name": "Repulsion Gel",
+		"model": "bluePaint.obj",
+		"instance": "bluePaint",
+		"snapMode": "mini-corner",
+		"bound1": [
+			-1,
+			-1,
+			-1
+		],
+		"bound2": [
+			1,
+			0,
+			1
+		],
+		"rotationRestriction": "xyz",
+		"requiresPaint": true,
+		"keyvalues": [
+			{
+				"kv": "startEnabled",
+				"name": "Start Enabled",
+				"type": "bool",
+				"defaultValue": true
+			}
+		],
+		"inputs": [
+			{
+				"name": "Enable",
+				"trueInput": "instance:paint;Start",
+				"falseInput": "instance:paint;Stop"
+			}
+		]
+	},
+	{
+		"type": "entity",
+		"id": "orange-gel",
+		"name": "Propulsion Gel",
+		"model": "orangePaint.obj",
+		"instance": "orangePaint",
+		"snapMode": "mini-corner",
+		"bound1": [
+			-1,
+			-1,
+			-1
+		],
+		"bound2": [
+			1,
+			0,
+			1
+		],
+		"rotationRestriction": "xyz",
+		"requiresPaint": true,
+		"keyvalues": [
+			{
+				"kv": "startEnabled",
+				"name": "Start Enabled",
+				"type": "bool",
+				"defaultValue": true
+			}
+		],
+		"inputs": [
+			{
+				"name": "Enable",
+				"trueInput": "instance:paint;Start",
+				"falseInput": "instance:paint;Stop"
+			}
+		]
+	},
+	{
+		"type": "entity",
+		"id": "water-gel",
+		"name": "Cleansing Gel",
+		"model": "waterPaint.obj",
+		"instance": "waterPaint",
+		"snapMode": "mini-corner",
+		"bound1": [
+			-1,
+			-1,
+			-1
+		],
+		"bound2": [
+			1,
+			0,
+			1
+		],
+		"rotationRestriction": "xyz",
+		"requiresPaint": true,
+		"keyvalues": [
+			{
+				"kv": "startEnabled",
+				"name": "Start Enabled",
+				"type": "bool",
+				"defaultValue": true
+			}
+		],
+		"inputs": [
+			{
+				"name": "Enable",
+				"trueInput": "instance:paint;Start",
+				"falseInput": "instance:paint;Stop"
+			}
+		]
+	},
+	{
+		"type": "entity",
+		"id": "white-gel",
+		"name": "Conversion Gel",
+		"model": "whitePaint.obj",
+		"instance": "whitePaint",
+		"snapMode": "mini-corner",
+		"bound1": [
+			-1,
+			-1,
+			-1
+		],
+		"bound2": [
+			1,
+			0,
+			1
+		],
+		"rotationRestriction": "xyz",
+		"requiresPaint": true,
+		"keyvalues": [
+			{
+				"kv": "startEnabled",
+				"name": "Start Enabled",
+				"type": "bool",
+				"defaultValue": true
+			}
+		],
+		"inputs": [
+			{
+				"name": "Enable",
+				"trueInput": "instance:paint;Start",
+				"falseInput": "instance:paint;Stop"
+			}
+		]
+	},
+	{
+		"type": "volume",
+		"id": "goo",
+		"name": "Toxic Goo",
+		"noDefaultExport": true,
+		"editorTexture": "goo.png",
+		"exportScript": "goo.lua",
+		"defaultSize": [
+			2,
+			2,
+			2
+		],
+		"minSize": [
+			1.5,
+			1.5,
+			1.5
+		]
+	}
+]

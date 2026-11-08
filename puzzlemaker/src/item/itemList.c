@@ -75,6 +75,8 @@ void removeItem(Item* item)
 		type &= ~(TYPE_INSTANCE);
 		if (type == TYPE_STRING)
 			free(item->kv[i].value.s);
+		if (type == TYPE_VEC3 || type == TYPE_VEC4 || type == TYPE_COLOR3 || type == TYPE_COLOR4)
+			free(item->kv[i].value.v);
 		if (type == TYPE_BITFIELD)
 			free(item->kv[i].value.s);
 	}
@@ -138,7 +140,7 @@ Item* addItem(int defId, ivec3 position)
 	Item* item = &itemList[index];
 	item->index = index;
 	item->id = defId;
-  item->ioEnt = 0;
+	item->ioEnt = 0;
 
 	item->snapDir = DIR_NONE;
 
@@ -187,6 +189,26 @@ Item* addItem(int defId, ivec3 position)
 		{
 			item->kv[i].value.s = malloc(256);
 			strncpy(item->kv[i].value.s, def->kvs[i].defaultValue.s, 256);
+		}
+		else if (type == TYPE_VEC3)
+		{
+			item->kv[i].value.v = malloc(sizeof(vec3));
+			memcpy(item->kv[i].value.v, def->kvs[i].defaultValue.v, sizeof(vec3));
+		}
+		else if (type == TYPE_VEC4)
+		{
+			item->kv[i].value.v = malloc(sizeof(vec4));
+			memcpy(item->kv[i].value.v, def->kvs[i].defaultValue.v, sizeof(vec4));
+		}
+		else if (type == TYPE_COLOR3)
+		{
+			item->kv[i].value.v = malloc(sizeof(vec3));
+			memcpy(item->kv[i].value.v, def->kvs[i].defaultValue.v, sizeof(vec3));
+		}
+		else if (type == TYPE_COLOR4)
+		{
+			item->kv[i].value.v = malloc(sizeof(vec4));
+			memcpy(item->kv[i].value.v, def->kvs[i].defaultValue.v, sizeof(vec4));
 		}
 		else if (type == TYPE_BITFIELD)
 		{

@@ -142,6 +142,42 @@ int itemGetKv(lua_State* l)
 			lua_pushnumber(l, kv->value.f);
 		if (type == TYPE_STRING)
 			lua_pushstring(l, kv->value.s);
+		if (type == TYPE_VEC3)
+			luaPushVec3(l, kv->value.v);
+		if (type == TYPE_VEC4)
+		{
+			lua_newtable(l);
+			lua_pushnumber(l, kv->value.v[0]);
+			lua_seti(l, -2, 1);
+			lua_pushnumber(l, kv->value.v[1]);
+			lua_seti(l, -2, 2);
+			lua_pushnumber(l, kv->value.v[2]);
+			lua_seti(l, -2, 3);
+			lua_pushnumber(l, kv->value.v[3]);
+			lua_seti(l, -2, 4);
+		}
+		if (type == TYPE_COLOR3)
+		{
+			lua_newtable(l);
+			lua_pushnumber(l, kv->value.v[0] * 255);
+			lua_seti(l, -2, 1);
+			lua_pushnumber(l, kv->value.v[1] * 255);
+			lua_seti(l, -2, 2);
+			lua_pushnumber(l, kv->value.v[2] * 255);
+			lua_seti(l, -2, 3);
+		}
+		if (type == TYPE_COLOR4)
+		{
+			lua_newtable(l);
+			lua_pushnumber(l, kv->value.v[0] * 255);
+			lua_seti(l, -2, 1);
+			lua_pushnumber(l, kv->value.v[1] * 255);
+			lua_seti(l, -2, 2);
+			lua_pushnumber(l, kv->value.v[2] * 255);
+			lua_seti(l, -2, 3);
+			lua_pushnumber(l, kv->value.v[3] * 255);
+			lua_seti(l, -2, 4);
+		}
 		if (type == TYPE_PICKER)
 		{
 			if (kv->value.i == -1)

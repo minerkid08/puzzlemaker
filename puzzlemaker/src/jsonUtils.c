@@ -208,6 +208,19 @@ void jsonGetVec3(const cJSON* json, const char* name, vec3 out)
 	out[2] = jsonArrGetFloat(j, 2);
 }
 
+void jsonGetVec4(const cJSON* json, const char* name, vec4 out)
+{
+	cJSON* j = cJSON_GetObjectItem(json, name);
+	if (j == 0)
+		errorf("unknown key '%s'", name);
+	if (!cJSON_IsArray(j))
+		errorf("wrong type for key '%s', expected array", name);
+	out[0] = jsonArrGetFloat(j, 0);
+	out[1] = jsonArrGetFloat(j, 1);
+	out[2] = jsonArrGetFloat(j, 2);
+	out[3] = jsonArrGetFloat(j, 3);
+}
+
 void jsonGetTex(const cJSON* json, const char* name, Texture* out)
 {
 	cJSON* tex = cJSON_GetObjectItem(json, name);

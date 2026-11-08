@@ -97,6 +97,15 @@ void exportEntityAddKv(Entity* ent, ItemKv* kv)
 		if (type == TYPE_VEC3)
 			buf = strdupf("\"replace%d\" \"$%s %.2f %.2f %.2f\"", len, def->name, kv->value.v[0], kv->value.v[1],
 						  kv->value.v[2]);
+		if (type == TYPE_VEC4)
+			buf = strdupf("\"replace%d\" \"$%s %.2f %.2f %.2f\"", len, def->name, kv->value.v[0], kv->value.v[1],
+						  kv->value.v[2], kv->value.v[3]);
+		if (type == TYPE_COLOR3)
+			buf = strdupf("\"replace%d\" \"$%s %.2f %.2f %.2f\"", len, def->name, kv->value.v[0] * 255,
+						  kv->value.v[1] * 255, kv->value.v[2] * 255);
+		if (type == TYPE_COLOR4)
+			buf = strdupf("\"replace%d\" \"$%s %.2f %.2f %.2f\"", len, def->name, kv->value.v[0] * 255,
+						  kv->value.v[1] * 255, kv->value.v[2] * 255, kv->value.v[3] * 255);
 		if (type & TYPE_DROPDOWN)
 		{
 			type &= ~(TYPE_DROPDOWN);
@@ -129,6 +138,15 @@ void exportEntityAddKv(Entity* ent, ItemKv* kv)
 		}
 		if (def->type == TYPE_VEC3)
 			buf = strdupf("\"%s\" \"%.2f %.2f %.2f\"", def->name, kv->value.v[0], kv->value.v[1], kv->value.v[2]);
+		if (def->type == TYPE_VEC4)
+			buf = strdupf("\"%s\" \"%.2f %.2f %.2f\"", def->name, kv->value.v[0], kv->value.v[1], kv->value.v[2],
+						  kv->value.v[3]);
+		if (def->type == TYPE_COLOR3)
+			buf = strdupf("\"%s\" \"%.2f %.2f %.2f\"", def->name, kv->value.v[0] * 255, kv->value.v[1] * 255,
+						  kv->value.v[2] * 255);
+		if (def->type == TYPE_COLOR4)
+			buf = strdupf("\"%s\" \"%.2f %.2f %.2f\"", def->name, kv->value.v[0] * 255, kv->value.v[1] * 255,
+						  kv->value.v[2] * 255, kv->value.v[3] * 255);
 		if (def->type & TYPE_DROPDOWN)
 		{
 			int type = (def->type & (~TYPE_DROPDOWN));
@@ -370,11 +388,10 @@ void exportEndEntities(FILE* file)
 
 		fprintf(file, "  \"id\" \"%d\"\n", i + 1);
 		fprintf(file, "  \"classname\" \"%s\"\n", entity->className);
-		if (entity->brushes == 0)
-		{
+		if (strcmp(entity->className, "func_detail"))
 			fprintf(file, "  \"origin\" \"%f %f %f\"\n", entity->pos[0], entity->pos[1], entity->pos[2]);
+		if (entity->brushes == 0)
 			fprintf(file, "  \"angles\" \"%f %f %f\"\n", entity->rotation[0], entity->rotation[1], entity->rotation[2]);
-		}
 		fprintf(file, "  \"targetname\" \"%s\"\n", entity->name);
 
 		free((char*)entity->name);

@@ -1,86 +1,156 @@
 [
-  {
-    "type": "volume",
-    "id": "small-blocks",
-    "name": "Small Black Blocks",
-    "editorTexture": {
-      "filename": "blackMiniVoxel.png",
-      "size": 1,
-      "alignment": "none"
-    },
-    "textures": {
-      "top": "METAL/BLACK_FLOOR_METAL_001C",
-      "bottom": "METAL/BLACK_CEILING_METAL_001A",
-      "left": "METAL/BLACK_WALL_METAL_002B",
-      "right": "METAL/BLACK_WALL_METAL_002B",
-      "front": "METAL/BLACK_WALL_METAL_002B",
-      "back": "METAL/BLACK_WALL_METAL_002B"
-    },
-    "editorFit": false,
-    "minSize": [0.5, 0.5, 0.5],
-    "snapMode": "mini-corner",
-    "defaultSize": [0.5, 0.5, 0.5]
-  },
-  {
-    "type": "volume",
-    "id": "small-white-blocks",
-    "name": "Small White Blocks",
-    "editorTexture": {
-      "filename": "whiteMiniVoxel.png",
-      "size": 1,
-      "alignment": "none"
-    },
-    "textures": {
-      "top": "TILE/WHITE_CEILING_TILE002A",
-      "bottom": "TILE/WHITE_FLOOR_TILE002A",
-      "left": "TILE/WHITE_WALL_TILE003F",
-      "right": "TILE/WHITE_WALL_TILE003F",
-      "front": "TILE/WHITE_WALL_TILE003F",
-      "back": "TILE/WHITE_WALL_TILE003F"
-    },
-    "editorFit": false,
-    "minSize": [0.5, 0.5, 0.5],
-    "snapMode": "mini-corner",
-    "defaultSize": [0.5, 0.5, 0.5]
-  },
-  {
-    "type": "volume",
-    "id": "medium-white-blocks",
-    "name": "Medium White Blocks",
-    "editorTexture": {
-      "filename": "whiteVoxel.png",
-      "size": 1,
-      "alignment": "none"
-    },
-    "textures": {
-      "top": "TILE/WHITE_CEILING_TILE002A",
-      "bottom": "TILE/WHITE_FLOOR_TILE002A",
-      "left": {
-        "filename": "TILE/WHITE_WALL_TILE001A",
-        "size": 512,
-        "alignment": "bottom-left"
-      },
-      "right": {
-        "filename": "TILE/WHITE_WALL_TILE001A",
-        "size": 512,
-        "alignment": "bottom-left"
-      },
-      "front": {
-        "filename": "TILE/WHITE_WALL_TILE001A",
-        "size": 512,
-        "alignment": "bottom-left"
-      },
-      "back": {
-        "filename": "TILE/WHITE_WALL_TILE001A",
-        "size": 512,
-        "alignment": "bottom-left"
-      }
-    },
-    "deleteIntersectingVoxels": true,
-    "genMissingVoxels": false,
-    "editorFit": false,
-    "minSize": [0.5, 0.5, 0.5],
-    "snapMode": "mini-corner",
-    "defaultSize": [0.5, 0.5, 0.5]
-  }
+	{
+		"type": "volume",
+		"id": "small-blocks",
+		"name": "Small Black Blocks",
+		"editorTexture": {
+			"filename": "blackMiniVoxel.png",
+			"size": 1,
+			"alignment": "none"
+		},
+		"textures": {
+			"top": "METAL/BLACK_FLOOR_METAL_001C",
+			"bottom": "METAL/BLACK_CEILING_METAL_001A",
+			"left": "METAL/BLACK_WALL_METAL_002B",
+			"right": "METAL/BLACK_WALL_METAL_002B",
+			"front": "METAL/BLACK_WALL_METAL_002B",
+			"back": "METAL/BLACK_WALL_METAL_002B"
+		},
+		"editorFit": false,
+		"minSize": [
+			0.5,
+			0.5,
+			0.5
+		],
+		"snapMode": "mini-corner",
+		"defaultSize": [
+			0.5,
+			0.5,
+			0.5
+		]
+	},
+	{
+		"type": "volume",
+		"id": "medium-blocks",
+		"name": "Medium Black Blocks",
+		"editorTexture": {
+			"filename": "blackVoxel.png",
+			"size": 1,
+			"alignment": "none"
+		},
+		"textures": {
+			"top": "METAL/BLACK_FLOOR_METAL_001C",
+			"bottom": "METAL/BLACK_CEILING_METAL_001A",
+			"left": {
+				"filename": "METAL/BLACK_WALL_METAL_002A",
+				"size": 512,
+				"alignment": "bottom-left"
+			},
+			"right": {
+				"filename": "METAL/BLACK_WALL_METAL_002A",
+				"size": 512,
+				"alignment": "bottom-left"
+			},
+			"front": {
+				"filename": "METAL/BLACK_WALL_METAL_002A",
+				"size": 512,
+				"alignment": "bottom-left"
+			},
+			"back": {
+				"filename": "METAL/BLACK_WALL_METAL_002A",
+				"size": 512,
+				"alignment": "bottom-left"
+			}
+		},
+		"editorFit": false,
+		"minSize": [
+			0.5,
+			0.5,
+			0.5
+		],
+		"snapMode": "mini-corner",
+		"defaultSize": [
+			0.5,
+			0.5,
+			0.5
+		]
+	},
+	{
+		"type": "volume",
+		"id": "small-white-blocks",
+		"name": "Small White Blocks",
+		"editorTexture": {
+			"filename": "whiteMiniVoxel.png",
+			"size": 1,
+			"alignment": "none"
+		},
+		"textures": {
+			"top": "TILE/WHITE_CEILING_TILE002A",
+			"bottom": "TILE/WHITE_FLOOR_TILE002A",
+			"left": "TILE/WHITE_WALL_TILE003F",
+			"right": "TILE/WHITE_WALL_TILE003F",
+			"front": "TILE/WHITE_WALL_TILE003F",
+			"back": "TILE/WHITE_WALL_TILE003F"
+		},
+		"editorFit": false,
+		"minSize": [
+			0.5,
+			0.5,
+			0.5
+		],
+		"snapMode": "mini-corner",
+		"defaultSize": [
+			0.5,
+			0.5,
+			0.5
+		]
+	},
+	{
+		"type": "volume",
+		"id": "medium-white-blocks",
+		"name": "Medium White Blocks",
+		"editorTexture": {
+			"filename": "whiteVoxel.png",
+			"size": 1,
+			"alignment": "none"
+		},
+		"textures": {
+			"top": "TILE/WHITE_CEILING_TILE002A",
+			"bottom": "TILE/WHITE_FLOOR_TILE002A",
+			"left": {
+				"filename": "TILE/WHITE_WALL_TILE001A",
+				"size": 512,
+				"alignment": "bottom-left"
+			},
+			"right": {
+				"filename": "TILE/WHITE_WALL_TILE001A",
+				"size": 512,
+				"alignment": "bottom-left"
+			},
+			"front": {
+				"filename": "TILE/WHITE_WALL_TILE001A",
+				"size": 512,
+				"alignment": "bottom-left"
+			},
+			"back": {
+				"filename": "TILE/WHITE_WALL_TILE001A",
+				"size": 512,
+				"alignment": "bottom-left"
+			}
+		},
+		"deleteIntersectingVoxels": true,
+		"genMissingVoxels": false,
+		"editorFit": false,
+		"minSize": [
+			0.5,
+			0.5,
+			0.5
+		],
+		"snapMode": "mini-corner",
+		"defaultSize": [
+			0.5,
+			0.5,
+			0.5
+		]
+	}
 ]

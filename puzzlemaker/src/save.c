@@ -131,6 +131,29 @@ void save()
         cJSON_AddItemToArray(item, cJSON_CreateNumber(kv->value.v[1]));
         cJSON_AddItemToArray(item, cJSON_CreateNumber(kv->value.v[2]));
       }
+			if (type == TYPE_VEC4)
+      {
+				item = cJSON_CreateArray();
+        cJSON_AddItemToArray(item, cJSON_CreateNumber(kv->value.v[0]));
+        cJSON_AddItemToArray(item, cJSON_CreateNumber(kv->value.v[1]));
+        cJSON_AddItemToArray(item, cJSON_CreateNumber(kv->value.v[2]));
+        cJSON_AddItemToArray(item, cJSON_CreateNumber(kv->value.v[3]));
+      }
+			if (type == TYPE_COLOR3)
+      {
+				item = cJSON_CreateArray();
+        cJSON_AddItemToArray(item, cJSON_CreateNumber(kv->value.v[0]));
+        cJSON_AddItemToArray(item, cJSON_CreateNumber(kv->value.v[1]));
+        cJSON_AddItemToArray(item, cJSON_CreateNumber(kv->value.v[2]));
+      }
+			if (type == TYPE_COLOR4)
+      {
+				item = cJSON_CreateArray();
+        cJSON_AddItemToArray(item, cJSON_CreateNumber(kv->value.v[0]));
+        cJSON_AddItemToArray(item, cJSON_CreateNumber(kv->value.v[1]));
+        cJSON_AddItemToArray(item, cJSON_CreateNumber(kv->value.v[2]));
+        cJSON_AddItemToArray(item, cJSON_CreateNumber(kv->value.v[3]));
+      }
 			if (type == TYPE_BITFIELD)
 			{
 				int value = 0;

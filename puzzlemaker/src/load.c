@@ -257,6 +257,12 @@ void load()
 					kv->value.i = jsonGetInt(kvJson, def->name);
 				if (type == TYPE_VEC3)
 					jsonGetVec3(kvJson, def->name, kv->value.v);
+				if (type == TYPE_VEC4)
+					jsonGetVec4(kvJson, def->name, kv->value.v);
+				if (type == TYPE_COLOR3)
+					jsonGetVec3(kvJson, def->name, kv->value.v);
+				if (type == TYPE_COLOR4)
+					jsonGetVec4(kvJson, def->name, kv->value.v);
 				if (type == TYPE_STRING)
 				{
 					const char* str = jsonGetStr(kvJson, def->name);

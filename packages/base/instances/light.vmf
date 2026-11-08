@@ -10,42 +10,6 @@ versioninfo
 visgroups
 {
 }
-viewsettings
-{
-	"bSnapToGrid" "1"
-	"bShowGrid" "1"
-	"bShowLogicalGrid" "1"
-	"nGridSpacing" "1"
-	"bShow3DGrid" "0"
-	"nInstanceVisibility" "2"
-	views
-	{
-		v0
-		{
-			"3d" "1"
-			"position" "(53.3722 -120.271 92.8082)"
-			"angle" "[38.11 121.73 0]"
-		}
-		v1
-		{
-			"3d" "0"
-			"position" "(0.561022 -14.8914 65536)"
-			"zoom" "99.229"
-		}
-		v2
-		{
-			"3d" "0"
-			"position" "(65536 1.3875 1.87692)"
-			"zoom" "4.62211"
-		}
-		v3
-		{
-			"3d" "0"
-			"position" "(8.79661 -65536 -3.447)"
-			"zoom" "13.8015"
-		}
-	}
-}
 world
 {
 	"id" "1"
@@ -72,14 +36,7 @@ entity
 	"skin" "0"
 	"solid" "6"
 	"uniformscale" "1"
-	"origin" "1 -16 0"
-	editor
-	{
-		"color" "255 255 0"
-		"visgroupshown" "1"
-		"visgroupautoshown" "1"
-		"logicalpos" "[0 3500]"
-	}
+	"origin" "0.125 -16 0"
 }
 entity
 {
@@ -111,13 +68,6 @@ entity
 	"spawnflags" "0"
 	"style" "0"
 	"origin" "32 -16 0"
-	editor
-	{
-		"color" "255 255 0"
-		"visgroupshown" "1"
-		"visgroupautoshown" "1"
-		"logicalpos" "[0 4000]"
-	}
 }
 cameras
 {

@@ -265,6 +265,34 @@ void loadItemDefinitionFile(Package* package, const char* filename)
 				}
 				kvDef->dropValues = g;
 			}
+			if (strcmp(type, "vec4") == 0)
+			{
+				kvDef->type = TYPE_VEC4;
+				float* v = malloc(sizeof(vec4));
+				jsonGetVec4(kv, "defaultValue", v);
+				kvDef->defaultValue.v = v;
+      }
+			if (strcmp(type, "color3") == 0)
+			{
+				kvDef->type = TYPE_COLOR3;
+				float* v = malloc(sizeof(vec3));
+				jsonGetVec3(kv, "defaultValue", v);
+        v[0] /= 255;
+        v[1] /= 255;
+        v[2] /= 255;
+				kvDef->defaultValue.v = v;
+      }
+			if (strcmp(type, "color4") == 0)
+			{
+				kvDef->type = TYPE_COLOR4;
+				float* v = malloc(sizeof(vec4));
+				jsonGetVec4(kv, "defaultValue", v);
+        v[0] /= 255;
+        v[1] /= 255;
+        v[2] /= 255;
+        v[3] /= 255;
+				kvDef->defaultValue.v = v;
+      }
 			if (strcmp(type, "drop-string") == 0)
 			{
 				kvDef->type = TYPE_STRING | TYPE_DROPDOWN;

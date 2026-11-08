@@ -151,7 +151,6 @@ void uiViewport(FrameBuffer* framebuffer)
 }
 
 static char newMapPopup = 0;
-static char styleEditor = 0;
 extern char running;
 extern char errorActive;
 
@@ -196,8 +195,6 @@ void uiMenuBar()
 			openItemDebug();
 		if (igMenuItem_Bool("Keybinds", 0, 0, 1))
 			openKeybindsPanel();
-		if (igMenuItem_Bool("Style Editor", 0, 0, 1))
-			styleEditor = !styleEditor;
 		igEndMenu();
 	}
 	igSeparator();
@@ -239,10 +236,4 @@ void uiMenuBar()
 	renderEditorSettingsUi();
 	if (running && errorActive == 0)
 		packageManagerRender();
-	if (styleEditor)
-	{
-		igBegin("Style Editor", (bool*)&styleEditor, 0);
-		igShowStyleEditor(igGetStyle());
-		igEnd();
-	}
 }

@@ -6,5 +6,9 @@
 	{
 		"fileMatch": ["themes/*.json"],
 		"url": "docs/themeSchema.json"
+	},
+	{
+		"fileMatch": ["package.json"],
+		"url": "docs/packageSchema.json"
 	}
 ]

@@ -79,6 +79,11 @@ void copyDir(Package* package, const char* dirname, const char* destDir)
 				int len = stat.size;
 
 				FILE* destFile = fopen(dest, "wb");
+				if (destFile == 0)
+				{
+					setError(strdupf("failed to open %s", dest));
+					startErrorLoop();
+				}
 
 				int read = 0;
 				char buf[512];
@@ -110,6 +115,11 @@ void copyDir(Package* package, const char* dirname, const char* destDir)
 				fseek(file, 0, SEEK_SET);
 
 				FILE* destFile = fopen(dest, "wb");
+				if (destFile == 0)
+				{
+					setError(strdupf("failed to open %s", dest));
+					startErrorLoop();
+				}
 
 				int read = 0;
 				char buf[512];

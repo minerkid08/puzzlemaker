@@ -32,6 +32,7 @@ void loadEditorSettings()
 		editorSettings.rotSnap = 15;
 		editorSettings.lockMouseOnPan = 1;
 		editorSettings.gizmoLen = 1;
+		editorSettings.theme = editorSettings.themeList[fileCount];
 		return;
 	}
 

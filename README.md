@@ -17,6 +17,8 @@ All items can have export scripts attached for more complex behaviors.
 
 The base packages contain most items from PETI as well as several helper items for things like triggers, map start and end as well as many other things.
 
+![alt](images/laserChaining.png)
+
 # Installation
 1. Download the latest release and unzip it.
 2. If your P2CE installation is not in the default location `C:\Program Files (x86)\Steam\steamapps\common\Portal 2 Community Edition` or you are on linux you will need to modify the p2ce field inside compileSteps.json to point to your game installation.

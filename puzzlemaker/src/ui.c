@@ -43,7 +43,7 @@ void initUi(GLFWwindow* window)
 	loadImguiTheme();
 
 	ImGuiStyle* style = igGetStyle();
-	ImGuiStyle_ScaleAllSizes(style, uiScale);
+	//ImGuiStyle_ScaleAllSizes(style, uiScale);
 
 	const char* glslVersion = "#version 330 core";
 	ImGui_ImplGlfw_InitForOpenGL(window, 1);

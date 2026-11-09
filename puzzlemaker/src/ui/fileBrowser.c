@@ -301,12 +301,11 @@ void fileBrowserRender()
 
 void fileBrowserSave()
 {
-	if (path[5] == 0)
+	if (mapSettings.name[0] == 0)
 	{
 		fileBrowserOpen(MODE_SAVE);
 		return;
 	}
-	strcpy(mapSettings.name, path + 5);
 	save();
 }
 

@@ -46,8 +46,7 @@ void load()
 				removeItem(item);
 		}
 		initVoxels();
-		mapSettings.name[5] = 0;
-		mapSettings.name[0] = 0;
+		memset(mapSettings.name, 0, 256);
 		openErrorPopup();
 		return;
 	}
@@ -465,8 +464,7 @@ void load()
 void resetMap()
 {
 	selection.type = SELECTION_NONE;
-	mapSettings.name[5] = 0;
-	mapSettings.name[0] = 0;
+	memset(mapSettings.name, 0, 256);
 
 	setTheme(themeList);
 

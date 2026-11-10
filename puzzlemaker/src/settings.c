@@ -32,7 +32,7 @@ void loadEditorSettings()
 		editorSettings.rotSnap = 15;
 		editorSettings.lockMouseOnPan = 1;
 		editorSettings.gizmoLen = 1;
-		editorSettings.theme = editorSettings.themeList[fileCount];
+		editorSettings.theme = editorSettings.themeList[0];
 		return;
 	}
 
@@ -69,6 +69,7 @@ void loadEditorSettings()
 		editorSettings.theme = editorSettings.themeList[0];
 	else
 	{
+		editorSettings.theme = 0;
 		int l = dynList_size(editorSettings.themeList);
 		for (int i = 0; i < l; i++)
 		{
@@ -78,6 +79,8 @@ void loadEditorSettings()
 				break;
 			}
 		}
+		if(editorSettings.theme == 0)
+			editorSettings.theme = editorSettings.themeList[0];
 	}
 	cJSON_Delete(json);
 }

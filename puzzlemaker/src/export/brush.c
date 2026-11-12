@@ -1,8 +1,11 @@
 #include "export/brush.h"
+#include "cglm/mat4.h"
+#include "cglm/quat.h"
 #include "cglm/vec3.h"
 #include "dynList.h"
-#include "utils.h"
 #include "export/exportUtils.h"
+#include "renderer/texture.h"
+#include "utils.h"
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -11,11 +14,22 @@ static Brush* brushes;
 
 static int sideId = 0;
 
-static __attribute__((constructor)) void init()
+#ifdef __linux__
+__attribute__((constructor)) static void brushInit()
+#else
+void brushInit()
+#endif
 {
-	brushes = dynList_new(0, sizeof(Brush));
-	dynList_reserve((void**)&brushes, 128);
+	brushes = dynList_newR(0, 128, sizeof(Brush));
 }
+
+#if defined(_MSC_VER)
+#pragma section(".CRT$XCU", read)
+
+__declspec(allocate(".CRT$XCU")) void (*brushInitPtr)(void) = brushInit;
+
+#pragma comment(linker, "/include:brushInitPtr")
+#endif
 
 Brush* getBrushArray()
 {
@@ -78,14 +92,15 @@ Brush* exportCreateBrush(vec3 start, vec3 end)
 		side->id = sideId;
 		sideId++;
 		side->lightmapscale = 16;
-		side->fit = 0;
+		side->alignment = TEX_ALIGNMENT_NONE;
 		side->texHeight = 512;
 		side->texWidth = 512;
 		side->material = 0;
-		memcpy(side->uvs[0], uvxy, sizeof(vec2));
-		memcpy(side->uvs[1], uvXy, sizeof(vec2));
-		memcpy(side->uvs[2], uvxY, sizeof(vec2));
-		memcpy(side->uvs[3], uvXY, sizeof(vec2));
+		side->uoff = 0;
+		side->voff = 0;
+		side->uScale = 0.25;
+		side->vScale = 0.25;
+		side->rotation = 0;
 	}
 
 	Side* side = &brush->sides[DIR_POS_X];
@@ -145,10 +160,10 @@ void exportBrush(FILE* file, Brush* brush)
 	for (int j = 0; j < 6; j++)
 	{
 		Side* side = &brush->sides[j];
-    transformPos(side->verts[0]);
-    transformPos(side->verts[1]);
-    transformPos(side->verts[2]);
-    transformPos(side->verts[3]);
+		transformPos(side->verts[0]);
+		transformPos(side->verts[1]);
+		transformPos(side->verts[2]);
+		transformPos(side->verts[3]);
 		char v1[40];
 		char v2[40];
 		char v3[40];
@@ -188,8 +203,8 @@ void exportBrush(FILE* file, Brush* brush)
 		uDir[1] = side->verts[3][1] - side->verts[2][1];
 		uDir[2] = side->verts[3][2] - side->verts[2][2];
 
-		float horizScale = 0.25;
-		if (side->fit)
+		float horizScale = side->uScale;
+		if (side->alignment == TEX_ALIGNMENT_FIT)
 		{
 			float width = sqrtf(uDir[0] * uDir[0] + uDir[1] * uDir[1] + uDir[2] * uDir[2]);
 			horizScale = width / side->texWidth;
@@ -199,8 +214,20 @@ void exportBrush(FILE* file, Brush* brush)
 		vDir[1] = side->verts[1][1] - side->verts[2][1];
 		vDir[2] = side->verts[1][2] - side->verts[2][2];
 
-		float vertScale = 0.25;
-		if (side->fit)
+		vec3 normal;
+		glm_cross(uDir, vDir, normal);
+		glm_normalize(normal);
+		memcpy(side->normal, normal, sizeof(vec3));
+
+		mat4 m;
+		vec4 q;
+		glm_quat(q, glm_rad(side->rotation), normal[0], normal[1], normal[2]);
+		glm_quat_mat4(q, m);
+		glm_mat4_mulv3(m, uDir, 1, uDir);
+		glm_mat4_mulv3(m, vDir, 1, vDir);
+
+		float vertScale = side->vScale;
+		if (side->alignment == TEX_ALIGNMENT_FIT)
 		{
 			float height = sqrtf(vDir[0] * vDir[0] + vDir[1] * vDir[1] + vDir[2] * vDir[2]);
 			vertScale = height / side->texHeight;
@@ -210,11 +237,7 @@ void exportBrush(FILE* file, Brush* brush)
 
 		float xoff = 0;
 		float yoff = 0;
-		vec3 normal;
-		glm_cross(uDir, vDir, normal);
-		glm_normalize(normal);
-		memcpy(side->normal, normal, sizeof(vec3));
-		if (side->fit)
+		if (side->alignment != TEX_ALIGNMENT_NONE)
 		{
 			vec3 zero = {0, 0, 0};
 			vec3 intersect;
@@ -240,6 +263,8 @@ void exportBrush(FILE* file, Brush* brush)
 			yoff /= vertScale;
 			yoff = fmodf(yoff, side->texHeight);
 		}
+		xoff += side->uoff;
+		yoff += side->voff;
 
 		fprintf(file, "    \"uaxis\" \"[%.4f %.4f %.4f %.4f] %.4f\"\n", uDir[0], uDir[1], uDir[2], xoff, horizScale);
 		fprintf(file, "    \"vaxis\" \"[%.4f %.4f %.4f %.4f] %.4f\"\n", vDir[0], vDir[1], vDir[2], yoff, vertScale);

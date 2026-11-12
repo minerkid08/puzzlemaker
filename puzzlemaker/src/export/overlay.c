@@ -11,11 +11,23 @@
 
 static Overlay* overlays;
 
-static __attribute__((constructor)) void init()
+#ifdef __linux__
+__attribute__((constructor)) static void overlayInit()
+#else
+void overlayInit()
+#endif
 {
 	overlays = dynList_new(0, sizeof(Overlay));
 	dynList_reserve((void**)&overlays, 32);
 }
+
+#if defined(_MSC_VER)
+#pragma section(".CRT$XCU", read)
+
+__declspec(allocate(".CRT$XCU")) void (*overlayInitPtr)(void) = overlayInit;
+
+#pragma comment(linker, "/include:overlayInitPtr")
+#endif
 
 Overlay* getOverlayList()
 {

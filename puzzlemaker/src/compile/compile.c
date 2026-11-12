@@ -1,9 +1,16 @@
 #include "compileThread.h"
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
 #include "jsonUtils.h"
 #include "mapsettings.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+
+#ifdef __linux__
+#include <unistd.h>
+#else
+#include <windows.h>
+#endif
 
 CompileStatus compileStatus;
 
@@ -62,16 +69,19 @@ void openCompilePopup();
 
 void startCompile()
 {
-  printf("%s\n", mapSettings.name);
-	getcwd(compileStatus.curPath, 512);
+	printf("%s\n", mapSettings.name);
+
 	compileStatus.failed = 0;
-  openCompilePopup();
-  resumeCompileThread();
+	compileStatus.currentStep = 0;
+	openCompilePopup();
+	resumeCompileThread();
 }
 
+void killCompileProcess();
 void cancelCompile()
 {
-	compileStatus.currentStep = -1;
+	killCompileProcess();
+	compileStatus.failed = 1;
 }
 
 int getCompileStep()

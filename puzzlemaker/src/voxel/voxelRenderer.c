@@ -1,3 +1,4 @@
+#include "cglm/mat4.h"
 #include "cglm/types.h"
 #include "renderer/renderer.h"
 #include "selection.h"
@@ -6,8 +7,53 @@
 #include "voxel/voxelConfig.h"
 #include <cglm/cglm.h>
 
+static Texture t = {.scale = {1, 1}, .alignment = TEX_ALIGNMENT_FIT};
+static Texture t2 = {.scale = {0.5, 0.5}, .alignment = TEX_ALIGNMENT_FIT};
+
+static Texture* getTexture(char portal)
+{
+	switch (portal)
+	{
+	case 0:
+		t.tex = voxelConfig->blackEditor;
+		break;
+	case 1:
+		t.tex = voxelConfig->whiteEditor;
+		break;
+	case 2:
+		t.tex = voxelConfig->blackMiniEditor;
+		break;
+	case 3:
+		t.tex = voxelConfig->whiteMiniEditor;
+		break;
+	}
+	return &t;
+}
+
+static Texture* getSubTexture(char portal)
+{
+	switch (portal)
+	{
+	case 0:
+		t2.tex = voxelConfig->blackMiniEditor;
+		break;
+	case 1:
+		t2.tex = voxelConfig->whiteMiniEditor;
+		break;
+	case 2:
+		t2.tex = voxelConfig->blackMiniEditor;
+		break;
+	case 3:
+		t2.tex = voxelConfig->whiteMiniEditor;
+		break;
+	}
+	return &t2;
+}
+
 static inline char isSelected(int x, int y, int z, char dir)
 {
+	if (selection.type != SELECTION_VOXEL)
+		return 0;
 	ivec3 pos = {x, y, z};
 	if (dir == selection.voxelDir || selection.voxelDir == DIR_NONE)
 		return pointInRange(pos, selection.voxelPos, selection.voxel2Pos);
@@ -16,6 +62,7 @@ static inline char isSelected(int x, int y, int z, char dir)
 
 void drawSubVoxels(int x, int y, int z, Voxel* voxel)
 {
+	vec2 size = {0.5, 0.5};
 	vec4 tint = {1, 1, 1, 1};
 	for (int i = 0; i < 8; i++)
 	{
@@ -43,8 +90,10 @@ void drawSubVoxels(int x, int y, int z, Voxel* voxel)
 						tint[0] = 0;
 						tint[2] = 0;
 					}
-					vec3 verts[4] = {{x + 1, y2, z2}, {x + 1, y3, z2}, {x + 1, y2, z3}, {x + 1, y3, z3}};
-					drawVerts2(verts, tint, voxel->portalability[DIR_POS_X] | 2);
+					vec3 verts[4];
+					vec3 start = {x + 1, y2, z2};
+					genVerts(DIR_POS_X, start, size, verts);
+					drawRectTint(verts, tint, getSubTexture(voxel->portalability[DIR_POS_X]));
 					tint[0] = 1;
 					tint[2] = 1;
 				}
@@ -59,8 +108,10 @@ void drawSubVoxels(int x, int y, int z, Voxel* voxel)
 						tint[0] = 0;
 						tint[2] = 0;
 					}
-					vec3 verts[4] = {{x, y2, z2}, {x, y2, z3}, {x, y3, z2}, {x, y3, z3}};
-					drawVerts2(verts, tint, voxel->portalability[DIR_NEG_X] | 2);
+					vec3 verts[4];
+					vec3 start = {x, y2, z2};
+					genVerts(DIR_NEG_X, start, size, verts);
+					drawRectTint(verts, tint, getSubTexture(voxel->portalability[DIR_NEG_X]));
 					tint[0] = 1;
 					tint[2] = 1;
 				}
@@ -74,8 +125,10 @@ void drawSubVoxels(int x, int y, int z, Voxel* voxel)
 						tint[0] = 0;
 						tint[2] = 0;
 					}
-					vec3 verts[4] = {{x2, y + 1, z2}, {x2, y + 1, z3}, {x3, y + 1, z2}, {x3, y + 1, z3}};
-					drawVerts2(verts, tint, voxel->portalability[DIR_POS_Y] | 2);
+					vec3 verts[4];
+					vec3 start = {x2, y + 1, z2};
+					genVerts(DIR_POS_Y, start, size, verts);
+					drawRectTint(verts, tint, getSubTexture(voxel->portalability[DIR_POS_Y]));
 					tint[0] = 1;
 					tint[2] = 1;
 				}
@@ -90,8 +143,28 @@ void drawSubVoxels(int x, int y, int z, Voxel* voxel)
 						tint[0] = 0;
 						tint[2] = 0;
 					}
-					vec3 verts[4] = {{x2, y, z2}, {x3, y, z2}, {x2, y, z3}, {x3, y, z3}};
-					drawVerts2(verts, tint, voxel->portalability[DIR_NEG_Y] | 2);
+					vec3 verts[4];
+					vec3 start = {x2, y, z2};
+					genVerts(DIR_NEG_Y, start, size, verts);
+					drawRectTint(verts, tint, getSubTexture(voxel->portalability[DIR_NEG_Y]));
+					tint[0] = 1;
+					tint[2] = 1;
+				}
+			}
+
+			if (zoff == 0.5f)
+			{
+				if (voxel->faces & (1 << DIR_POS_Z))
+				{
+					if (isSelected(x, y, z + 1, DIR_POS_Z))
+					{
+						tint[0] = 0;
+						tint[2] = 0;
+					}
+					vec3 verts[4];
+					vec3 start = {x2, y2, z + 1};
+					genVerts(DIR_POS_Z, start, size, verts);
+					drawRectTint(verts, tint, getSubTexture(voxel->portalability[DIR_POS_Z]));
 					tint[0] = 1;
 					tint[2] = 1;
 				}
@@ -105,23 +178,10 @@ void drawSubVoxels(int x, int y, int z, Voxel* voxel)
 						tint[0] = 0;
 						tint[2] = 0;
 					}
-					vec3 verts[4] = {{x2, y2, z}, {x2, y3, z}, {x3, y2, z}, {x3, y3, z}};
-					drawVerts2(verts, tint, voxel->portalability[DIR_NEG_Z] | 2);
-					tint[0] = 1;
-					tint[2] = 1;
-				}
-			}
-			if (zoff == 0.5f)
-			{
-				if (voxel->faces & (1 << DIR_POS_Z))
-				{
-					if (isSelected(x, y, z + 1, DIR_POS_Z))
-					{
-						tint[0] = 0;
-						tint[2] = 0;
-					}
-					vec3 verts[4] = {{x2, y2, z + 1}, {x3, y2, z + 1}, {x2, y3, z + 1}, {x3, y3, z + 1}};
-					drawVerts2(verts, tint, voxel->portalability[DIR_POS_Z] | 2);
+					vec3 verts[4];
+					vec3 start = {x2, y2, z};
+					genVerts(DIR_NEG_Z, start, size, verts);
+					drawRectTint(verts, tint, getSubTexture(voxel->portalability[DIR_NEG_Z]));
 					tint[0] = 1;
 					tint[2] = 1;
 				}
@@ -132,8 +192,10 @@ void drawSubVoxels(int x, int y, int z, Voxel* voxel)
 
 void drawVoxels()
 {
-	bindVoxelTextures(voxelConfig.blackEditor, voxelConfig.whiteEditor, voxelConfig.blackMiniEditor,
-					  voxelConfig.whiteMiniEditor);
+	mat4 transform;
+	glm_mat4_identity(transform);
+	setTransform(transform);
+	vec2 size = {1, 1};
 
 	for (int z = mapReigonStart[2]; z < mapReigonEnd[2]; z++)
 	{
@@ -163,9 +225,10 @@ void drawVoxels()
 								tint[0] = 0;
 								tint[2] = 0;
 							}
-							vec3 verts[4] = {
-								{x, y, z + 1}, {x + 1, y, z + 1}, {x, y + 1, z + 1}, {x + 1, y + 1, z + 1}};
-							drawVerts(verts, tint, voxel->portalability[DIR_POS_Z]);
+							vec3 verts[4];
+							vec3 start = {x, y, z + 1};
+							genVerts(DIR_POS_Z, start, size, verts);
+							drawRectTint(verts, tint, getTexture(voxel->portalability[DIR_POS_Z]));
 							tint[0] = 1;
 							tint[2] = 1;
 						}
@@ -180,8 +243,10 @@ void drawVoxels()
 								tint[0] = 0;
 								tint[2] = 0;
 							}
-							vec3 verts[4] = {{x, y, z}, {x, y + 1, z}, {x + 1, y, z}, {x + 1, y + 1, z}};
-							drawVerts(verts, tint, voxel->portalability[DIR_NEG_Z]);
+							vec3 verts[4];
+							vec3 start = {x, y, z};
+							genVerts(DIR_NEG_Z, start, size, verts);
+							drawRectTint(verts, tint, getTexture(voxel->portalability[DIR_NEG_Z]));
 							tint[0] = 1;
 							tint[2] = 1;
 						}
@@ -196,9 +261,10 @@ void drawVoxels()
 								tint[0] = 0;
 								tint[2] = 0;
 							}
-							vec3 verts[4] = {
-								{x + 1, y, z}, {x + 1, y + 1, z}, {x + 1, y, z + 1}, {x + 1, y + 1, z + 1}};
-							drawVerts(verts, tint, voxel->portalability[DIR_POS_X]);
+							vec3 verts[4];
+							vec3 start = {x + 1, y, z};
+							genVerts(DIR_POS_X, start, size, verts);
+							drawRectTint(verts, tint, getTexture(voxel->portalability[DIR_POS_X]));
 							tint[0] = 1;
 							tint[2] = 1;
 						}
@@ -213,8 +279,10 @@ void drawVoxels()
 								tint[0] = 0;
 								tint[2] = 0;
 							}
-							vec3 verts[4] = {{x, y, z}, {x, y, z + 1}, {x, y + 1, z}, {x, y + 1, z + 1}};
-							drawVerts(verts, tint, voxel->portalability[DIR_NEG_X]);
+							vec3 verts[4];
+							vec3 start = {x, y, z};
+							genVerts(DIR_NEG_X, start, size, verts);
+							drawRectTint(verts, tint, getTexture(voxel->portalability[DIR_NEG_X]));
 							tint[0] = 1;
 							tint[2] = 1;
 						}
@@ -229,9 +297,10 @@ void drawVoxels()
 								tint[0] = 0;
 								tint[2] = 0;
 							}
-							vec3 verts[4] = {
-								{x, y + 1, z}, {x, y + 1, z + 1}, {x + 1, y + 1, z}, {x + 1, y + 1, z + 1}};
-							drawVerts(verts, tint, voxel->portalability[DIR_POS_Y]);
+							vec3 verts[4];
+							vec3 start = {x, y + 1, z};
+							genVerts(DIR_POS_Y, start, size, verts);
+							drawRectTint(verts, tint, getTexture(voxel->portalability[DIR_POS_Y]));
 							tint[0] = 1;
 							tint[2] = 1;
 						}
@@ -246,8 +315,10 @@ void drawVoxels()
 								tint[0] = 0;
 								tint[2] = 0;
 							}
-							vec3 verts[4] = {{x, y, z}, {x + 1, y, z}, {x, y, z + 1}, {x + 1, y, z + 1}};
-							drawVerts(verts, tint, voxel->portalability[DIR_NEG_Y]);
+							vec3 verts[4];
+							vec3 start = {x, y, z};
+							genVerts(DIR_NEG_Y, start, size, verts);
+							drawRectTint(verts, tint, getTexture(voxel->portalability[DIR_NEG_Y]));
 							tint[0] = 1;
 							tint[2] = 1;
 						}

@@ -1,15 +1,19 @@
 #include "overlayItem.h"
-#include "assetManager.h"
 #include "export/overlay.h"
 #include "item.h"
 #include "item/item.h"
 #include "jsonUtils.h"
 #include "renderer/renderer.h"
+#include "utils.h"
 #include <string.h>
 
 static ItemCallbacks callbacks;
 
-static __attribute__((constructor)) void init()
+#ifdef __linux__
+__attribute__((constructor)) static void overlayItemProcInit()
+#else
+void overlayItemProcInit()
+#endif
 {
 	callbacks.init = overlayItemInit;
 	callbacks.exportItem = overlayItemExport;
@@ -19,33 +23,45 @@ static __attribute__((constructor)) void init()
 	callbacks.load = overlayItemLoad;
 }
 
+#if defined(_MSC_VER)
+#pragma section(".CRT$XCU", read)
+
+__declspec(allocate(".CRT$XCU")) void (*overlayItemProcInitPtr)(void) = overlayItemProcInit;
+
+#pragma comment(linker, "/include:overlayItemProcInitPtr")
+#endif
+
 void* loadOverlayItemDef(cJSON* item, ItemDefinition* itemDef)
 {
 	itemDef->callbacks = &callbacks;
 	OverlayItemDef* def = malloc(sizeof(OverlayItemDef));
-	const char* textureName = jsonGetStr(item, "editorTexture");
-	def->texture = assetManagerLoadTexture(textureName);
-	def->exportTexture = jsonGetStr(item, "texture");
+
+	char flags = 0;
+	jsonGetEditorTex(item, "editorTexture", &def->texture, &flags);
+	itemDef->flags |= flags;
+
+	if ((itemDef->flags & ITEM_FLAGS_NODEFAULTEXPORT) == 0)
+		def->exportTexture = jsonGetStrD(item, "texture");
 	jsonGetVec2(item, "size", def->size);
 	return def;
 }
 
 void overlayItemInit(Item* item)
 {
+	item->data = 0;
 }
-
 
 void overlayItemExport(Item* item)
 {
 	OverlayItemDef* def = item->def->data;
 
-  char* str = itemProcessString(def->exportTexture, item->kv); 
+	char* str = itemProcessString(def->exportTexture, item->kv);
 
 	Overlay* overlay = exportCreateOverlay();
 	overlay->texture = str;
 	overlay->script = 1;
-  char buf[256];
-	snprintf(buf, 256, "%s%d", item->def->name, item->index);
+	char buf[256];
+	snprintf(buf, 256, "%s%d", item->def->id, item->index);
 
 	overlay->name = strdup(buf);
 	memcpy(overlay->pos, item->pos, sizeof(vec3));
@@ -60,11 +76,15 @@ void overlayItemExport(Item* item)
 }
 void overlayItemRender(Item* item)
 {
+	setTransform(item->transform);
 	OverlayItemDef* def = item->def->data;
-	vec2 start = {-def->size[0] / 128.0f, -def->size[1] / 128.0f};
-	vec2 end = {def->size[0] / 128.0f, def->size[1] / 128.0f};
-	overlayDrawRect(start, end, def->texture, 1);
-	panelEndFrame(item->transform, 1, 1);
+	vec3 start = {-def->size[0] / 128.0f, -def->size[1] / 128.0f, 0.01};
+	vec2 size = {def->size[0] / 64.0f, def->size[1] / 64.0f};
+
+	vec3 verts[4];
+	genVerts(DIR_POS_Z, start, size, verts);
+
+	drawRect(verts, &def->texture);
 }
 void overlayItemGetBoundingBox(Item* item, vec3 min, vec3 max)
 {

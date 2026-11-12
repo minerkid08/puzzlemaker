@@ -5,6 +5,7 @@
 #include "item/item.h"
 #include "jsonUtils.h"
 #include "mapsettings.h"
+#include "packages/theme.h"
 #include "voxel/voxel.h"
 #include <stdio.h>
 #include <string.h>
@@ -67,7 +68,8 @@ void save()
 		cJSON* itemJson = cJSON_CreateObject();
 		cJSON_AddItemToArray(items, itemJson);
 		cJSON_AddNumberToObject(itemJson, "index", item->index);
-		cJSON_AddStringToObject(itemJson, "id", item->def->name);
+		cJSON_AddStringToObject(itemJson, "id", item->def->id);
+		cJSON_AddStringToObject(itemJson, "package", item->def->package->name);
 		cJSON_AddBoolToObject(itemJson, "hidden", item->hidden);
 
 		cJSON* pos = cJSON_CreateArray();
@@ -122,6 +124,36 @@ void save()
 				item = cJSON_CreateBool(kv->value.b);
 			if (type == TYPE_STRING)
 				item = cJSON_CreateString(kv->value.s);
+			if (type == TYPE_VEC3)
+      {
+				item = cJSON_CreateArray();
+        cJSON_AddItemToArray(item, cJSON_CreateNumber(kv->value.v[0]));
+        cJSON_AddItemToArray(item, cJSON_CreateNumber(kv->value.v[1]));
+        cJSON_AddItemToArray(item, cJSON_CreateNumber(kv->value.v[2]));
+      }
+			if (type == TYPE_VEC4)
+      {
+				item = cJSON_CreateArray();
+        cJSON_AddItemToArray(item, cJSON_CreateNumber(kv->value.v[0]));
+        cJSON_AddItemToArray(item, cJSON_CreateNumber(kv->value.v[1]));
+        cJSON_AddItemToArray(item, cJSON_CreateNumber(kv->value.v[2]));
+        cJSON_AddItemToArray(item, cJSON_CreateNumber(kv->value.v[3]));
+      }
+			if (type == TYPE_COLOR3)
+      {
+				item = cJSON_CreateArray();
+        cJSON_AddItemToArray(item, cJSON_CreateNumber(kv->value.v[0]));
+        cJSON_AddItemToArray(item, cJSON_CreateNumber(kv->value.v[1]));
+        cJSON_AddItemToArray(item, cJSON_CreateNumber(kv->value.v[2]));
+      }
+			if (type == TYPE_COLOR4)
+      {
+				item = cJSON_CreateArray();
+        cJSON_AddItemToArray(item, cJSON_CreateNumber(kv->value.v[0]));
+        cJSON_AddItemToArray(item, cJSON_CreateNumber(kv->value.v[1]));
+        cJSON_AddItemToArray(item, cJSON_CreateNumber(kv->value.v[2]));
+        cJSON_AddItemToArray(item, cJSON_CreateNumber(kv->value.v[3]));
+      }
 			if (type == TYPE_BITFIELD)
 			{
 				int value = 0;
@@ -190,11 +222,13 @@ void save()
 			jsonArrSetFloat(rot, antlineSeg->rot[1]);
 			jsonArrSetFloat(rot, antlineSeg->rot[2]);
 			cJSON_AddNumberToObject(segJson, "length", antlineSeg->len);
+			cJSON_AddNumberToObject(segJson, "cornerMode", antlineSeg->cornerMode);
 		}
 	}
 
 	cJSON* settings = cJSON_CreateObject();
 	cJSON_AddItemToObject(json, "settings", settings);
+	cJSON_AddStringToObject(settings, "theme", currentTheme->name);
 	cJSON_AddNumberToObject(settings, "regen", mapSettings.regen);
 	cJSON_AddNumberToObject(settings, "boots", mapSettings.boots);
 	cJSON_AddNumberToObject(settings, "portalgun", mapSettings.portalGun);
@@ -213,6 +247,13 @@ void save()
 	cJSON_AddNumberToObject(settings, "fogStart", data->fogStart);
 	cJSON_AddNumberToObject(settings, "fogEnd", data->fogEnd);
 	cJSON_AddNumberToObject(settings, "fogDensity", data->fogDensity);
+
+	cJSON_AddNumberToObject(settings, "minFalloff", data->minFalloff);
+	cJSON_AddNumberToObject(settings, "maxFalloff", data->maxFalloff);
+	cJSON_AddNumberToObject(settings, "maxWeight", data->maxWeight);
+	cJSON_AddNumberToObject(settings, "fadeInDuration", data->fadeInDuration);
+	cJSON_AddNumberToObject(settings, "fadeOutDuration", data->fadeOutDuration);
+	cJSON_AddStringToObject(settings, "filename", data->filename);
 
 	cJSON* editor = cJSON_CreateObject();
 	cJSON_AddItemToObject(json, "editor", editor);

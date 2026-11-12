@@ -4,8 +4,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef __linux__
 #define min(x, y) ((x) > (y) ? (y) : (x))
 #define max(x, y) ((x) < (y) ? (y) : (x))
+#endif
+
 #define absf(x) ((x) < 0.0f ? -(x) : (x))
 
 #define DIR_POS_X 0
@@ -19,11 +22,12 @@
 void errorf(const char* fmt, ...);
 int strncatf(char* buf, int size, const char* fmt, ...);
 char* strdupf(const char* fmt, ...);
+char* vstrdupf(const char* fmt, va_list va); 
 char startsWith(const char* a, const char* b);
 
 extern ivec3 dirs[6];
 
-void listFiles(const char* path, const char*** dirs, const char*** files, const char* extensionFilter);
+int listFiles(const char* path, const char*** dirs, const char*** files, const char* extensionFilter);
 void makeDir(const char* path);
 
 void getEulerAngles(mat4 mat, vec3 out);

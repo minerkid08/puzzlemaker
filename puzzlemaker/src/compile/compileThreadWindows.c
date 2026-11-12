@@ -1,6 +1,7 @@
 #ifdef _WIN32
 #include "compile/compileThread.h"
 #include "dynList.h"
+#include "export/export.h"
 #include <io.h>
 #include <stdio.h>
 #include <windows.h>
@@ -11,17 +12,19 @@ HANDLE event;
 
 static char buf[512];
 static char proc[1024];
+static PROCESS_INFORMATION pi;
+static char procRunning = 0;
 
 void processString(const char* str, char* out);
 
 int runCmd(char* cmd)
 {
 	processString(cmd, buf);
-  memset(proc, 0, 1024);
+	memset(proc, 0, 1024);
 
 	int len = strlen(buf);
 	int j = 1;
-  proc[0] = '"';
+	proc[0] = '"';
 	for (int i = 0; i < len; i++)
 	{
 		if (buf[i] == '%')
@@ -31,30 +34,46 @@ int runCmd(char* cmd)
 		}
 		if (buf[i] == ' ' && proc[j] != ' ')
 		{
-      proc[j] = '"';
-      proc[j + 1] = ' ';
-      proc[j + 2] = '"';
+			proc[j] = '"';
+			proc[j + 1] = ' ';
+			proc[j + 2] = '"';
 			j += 3;
 			continue;
 		}
 		proc[j] = buf[i];
 		j++;
 	}
-  proc[j] = '"';
-  proc[j + 1] = 0;
+	proc[j] = '"';
+	proc[j + 1] = 0;
+
+	SECURITY_ATTRIBUTES sa;
+	sa.nLength = sizeof(sa);
+	sa.lpSecurityDescriptor = 0;
+	sa.bInheritHandle = 1;
 
 	STARTUPINFO si;
-	PROCESS_INFORMATION pi;
 
 	memset(&si, 0, sizeof(si));
 	si.cb = sizeof(si);
 	memset(&pi, 0, sizeof(pi));
 
-	if (!CreateProcess(0, proc, 0, 0, FALSE, 0, 0, compileStatus.workingDir, &si, &pi))
+	HANDLE hr;
+	HANDLE hw;
+
+	CreatePipe(&hr, &hw, &sa, 0);
+	SetHandleInformation(hr, HANDLE_FLAG_INHERIT, 0);
+	si.hStdInput = 0;
+	si.hStdOutput = hw;
+	si.hStdError = hw;
+	si.dwFlags |= STARTF_USESTDHANDLES;
+
+	if (!CreateProcess(0, proc, 0, 0, TRUE, 0, 0, compileStatus.workingDir, &si, &pi))
 	{
-		printf("CreateProcess failed (%d).\n", GetLastError());
-		printf("command line: '%s'\n", proc);
-		printf("working dir: '%s'\n", compileStatus.workingDir);
+		CloseHandle(hw);
+		CloseHandle(hr);
+		writeMessagef("CreateProcess failed (%lu).\n", GetLastError());
+		writeMessagef("command line: '%s'\n", proc);
+		writeMessagef("working dir: '%s'\n", compileStatus.workingDir);
 
 		int len = strlen(buf);
 		for (int i = 0; i < len; i++)
@@ -68,14 +87,27 @@ int runCmd(char* cmd)
 			}
 		}
 		if (_access(buf, 0))
-			printf("bad command line\n");
+			writeMessage("bad command line\n");
 
 		if (_access(compileStatus.workingDir, 0))
-			printf("bad working dir\n");
+			writeMessage("bad working dir\n");
 		return 1;
+	}
+  procRunning = 1;
+	CloseHandle(hw);
+
+	char buf[512];
+	unsigned long int len2 = 1;
+	while (len2 > 0)
+	{
+		if (!ReadFile(hr, buf, 512, &len2, 0))
+			break;
+		writeMessagen(buf, len2);
 	}
 
 	WaitForSingleObject(pi.hProcess, INFINITE);
+  procRunning = 0;
+	CloseHandle(hr);
 
 	DWORD exitCode = 0;
 	GetExitCodeProcess(pi.hProcess, &exitCode);
@@ -108,9 +140,11 @@ DWORD WINAPI compileThread(LPVOID data)
 		printf("compile started\n");
 		compileStatus.currentStep = 0;
 		ResetEvent(event);
+		clearMessage();
 		for (int i = 0; i < compileStatus.stepCount; i++)
 		{
 			CompileStep* step = &compileStatus.compileSteps[i];
+			writeMessagef("running %s\n\n", step->name);
 			if (i == 0)
 			{
 				if (exportMap())
@@ -132,6 +166,24 @@ DWORD WINAPI compileThread(LPVOID data)
 
 void startCompileThread()
 {
+	loadTaskList();
+	char* p2ce = strdup(compileStatus.p2ce);
+	int j = 0;
+	for (int k = 0; k < strlen(p2ce); k++)
+	{
+		if (p2ce[k] == '%')
+			continue;
+		p2ce[j++] = p2ce[k];
+	}
+	p2ce[j] = 0;
+
+	compileStatus.compileActive = 1;
+	GetCurrentDirectory(512, compileStatus.curPath);
+	if (GetFileAttributesA(p2ce) == INVALID_FILE_ATTRIBUTES)
+		compileStatus.compileActive = 0;
+
+	free(p2ce);
+
 	event = CreateEvent(0, 1, 0, 0);
 	int data = 100;
 	DWORD threadId;
@@ -140,12 +192,19 @@ void startCompileThread()
 
 	if (thread == NULL)
 	{
-		printf("CreateThread failed (%d)\n", GetLastError());
+		printf("CreateThread failed (%lu)\n", GetLastError());
 		return;
 	}
 	CloseHandle(thread);
+}
 
-	loadTaskList();
+void killCompileProcess()
+{
+	if (procRunning)
+  {
+    procRunning = 0;
+    TerminateProcess(pi.hProcess, 1);
+  }
 }
 
 #endif

@@ -1,5 +1,6 @@
 #include "cjson.h"
 #include "dynList.h"
+#include "error.h"
 #include "item/item.h"
 #include "jsonUtils.h"
 #include <GLFW/glfw3.h>
@@ -11,7 +12,8 @@ void copyItem(Item* item)
 {
 	ItemDefinition* def = item->def;
 	cJSON* json = cJSON_CreateObject();
-	cJSON_AddStringToObject(json, "name", def->name);
+	cJSON_AddStringToObject(json, "id", def->id);
+	cJSON_AddStringToObject(json, "package", def->package->name);
 
 	cJSON* kvList = cJSON_CreateObject();
 	cJSON_AddItemToObject(json, "kv", kvList);
@@ -58,24 +60,46 @@ void copyItem(Item* item)
 
 Item* pasteItem()
 {
+	cJSON* json = 0;
+	int res;
+	initErrorStackD("paste", res);
+	if (res)
+	{
+		if (json)
+			cJSON_Delete(json);
+		openErrorPopup();
+		return 0;
+	}
+
 	const char* data = glfwGetClipboardString(window);
-	cJSON* json = cJSON_Parse(data);
+	json = cJSON_Parse(data);
 	if (json == 0)
 	{
-		jsonError("parse error\n");
-		return 0;
+		const char* err = cJSON_GetErrorPtr();
+		jsonParseError(data, err, "paste");
 	}
-	jsonResetStack("paste");
 
-	char* defName = jsonGetStr(json, "name");
-	Item* item = addItemFromDefName(defName, 0);
-	if (item == 0)
+	const char* defId = jsonGetStr(json, "id");
+	const char* packageName = jsonGetStr(json, "package");
+	ItemDefinition* defs = getItemDefinitions();
+	Item* item = 0;
+
+	for (int j = 0; j < dynList_size(defs); j++)
 	{
-		jsonError("invalid item name\n");
-		return 0;
+		if (strcmp(defs[j].package->name, packageName) == 0)
+		{
+			if (strcmp(defs[j].id, defId) == 0)
+			{
+				item = addItem(j, 0);
+				break;
+			}
+		}
 	}
 
-	cJSON* kvJson = cJSON_GetObjectItem(json, "kv");
+	if (item == 0)
+		errorf("invalid item name");
+
+	cJSON* kvJson = jsonGetObject(json, "kv");
 	int len = dynList_size(item->def->kvs);
 	for (int i = 0; i < len; i++)
 	{
@@ -103,7 +127,7 @@ Item* pasteItem()
 			}
 			if (type == TYPE_STRING)
 			{
-				char* str = cJSON_GetObjectItem(kvJson, def->name)->valuestring;
+				const char* str = jsonGetStr(kvJson, def->name);
 				strncpy(kv->value.s, str, 256);
 			}
 			if (type == TYPE_BITFIELD)
@@ -129,6 +153,8 @@ Item* pasteItem()
 			}
 		}
 	}
+	popStackFrame();
 	item->def->callbacks->load(item, json);
+
 	return item;
 }

@@ -1,17 +1,39 @@
 #include "cjson.h"
 #include "dynList.h"
-#include "item/item.h"
+#include "error.h"
 #include "item/entityItem.h"
+#include "item/item.h"
 #include "item/overlayItem.h"
 #include "item/panel.h"
 #include "item/volumeItem.h"
 #include "jsonUtils.h"
+#include "packages/package.h"
+#include "ui/itemPanel.h"
 #include "utils.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 ItemDefinition* definitions;
 ItemGroup* groups;
+
+#ifdef __linux__
+__attribute__((constructor)) static void itemDefInit()
+#else
+void itemDefInit()
+#endif
+{
+	definitions = dynList_new(0, sizeof(ItemDefinition));
+	groups = dynList_new(0, sizeof(ItemGroup));
+}
+
+#if defined(_MSC_VER)
+#pragma section(".CRT$XCU", read)
+
+__declspec(allocate(".CRT$XCU")) void (*itemDefInitPtr)(void) = itemDefInit;
+
+#pragma comment(linker, "/include:itemDefInitPtr")
+#endif
 
 ItemDefinition* getItemDefinitions()
 {
@@ -23,36 +45,15 @@ ItemGroup* getItemGroups()
 	return groups;
 }
 
-void loadItemDefinitionFile(const char* filename);
-
-void loadItemDefinitions()
+void itemLoaderEnd()
 {
-	const char** files = dynList_new(0, sizeof(const char*));
-
-	listFiles("items", 0, &files, ".json");
-
-	definitions = dynList_new(0, sizeof(ItemDefinition));
-	groups = dynList_new(0, sizeof(ItemGroup));
-
-	int len = dynList_size(files);
-	for (int i = 0; i < len; i++)
-	{
-		loadItemDefinitionFile(files[i]);
-		free((void*)files[i]);
-	}
-	dynList_free(files);
-
 	dynList_trim((void**)&definitions);
 	dynList_trim((void**)&groups);
 }
 
-void loadItemDefinitionFile(const char* filename)
+void loadItemDefinitionFile(Package* package, const char* filename)
 {
 	char filenameBuf[64];
-	snprintf(filenameBuf, 64, "items/%s", filename);
-	printf("[item loader] loading file %s\n", filenameBuf);
-
-	FILE* file = fopen(filenameBuf, "rb");
 
 	strncpy(filenameBuf, filename, 64);
 	for (int i = 0; i < strlen(filenameBuf); i++)
@@ -65,20 +66,23 @@ void loadItemDefinitionFile(const char* filename)
 	}
 	const char* group = strdup(filenameBuf);
 
-	fseek(file, 0, SEEK_END);
-	unsigned long long len = ftell(file);
-	fseek(file, 0, SEEK_SET);
+	snprintf(filenameBuf, 64, "items/%s", filename);
+	printf("[item loader] loading file %s\n", filenameBuf);
 
-	char* data = malloc(len + 1);
+	int res;
+	initErrorStack(strdupf("__%s__/items/%s", package->name, filename), res);
+	if (res)
+		startErrorLoop();
 
-	fread(data, 1, len, file);
+	int len;
+	char* data = readPackageFile(package, filenameBuf, &len);
 	data[len] = 0;
 
 	cJSON* json = cJSON_Parse(data);
 	const char* err = cJSON_GetErrorPtr();
 
-	if(err)
-		jsonParseError(data, err, filename);
+	if (err)
+		jsonParseError(data, err, filenameBuf);
 
 	free(data);
 
@@ -95,25 +99,26 @@ void loadItemDefinitionFile(const char* filename)
 	itemGroup->startInd = listLen;
 
 	int i = listLen;
-	cJSON* item;
-	int j = 0;
-	cJSON_ArrayForEach(item, json)
+	for (int j = 0; j < l; j++)
 	{
-		if (!cJSON_IsObject(item))
-			errorf("bad type for item %s %d, expected object\n", filename, j);
+		cJSON* item = jsonArrGetObject(json, j);
 		ItemDefinition* def = &definitions[i++];
 		def->group = group;
+		def->package = package;
 
-		if (cJSON_GetObjectItem(item, "name") == 0)
-			errorf("item %d is missing name field\n", i);
+		if (cJSON_GetObjectItem(item, "id") == 0)
+			errorf("bad type for id field in item __%s__/items/%s: index %d, expected string", package->baseName,
+				   filename, j);
 
-		def->name = jsonGetStr(item, "name");
+		def->id = jsonGetStrD(item, "id");
+		def->name = jsonGetStrCD(item, "name", (char*)def->id);
 
-		printf("[item loader] loading item '%s'\n", def->name);
+		printf("[item loader] loading item '%s'\n", def->id);
 
-		char buf[256];
-		snprintf(buf, 256, "%s, %s index %d", def->name, filename, j++);
-		jsonResetStack(buf);
+		def->flags = 0;
+
+		if (jsonGetBoolC(item, "noDefaultExport", 0))
+			def->flags |= ITEM_FLAGS_NODEFAULTEXPORT;
 
 		const char* type = jsonGetStr(item, "type");
 		if (strcmp(type, "entity") == 0)
@@ -137,17 +142,39 @@ void loadItemDefinitionFile(const char* filename)
 			def->data = loadOverlayItemDef(item, def);
 		}
 		else
-			jsonError("invalid value for key type type\n");
+			errorf("invalid value for key type type");
 
-		def->deleteIntersectingVoxels = jsonGetBoolC(item, "deleteIntersectingVoxels", 0);
-		def->deleteIntersectingVoxelsEditor = jsonGetBoolC(item, "deleteIntersectingVoxelsEditor", def->deleteIntersectingVoxels);
-		def->genMissingVoxels = jsonGetBoolC(item, "genMissingVoxels", 1);
-		def->exportScript = jsonGetStrC(item, "exportScript", 0);
-		def->transparent = jsonGetBoolC(item, "transparent", 0);
-		def->requiresPaint = jsonGetBoolC(item, "requiresPaint", 0);
+		if (jsonGetBoolC(item, "deleteIntersectingVoxels", 0))
+			def->flags |= ITEM_FLAGS_DELVOXELS;
+    char d = (def->flags & ITEM_FLAGS_DELVOXELS) > 0;
+		if (jsonGetBoolC(item, "deleteIntersectingVoxelsEditor", d))
+			def->flags |= ITEM_FLAGS_DELVOXELSEDITOR;
+		if (jsonGetBoolC(item, "genMissingVoxels", 1))
+			def->flags |= ITEM_FLAGS_GENVOXELS;
+		if (jsonGetBoolC(item, "requiresPaint", 0))
+			def->flags |= ITEM_FLAGS_REQUIRES_PAINT;
+
+		def->exportScript = jsonGetStrCD(item, "exportScript", 0);
+
+		const char* rotRestrict = jsonGetStrC(item, "rotationRestriction", "");
+		for (int i = 0; i < strlen(rotRestrict); i++)
+		{
+			switch (rotRestrict[i])
+			{
+			case 'x':
+				def->flags ^= RESTRICT_X;
+				break;
+			case 'y':
+				def->flags ^= RESTRICT_Y;
+				break;
+			case 'z':
+				def->flags ^= RESTRICT_Z;
+				break;
+			}
+		}
 
 		cJSON* keyValues = jsonGetArrayC(item, "keyvalues");
-		len = cJSON_GetArraySize(keyValues);
+		int len = cJSON_GetArraySize(keyValues);
 		def->kvs = dynList_new(len, sizeof(ItemKvDef));
 
 		for (int i = 0; i < len; i++)
@@ -155,39 +182,39 @@ void loadItemDefinitionFile(const char* filename)
 			cJSON* kv = jsonArrGetObject(keyValues, i);
 			ItemKvDef* kvDef = &def->kvs[i];
 
-			kvDef->name = jsonGetStr(kv, "kv");
-			if (cJSON_GetObjectItem(kv, "name"))
-				kvDef->displayName = jsonGetStr(kv, "name");
-			else
-				kvDef->displayName = kvDef->name;
+			kvDef->name = jsonGetStrD(kv, "kv");
+			kvDef->displayName = jsonGetStrCD(kv, "name", (char*)kvDef->name);
 
-			cJSON* type = cJSON_GetObjectItem(kv, "type");
-			if (strcmp(type->valuestring, "bool") == 0)
+			const char* type = jsonGetStr(kv, "type");
+			if (strcmp(type, "bool") == 0)
 			{
 				kvDef->type = TYPE_BOOL;
 				kvDef->defaultValue.b = jsonGetBool(kv, "defaultValue");
 			}
-			if (strcmp(type->valuestring, "float") == 0)
+			if (strcmp(type, "float") == 0)
 			{
 				kvDef->type = TYPE_FLOAT;
 				kvDef->defaultValue.f = jsonGetFloat(kv, "defaultValue");
 			}
-			if (strcmp(type->valuestring, "int") == 0)
+			if (strcmp(type, "int") == 0)
 			{
 				kvDef->type = TYPE_INT;
 				kvDef->defaultValue.i = jsonGetInt(kv, "defaultValue");
 			}
-			if (strcmp(type->valuestring, "string") == 0)
+			if (strcmp(type, "string") == 0)
 			{
 				kvDef->type = TYPE_STRING;
-				kvDef->defaultValue.s = jsonGetStr(kv, "defaultValue");
+				kvDef->defaultValue.s = jsonGetStrD(kv, "defaultValue");
 			}
-			if (strcmp(type->valuestring, "item") == 0)
+			if (strcmp(type, "item") == 0)
 			{
 				kvDef->type = TYPE_PICKER;
 				kvDef->defaultValue.i = -1;
+				V* v = malloc(sizeof(V));
+				v->b = jsonGetBoolC(kv, "required", 0);
+				kvDef->dropValues = v;
 			}
-			if (strcmp(type->valuestring, "bitfield") == 0)
+			if (strcmp(type, "bitfield") == 0)
 			{
 				kvDef->type = TYPE_BITFIELD;
 				kvDef->defaultValue.i = jsonGetInt(kv, "defaultValue");
@@ -204,15 +231,69 @@ void loadItemDefinitionFile(const char* filename)
 					if (opt == 0)
 						break;
 					if (!cJSON_IsNumber(opt))
-						jsonError("bad type for kv value %d\n", i);
+						errorf("bad type for kv value %d", i);
 					kvDef->dropNames[i] = strdup(opt->string);
 					kvDef->dropValues[i].i = opt->valueint;
 					opt = opt->next;
 					i++;
 				}
-				jsonPop();
+				popStackFrame();
 			}
-			if (strcmp(type->valuestring, "drop-string") == 0)
+			if (strcmp(type, "vec3") == 0)
+			{
+				kvDef->type = TYPE_VEC3;
+				float* v = malloc(sizeof(vec3));
+				jsonGetVec3(kv, "defaultValue", v);
+				kvDef->defaultValue.v = v;
+				const char* gizmo = jsonGetStrC(kv, "gizmo", 0);
+				V* g = malloc(sizeof(V));
+				g->i = GIZMO_NONE;
+				if (gizmo)
+				{
+					if (strcmp(gizmo, "position") == 0)
+						g->i = GIZMO_POS;
+					if (strcmp(gizmo, "position-offset") == 0)
+						g->i = GIZMO_POS_OFFSET;
+					if (strcmp(gizmo, "angle") == 0)
+						g->i = GIZMO_ANGLE;
+					if (strcmp(gizmo, "angle-offset") == 0)
+						g->i = GIZMO_ANGLE_OFFSET;
+					if (strcmp(gizmo, "angle-offset-floor") == 0)
+						g->i = GIZMO_ANGLE_OFFSET_FLOOR;
+					if (strcmp(gizmo, "angle-offset-ceiling") == 0)
+						g->i = GIZMO_ANGLE_OFFSET_CEILING;
+				}
+				kvDef->dropValues = g;
+			}
+			if (strcmp(type, "vec4") == 0)
+			{
+				kvDef->type = TYPE_VEC4;
+				float* v = malloc(sizeof(vec4));
+				jsonGetVec4(kv, "defaultValue", v);
+				kvDef->defaultValue.v = v;
+      }
+			if (strcmp(type, "color3") == 0)
+			{
+				kvDef->type = TYPE_COLOR3;
+				float* v = malloc(sizeof(vec3));
+				jsonGetVec3(kv, "defaultValue", v);
+        v[0] /= 255;
+        v[1] /= 255;
+        v[2] /= 255;
+				kvDef->defaultValue.v = v;
+      }
+			if (strcmp(type, "color4") == 0)
+			{
+				kvDef->type = TYPE_COLOR4;
+				float* v = malloc(sizeof(vec4));
+				jsonGetVec4(kv, "defaultValue", v);
+        v[0] /= 255;
+        v[1] /= 255;
+        v[2] /= 255;
+        v[3] /= 255;
+				kvDef->defaultValue.v = v;
+      }
+			if (strcmp(type, "drop-string") == 0)
 			{
 				kvDef->type = TYPE_STRING | TYPE_DROPDOWN;
 				kvDef->defaultValue.i = jsonGetInt(kv, "defaultValue");
@@ -228,15 +309,15 @@ void loadItemDefinitionFile(const char* filename)
 					if (opt == 0)
 						break;
 					if (!cJSON_IsString(opt))
-						jsonError("bad type for kv value %d\n", i);
+						errorf("bad type for kv value %d", i);
 					kvDef->dropNames[i] = strdup(opt->string);
 					kvDef->dropValues[i].s = strdup(opt->valuestring);
 					opt = opt->next;
 					i++;
 				}
-				jsonPop();
+				popStackFrame();
 			}
-			if (strcmp(type->valuestring, "drop-int") == 0)
+			if (strcmp(type, "drop-int") == 0)
 			{
 				kvDef->type = TYPE_INT | TYPE_DROPDOWN;
 				kvDef->defaultValue.i = jsonGetInt(kv, "defaultValue");
@@ -252,13 +333,13 @@ void loadItemDefinitionFile(const char* filename)
 					if (opt == 0)
 						break;
 					if (!cJSON_IsNumber(opt))
-						jsonError("bad type for kv value %d\n", i);
+						errorf("bad type for kv value %d", i);
 					kvDef->dropNames[i] = strdup(opt->string);
 					kvDef->dropValues[i].i = opt->valuedouble;
 					opt = opt->next;
 					i++;
 				}
-				jsonPop();
+				popStackFrame();
 			}
 
 			if (def->type == ITEM_TYPE_ENTITY)
@@ -267,10 +348,10 @@ void loadItemDefinitionFile(const char* filename)
 				if (entDef->instanceName)
 					kvDef->type |= TYPE_INSTANCE;
 			}
-			jsonPop();
+			popStackFrame();
 		}
 		if (len > 0)
-			jsonPop();
+			popStackFrame();
 
 		cJSON* inputs = jsonGetArrayC(item, "inputs");
 		if (inputs == 0)
@@ -284,14 +365,14 @@ void loadItemDefinitionFile(const char* filename)
 				cJSON* input = jsonArrGetObject(inputs, i);
 				InputDef* inputDef = &def->inputs[i];
 
-				inputDef->name = jsonGetStr(input, "name");
-				inputDef->trueInput = jsonGetStr(input, "trueInput");
-				inputDef->falseInput = jsonGetStrC(input, "falseInput", 0);
-				inputDef->trueArg = jsonGetStrC(input, "trueArg", 0);
-				inputDef->falseArg = jsonGetStrC(input, "falseArg", 0);
-				jsonPop();
+				inputDef->name = jsonGetStrD(input, "name");
+				inputDef->trueInput = jsonGetStrD(input, "trueInput");
+				inputDef->falseInput = jsonGetStrCD(input, "falseInput", 0);
+				inputDef->trueArg = jsonGetStrCD(input, "trueArg", 0);
+				inputDef->falseArg = jsonGetStrCD(input, "falseArg", 0);
+				popStackFrame();
 			}
-			jsonPop();
+			popStackFrame();
 		}
 
 		cJSON* outputs = jsonGetArrayC(item, "outputs");
@@ -306,16 +387,16 @@ void loadItemDefinitionFile(const char* filename)
 				cJSON* output = jsonArrGetObject(outputs, i);
 				OutputDef* outputDef = &def->outputs[i];
 
-				outputDef->name = jsonGetStr(output, "name");
-				outputDef->trueOutput = jsonGetStr(output, "trueOutput");
-				outputDef->falseOutput = jsonGetStrC(output, "falseOutput", 0);
-				jsonPop();
+				outputDef->name = jsonGetStrD(output, "name");
+				outputDef->trueOutput = jsonGetStrD(output, "trueOutput");
+				outputDef->falseOutput = jsonGetStrCD(output, "falseOutput", 0);
+				popStackFrame();
 			}
-			jsonPop();
+			popStackFrame();
 		}
 
 		cJSON* staticKvs = jsonGetObjectC(item, "statickvs");
-		int len = cJSON_GetArraySize(staticKvs);
+		len = cJSON_GetArraySize(staticKvs);
 
 		def->staticKvs = dynList_new(len, sizeof(char*));
 		if (staticKvs)
@@ -327,37 +408,31 @@ void loadItemDefinitionFile(const char* filename)
 				if (kv == 0)
 					break;
 				if (!cJSON_IsString(kv))
-					jsonError("bad type for static kv value %d\n", i);
+					errorf("bad type for static kv value %d", i);
 				int l = strlen(kv->string) + strlen(kv->valuestring) + 7;
 				def->staticKvs[i] = malloc(l);
 				snprintf(def->staticKvs[i], l, "\"%s\" \"%s\"", kv->string, kv->valuestring);
 				kv = kv->next;
 				i++;
 			}
-			jsonPop();
+			popStackFrame();
 		}
 
-		char* snapMode = jsonGetStrC(item, "snapMode", 0);
-		def->snapMode = SNAP_CORNER;
+		const char* snapMode = jsonGetStrC(item, "snapMode", 0);
 		if (snapMode)
 		{
 			if (strcmp(snapMode, "corner") == 0)
-				def->snapMode = SNAP_CORNER;
+				def->flags |= SNAP_CORNER;
 			if (strcmp(snapMode, "center") == 0)
-				def->snapMode = SNAP_CENTER;
+				def->flags |= SNAP_CENTER;
 			if (strcmp(snapMode, "mini-corner") == 0)
-				def->snapMode = SNAP_MINI_CORNER;
+				def->flags |= SNAP_MINI_CORNER;
 			if (strcmp(snapMode, "mini-center") == 0)
-				def->snapMode = SNAP_MINI_CENTER;
-			free(snapMode);
+				def->flags |= SNAP_MINI_CENTER;
 		}
-	}
-
-	err = cJSON_GetErrorPtr();
-	if (err)
-	{
-		printf("json error\n%s\n", err);
-		exit(1);
+		else
+			def->flags |= SNAP_CORNER;
+		popStackFrame();
 	}
 	cJSON_Delete(json);
 }

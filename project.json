@@ -7,7 +7,7 @@
       "build": [],
       "libs": ["clib", "glad", "cimgui", "cglm", "stb", "cjson",  "lua"],
       "lang": "c",
-      "linkArgs": ["-lglfw", "-lm", "-lstdc++"]
+      "linkArgs": ["-lglfw", "-lm", "-lstdc++", "-lzip"]
     }
   ]
 }

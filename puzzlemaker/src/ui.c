@@ -1,6 +1,7 @@
 #include "camera.h"
 #include "mapsettings.h"
 #include "renderer/framebuffer.h"
+#include "renderer/texture.h"
 #include "ui/fileBrowser.h"
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 #define CIMGUI_USE_OPENGL3
@@ -20,8 +21,16 @@ float uiScale = 1.0f;
 char queueCompile = 0;
 ImVec2 zero;
 
+unsigned int iconTexture = 0;
+
+char queueThemeUpdate = 0;
+void loadImguiTheme();
+void unloadImguiTheme();
+
 void initUi(GLFWwindow* window)
 {
+	iconTexture = loadTexture(0, "icons.png", 0);
+
 	zero.x = 0;
 	zero.y = 0;
 
@@ -30,14 +39,15 @@ void initUi(GLFWwindow* window)
 	io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
+	igStyleColorsDark(0);
+	loadImguiTheme();
+
 	ImGuiStyle* style = igGetStyle();
-	ImGuiStyle_ScaleAllSizes(style, uiScale);
-	style->FontScaleMain = uiScale;
+	//ImGuiStyle_ScaleAllSizes(style, uiScale);
 
 	const char* glslVersion = "#version 330 core";
 	ImGui_ImplGlfw_InitForOpenGL(window, 1);
 	ImGui_ImplOpenGL3_Init(glslVersion);
-	igStyleColorsDark(0);
 }
 
 void uiNewFrame()
@@ -88,6 +98,13 @@ void uiEndFrame()
 		igRenderPlatformWindowsDefault(0, 0);
 		glfwMakeContextCurrent(ctx);
 	}
+
+	if(queueThemeUpdate)
+	{
+		unloadImguiTheme();
+		loadImguiTheme();
+		queueThemeUpdate = 0;
+	}
 }
 
 extern char viewportHovered;
@@ -97,6 +114,7 @@ extern unsigned int mouseOffsetY;
 
 extern int width;
 extern int height;
+
 void uiViewport(FrameBuffer* framebuffer)
 {
 	igBegin("Viewport", 0, 0);
@@ -132,31 +150,53 @@ void uiViewport(FrameBuffer* framebuffer)
 	igEnd();
 }
 
+static char newMapPopup = 0;
+extern char running;
+extern char errorActive;
+
 void uiMenuBar()
 {
 	ImVec2 zero;
 	zero.x = 0;
 	zero.y = 0;
 	igBeginMenuBar();
-	if (igMenuItem_Bool("save", 0, 0, 1))
-		fileBrowserSave();
-	if (igMenuItem_Bool("save as", 0, 0, 1))
-		fileBrowserOpen(MODE_SAVE);
-	if (igMenuItem_Bool("load", 0, 0, 1))
-		fileBrowserOpen(MODE_LOAD);
-	if (igMenuItem_Bool("compile", 0, 0, 1))
+	if (igBeginMenu("File", 1))
 	{
-		if (mapSettings.name[0] == 0)
+		if (igMenuItem_Bool("New", 0, 0, 1))
+			newMapPopup = 1;
+		if (igMenuItem_Bool("Save", 0, 0, 1))
+			fileBrowserSave();
+		if (igMenuItem_Bool("Save As", 0, 0, 1))
 			fileBrowserOpen(MODE_SAVE);
-		else
-			startCompile();
+		if (igMenuItem_Bool("Load", 0, 0, 1))
+			fileBrowserOpen(MODE_LOAD);
+		igEndMenu();
 	}
-	if (igMenuItem_Bool("map settings", 0, 0, 1))
-		openMapSettingsUi();
-	if (igMenuItem_Bool("editor settings", 0, 0, 1))
-		openEditorSettingsUi();
-	if (igMenuItem_Bool("debug", 0, 0, 1))
-		openItemDebug();
+	if (igBeginMenu("Map", 1))
+	{
+		if (igMenuItem_Bool("Compile", 0, 0, 1))
+		{
+			if (mapSettings.name[0] == 0)
+				fileBrowserOpen(MODE_SAVE | QUEUE_COMPILE);
+			else
+				queueCompile = 1;
+		}
+		if (igMenuItem_Bool("Map Settings", 0, 0, 1))
+			openMapSettingsUi();
+		igEndMenu();
+	}
+	if (igBeginMenu("Window", 1))
+	{
+		if (igMenuItem_Bool("Editor Settings", 0, 0, 1))
+			openEditorSettingsUi();
+		if (igMenuItem_Bool("Package Manager", 0, 0, 1))
+			openPackageManager();
+		if (igMenuItem_Bool("Debug", 0, 0, 1))
+			openItemDebug();
+		if (igMenuItem_Bool("Keybinds", 0, 0, 1))
+			openKeybindsPanel();
+		igEndMenu();
+	}
 	igSeparator();
 	igText("%s", mapSettings.name);
 
@@ -166,10 +206,34 @@ void uiMenuBar()
 		startCompile();
 	}
 
+	if (newMapPopup)
+	{
+		igOpenPopup_Str("New Map", 0);
+		newMapPopup = 0;
+	}
+
+	if (igBeginPopupModal("New Map", 0, 0))
+	{
+		igText("You are going to clear the current map");
+		igText("Are you sure?");
+		if (igButton("Yes", zero))
+		{
+			resetMap();
+			igCloseCurrentPopup();
+		}
+		igSameLine(0, -1);
+		if (igButton("No", zero))
+			igCloseCurrentPopup();
+		igEndPopup();
+	}
+
 	updateCompilePopup();
 	renderErrorPopup();
 	igEndMenuBar();
 
+	renderKeybinds();
 	renderMapSettingsUi();
 	renderEditorSettingsUi();
+	if (running && errorActive == 0)
+		packageManagerRender();
 }

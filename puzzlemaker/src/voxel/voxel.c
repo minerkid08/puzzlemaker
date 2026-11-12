@@ -7,6 +7,8 @@
 #include "voxel/voxelConfig.h"
 #include <string.h>
 
+VoxelConfig* voxelConfig;
+
 Voxel voxels[MAP_SIZE * MAP_SIZE * MAP_SIZE];
 ivec3 mapReigonStart;
 ivec3 mapReigonEnd;
@@ -27,8 +29,6 @@ char pointInRange(ivec3 point, ivec3 boundA, ivec3 boundB)
 
 void initVoxels()
 {
-	loadVoxelConfig();
-
 	memset(voxels, 0, sizeof(voxels));
 	for (int i = 0; i < VOXEL_COUNT; i++)
 	{
@@ -70,9 +70,11 @@ void initVoxels()
 
 Voxel* getVoxel(int x, int y, int z)
 {
+#ifdef DEBUG
 	assert(x >= 0 && x < MAP_SIZE);
 	assert(y >= 0 && y < MAP_SIZE);
 	assert(z >= 0 && z < MAP_SIZE);
+#endif
 	return &voxels[x + (y * MAP_SIZE) + (z * MAP_SIZE * MAP_SIZE)];
 }
 
@@ -229,7 +231,7 @@ void updateCulledVoxels()
 						Item* item = &items[i];
 						if (!isItemValid(item))
 							continue;
-						if (item->def->deleteIntersectingVoxelsEditor == 0)
+						if ((item->def->flags & ITEM_FLAGS_DELVOXELSEDITOR) == 0)
 							continue;
 						if (itemIntersectsVoxel(item, pos, 1))
 						{

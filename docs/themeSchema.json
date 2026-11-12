@@ -1,0 +1,259 @@
+{
+	"$schema": "https://json-schema.org/draft-07/schema#",
+	"properties": {
+		"voxel": {
+			"type": "object",
+			"properties": {
+				"blackEditor": {
+					"type": "string"
+				},
+				"whiteEditor": {
+					"type": "string"
+				},
+				"blackMiniEditor": {
+					"type": "string"
+				},
+				"whiteMiniEditor": {
+					"type": "string"
+				},
+				"blackFloor": {
+					"type": "string"
+				},
+				"blackWall": {
+					"type": "string"
+				},
+				"blackCeiling": {
+					"type": "string"
+				},
+				"whiteFloor": {
+					"type": "string"
+				},
+				"whiteWall": {
+					"type": "string"
+				},
+				"whiteCeiling": {
+					"type": "string"
+				},
+				"blackFloorMini": {
+					"type": "string"
+				},
+				"blackWallMini": {
+					"type": "string"
+				},
+				"blackCeilingMini": {
+					"type": "string"
+				},
+				"whiteFloorMini": {
+					"type": "string"
+				},
+				"whiteWallMini": {
+					"type": "string"
+				},
+				"whiteCeilingMini": {
+					"type": "string"
+				},
+				"nodraw": {
+					"type": "string"
+				},
+				"backstage": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"blackEditor",
+				"whiteEditor",
+				"blackMiniEditor",
+				"whiteMiniEditor",
+				"blackFloor",
+				"blackWall",
+				"blackCeiling",
+				"whiteFloor",
+				"whiteWall",
+				"whiteCeiling",
+				"blackFloorMini",
+				"blackWallMini",
+				"blackCeilingMini",
+				"whiteFloorMini",
+				"whiteWallMini",
+				"whiteCeilingMini",
+				"nodraw",
+				"backstage"
+			]
+		},
+		"antline": {
+			"type": "object",
+			"properties": {
+				"editorAntlineTex": {
+					"type": "string"
+				},
+				"editorAntlineActiveTex": {
+					"type": "string"
+				},
+				"editorCheckTex": {
+					"type": "string"
+				},
+				"editorCheckActiveTex": {
+					"type": "string"
+				},
+				"dotSize": {
+					"type": "number"
+				},
+				"checkSize": {
+					"type": "number"
+				},
+				"lineTex": {
+					"type": "string"
+				},
+				"cornerTex": {
+					"type": "string"
+				},
+				"checkTex": {
+					"type": "string"
+				},
+				"lineDotCountx": {
+					"type": "number"
+				},
+				"lineDotCounty": {
+					"type": "number"
+				},
+				"cornerDotCountx": {
+					"type": "number"
+				},
+				"cornerDotCounty": {
+					"type": "number"
+				}
+			},
+			"required": [
+				"editorAntlineTex",
+				"editorAntlineActiveTex",
+				"editorCheckTex",
+				"editorCheckActiveTex",
+				"dotSize",
+				"checkSize",
+				"lineTex",
+				"cornerTex",
+				"checkTex",
+				"lineDotCountx",
+				"lineDotCounty",
+				"cornerDotCountx",
+				"cornerDotCounty"
+			]
+		},
+		"postProcessing": {
+			"type": "array",
+			"minItems": 1,
+			"items": {
+				"type": "object",
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"tonemap": {
+						"type": "object",
+						"properties": {
+							"enabled": {
+								"type": "boolean",
+								"default": true
+							},
+							"maxExposure": {
+								"type": "number"
+							},
+							"minExposure": {
+								"type": "number"
+							},
+							"tonemapRate": {
+								"type": "number"
+							},
+							"brightPixelPercent": {
+								"type": "number"
+							}
+						},
+						"required": [
+							"maxExposure",
+							"minExposure",
+							"tonemapRate",
+							"brightPixelPercent"
+						]
+					},
+					"fog": {
+						"type": "object",
+						"properties": {
+							"enabled": {
+								"type": "boolean",
+								"default": true
+							},
+							"primaryColor": {
+								"$ref": "utilsSchema.json#/$defs/vec3"
+							},
+							"secondaryColor": {
+								"$ref": "utilsSchema.json#/$defs/vec3"
+							},
+							"start": {
+								"type": "number"
+							},
+							"end": {
+								"type": "number"
+							},
+							"density": {
+								"type": "number"
+							}
+						},
+						"required": [
+							"primaryColor",
+							"secondaryColor",
+							"start",
+							"end",
+							"density"
+						]
+					},
+					"colorCorrection": {
+						"type": "object",
+						"properties": {
+							"enabled": {
+								"type": "boolean",
+								"default": true
+							},
+							"minFalloff": {
+								"type": "number"
+							},
+							"maxFalloff": {
+								"type": "number"
+							},
+							"maxWeight": {
+								"type": "number"
+							},
+							"fadeInDuration": {
+								"type": "number"
+							},
+							"fadeOutDuration": {
+								"type": "number"
+							},
+							"filename": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"minFalloff",
+							"maxFalloff",
+							"maxWeight",
+							"fadeInDuration",
+							"fadeOutDuration",
+							"filename"
+						]
+					}
+				},
+				"required": [
+					"name",
+					"tonemap",
+					"fog",
+					"colorCorrection"
+				]
+			}
+		}
+	},
+	"required": [
+		"voxel",
+		"antline",
+		"postProcessing"
+	]
+}

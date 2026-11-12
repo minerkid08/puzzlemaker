@@ -33,7 +33,7 @@ void updateGrab(vec3 cameraPos, vec3 mouseDir)
 				snapMode = 6;
 		}
 		if (selection.type == SELECTION_ITEM)
-			snapMode = selection.item->def->snapMode;
+			snapMode = selection.item->def->flags & ITEM_FLAGS_SNAP_MODE;
 		switch (snapMode)
 		{
 		case SNAP_CORNER:
@@ -81,7 +81,7 @@ void updateGrab(vec3 cameraPos, vec3 mouseDir)
 			break;
 		}
 		case 5: {
-			AntlineConfig* cfg = getAntlineConfig();
+			AntlineConfig* cfg = antlineConfig;
 			float a = 64.0f / cfg->dotSize;
 			newPos[0] = round(hit.pos[0] * a - cfg->editorDotSize) / a + cfg->editorDotSize;
 			newPos[1] = round(hit.pos[1] * a - cfg->editorDotSize) / a + cfg->editorDotSize;
@@ -89,7 +89,7 @@ void updateGrab(vec3 cameraPos, vec3 mouseDir)
 			break;
 		}
 		case 6: {
-			AntlineConfig* cfg = getAntlineConfig();
+			AntlineConfig* cfg = antlineConfig;
 			float a = 64.0f / cfg->checkSize;
 			newPos[0] = round(hit.pos[0] * a - cfg->editorCheckSize) / a + cfg->editorCheckSize;
 			newPos[1] = round(hit.pos[1] * a - cfg->editorCheckSize) / a + cfg->editorCheckSize;
@@ -161,8 +161,16 @@ void updateGrab(vec3 cameraPos, vec3 mouseDir)
 				newRot[1] = 180;
 				newRot[2] = 0;
 			}
+
 			if (selection.type == SELECTION_ITEM)
 			{
+				if (selection.item->def->flags & RESTRICT_X)
+					newRot[0] = 0;
+				if (selection.item->def->flags & RESTRICT_Y)
+					newRot[1] = 0;
+				if (selection.item->def->flags & RESTRICT_Z)
+					newRot[2] = 0;
+
 				memcpy(selection.item->pos, newPos, sizeof(vec3));
 				memcpy(selection.item->dir, newRot, sizeof(vec3));
 				updateItemTransformRot(selection.item);
@@ -184,7 +192,7 @@ void updateGrab(vec3 cameraPos, vec3 mouseDir)
 				{
 					memcpy(selection.item->pos, newPos, sizeof(vec3));
 					updateItemTransformRot(selection.item);
-          updateCulledVoxels();
+					updateCulledVoxels();
 				}
 			}
 			if (selection.type == SELECTION_ANTLINE)

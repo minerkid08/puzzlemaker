@@ -1,0 +1,52 @@
+[
+	{
+    "type": "entity",
+		"id": "light",
+		"name": "Light",
+		"model": "light.obj",
+    "instance": "light",
+    "snapMode": "mini-center",
+    "bound1": [-1.25, -0.25, 0],
+    "bound2": [0.75, 0.25, 0.1]
+	},
+	{
+    "type": "entity",
+		"id": "obroom",
+		"name": "Observation Room 4x2",
+		"model": "obroom.obj",
+    "instance": "obroom2",
+    "snapMode": "mini-corner",
+	  "bound1":	[-2, -1, -4],
+	  "bound2":	[2, 1, 0.1],
+    "deleteIntersectingVoxels": true,
+    "deleteIntersectingVoxelsEditor": false,
+    "genMissingVoxels": false,
+		"inputs": [
+			{
+				"name": "Turn On",
+				"trueInput": "instance:light;TurnOn",
+				"falseInput": "instance:light;TurnOff"
+			}
+		]
+	},
+	{
+    "type": "entity",
+		"id": "obroom2",
+		"name": "Observation Room 2x2",
+		"model": "obroom2.obj",
+    "instance": "obroom",
+    "snapMode": "mini-corner",
+	  "bound1":	[-1, -1, -3],
+	  "bound2":	[1, 1, 0.1],
+    "deleteIntersectingVoxels": true,
+    "deleteIntersectingVoxelsEditor": false,
+    "genMissingVoxels": false,
+		"inputs": [
+			{
+				"name": "Turn On",
+				"trueInput": "instance:light;TurnOn",
+				"falseInput": "instance:light;TurnOff"
+			}
+		]
+	}
+]

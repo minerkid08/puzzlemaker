@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cjson.h"
+#include "packages/package.h"
 #include "renderer/mesh.h"
 #include <cglm/cglm.h>
 
@@ -10,18 +11,44 @@
 #define TYPE_FLOAT 4
 #define TYPE_PICKER 5
 #define TYPE_BITFIELD 6
+#define TYPE_VEC3 7
+#define TYPE_VEC4 8
+#define TYPE_COLOR3 9
+#define TYPE_COLOR4 10
 #define TYPE_INSTANCE 64
 #define TYPE_DROPDOWN 128
+
+#define GIZMO_NONE 0
+#define GIZMO_POS 1
+#define GIZMO_POS_OFFSET 2
+#define GIZMO_ANGLE 3
+#define GIZMO_ANGLE_OFFSET 4
+#define GIZMO_ANGLE_OFFSET_FLOOR 5
+#define GIZMO_ANGLE_OFFSET_CEILING 6
 
 #define ITEM_TYPE_ENTITY 1
 #define ITEM_TYPE_PANEL 2
 #define ITEM_TYPE_VOLUME 3
 #define ITEM_TYPE_OVERLAY 4
 
+#define ITEM_FLAGS_SNAP_MODE ((1 << 0) | (1 << 1))
+#define ITEM_FLAGS_ROT_RESTRICT ((1 << 2) | (1 << 3) | (1 << 4))
+#define ITEM_FLAGS_TRANSPARENT (1 << 5)
+#define ITEM_FLAGS_OPAQUE (1 << 6)
+#define ITEM_FLAGS_REQUIRES_PAINT (1 << 7)
+#define ITEM_FLAGS_DELVOXELS (1 << 8)
+#define ITEM_FLAGS_DELVOXELSEDITOR (1 << 9)
+#define ITEM_FLAGS_GENVOXELS (1 << 10)
+#define ITEM_FLAGS_NODEFAULTEXPORT (1 << 11)
+
 #define SNAP_CORNER 0
 #define SNAP_CENTER 1
 #define SNAP_MINI_CORNER 2
 #define SNAP_MINI_CENTER 3
+
+#define RESTRICT_X (1 << 2)
+#define RESTRICT_Y (1 << 3)
+#define RESTRICT_Z (1 << 4)
 
 typedef struct Item Item;
 
@@ -30,6 +57,7 @@ typedef union {
 	float f;
 	char b;
 	char* s;
+	float* v;
 } V;
 
 typedef struct
@@ -70,10 +98,10 @@ typedef struct
 
 typedef struct
 {
-	char type;
-
 	void* data;
+	Package* package;
 
+	const char* id;
 	const char* name;
 	const char* group;
 
@@ -84,15 +112,10 @@ typedef struct
 
 	ItemKvDef* kvs;
 	char** staticKvs;
-
-	char snapMode;
-	char requiresPaint;
-	char transparent;
-	char deleteIntersectingVoxels;
-	char deleteIntersectingVoxelsEditor;
-	char genMissingVoxels;
-
 	ItemCallbacks* callbacks;
+
+	int type;
+	int flags;
 } ItemDefinition;
 
 typedef struct
@@ -113,25 +136,21 @@ typedef struct
 
 struct Item
 {
-	int index;
-	int loadIndex;
-	int id;
-	char highlighted;
-	char hidden;
+	mat4 transform;
+	vec4 quat;
 	vec3 pos;
 	vec3 dir;
-	vec4 quat;
-	mat4 transform;
-	mat4 invTransform;
-	char snapDir;
-	const char* ioEnt;
-
+	int index;
+	int loadIndex;
 	ItemKv* kv;
 	ItemOutput* outputs;
-
+	const char* ioEnt;
 	ItemDefinition* def;
-
 	void* data;
+	int id;
+	char highlighted;
+	char snapDir;
+	char hidden;
 };
 
 typedef struct
@@ -141,7 +160,8 @@ typedef struct
 	int startInd;
 } ItemGroup;
 
-void loadItemDefinitions();
+void loadItemDefinitionFile(Package* package, const char* filename);
+void itemLoaderEnd();
 
 void drawItems();
 

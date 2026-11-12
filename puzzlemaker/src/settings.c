@@ -1,7 +1,9 @@
 #include "settings.h"
 #include "cjson.h"
-#include "utils.h"
+#include "dynList.h"
+#include "error.h"
 #include "jsonUtils.h"
+#include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,13 +12,27 @@ EditorSettings editorSettings;
 
 void loadEditorSettings()
 {
+	const char** files = dynList_new(0, sizeof(const char*));
+	listFiles("editorThemes", 0, &files, ".json");
+
+	int fileCount = dynList_size(files);
+	dynList_resize((void**)&files, fileCount + 1);
+	files[fileCount] = "none";
+	editorSettings.themeList = files;
+
 	FILE* file = fopen("editorSettings.json", "rb");
 	if (file == 0)
 	{
 		editorSettings.boostSpeed = 8;
 		editorSettings.moveSpeed = 4;
+		editorSettings.arrowSens = 1;
+		editorSettings.orbitSens = 0.1;
+		editorSettings.panSens = 0.5;
 		editorSettings.fov = 90;
-		editorSettings.rotSnap = 90;
+		editorSettings.rotSnap = 15;
+		editorSettings.lockMouseOnPan = 1;
+		editorSettings.gizmoLen = 1;
+		editorSettings.theme = editorSettings.themeList[0];
 		return;
 	}
 
@@ -29,16 +45,43 @@ void loadEditorSettings()
 	fread(data, 1, len, file);
 	data[len] = 0;
 
-	cJSON* json = cJSON_Parse(data);
-	const char* err = cJSON_GetErrorPtr();
-	free(data);
-	if (err)
-		errorf("failed to parse editorSettings.json\n%s\n", err);
+	int res;
+	initErrorStackD("editorSettings.json", res);
+	if (res)
+		startErrorLoop();
 
-	editorSettings.moveSpeed = jsonGetFloat(json, "moveSpeed");
-	editorSettings.boostSpeed = jsonGetFloat(json, "boostSpeed");
-	editorSettings.fov = jsonGetFloat(json, "fov");
-	editorSettings.rotSnap = jsonGetFloatC(json, "rotSnap", 90);
+	cJSON* json = cJSON_Parse(data);
+	if (json == 0)
+		jsonParseError(data, cJSON_GetErrorPtr(), "editorSettings.json");
+	free(data);
+
+	editorSettings.moveSpeed = jsonGetFloatC(json, "moveSpeed", 4);
+	editorSettings.boostSpeed = jsonGetFloatC(json, "boostSpeed", 8);
+	editorSettings.arrowSens = jsonGetFloatC(json, "arrowSens", 1);
+	editorSettings.orbitSens = jsonGetFloatC(json, "orbitSens", 0.1);
+	editorSettings.panSens = jsonGetFloatC(json, "panSens", 0.5);
+	editorSettings.fov = jsonGetFloatC(json, "fov", 90);
+	editorSettings.rotSnap = jsonGetFloatC(json, "rotSnap", 15);
+	editorSettings.lockMouseOnPan = jsonGetBoolC(json, "lockMouseOnPan", 1);
+	editorSettings.gizmoLen = jsonGetFloatC(json, "gizmoLength", 1);
+	const char* c = jsonGetStrC(json, "theme", 0);
+	if (c == 0)
+		editorSettings.theme = editorSettings.themeList[0];
+	else
+	{
+		editorSettings.theme = 0;
+		int l = dynList_size(editorSettings.themeList);
+		for (int i = 0; i < l; i++)
+		{
+			if (strcmp(editorSettings.themeList[i], c) == 0)
+			{
+				editorSettings.theme = editorSettings.themeList[i];
+				break;
+			}
+		}
+		if(editorSettings.theme == 0)
+			editorSettings.theme = editorSettings.themeList[0];
+	}
 	cJSON_Delete(json);
 }
 
@@ -47,8 +90,14 @@ void saveEditorSettings()
 	cJSON* json = cJSON_CreateObject();
 	cJSON_AddNumberToObject(json, "moveSpeed", editorSettings.moveSpeed);
 	cJSON_AddNumberToObject(json, "boostSpeed", editorSettings.boostSpeed);
+	cJSON_AddNumberToObject(json, "arrowSens", editorSettings.arrowSens);
+	cJSON_AddNumberToObject(json, "orbitSens", editorSettings.orbitSens);
+	cJSON_AddNumberToObject(json, "panSens", editorSettings.panSens);
 	cJSON_AddNumberToObject(json, "fov", editorSettings.fov);
 	cJSON_AddNumberToObject(json, "rotSnap", editorSettings.rotSnap);
+	cJSON_AddBoolToObject(json, "lockMouseOnPan", editorSettings.lockMouseOnPan);
+	cJSON_AddNumberToObject(json, "gizmoLength", editorSettings.gizmoLen);
+	cJSON_AddStringToObject(json, "theme", editorSettings.theme);
 
 	char* str = cJSON_Print(json);
 
@@ -57,5 +106,5 @@ void saveEditorSettings()
 	fclose(file);
 
 	free(str);
-  cJSON_Delete(json);
+	cJSON_Delete(json);
 }

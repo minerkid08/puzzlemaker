@@ -5,11 +5,14 @@
 #include "jsonUtils.h"
 #include "raycast.h"
 #include "renderer/debug.h"
+#include "renderer/renderer.h"
 #include "selection.h"
+#include "settings.h"
 #include "utils.h"
 
 #include <cjson.h>
 #include <dynList.h>
+#include <glad/glad.h>
 #include <string.h>
 
 extern Item* itemList;
@@ -30,26 +33,32 @@ void drawItems()
 		Item* item = &itemList[i];
 		if (!isItemValid(item))
 			continue;
+		if (!(item->def->flags & ITEM_FLAGS_OPAQUE))
+			continue;
 		if (item->highlighted)
 			highlightedItem = item;
-		if (item->def->transparent)
-			continue;
 		if (item->hidden)
 			continue;
 		item->def->callbacks->render(item);
 	}
+	endFrame();
 
+	setRenderPass(1);
+	glDepthMask(GL_FALSE);
 	for (int i = 0; i < len; i++)
 	{
 		Item* item = &itemList[i];
 		if (!isItemValid(item))
 			continue;
-		if (item->def->transparent == 0)
+		if (!(item->def->flags & ITEM_FLAGS_TRANSPARENT))
 			continue;
 		if (item->hidden)
 			continue;
 		item->def->callbacks->render(item);
 	}
+	endFrame();
+	setRenderPass(0);
+	glDepthMask(GL_TRUE);
 
 	if (highlightedItem)
 	{
@@ -57,6 +66,7 @@ void drawItems()
 		vec3 b;
 		highlightedItem->def->callbacks->getBoundingBox(highlightedItem, a, b);
 		drawDebugRect(a, b, highlightedItem->transform, 1);
+		highlightedItem->highlighted = 0;
 	}
 
 	if (selection.type == SELECTION_ITEM)
@@ -66,6 +76,64 @@ void drawItems()
 		Item* item = selection.item;
 		item->def->callbacks->getBoundingBox(item, a, b);
 		drawDebugRect(a, b, item->transform, 0);
+
+		int c = 1;
+		for (int i = 0; i < dynList_size(item->def->kvs); i++)
+		{
+			ItemKv* kv = &item->kv[i];
+			ItemKvDef* def = kv->def;
+			int type = def->type & ~(TYPE_INSTANCE);
+			if (type != TYPE_VEC3)
+				continue;
+			if (def->dropValues->i == GIZMO_NONE)
+				continue;
+			vec3 v;
+			memcpy(v, kv->value.v, sizeof(vec3));
+			if (def->dropValues->i == GIZMO_POS)
+			{
+				v[0] -= item->pos[0];
+				v[1] -= item->pos[1];
+				v[2] -= item->pos[2];
+			}
+			if (def->dropValues->i == GIZMO_ANGLE || def->dropValues->i == GIZMO_ANGLE_OFFSET ||
+				def->dropValues->i == GIZMO_ANGLE_OFFSET_FLOOR || def->dropValues->i == GIZMO_ANGLE_OFFSET_CEILING)
+			{
+				v[0] = glm_rad(v[0]);
+				v[1] = glm_rad(v[1]);
+				v[2] = glm_rad(v[2]);
+				vec4 quat;
+				glm_euler_yxz_quat(v, quat);
+
+				if (def->dropValues->i == GIZMO_ANGLE_OFFSET)
+				{
+					glm_quat_mul(item->quat, quat, quat);
+				}
+				if (def->dropValues->i == GIZMO_ANGLE_OFFSET_FLOOR)
+				{
+					vec4 quat2;
+					vec3 off = {GLM_PI_2, 0, 0};
+					glm_euler_yxz_quat(off, quat2);
+					glm_quat_mul(quat2, quat, quat);
+					glm_quat_mul(item->quat, quat, quat);
+				}
+				if (def->dropValues->i == GIZMO_ANGLE_OFFSET_CEILING)
+				{
+					vec4 quat2;
+					vec3 off = {-GLM_PI_2, 0, 0};
+					glm_euler_yxz_quat(off, quat2);
+					glm_quat_mul(quat2, quat, quat);
+					glm_quat_mul(item->quat, quat, quat);
+				}
+
+				v[0] = 0;
+				v[1] = 0;
+				v[2] = editorSettings.gizmoLen;
+				mat4 m;
+				glm_quat_mat4(quat, m);
+				glm_mat4_mulv3(m, v, 1, v);
+			}
+			drawDebugPoint(v, item->pos, c++);
+		}
 	}
 }
 
@@ -101,8 +169,10 @@ Item** getIntersectingItems(vec3 pos, Item** ignore)
 		if (item->def == 0)
 			continue;
 		mat4 transform;
-		memcpy(transform, item->invTransform, sizeof(mat4));
-		glm_mat4_mulv(transform, pos2, pos2);
+		memcpy(transform, item->transform, sizeof(mat4));
+		mat4 invTransform;
+		glm_mat4_inv_fast(transform, invTransform);
+		glm_mat4_mulv(invTransform, pos2, pos2);
 		vec3 bound1;
 		vec3 bound2;
 
@@ -153,8 +223,10 @@ Item* getIntersectingItem(vec3 pos, Item** ignore)
 		if (item->def == 0)
 			continue;
 		mat4 transform;
-		memcpy(transform, item->invTransform, sizeof(mat4));
-		glm_mat4_mulv(transform, pos2, pos2);
+		memcpy(transform, item->transform, sizeof(mat4));
+		mat4 invTransform;
+		glm_mat4_inv_fast(transform, invTransform);
+		glm_mat4_mulv(invTransform, pos2, pos2);
 		vec3 bound1;
 		vec3 bound2;
 
@@ -173,14 +245,11 @@ Item* getIntersectingItem(vec3 pos, Item** ignore)
 
 void updateItemTransform(Item* item)
 {
-	mat4 transform;
-	glm_mat4_identity(transform);
-	glm_translate(transform, item->pos);
+	glm_mat4_identity(item->transform);
+	glm_translate(item->transform, item->pos);
 
 	mat4 rotMat;
-	vec4 itemQuat;
-	memcpy(itemQuat, item->quat, sizeof(vec4));
-	glm_quat_mat4(itemQuat, rotMat);
+	glm_quat_mat4(item->quat, rotMat);
 
 	vec3 dir;
 	getEulerAngles(rotMat, dir);
@@ -188,34 +257,21 @@ void updateItemTransform(Item* item)
 	item->dir[1] = glm_deg(dir[1]);
 	item->dir[2] = glm_deg(dir[2]);
 
-	glm_mat4_mul(transform, rotMat, transform);
-	mat4 invTransform;
-	glm_mat4_inv_fast(transform, invTransform);
-
-	memcpy(item->transform, transform, sizeof(mat4));
-	memcpy(item->invTransform, invTransform, sizeof(mat4));
+	glm_mat4_mul(item->transform, rotMat, item->transform);
 }
 
 void updateItemTransformRot(Item* item)
 {
-	mat4 transform;
-	glm_mat4_identity(transform);
-	glm_translate(transform, item->pos);
+	glm_mat4_identity(item->transform);
+	glm_translate(item->transform, item->pos);
 
 	vec3 dir;
-	vec4 itemQuat;
 	dir[0] = glm_rad(item->dir[0]);
 	dir[1] = glm_rad(item->dir[1]);
 	dir[2] = glm_rad(item->dir[2]);
-	glm_euler_yxz_quat(dir, itemQuat);
+	glm_euler_yxz_quat(dir, item->quat);
 	mat4 rotMat;
-	glm_quat_mat4(itemQuat, rotMat);
+	glm_quat_mat4(item->quat, rotMat);
 
-	glm_mat4_mul(transform, rotMat, transform);
-	mat4 invTransform;
-	glm_mat4_inv_fast(transform, invTransform);
-
-	memcpy(item->quat, itemQuat, sizeof(vec4));
-	memcpy(item->transform, transform, sizeof(mat4));
-	memcpy(item->invTransform, invTransform, sizeof(mat4));
+	glm_mat4_mul(item->transform, rotMat, item->transform);
 }

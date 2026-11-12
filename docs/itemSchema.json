@@ -1,0 +1,173 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "Item Definitions",
+	"type": "array",
+	"minItems": 1,
+	"items": {
+		"type": "object",
+		"title": "Item Definition",
+		"properties": {
+			"type": {
+				"enum": [
+					"entity",
+					"panel",
+					"volume",
+					"overlay"
+				]
+			},
+			"id": {
+				"type": "string"
+			},
+			"name": {
+				"type": "string"
+			},
+			"exportScript": {
+				"type": "string"
+			},
+			"snapMode": {
+				"enum": [
+					"corner",
+					"center",
+					"mini-corner",
+					"mini-center"
+				]
+			},
+			"rotationRestriction": {
+				"type": "string"
+			},
+			"deleteIntersectingVoxels": {
+				"type": "boolean",
+				"default": false
+			},
+			"deleteIntersectingVoxelsEditor": {
+				"type": "boolean",
+				"default": false
+			},
+			"genMissingVoxels": {
+				"type": "boolean",
+				"default": true
+			},
+			"requiresPaint": {
+				"type": "boolean",
+				"default": false
+			},
+			"noDefaultExport": {
+				"type": "boolean",
+				"default": false
+			},
+			"inputs": {
+				"type": "array",
+				"items": {
+					"type": "object",
+					"properties": {
+						"name": {
+							"type": "string"
+						},
+						"trueInput": {
+							"type": "string"
+						},
+						"falseInput": {
+							"type": "string"
+						},
+						"trueArg": {
+							"type": "string"
+						},
+						"falseArg": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"name",
+						"trueInput"
+					]
+				}
+			},
+			"outputs": {
+				"type": "array",
+				"items": {
+					"type": "object",
+					"properties": {
+						"name": {
+							"type": "string"
+						},
+						"trueOutput": {
+							"type": "string"
+						},
+						"falseOutput": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"name",
+						"trueOutput"
+					]
+				}
+			},
+			"kvs": {
+				"$ref": "./kvSchema.json"
+			},
+			"statickvs": {
+				"type": "object",
+				"patternProperties": {
+					"^.*$": {
+						"type": "string"
+					}
+				}
+			}
+		},
+		"required": [
+			"type",
+			"id"
+		],
+		"allOf": [
+			{
+				"if": {
+					"properties": {
+						"type": {
+							"const": "entity"
+						}
+					}
+				},
+				"then": {
+					"$ref": "./entitySchema.json"
+				}
+			},
+			{
+				"if": {
+					"properties": {
+						"type": {
+							"const": "panel"
+						}
+					}
+				},
+				"then": {
+					"$ref": "./panelSchema.json"
+				}
+			},
+			{
+				"if": {
+					"properties": {
+						"type": {
+							"const": "volume"
+						}
+					}
+				},
+				"then": {
+					"$ref": "./volumeSchema.json"
+				}
+			},
+			{
+				"if": {
+					"properties": {
+						"type": {
+							"const": "overlay"
+						}
+					}
+				},
+				"then": {
+					"$ref": "./overlaySchema.json"
+				}
+			}
+		]
+	}
+}

@@ -9,11 +9,22 @@
 
 static Entity* entities;
 
-static __attribute__((constructor)) void init()
+#ifdef __linux__
+__attribute__((constructor)) static void entityInit()
+#else
+void entityInit()
+#endif
 {
-	entities = dynList_new(0, sizeof(Entity));
-	dynList_reserve((void**)&entities, 32);
+	entities = dynList_newR(0, 32, sizeof(Entity));
 }
+
+#if defined(_MSC_VER)
+#pragma section(".CRT$XCU", read)
+
+__declspec(allocate(".CRT$XCU")) void (*entityInitPtr)(void) = entityInit;
+
+#pragma comment(linker, "/include:entityInitPtr")
+#endif
 
 Entity* getEntityList()
 {
@@ -76,13 +87,25 @@ void exportEntityAddKv(Entity* ent, ItemKv* kv)
 		if (type == TYPE_PICKER)
 		{
 			if (kv->value.i == -1)
-				buf = strdupf("\"replace%02d\" \"$%s (none)\"", len, def->name);
+				buf = strdupf("\"replace%02d\" \"$%s\"", len, def->name);
 			else
 			{
 				Item* target = getItem(kv->value.i);
-				buf = strdupf("\"replace%02d\" \"$%s %s%d\"", len, def->name, target->def->name, target->index);
+				buf = strdupf("\"replace%02d\" \"$%s %s%d\"", len, def->name, target->def->id, target->index);
 			}
 		}
+		if (type == TYPE_VEC3)
+			buf = strdupf("\"replace%d\" \"$%s %.2f %.2f %.2f\"", len, def->name, kv->value.v[0], kv->value.v[1],
+						  kv->value.v[2]);
+		if (type == TYPE_VEC4)
+			buf = strdupf("\"replace%d\" \"$%s %.2f %.2f %.2f\"", len, def->name, kv->value.v[0], kv->value.v[1],
+						  kv->value.v[2], kv->value.v[3]);
+		if (type == TYPE_COLOR3)
+			buf = strdupf("\"replace%d\" \"$%s %.2f %.2f %.2f\"", len, def->name, kv->value.v[0] * 255,
+						  kv->value.v[1] * 255, kv->value.v[2] * 255);
+		if (type == TYPE_COLOR4)
+			buf = strdupf("\"replace%d\" \"$%s %.2f %.2f %.2f\"", len, def->name, kv->value.v[0] * 255,
+						  kv->value.v[1] * 255, kv->value.v[2] * 255, kv->value.v[3] * 255);
 		if (type & TYPE_DROPDOWN)
 		{
 			type &= ~(TYPE_DROPDOWN);
@@ -113,6 +136,17 @@ void exportEntityAddKv(Entity* ent, ItemKv* kv)
 			}
 			buf = strdupf("\"%s\" \"%d\"", def->name, value);
 		}
+		if (def->type == TYPE_VEC3)
+			buf = strdupf("\"%s\" \"%.2f %.2f %.2f\"", def->name, kv->value.v[0], kv->value.v[1], kv->value.v[2]);
+		if (def->type == TYPE_VEC4)
+			buf = strdupf("\"%s\" \"%.2f %.2f %.2f\"", def->name, kv->value.v[0], kv->value.v[1], kv->value.v[2],
+						  kv->value.v[3]);
+		if (def->type == TYPE_COLOR3)
+			buf = strdupf("\"%s\" \"%.2f %.2f %.2f\"", def->name, kv->value.v[0] * 255, kv->value.v[1] * 255,
+						  kv->value.v[2] * 255);
+		if (def->type == TYPE_COLOR4)
+			buf = strdupf("\"%s\" \"%.2f %.2f %.2f\"", def->name, kv->value.v[0] * 255, kv->value.v[1] * 255,
+						  kv->value.v[2] * 255, kv->value.v[3] * 255);
 		if (def->type & TYPE_DROPDOWN)
 		{
 			int type = (def->type & (~TYPE_DROPDOWN));
@@ -124,11 +158,11 @@ void exportEntityAddKv(Entity* ent, ItemKv* kv)
 		if (def->type == TYPE_PICKER)
 		{
 			if (kv->value.i == -1)
-				buf = strdupf("\"%s\" \"(none)\"", def->name);
+				buf = strdupf("\"%s\" \"\"", def->name);
 			else
 			{
 				Item* target = getItem(kv->value.i);
-				buf = strdupf("\"%s\" \"%s%d\"", def->name, target->def->name, target->index);
+				buf = strdupf("\"%s\" \"%s%d\"", def->name, target->def->id, target->index);
 			}
 		}
 	}
@@ -291,7 +325,7 @@ void exportEntitiesProcessOutputs()
 			if (item->ioEnt)
 				strncpy(ioEntName, item->ioEnt, 128);
 			else
-				snprintf(ioEntName, 128, "%s%d", item->def->name, output->entity);
+				snprintf(ioEntName, 128, "%s%d", item->def->id, output->entity);
 			char antlineName[64];
 			snprintf(antlineName, 64, "antline%d-tex", output->antline);
 			if (output->antline != -1)
@@ -323,12 +357,16 @@ void exportEntitiesProcessOutputs()
 				else
 					exportEntityAddRawOutput(relay, "OnUser1", ioEntName, input->trueInput, "", 0);
 
-				if (input->falseInput && output->def->falseOutput && !output->onlyPrimary)
+				if (output->def->falseOutput && !output->onlyPrimary)
 				{
-					if (input->falseArg)
-						exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->falseInput, input->falseArg, 0);
-					else
-						exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->falseInput, "", 0);
+					if (input->falseInput)
+					{
+						if (input->falseArg)
+							exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->falseInput, input->falseArg,
+													 0);
+						else
+							exportEntityAddRawOutput(relay, "OnUser2", ioEntName, input->falseInput, "", 0);
+					}
 					if (output->antline != -1)
 						exportEntityAddRawOutput(relay, "OnUser2", antlineName, "SetTextureIndex", "0", 0);
 				}
@@ -350,7 +388,8 @@ void exportEndEntities(FILE* file)
 
 		fprintf(file, "  \"id\" \"%d\"\n", i + 1);
 		fprintf(file, "  \"classname\" \"%s\"\n", entity->className);
-		fprintf(file, "  \"origin\" \"%f %f %f\"\n", entity->pos[0], entity->pos[1], entity->pos[2]);
+		if (strcmp(entity->className, "func_detail"))
+			fprintf(file, "  \"origin\" \"%f %f %f\"\n", entity->pos[0], entity->pos[1], entity->pos[2]);
 		if (entity->brushes == 0)
 			fprintf(file, "  \"angles\" \"%f %f %f\"\n", entity->rotation[0], entity->rotation[1], entity->rotation[2]);
 		fprintf(file, "  \"targetname\" \"%s\"\n", entity->name);
@@ -386,7 +425,7 @@ void exportEndEntities(FILE* file)
 					if (item->ioEnt)
 						strncpy(buf, item->ioEnt, 100);
 					else
-						snprintf(buf, 100, "%s%d", item->def->name, output->entity);
+						snprintf(buf, 100, "%s%d", item->def->id, output->entity);
 					if (output->inverted)
 					{
 						if (input->falseInput)

@@ -1,40 +1,68 @@
 #include "renderer.h"
+#include "camera.h"
+#include "cglm/mat4.h"
 #include "cglm/types.h"
 #include "debug.h"
 #include "glad/glad.h"
+#include "renderer/mesh.h"
 #include "renderer/shader.h"
 #include "renderer/texture.h"
-#include <GL/gl.h>
+#include "utils.h"
 #include <math.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-static unsigned int panelShader;
-static unsigned int prgmId;
+static unsigned int shader;
 static unsigned int va;
 static unsigned int vb;
 static unsigned int ib;
 
-#pragma pack(1)
+#pragma pack(push, 1)
 typedef struct
 {
-	vec4 pos;
-	vec2 uv;
-	vec4 tint;
+	float pos[3];
+	float uv[2];
+	float tint[4];
 	int mat;
 } Vertex;
+#pragma pack(pop)
 
 static Vertex* verts;
 static Vertex* vertBase;
 static int vertCount = 0;
 static int quadCount = 0;
 
+static unsigned int textures[16];
+
+int renderPass = 0;
+static char backfaceCull = 1;
+static char depthTest = 1;
+
 #define NUM_QUADS 64
 #define NUM_VERTS NUM_QUADS * 4
 
 static mat4 camMat;
-static mat4 projMat;
+static mat4 transform;
+
+void setRenderPass(int i)
+{
+	renderPass = i;
+}
+
+void setBackfaceCull(char enable)
+{
+	backfaceCull = enable;
+}
+
+void setDepthTest(char enable)
+{
+	endFrame();
+	depthTest = enable;
+	if (depthTest)
+		glEnable(GL_DEPTH_TEST);
+	else
+		glDisable(GL_DEPTH_TEST);
+}
 
 mat4* getProjMat()
 {
@@ -46,14 +74,14 @@ mat4* getCamMat()
 	return &camMat;
 }
 
-void setProjMat(mat4 mat)
-{
-	memcpy(projMat, mat, sizeof(mat4));
-}
-
 void setCamMat(mat4 mat)
 {
 	memcpy(camMat, mat, sizeof(mat4));
+}
+
+void setTransform(mat4 mat)
+{
+	memcpy(transform, mat, sizeof(mat4));
 }
 
 #define glErrCheck()                                                                                                   \
@@ -68,10 +96,10 @@ void setCamMat(mat4 mat)
 
 void initRenderer()
 {
+	initMeshRenderer();
 	initDebug();
 
-	prgmId = makeShader("voxel");
-	panelShader = makeShader("panel");
+	shader = makeShader("quad");
 
 	glGenVertexArrays(1, &va);
 	glBindVertexArray(va);
@@ -81,24 +109,24 @@ void initRenderer()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * NUM_VERTS, 0, GL_DYNAMIC_DRAW);
 
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 11 * sizeof(float), 0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 10 * sizeof(float), 0);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(4 * sizeof(float)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
+	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)(5 * sizeof(float)));
 	glEnableVertexAttribArray(3);
-	glVertexAttribIPointer(3, 1, GL_INT, 11 * sizeof(float), (void*)(10 * sizeof(float)));
+	glVertexAttribIPointer(3, 1, GL_INT, 10 * sizeof(float), (void*)(9 * sizeof(float)));
 
 	int indsSize = sizeof(unsigned int) * 6 * NUM_QUADS;
 	unsigned int* inds = malloc(indsSize);
 	int v = 0;
 	for (int i = 0; i < NUM_QUADS * 6; i += 6)
 	{
-		inds[i + 0] = v + 0;
-		inds[i + 1] = v + 1;
+		inds[i + 0] = v + 1;
+		inds[i + 1] = v + 0;
 		inds[i + 2] = v + 2;
 		inds[i + 3] = v + 2;
-		inds[i + 4] = v + 1;
+		inds[i + 4] = v + 0;
 		inds[i + 5] = v + 3;
 		v += 4;
 	}
@@ -118,16 +146,20 @@ void initRenderer()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	glUseProgram(panelShader);
-	int texSlots[10];
-	for (int i = 0; i < 10; i++)
+	glUseProgram(shader);
+
+	int texSlots[16];
+	for (int i = 0; i < 16; i++)
 		texSlots[i] = i;
-	int loc = glGetUniformLocation(panelShader, "textures");
-	glUniform1iv(loc, 10, texSlots);
+
+	int loc = glGetUniformLocation(shader, "textures");
+	glUniform1iv(loc, 16, texSlots);
+
 	for (int i = 0; i < NUM_VERTS; i++)
-	{
 		verts[i].mat = 0;
-	}
+
+	for (int i = 0; i < 16; i++)
+		textures[i] = 0;
 }
 
 void rendererCleanup()
@@ -136,42 +168,33 @@ void rendererCleanup()
 	glDeleteBuffers(1, &vb);
 	glDeleteBuffers(1, &ib);
 	glDeleteVertexArrays(1, &va);
-	glDeleteProgram(panelShader);
-	glDeleteProgram(prgmId);
-}
-
-void bindVoxelTextures(unsigned int black, unsigned int white, unsigned int miniBlack, unsigned int miniWhite)
-{
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, black);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, white);
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, miniBlack);
-	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, miniWhite);
-}
-
-void bindTexture(unsigned int texture)
-{
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glDeleteProgram(shader);
 }
 
 void endFrame()
 {
+	if (vertCount == 0)
+		return;
+
+	// printf("end frame %d\n", quadCount);
 	glBindVertexArray(va);
 	glBindBuffer(GL_ARRAY_BUFFER, vb);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * vertCount, vertBase);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib);
-	glUseProgram(prgmId);
+	glUseProgram(shader);
 
-	setUniformi(prgmId, "blackTex", 0);
-	setUniformi(prgmId, "whiteTex", 1);
-	setUniformi(prgmId, "blackMiniTex", 2);
-	setUniformi(prgmId, "whiteMiniTex", 3);
-	setUniformMat4(prgmId, "cam", camMat);
-	setUniformMat4(prgmId, "mat", projMat);
+	for (int i = 0; i < 16; i++)
+	{
+		if (textures[i] == 0)
+			break;
+		glActiveTexture(GL_TEXTURE0 + i);
+		glBindTexture(GL_TEXTURE_2D, textures[i]);
+		textures[i] = 0;
+	}
+
+	setUniformMat4(shader, "cam", camMat);
+	setUniformMat4(shader, "mat", projMat);
+	setUniformi(shader, "pass", renderPass);
 
 	glDrawElements(GL_TRIANGLES, quadCount * 6, GL_UNSIGNED_INT, 0);
 
@@ -181,24 +204,181 @@ void endFrame()
 	quadCount = 0;
 }
 
-void drawVerts(vec3* positions, vec4 tint, char portalable)
+static unsigned int addTexture(unsigned int texture)
 {
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 16; i++)
 	{
-		memcpy(verts[i].pos, positions[i], sizeof(float) * 3);
-		memcpy(verts[i].tint, tint, sizeof(float) * 4);
-		verts[i].pos[3] = 1.0f;
-		verts[i].mat = portalable;
+		if (textures[i] == texture)
+			return i;
+		if (textures[i] == 0)
+		{
+			textures[i] = texture;
+			return i;
+		}
 	}
 
-	verts[0].uv[0] = 0;
-	verts[0].uv[1] = 0;
-	verts[1].uv[0] = 0;
-	verts[1].uv[1] = 1;
-	verts[2].uv[0] = 1;
-	verts[2].uv[1] = 0;
-	verts[3].uv[0] = 1;
-	verts[3].uv[1] = 1;
+	endFrame();
+	textures[0] = texture;
+	return 0;
+}
+
+static inline void setVec(vec3 v, vec3 start, float x, float y, float z)
+{
+	v[0] = start[0] + x;
+	v[1] = start[1] + y;
+	v[2] = start[2] + z;
+}
+
+// |--------------|
+// |0,1        1,1|
+// | 3          2 |
+// |              |
+// | 0          1 |
+// |0,0        1,0|
+// |--------------|
+
+void genVerts(int direction, vec3 start, vec2 size, vec3* positions)
+{
+	float w = size[0];
+	float h = size[1];
+	switch (direction)
+	{
+	case DIR_POS_X:
+		setVec(positions[0], start, 0, 0, 0);
+		setVec(positions[1], start, 0, 0, w);
+		setVec(positions[2], start, 0, h, w);
+		setVec(positions[3], start, 0, h, 0);
+		break;
+	case DIR_NEG_X:
+		setVec(positions[0], start, 0, 0, w);
+		setVec(positions[1], start, 0, 0, 0);
+		setVec(positions[2], start, 0, h, 0);
+		setVec(positions[3], start, 0, h, w);
+		break;
+	case DIR_POS_Y:
+		setVec(positions[0], start, 0, 0, 0);
+		setVec(positions[1], start, w, 0, 0);
+		setVec(positions[2], start, w, 0, h);
+		setVec(positions[3], start, 0, 0, h);
+		break;
+	case DIR_NEG_Y:
+		setVec(positions[0], start, w, 0, 0);
+		setVec(positions[1], start, 0, 0, 0);
+		setVec(positions[2], start, 0, 0, h);
+		setVec(positions[3], start, w, 0, h);
+		break;
+	case DIR_POS_Z:
+		setVec(positions[0], start, w, 0, 0);
+		setVec(positions[1], start, 0, 0, 0);
+		setVec(positions[2], start, 0, h, 0);
+		setVec(positions[3], start, w, h, 0);
+		break;
+	case DIR_NEG_Z:
+		setVec(positions[0], start, 0, 0, 0);
+		setVec(positions[1], start, w, 0, 0);
+		setVec(positions[2], start, w, h, 0);
+		setVec(positions[3], start, 0, h, 0);
+		break;
+	}
+}
+
+void configVerts(Texture* texture)
+{
+	if (texture->alignment != TEX_ALIGNMENT_FIT)
+	{
+		vec3 uDir;
+		vec3 vDir;
+
+		uDir[0] = verts[3].pos[0] - verts[2].pos[0];
+		uDir[1] = verts[3].pos[1] - verts[2].pos[1];
+		uDir[2] = verts[3].pos[2] - verts[2].pos[2];
+
+		vDir[0] = verts[1].pos[0] - verts[2].pos[0];
+		vDir[1] = verts[1].pos[1] - verts[2].pos[1];
+		vDir[2] = verts[1].pos[2] - verts[2].pos[2];
+
+		float width = uDir[0] * uDir[0] + uDir[1] * uDir[1] + uDir[2] * uDir[2];
+		float height = vDir[0] * vDir[0] + vDir[1] * vDir[1] + vDir[2] * vDir[2];
+
+		width = sqrtf(width);
+		height = sqrtf(height);
+
+		width /= texture->size;
+		height /= texture->size;
+
+		verts[0].uv[0] = width;
+		verts[0].uv[1] = 0;
+		verts[1].uv[0] = 0;
+		verts[1].uv[1] = 0;
+		verts[3].uv[0] = width;
+		verts[3].uv[1] = height / texture->size;
+		verts[2].uv[0] = 0;
+		verts[2].uv[1] = height / texture->size;
+	}
+	else
+	{
+		verts[0].uv[0] = texture->scale[0];
+		verts[0].uv[1] = 0;
+		verts[1].uv[0] = 0;
+		verts[1].uv[1] = 0;
+		verts[3].uv[0] = texture->scale[0];
+		verts[3].uv[1] = texture->scale[1];
+		verts[2].uv[0] = 0;
+		verts[2].uv[1] = texture->scale[1];
+	}
+}
+
+void drawRect(vec3* positions, Texture* texture)
+{
+	vec4 tint = {1, 1, 1, 1};
+	drawRectTint(positions, tint, texture);
+}
+
+void drawRectTint(vec3* positions, vec4 tint, Texture* texture)
+{
+	unsigned int tex = addTexture(texture->tex);
+
+	for (int i = 0; i < 4; i++)
+	{
+		glm_mat4_mulv3(transform, positions[i], 1, verts[i].pos);
+		memcpy(verts[i].tint, tint, sizeof(float) * 4);
+		verts[i].mat = tex;
+	}
+
+	configVerts(texture);
+
+	verts += 4;
+
+	vertCount += 4;
+	quadCount++;
+	if (quadCount >= NUM_QUADS)
+		endFrame();
+	if (!backfaceCull)
+		drawRectTintInv(positions, tint, texture);
+}
+
+void drawRectTintInv(vec3* positions, vec4 tint, Texture* texture)
+{
+	unsigned int tex = addTexture(texture->tex);
+
+	for (int i = 0; i < 4; i++)
+	{
+		memcpy(verts[i].tint, tint, sizeof(float) * 4);
+		verts[i].mat = tex;
+	}
+	glm_mat4_mulv3(transform, positions[0], 1, verts[2].pos);
+	glm_mat4_mulv3(transform, positions[1], 1, verts[1].pos);
+	glm_mat4_mulv3(transform, positions[2], 1, verts[0].pos);
+	glm_mat4_mulv3(transform, positions[3], 1, verts[3].pos);
+
+	configVerts(texture);
+
+	float a = verts[0].uv[0];
+	float b = verts[0].uv[1];
+	verts[0].uv[0] = verts[2].uv[0];
+	verts[0].uv[1] = verts[2].uv[1];
+	verts[2].uv[0] = a;
+	verts[2].uv[1] = b;
 
 	verts += 4;
 
@@ -208,24 +388,28 @@ void drawVerts(vec3* positions, vec4 tint, char portalable)
 		endFrame();
 }
 
-void drawVerts2(vec3* positions, vec4 tint, char portalable)
+void drawRectTile(vec3* positions, float uStart, float uEnd, float vStart, float vEnd, Texture* texture)
 {
+	unsigned int tex = addTexture(texture->tex);
+
 	for (int i = 0; i < 4; i++)
 	{
-		memcpy(verts[i].pos, positions[i], sizeof(float) * 3);
-		memcpy(verts[i].tint, tint, sizeof(float) * 4);
-		verts[i].pos[3] = 1.0f;
-		verts[i].mat = portalable;
+		glm_mat4_mulv3(transform, positions[i], 1, verts[i].pos);
+		verts[i].tint[0] = 1;
+		verts[i].tint[1] = 1;
+		verts[i].tint[2] = 1;
+		verts[i].tint[3] = 1;
+		verts[i].mat = tex;
 	}
 
-	verts[0].uv[0] = 0;
-	verts[0].uv[1] = 0;
-	verts[1].uv[0] = 0;
-	verts[1].uv[1] = 0.5;
-	verts[2].uv[0] = 0.5;
-	verts[2].uv[1] = 0;
-	verts[3].uv[0] = 0.5;
-	verts[3].uv[1] = 0.5;
+	verts[0].uv[0] = uStart;
+	verts[0].uv[1] = vStart;
+	verts[1].uv[0] = uEnd;
+	verts[1].uv[1] = vStart;
+	verts[3].uv[0] = uStart;
+	verts[3].uv[1] = vEnd;
+	verts[2].uv[0] = uEnd;
+	verts[2].uv[1] = vEnd;
 
 	verts += 4;
 
@@ -233,199 +417,40 @@ void drawVerts2(vec3* positions, vec4 tint, char portalable)
 	quadCount++;
 	if (quadCount >= NUM_QUADS)
 		endFrame();
+	if (!backfaceCull)
+		drawRectTileInv(positions, uStart, uEnd, vStart, vEnd, texture);
 }
 
-void panelDrawRect(vec2 start, vec2 end, Texture* texture)
+void drawRectTileInv(vec3* positions, float uStart, float uEnd, float vStart, float vEnd, Texture* texture)
 {
+	unsigned int tex = addTexture(texture->tex);
+
 	for (int i = 0; i < 4; i++)
 	{
-		verts[i].pos[3] = 1.0f;
-		verts[i].mat = quadCount;
+		verts[i].tint[0] = 1;
+		verts[i].tint[1] = 1;
+		verts[i].tint[2] = 1;
+		verts[i].tint[3] = 1;
+		verts[i].mat = tex;
 	}
+	glm_mat4_mulv3(transform, positions[0], 1, verts[2].pos);
+	glm_mat4_mulv3(transform, positions[1], 1, verts[1].pos);
+	glm_mat4_mulv3(transform, positions[2], 1, verts[0].pos);
+	glm_mat4_mulv3(transform, positions[3], 1, verts[3].pos);
 
-	verts[0].pos[0] = start[0];
-	verts[0].pos[1] = 0;
-	verts[0].pos[2] = start[1];
-
-	verts[1].pos[0] = end[0];
-	verts[1].pos[1] = 0;
-	verts[1].pos[2] = start[1];
-
-	verts[2].pos[0] = start[0];
-	verts[2].pos[1] = 0;
-	verts[2].pos[2] = end[1];
-
-	verts[3].pos[0] = end[0];
-	verts[3].pos[1] = 0;
-	verts[3].pos[2] = end[1];
-
-	if (texture->alignment == TEX_ALIGNMENT_NONE)
-	{
-		float width = end[0] - start[0];
-		float height = end[1] - start[1];
-
-		verts[0].uv[0] = 0;
-		verts[0].uv[1] = 0;
-		verts[1].uv[0] = width / texture->size;
-		verts[1].uv[1] = 0;
-		verts[2].uv[0] = 0;
-		verts[2].uv[1] = height / texture->size;
-		verts[3].uv[0] = width / texture->size;
-		verts[3].uv[1] = height / texture->size;
-	}
-	else
-	{
-		verts[0].uv[0] = 0;
-		verts[0].uv[1] = 0;
-		verts[1].uv[0] = 1;
-		verts[1].uv[1] = 0;
-		verts[2].uv[0] = 0;
-		verts[2].uv[1] = 1;
-		verts[3].uv[0] = 1;
-		verts[3].uv[1] = 1;
-	}
-
-	glUseProgram(panelShader);
-	glActiveTexture(GL_TEXTURE0 + quadCount);
-	glBindTexture(GL_TEXTURE_2D, texture->tex);
+	verts[2].uv[0] = uStart;
+	verts[2].uv[1] = vStart;
+	verts[1].uv[0] = uEnd;
+	verts[1].uv[1] = vStart;
+	verts[3].uv[0] = uStart;
+	verts[3].uv[1] = vEnd;
+	verts[0].uv[0] = uEnd;
+	verts[0].uv[1] = vEnd;
 
 	verts += 4;
 
 	vertCount += 4;
 	quadCount++;
-}
-
-void overlayDrawRect(vec2 start, vec2 end, unsigned int texture, int tile)
-{
-	for (int i = 0; i < 4; i++)
-	{
-		verts[i].pos[3] = 1.0f;
-		verts[i].mat = quadCount;
-	}
-
-	verts[0].pos[0] = start[0];
-	verts[0].pos[1] = start[1];
-	verts[0].pos[2] = 0.01;
-
-	verts[1].pos[0] = end[0];
-	verts[1].pos[1] = start[1];
-	verts[1].pos[2] = 0.01;
-
-	verts[2].pos[0] = start[0];
-	verts[2].pos[1] = end[1];
-	verts[2].pos[2] = 0.01;
-
-	verts[3].pos[0] = end[0];
-	verts[3].pos[1] = end[1];
-	verts[3].pos[2] = 0.01;
-
-	verts[0].uv[0] = 0;
-	verts[0].uv[1] = 0;
-	verts[1].uv[0] = 1;
-	verts[1].uv[1] = 0;
-	verts[2].uv[0] = 0;
-	verts[2].uv[1] = tile;
-	verts[3].uv[0] = 1;
-	verts[3].uv[1] = tile;
-
-	glUseProgram(panelShader);
-	glActiveTexture(GL_TEXTURE0 + quadCount);
-	glBindTexture(GL_TEXTURE_2D, texture);
-
-	verts += 4;
-
-	vertCount += 4;
-	quadCount++;
-}
-
-void drawRect(vec3 v1, vec3 v2, vec3 v3, vec3 v4, Texture* texture)
-{
-	for (int i = 0; i < 4; i++)
-	{
-		verts[i].pos[3] = 1.0f;
-		verts[i].mat = quadCount;
-	}
-	memcpy(verts[0].pos, v1, sizeof(vec3));
-	memcpy(verts[1].pos, v2, sizeof(vec3));
-	memcpy(verts[2].pos, v3, sizeof(vec3));
-	memcpy(verts[3].pos, v4, sizeof(vec3));
-
-	if (texture->alignment == TEX_ALIGNMENT_NONE)
-	{
-		vec3 horiz = {v1[0] - v2[0], v1[1] - v2[1], v1[2] - v2[2]};
-		vec3 vert = {v4[0] - v2[0], v4[1] - v2[1], v4[2] - v2[2]};
-		float width = sqrtf(horiz[0] * horiz[0] + horiz[1] * horiz[1] + horiz[2] * horiz[2]);
-		float height = sqrtf(vert[0] * vert[0] + vert[1] * vert[1] + vert[2] * vert[2]);
-
-		verts[0].uv[0] = 0;
-		verts[0].uv[1] = 0;
-		verts[1].uv[0] = width / texture->size;
-		verts[1].uv[1] = 0;
-		verts[2].uv[0] = 0;
-		verts[2].uv[1] = height / texture->size;
-		verts[3].uv[0] = width / texture->size;
-		verts[3].uv[1] = height / texture->size;
-	}
-	else
-	{
-		verts[0].uv[0] = 0;
-		verts[0].uv[1] = 0;
-		verts[1].uv[0] = 1;
-		verts[1].uv[1] = 0;
-		verts[2].uv[0] = 0;
-		verts[2].uv[1] = 1;
-		verts[3].uv[0] = 1;
-		verts[3].uv[1] = 1;
-	}
-
-	glUseProgram(panelShader);
-	glActiveTexture(GL_TEXTURE0 + quadCount);
-	glBindTexture(GL_TEXTURE_2D, texture->tex);
-
-	verts += 4;
-
-	vertCount += 4;
-	quadCount++;
-}
-
-void panelEndFrame(mat4 transform, char backfaceCull, char depthTest)
-{
-	glBindVertexArray(va);
-	glBindBuffer(GL_ARRAY_BUFFER, vb);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * vertCount, vertBase);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib);
-	glUseProgram(panelShader);
-	if (backfaceCull == 0)
-		glDisable(GL_CULL_FACE);
-	if (depthTest == 0)
-		glDisable(GL_DEPTH_TEST);
-
-	setUniformMat4(panelShader, "cam", camMat);
-	setUniformMat4(panelShader, "mat", projMat);
-	setUniformMat4(panelShader, "transform", transform);
-
-	glDrawElements(GL_TRIANGLES, quadCount * 6, GL_UNSIGNED_INT, 0);
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_DEPTH_TEST);
-
-	verts = vertBase;
-	vertCount = 0;
-	quadCount = 0;
-}
-
-void drawMesh(Mesh* mesh, unsigned int texture, mat4 transform)
-{
-	bindTexture(texture);
-	glBindVertexArray(mesh->vertexArray);
-	glBindBuffer(GL_ARRAY_BUFFER, mesh->vertBuffer);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->indexBuffer);
-	glUseProgram(mesh->shader);
-
-	setUniformi(mesh->shader, "tex", 0);
-	setUniformMat4(mesh->shader, "cam", camMat);
-	setUniformMat4(mesh->shader, "mat", projMat);
-	setUniformMat4(mesh->shader, "trans", transform);
-
-	glDrawElements(GL_TRIANGLES, mesh->vertCount, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
+	if (quadCount >= NUM_QUADS)
+		endFrame();
 }

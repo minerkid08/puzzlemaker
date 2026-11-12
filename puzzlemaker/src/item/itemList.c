@@ -6,10 +6,13 @@
 
 Item* itemList;
 
-static __attribute__((constructor)) void init()
+#ifdef __linux__
+__attribute__((constructor)) static void itemListInit()
+#else
+void itemListInit()
+#endif
 {
-	itemList = dynList_new(0, sizeof(Item));
-	dynList_reserve((void**)&itemList, 32);
+	itemList = dynList_newR(0, 32, sizeof(Item));
 	for (int i = 0; i < 32; i++)
 	{
 		itemList[i].index = -1;
@@ -17,6 +20,14 @@ static __attribute__((constructor)) void init()
 		itemList[i].def = 0;
 	}
 }
+
+#if defined(_MSC_VER)
+#pragma section(".CRT$XCU", read)
+
+__declspec(allocate(".CRT$XCU")) void (*itemListInitPtr)(void) = itemListInit;
+
+#pragma comment(linker, "/include:itemListInitPtr")
+#endif
 
 Item* getItemList()
 {
@@ -64,6 +75,8 @@ void removeItem(Item* item)
 		type &= ~(TYPE_INSTANCE);
 		if (type == TYPE_STRING)
 			free(item->kv[i].value.s);
+		if (type == TYPE_VEC3 || type == TYPE_VEC4 || type == TYPE_COLOR3 || type == TYPE_COLOR4)
+			free(item->kv[i].value.v);
 		if (type == TYPE_BITFIELD)
 			free(item->kv[i].value.s);
 	}
@@ -127,6 +140,7 @@ Item* addItem(int defId, ivec3 position)
 	Item* item = &itemList[index];
 	item->index = index;
 	item->id = defId;
+	item->ioEnt = 0;
 
 	item->snapDir = DIR_NONE;
 
@@ -169,22 +183,44 @@ Item* addItem(int defId, ivec3 position)
 		kv->def = &def->kvs[i];
 		int type = kv->def->type;
 		type &= ~(TYPE_INSTANCE);
-		if (type == TYPE_STRING)
+		if (type == TYPE_PICKER)
+			item->kv[i].value.i = -1;
+		else if (type == TYPE_STRING)
 		{
 			item->kv[i].value.s = malloc(256);
 			strncpy(item->kv[i].value.s, def->kvs[i].defaultValue.s, 256);
+		}
+		else if (type == TYPE_VEC3)
+		{
+			item->kv[i].value.v = malloc(sizeof(vec3));
+			memcpy(item->kv[i].value.v, def->kvs[i].defaultValue.v, sizeof(vec3));
+		}
+		else if (type == TYPE_VEC4)
+		{
+			item->kv[i].value.v = malloc(sizeof(vec4));
+			memcpy(item->kv[i].value.v, def->kvs[i].defaultValue.v, sizeof(vec4));
+		}
+		else if (type == TYPE_COLOR3)
+		{
+			item->kv[i].value.v = malloc(sizeof(vec3));
+			memcpy(item->kv[i].value.v, def->kvs[i].defaultValue.v, sizeof(vec3));
+		}
+		else if (type == TYPE_COLOR4)
+		{
+			item->kv[i].value.v = malloc(sizeof(vec4));
+			memcpy(item->kv[i].value.v, def->kvs[i].defaultValue.v, sizeof(vec4));
 		}
 		else if (type == TYPE_BITFIELD)
 		{
 			int len = dynList_size(kv->def->dropNames);
 			kv->value.s = malloc(len);
-      for(int j = 0; j < len; j++)
-      {
-        if(kv->def->defaultValue.i & (1 << kv->def->dropValues[j].i))
-          kv->value.s[j] = 1;
-        else
-          kv->value.s[j] = 0;
-      }
+			for (int j = 0; j < len; j++)
+			{
+				if (kv->def->defaultValue.i & (1 << kv->def->dropValues[j].i))
+					kv->value.s[j] = 1;
+				else
+					kv->value.s[j] = 0;
+			}
 		}
 		else
 			item->kv[i].value = def->kvs[i].defaultValue;

@@ -29,7 +29,6 @@ void initCamera()
 	fovx = 2 * atanf(tanf(fovy / 2) * aspect);
 
 	glm_perspective(fovy, aspect, near, far, projMat);
-	setProjMat(projMat);
 	glm_mat4_inv(projMat, projMatInv);
 }
 

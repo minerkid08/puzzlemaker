@@ -4,8 +4,15 @@ imgui.ini
 compileSteps.json
 captureSettings.cap
 *.exe
+packageRelease.sh
+crash.dmp
 
-items/Crazy's Customs.json
-items/P1 Enhanced.json
-assets/materials/crazy
-assets/models/crazy
+packages/*.zip
+./package.json
+
+.vs
+x64
+puzzlemaker.pdb
+puzzlemaker.vcxproj.*
+CppProperties.json
+build

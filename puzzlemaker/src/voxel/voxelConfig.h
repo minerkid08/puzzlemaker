@@ -27,6 +27,4 @@ typedef struct
 	const char* whiteCeilingMini;
 } VoxelConfig;
 
-extern VoxelConfig voxelConfig;
-
-void loadVoxelConfig();
+extern VoxelConfig* voxelConfig;

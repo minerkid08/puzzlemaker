@@ -1,0 +1,14 @@
+[
+	{
+		"fileMatch": ["items/*.json"],
+		"url": "docs/itemSchema.json"
+	},
+	{
+		"fileMatch": ["themes/*.json"],
+		"url": "docs/themeSchema.json"
+	},
+	{
+		"fileMatch": ["package.json"],
+		"url": "docs/packageSchema.json"
+	}
+]

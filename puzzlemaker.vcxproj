@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>18.0</VCProjectVersion>
+    <ProjectGuid>{F5354AE0-A639-742C-D360-2DA31EB195CE}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+    </Manifest>
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+    </Manifest>
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+    </Manifest>
+    <ClCompile>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <WarningLevel>Level3</WarningLevel>
+      <AdditionalIncludeDirectories>puzzlemaker\src;..\libs\lua\export\lua;..\libs\lua\export;..\libs\cglm\src;..\libs\glad\src;..\libs\clib\src;..\libs\cjson\src;..\libs\stb;..\libs\cimgui\src;..\libs\glfw\export;..\libs\libzip</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);..\libs\libzip\libzip.lib;..\libs\glfw\glfw3.lib;..\libs\cimgui\cimgui.lib;dbghelp.lib</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+    </Manifest>
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>Level3</WarningLevel>
+      <AdditionalIncludeDirectories>puzzlemaker\src;..\libs\lua\export\lua;..\libs\lua\export;..\libs\cglm\src;..\libs\glad\src;..\libs\clib\src;..\libs\cjson\src;..\libs\stb;..\libs\cimgui\src;..\libs\glfw\export;..\libs\libzip</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);..\libs\libzip\libzip.lib;..\libs\glfw\glfw3.lib;..\libs\cimgui\cimgui.lib;dbghelp.lib</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\libs\cjson\src\cjson.c" />
+    <ClCompile Include="..\libs\clib\src\dynList.c" />
+    <ClCompile Include="..\libs\glad\src\glad\glad.c" />
+    <ClCompile Include="..\libs\lua\src\lapi.c" />
+    <ClCompile Include="..\libs\lua\src\lauxlib.c" />
+    <ClCompile Include="..\libs\lua\src\lbaselib.c" />
+    <ClCompile Include="..\libs\lua\src\lcode.c" />
+    <ClCompile Include="..\libs\lua\src\lcorolib.c" />
+    <ClCompile Include="..\libs\lua\src\lctype.c" />
+    <ClCompile Include="..\libs\lua\src\ldblib.c" />
+    <ClCompile Include="..\libs\lua\src\ldebug.c" />
+    <ClCompile Include="..\libs\lua\src\ldo.c" />
+    <ClCompile Include="..\libs\lua\src\ldump.c" />
+    <ClCompile Include="..\libs\lua\src\lfunc.c" />
+    <ClCompile Include="..\libs\lua\src\lgc.c" />
+    <ClCompile Include="..\libs\lua\src\linit.c" />
+    <ClCompile Include="..\libs\lua\src\liolib.c" />
+    <ClCompile Include="..\libs\lua\src\llex.c" />
+    <ClCompile Include="..\libs\lua\src\lmathlib.c" />
+    <ClCompile Include="..\libs\lua\src\lmem.c" />
+    <ClCompile Include="..\libs\lua\src\loadlib.c" />
+    <ClCompile Include="..\libs\lua\src\lobject.c" />
+    <ClCompile Include="..\libs\lua\src\lopcodes.c" />
+    <ClCompile Include="..\libs\lua\src\loslib.c" />
+    <ClCompile Include="..\libs\lua\src\lparser.c" />
+    <ClCompile Include="..\libs\lua\src\lstate.c" />
+    <ClCompile Include="..\libs\lua\src\lstring.c" />
+    <ClCompile Include="..\libs\lua\src\lstrlib.c" />
+    <ClCompile Include="..\libs\lua\src\ltable.c" />
+    <ClCompile Include="..\libs\lua\src\ltablib.c" />
+    <ClCompile Include="..\libs\lua\src\ltm.c" />
+    <ClCompile Include="..\libs\lua\src\lua.c" />
+    <ClCompile Include="..\libs\lua\src\luac.c" />
+    <ClCompile Include="..\libs\lua\src\lundump.c" />
+    <ClCompile Include="..\libs\lua\src\lutf8lib.c" />
+    <ClCompile Include="..\libs\lua\src\lvm.c" />
+    <ClCompile Include="..\libs\lua\src\lzio.c" />
+    <ClCompile Include="puzzlemaker\src\antline\antline.c" />
+    <ClCompile Include="puzzlemaker\src\assetManager.c" />
+    <ClCompile Include="puzzlemaker\src\camera.c" />
+    <ClCompile Include="puzzlemaker\src\compile\compile.c" />
+    <ClCompile Include="puzzlemaker\src\compile\compileTask.c" />
+    <ClCompile Include="puzzlemaker\src\compile\compileThreadLinux.c" />
+    <ClCompile Include="puzzlemaker\src\compile\compileThreadWindows.c" />
+    <ClCompile Include="puzzlemaker\src\crashDump.c" />
+    <ClCompile Include="puzzlemaker\src\error.c" />
+    <ClCompile Include="puzzlemaker\src\export\brush.c" />
+    <ClCompile Include="puzzlemaker\src\export\entity.c" />
+    <ClCompile Include="puzzlemaker\src\export\exportMessage.c" />
+    <ClCompile Include="puzzlemaker\src\export\export.c" />
+    <ClCompile Include="puzzlemaker\src\export\mapSettingsExport.c" />
+    <ClCompile Include="puzzlemaker\src\export\overlay.c" />
+    <ClCompile Include="puzzlemaker\src\export\script\brushApi.c" />
+    <ClCompile Include="puzzlemaker\src\export\script\entityApi.c" />
+    <ClCompile Include="puzzlemaker\src\export\script\exportScript.c" />
+    <ClCompile Include="puzzlemaker\src\export\script\itemApi.c" />
+    <ClCompile Include="puzzlemaker\src\export\script\mat4.c" />
+    <ClCompile Include="puzzlemaker\src\export\script\utilsApi.c" />
+    <ClCompile Include="puzzlemaker\src\export\script\vec2.c" />
+    <ClCompile Include="puzzlemaker\src\export\script\vec3.c" />
+    <ClCompile Include="puzzlemaker\src\export\voxelExport.c" />
+    <ClCompile Include="puzzlemaker\src\fileUtils.c" />
+    <ClCompile Include="puzzlemaker\src\grab.c" />
+    <ClCompile Include="puzzlemaker\src\item\copypaste.c" />
+    <ClCompile Include="puzzlemaker\src\item\entityItem.c" />
+    <ClCompile Include="puzzlemaker\src\item\item.c" />
+    <ClCompile Include="puzzlemaker\src\item\itemDef.c" />
+    <ClCompile Include="puzzlemaker\src\item\itemList.c" />
+    <ClCompile Include="puzzlemaker\src\item\overlayItem.c" />
+    <ClCompile Include="puzzlemaker\src\item\panel.c" />
+    <ClCompile Include="puzzlemaker\src\item\string.c" />
+    <ClCompile Include="puzzlemaker\src\item\volumeItem.c" />
+    <ClCompile Include="puzzlemaker\src\jsonUtils.c" />
+    <ClCompile Include="puzzlemaker\src\load.c" />
+    <ClCompile Include="puzzlemaker\src\main.c" />
+    <ClCompile Include="puzzlemaker\src\mapsettings.c" />
+    <ClCompile Include="puzzlemaker\src\packages\instances.c" />
+    <ClCompile Include="puzzlemaker\src\packages\package.c" />
+    <ClCompile Include="puzzlemaker\src\packages\packageList.c" />
+    <ClCompile Include="puzzlemaker\src\packages\packageUtils.c" />
+    <ClCompile Include="puzzlemaker\src\packages\theme.c" />
+    <ClCompile Include="puzzlemaker\src\parsing.c" />
+    <ClCompile Include="puzzlemaker\src\raycast.c" />
+    <ClCompile Include="puzzlemaker\src\renderer\outlineRenderer.c" />
+    <ClCompile Include="puzzlemaker\src\renderer\framebuffer.c" />
+    <ClCompile Include="puzzlemaker\src\renderer\mesh.c" />
+    <ClCompile Include="puzzlemaker\src\renderer\renderer.c" />
+    <ClCompile Include="puzzlemaker\src\renderer\shader.c" />
+    <ClCompile Include="puzzlemaker\src\renderer\texture.c" />
+    <ClCompile Include="puzzlemaker\src\save.c" />
+    <ClCompile Include="puzzlemaker\src\selection.c" />
+    <ClCompile Include="puzzlemaker\src\settings.c" />
+    <ClCompile Include="puzzlemaker\src\ui.c" />
+    <ClCompile Include="puzzlemaker\src\ui\antlinePanel.c" />
+    <ClCompile Include="puzzlemaker\src\ui\compilePopup.c" />
+    <ClCompile Include="puzzlemaker\src\ui\debug.c" />
+    <ClCompile Include="puzzlemaker\src\ui\editor.c" />
+    <ClCompile Include="puzzlemaker\src\ui\editorSettings.c" />
+    <ClCompile Include="puzzlemaker\src\ui\errorPopup.c" />
+    <ClCompile Include="puzzlemaker\src\ui\fileBrowser.c" />
+    <ClCompile Include="puzzlemaker\src\ui\itemListPanel.c" />
+    <ClCompile Include="puzzlemaker\src\ui\itemPanel.c" />
+    <ClCompile Include="puzzlemaker\src\ui\mapSettingsPanel.c" />
+    <ClCompile Include="puzzlemaker\src\ui\packageManager.c" />
+    <ClCompile Include="puzzlemaker\src\ui\editorTheme.c" />
+    <ClCompile Include="puzzlemaker\src\utils.c" />
+    <ClCompile Include="puzzlemaker\src\voxel\itemIntersection.c" />
+    <ClCompile Include="puzzlemaker\src\voxel\voxel.c" />
+    <ClCompile Include="puzzlemaker\src\voxel\voxelModification.c" />
+    <ClCompile Include="puzzlemaker\src\voxel\voxelRaycast.c" />
+    <ClCompile Include="puzzlemaker\src\voxel\voxelRenderer.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="puzzlemaker\src\antline\antline.h" />
+    <ClInclude Include="puzzlemaker\src\assetManager.h" />
+    <ClInclude Include="puzzlemaker\src\camera.h" />
+    <ClInclude Include="puzzlemaker\src\compile\compile.h" />
+    <ClInclude Include="puzzlemaker\src\compile\compileThread.h" />
+    <ClInclude Include="puzzlemaker\src\error.h" />
+    <ClInclude Include="puzzlemaker\src\export\brush.h" />
+    <ClInclude Include="puzzlemaker\src\export\entity.h" />
+    <ClInclude Include="puzzlemaker\src\export\export.h" />
+    <ClInclude Include="puzzlemaker\src\export\exportUtils.h" />
+    <ClInclude Include="puzzlemaker\src\export\overlay.h" />
+    <ClInclude Include="puzzlemaker\src\export\script\api.h" />
+    <ClInclude Include="puzzlemaker\src\export\script\exportScript.h" />
+    <ClInclude Include="puzzlemaker\src\grab.h" />
+    <ClInclude Include="puzzlemaker\src\item\entityItem.h" />
+    <ClInclude Include="puzzlemaker\src\item\item.h" />
+    <ClInclude Include="puzzlemaker\src\item\overlayItem.h" />
+    <ClInclude Include="puzzlemaker\src\item\panel.h" />
+    <ClInclude Include="puzzlemaker\src\item\volumeItem.h" />
+    <ClInclude Include="puzzlemaker\src\jsonUtils.h" />
+    <ClInclude Include="puzzlemaker\src\mapsettings.h" />
+    <ClInclude Include="puzzlemaker\src\obj.h" />
+    <ClInclude Include="puzzlemaker\src\packages\package.h" />
+    <ClInclude Include="puzzlemaker\src\packages\theme.h" />
+    <ClInclude Include="puzzlemaker\src\picker.h" />
+    <ClInclude Include="puzzlemaker\src\raycast.h" />
+    <ClInclude Include="puzzlemaker\src\renderer\debug.h" />
+    <ClInclude Include="puzzlemaker\src\renderer\framebuffer.h" />
+    <ClInclude Include="puzzlemaker\src\renderer\mesh.h" />
+    <ClInclude Include="puzzlemaker\src\renderer\renderer.h" />
+    <ClInclude Include="puzzlemaker\src\renderer\shader.h" />
+    <ClInclude Include="puzzlemaker\src\renderer\texture.h" />
+    <ClInclude Include="puzzlemaker\src\save.h" />
+    <ClInclude Include="puzzlemaker\src\selection.h" />
+    <ClInclude Include="puzzlemaker\src\settings.h" />
+    <ClInclude Include="puzzlemaker\src\ui.h" />
+    <ClInclude Include="puzzlemaker\src\ui\fileBrowser.h" />
+    <ClInclude Include="puzzlemaker\src\ui\itemPanel.h" />
+    <ClInclude Include="puzzlemaker\src\utils.h" />
+    <ClInclude Include="puzzlemaker\src\voxel\itemIntersection.h" />
+    <ClInclude Include="puzzlemaker\src\voxel\voxel.h" />
+    <ClInclude Include="puzzlemaker\src\voxel\voxelConfig.h" />
+    <ClInclude Include="puzzlemaker\src\voxel\voxelModification.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

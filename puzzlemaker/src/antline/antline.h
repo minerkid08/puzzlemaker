@@ -2,6 +2,10 @@
 
 #include "cglm/types.h"
 
+#define CORNER_MODE_AUTO 0
+#define CORNER_MODE_ENABLED 1
+#define CORNER_MODE_DISABLED 2
+
 typedef struct
 {
 	int editorAntlineTex;
@@ -27,30 +31,32 @@ typedef struct
 
 typedef struct
 {
+	mat4 transform;
+	vec4 quat;
 	vec3 pos;
 	vec3 rot;
 	int len;
-	vec4 quat;
-	mat4 transform;
-	mat4 invTransform;
+	int cornerMode;
 	char snapDir;
 } AntlineSegment;
 
 typedef struct
 {
+	AntlineSegment baseSegment;
+	AntlineSegment* segments;
 	int id;
 	int prevId;
 	char hovered;
-	AntlineSegment* segments;
 	char hasCheck;
-	AntlineSegment baseSegment;
 } Antline;
 
+extern AntlineConfig* antlineConfig;
+
 AntlineConfig* getAntlineConfig();
-void loadAntlineConfig();
 Antline* addAntline();
 void removeAntline(Antline* antline);
 char isAntlineValid(Antline* antline);
+void addAntlineSegment(Antline* antline);
 void renderAntlines();
 void renderAntlineHover();
 void antlineUpdateTransformRot(AntlineSegment* antline);

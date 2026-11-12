@@ -5,8 +5,11 @@
 
 typedef struct
 {
+	mat4 editorTransform;
+
 	const char* instanceName;
 	const char* entityName;
+	Mesh* mesh;
 
 	vec4 bound1;
 	vec4 bound2;
@@ -15,11 +18,6 @@ typedef struct
 	vec3 rotationOffset;
 	vec3 editorPos;
 	vec3 editorRot;
-	mat4 editorTransform;
-
-	Mesh* mesh;
-	unsigned int texture;
-
 } EntityItemDef;
 
 void* loadEntityItemDef(cJSON* json, ItemDefinition* def);

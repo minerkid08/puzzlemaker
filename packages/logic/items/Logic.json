@@ -1,0 +1,97 @@
+[
+	{
+    "type": "entity",
+		"id": "relay",
+		"name": "Relay",
+		"model": "relay.obj",
+    "entity": "logic_relay",
+    "snapMode": "mini-corner",
+    "bound1": [-0.25, -0.25, -0.25],
+    "bound2": [0.25, 0.25, 0.25],
+		"inputs": [
+			{
+				"name": "Trigger",
+				"trueInput": "FireUser1",
+				"falseInput": "FireUser2"
+			}
+		],
+    "outputs": [
+      {
+        "name": "On Trigger",
+        "trueOutput": "OnUser1",
+        "falseOutput": "OnUser2"
+      }
+    ]
+	},
+	{
+    "type": "entity",
+		"id": "logic-gate",
+		"name": "Logic Gate",
+		"model": "counter.obj",
+    "entity": "math_counter",
+    "snapMode": "mini-corner",
+    "bound1": [-0.25, -0.25, -0.25],
+    "bound2": [0.25, 0.25, 0.25],
+		"keyvalues": [
+			{
+				"kv": "max",
+				"name": "Connection Count",
+				"type": "int",
+				"defaultValue": 2
+			}
+		],
+		"statickvs": {
+      "min": "0",
+      "startvalue": "0"
+		},
+		"inputs": [
+			{
+				"name": "Input",
+				"trueInput": "Add",
+				"trueArg": "1",
+				"falseInput": "Subtract",
+				"falseArg": "1"
+			}
+		],
+    "outputs": [
+      {
+        "name": "And",
+        "trueOutput": "OnHitMax",
+        "falseOutput": "OnChangedFromMax"
+      },
+      {
+        "name": "Or",
+        "trueOutput": "OnChangedFromMin",
+        "falseOutput": "OnHitMin"
+      }
+    ]
+	},
+	{
+    "type": "entity",
+		"id": "auto",
+		"name": "Auto",
+		"model": "auto.obj",
+    "entity": "logic_auto",
+    "snapMode": "mini-corner",
+    "bound1": [-0.25, -0.25, -0.25],
+    "bound2": [0.25, 0.25, 0.25],
+    "outputs": [
+      {
+        "name": "On Map Spawn",
+        "trueOutput": "OnMapSpawn"
+      },
+      {
+        "name": "On New Game",
+        "trueOutput": "OnNewGame"
+      },
+      {
+        "name": "On Map Transition",
+        "trueOutput": "OnMapTransition"
+      },
+      {
+        "name": "On Background Map",
+        "trueOutput": "OnBackgroundMap"
+      }
+    ]
+	}
+]

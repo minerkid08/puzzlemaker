@@ -1,0 +1,309 @@
+versioninfo
+{
+	"editorextension" "strata"
+	"editorversion" "400"
+	"editorbuild" "10903"
+	"mapversion" "4"
+	"formatversion" "100"
+	"prefab" "0"
+}
+visgroups
+{
+}
+viewsettings
+{
+	"bSnapToGrid" "1"
+	"bShowGrid" "1"
+	"bShowLogicalGrid" "1"
+	"nGridSpacing" "16"
+	"bShow3DGrid" "0"
+	"nInstanceVisibility" "2"
+	views
+	{
+		v0
+		{
+			"3d" "1"
+			"position" "(27.4674 144.593 123.875)"
+			"angle" "[42.62 -92.72 0]"
+		}
+		v1
+		{
+			"3d" "0"
+			"position" "(-91.9829 -15.8827 0)"
+			"zoom" "3.2098"
+		}
+		v2
+		{
+			"3d" "0"
+			"position" "(0 -12.5836 37.5961)"
+			"zoom" "5.54653"
+		}
+		v3
+		{
+			"3d" "0"
+			"position" "(195.019 -65536 -15.3222)"
+			"zoom" "1.28995"
+		}
+	}
+}
+world
+{
+	"id" "1"
+	"mapversion" "4"
+	"classname" "worldspawn"
+	"detailmaterial" "detail/detailsprites"
+	"detailvbsp" "detail.vbsp"
+	"maxblobcount" "250"
+	"maxprojectedtextures" "8"
+	"maxpropscreenwidth" "-1"
+	"skyname" "sky_black_nofog"
+	solid
+	{
+		"id" "166"
+		side
+		{
+			"id" "1"
+			"plane" "(-64 64 -2.14328e-06) (64 64 -2.14328e-06) (64 -64 -2.14328e-06)"
+			point_data
+			{
+				"numpts" "4"
+				"point" "0 -64 64 -2.14328e-06"
+				"point" "1 64 64 -2.14328e-06"
+				"point" "2 64 -64 -2.14328e-06"
+				"point" "3 -64 -64 -2.14328e-06"
+			}
+			"material" "TOOLS/TOOLSINVISIBLE"
+			"uaxis" "[1 0 0 0] 0.25"
+			"vaxis" "[0 -1 0 0] 0.25"
+			"rotation" "0"
+			"lightmapscale" "16"
+			"smoothing_groups" "0"
+		}
+		side
+		{
+			"id" "2"
+			"plane" "(-64 -64 -64) (64 -64 -64) (64 64 -64)"
+			point_data
+			{
+				"numpts" "4"
+				"point" "0 -64 -64 -64"
+				"point" "1 64 -64 -64"
+				"point" "2 64 64 -64"
+				"point" "3 -64 64 -64"
+			}
+			"material" "TOOLS/TOOLSINVISIBLE"
+			"uaxis" "[1 0 0 0] 0.25"
+			"vaxis" "[0 -1 0 0] 0.25"
+			"rotation" "0"
+			"lightmapscale" "16"
+			"smoothing_groups" "0"
+		}
+		side
+		{
+			"id" "3"
+			"plane" "(-64 64 -2.14328e-06) (-64 -64 -2.14328e-06) (-64 -64 -64)"
+			point_data
+			{
+				"numpts" "4"
+				"point" "0 -64 64 -2.14328e-06"
+				"point" "1 -64 -64 -2.14328e-06"
+				"point" "2 -64 -64 -64"
+				"point" "3 -64 64 -64"
+			}
+			"material" "TOOLS/TOOLSINVISIBLE"
+			"uaxis" "[0 1 0 0] 0.25"
+			"vaxis" "[0 0 -1 0] 0.25"
+			"rotation" "0"
+			"lightmapscale" "16"
+			"smoothing_groups" "0"
+		}
+		side
+		{
+			"id" "4"
+			"plane" "(64 64 -64) (64 -64 -64) (64 -64 -2.14328e-06)"
+			point_data
+			{
+				"numpts" "4"
+				"point" "0 64 64 -64"
+				"point" "1 64 -64 -64"
+				"point" "2 64 -64 -2.14328e-06"
+				"point" "3 64 64 -2.14328e-06"
+			}
+			"material" "TOOLS/TOOLSINVISIBLE"
+			"uaxis" "[0 1 0 0] 0.25"
+			"vaxis" "[0 0 -1 0] 0.25"
+			"rotation" "0"
+			"lightmapscale" "16"
+			"smoothing_groups" "0"
+		}
+		side
+		{
+			"id" "5"
+			"plane" "(64 64 -2.14328e-06) (-64 64 -2.14328e-06) (-64 64 -64)"
+			point_data
+			{
+				"numpts" "4"
+				"point" "0 64 64 -2.14328e-06"
+				"point" "1 -64 64 -2.14328e-06"
+				"point" "2 -64 64 -64"
+				"point" "3 64 64 -64"
+			}
+			"material" "TOOLS/TOOLSINVISIBLE"
+			"uaxis" "[1 0 0 0] 0.25"
+			"vaxis" "[0 0 -1 0] 0.25"
+			"rotation" "0"
+			"lightmapscale" "16"
+			"smoothing_groups" "0"
+		}
+		side
+		{
+			"id" "6"
+			"plane" "(64 -64 -64) (-64 -64 -64) (-64 -64 -2.14328e-06)"
+			point_data
+			{
+				"numpts" "4"
+				"point" "0 64 -64 -64"
+				"point" "1 -64 -64 -64"
+				"point" "2 -64 -64 -2.14328e-06"
+				"point" "3 64 -64 -2.14328e-06"
+			}
+			"material" "TOOLS/TOOLSINVISIBLE"
+			"uaxis" "[1 0 0 0] 0.25"
+			"vaxis" "[0 0 -1 0] 0.25"
+			"rotation" "0"
+			"lightmapscale" "16"
+			"smoothing_groups" "0"
+		}
+		editor
+		{
+			"color" "0 170 187"
+			"visgroupshown" "1"
+			"visgroupautoshown" "1"
+		}
+	}
+}
+entity
+{
+	"id" "2"
+	"classname" "prop_tractor_beam"
+	"AllowSilentDissolve" "1"
+	"angles" "-90 0 0"
+	"fadescale" "1"
+	"glowcolor" "255 255 255"
+	"glowdist" "1024"
+	"linearforce" "$speed"
+	"model" "models/props_ingame/tractor_beam_128.mdl"
+	"primarycolor" "10 160 255 255"
+	"renderamt" "255"
+	"rendercolor" "255 255 255"
+	"secondarycolor" "255 160 32 255"
+	"solid" "6"
+	"startenabled" "$enabled"
+	"targetname" "tractorbeam"
+	"use128model" "1"
+	"origin" "0 0 -3"
+	editor
+	{
+		"color" "220 30 220"
+		"visgroupshown" "1"
+		"visgroupautoshown" "1"
+		"logicalpos" "[0 0]"
+	}
+}
+entity
+{
+	"id" "32"
+	"classname" "func_instance"
+	"angles" "-0 0 0"
+	"file" "instances/p2editor/tbeam_frame_black.vmf"
+	"origin" "0 0 64"
+	editor
+	{
+		"color" "220 30 220"
+		"visgroupshown" "1"
+		"visgroupautoshown" "1"
+		"logicalpos" "[0 500]"
+	}
+}
+entity
+{
+	"id" "62"
+	"classname" "func_instance_io_proxy"
+	"targetname" "proxy"
+	connections
+	{
+		"OnProxyRelay" "tractorbeamEnable0-1"
+		"OnProxyRelay" "tractorbeamDisable0-1"
+		"OnProxyRelay" "reverseTrigger0-1"
+		"OnProxyRelay" "forwardTrigger0-1"
+	}
+	"origin" "0 0 64"
+	editor
+	{
+		"color" "220 30 220"
+		"visgroupshown" "1"
+		"visgroupautoshown" "1"
+		"logicalpos" "[0 1000]"
+	}
+}
+entity
+{
+	"id" "107"
+	"classname" "func_instance_parms"
+	"parm1" "$speed string"
+	"parm2" "$enabled string"
+	"origin" "0 0 80"
+	editor
+	{
+		"color" "220 30 220"
+		"visgroupshown" "1"
+		"visgroupautoshown" "1"
+		"logicalpos" "[0 1000]"
+	}
+}
+entity
+{
+	"id" "146"
+	"classname" "logic_relay"
+	"angles" "0 0 0"
+	"targetname" "reverse"
+	connections
+	{
+		"OnTrigger" "tractorbeamSetLinearForce-2500-1"
+	}
+	"origin" "-16 0 64"
+	editor
+	{
+		"color" "0 100 250"
+		"visgroupshown" "1"
+		"visgroupautoshown" "1"
+		"logicalpos" "[0 1500]"
+	}
+}
+entity
+{
+	"id" "148"
+	"classname" "logic_relay"
+	"angles" "0 0 0"
+	"targetname" "forward"
+	connections
+	{
+		"OnTrigger" "tractorbeamSetLinearForce2500-1"
+	}
+	"origin" "-16 0 80"
+	editor
+	{
+		"color" "0 100 250"
+		"visgroupshown" "1"
+		"visgroupautoshown" "1"
+		"logicalpos" "[0 1500]"
+	}
+}
+cameras
+{
+	"activecamera" "-1"
+}
+cordons
+{
+	"active" "0"
+}

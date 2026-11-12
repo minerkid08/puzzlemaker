@@ -1,0 +1,67 @@
+{
+	"$schema": "https://json-schema.org/draft-07/schema#",
+	"properties": {
+		"model": {
+			"type": "string"
+		},
+		"bound1": {
+			"$ref": "./utilsSchema.json#/$defs/vec3"
+		},
+		"bound2": {
+			"$ref": "./utilsSchema.json#/$defs/vec3"
+		},
+		"editorTransform": {
+			"$ref": "./utilsSchema.json#/$defs/transform"
+		},
+		"floor": {
+			"type": "boolean",
+			"default": false
+		},
+		"ceiling": {
+			"type": "boolean",
+			"default": false
+		}
+	},
+	"if": {
+		"not": {
+			"properties": {
+				"noDefaultExport": {
+					"const": true
+				}
+			},
+			"required": [
+				"noDefaultExport"
+			]
+		}
+	},
+	"then": {
+		"properties": {
+			"transform": {
+				"$ref": "./utilsSchema.json#/$defs/transform"
+			},
+			"entity": {
+				"type": "string"
+			},
+			"instance": {
+				"type": "string"
+			}
+		},
+		"oneOf": [
+			{
+				"required": [
+					"entity"
+				]
+			},
+			{
+				"required": [
+					"instance"
+				]
+			}
+		]
+	},
+	"required": [
+		"model",
+		"bound1",
+		"bound2"
+	]
+}

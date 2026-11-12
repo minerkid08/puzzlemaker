@@ -3,6 +3,7 @@ maps/*.vmf
 imgui.ini
 compileSteps.json
 captureSettings.cap
+editorSettings.json
 *.exe
 packageRelease.sh
 crash.dmp

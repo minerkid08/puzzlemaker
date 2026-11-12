@@ -21,7 +21,7 @@ The base packages contain most items from PETI as well as several helper items f
 
 # Installation
 1. Download the latest release and unzip it.
-2. If your P2CE installation is not in the default location `C:\Program Files (x86)\Steam\steamapps\common\Portal 2 Community Edition` or you are on linux you will need to modify the p2ce field inside compileSteps.json to point to your game installation.
+2. If your P2CE installation is not in the default location `C:\Program Files (x86)\Steam\steamapps\common\Portal 2 Community Edition` or you are on linux you will need to modify the p2ce field inside compileSteps.json to point to your game installation. Make sure each space in the path is prefixed with a `%` so `Portal 2 Community Edition` becomes `Portal% 2% Community% Edition`
 
 # Usage
 Movement and voxel modification works similar to how PETI does it. Items and antlines have all of their configuration options in a panel on the right.

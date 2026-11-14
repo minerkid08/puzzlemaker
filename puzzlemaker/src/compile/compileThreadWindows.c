@@ -93,7 +93,7 @@ int runCmd(char* cmd)
 			writeMessage("bad working dir\n");
 		return 1;
 	}
-  procRunning = 1;
+	procRunning = 1;
 	CloseHandle(hw);
 
 	char buf[512];
@@ -106,7 +106,7 @@ int runCmd(char* cmd)
 	}
 
 	WaitForSingleObject(pi.hProcess, INFINITE);
-  procRunning = 0;
+	procRunning = 0;
 	CloseHandle(hr);
 
 	DWORD exitCode = 0;
@@ -178,7 +178,18 @@ void startCompileThread()
 	p2ce[j] = 0;
 
 	compileStatus.compileActive = 1;
-	GetCurrentDirectory(512, compileStatus.curPath);
+
+	char buf[512];
+	GetCurrentDirectory(512, buf);
+	j = 0;
+	for (int i = 0; i < strlen(buf); i++)
+	{
+		if (buf[i] == ' ')
+			compileStatus.workingDir[j++] = '%';
+		compileStatus.workingDir[j++] = buf[i];
+	}
+	compileStatus.workingDir[j] = 0;
+
 	if (GetFileAttributesA(p2ce) == INVALID_FILE_ATTRIBUTES)
 		compileStatus.compileActive = 0;
 
@@ -201,10 +212,10 @@ void startCompileThread()
 void killCompileProcess()
 {
 	if (procRunning)
-  {
-    procRunning = 0;
-    TerminateProcess(pi.hProcess, 1);
-  }
+	{
+		procRunning = 0;
+		TerminateProcess(pi.hProcess, 1);
+	}
 }
 
 #endif

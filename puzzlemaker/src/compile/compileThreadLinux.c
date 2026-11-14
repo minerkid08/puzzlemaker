@@ -177,7 +177,18 @@ void startCompileThread()
 
 	compileStatus.compileActive = 1;
 
-	getcwd(compileStatus.curPath, 512);
+	char buf[512];
+
+	getcwd(buf, 512);
+
+	j = 0;
+	for(int i = 0; i < strlen(buf); i++)
+	{
+		if(buf[i] == ' ')
+			compileStatus.workingDir[j++] = '%';
+		compileStatus.workingDir[j++] = buf[i];
+	}
+	compileStatus.workingDir[j] = 0;
 
 	struct stat s;
 	if (stat(p2ce, &s))

@@ -258,6 +258,10 @@ void updateItemTransform(Item* item)
 	item->dir[2] = glm_deg(dir[2]);
 
 	glm_mat4_mul(item->transform, rotMat, item->transform);
+
+	int len = dynList_size(item->lights);
+	for (int i = 0; i < len; i++)
+		glm_mat4_mulv3(item->transform, item->def->lights[i].position, 1, item->lights[i]->position);
 }
 
 void updateItemTransformRot(Item* item)
@@ -274,4 +278,45 @@ void updateItemTransformRot(Item* item)
 	glm_quat_mat4(item->quat, rotMat);
 
 	glm_mat4_mul(item->transform, rotMat, item->transform);
+
+	int len = dynList_size(item->lights);
+	for (int i = 0; i < len; i++)
+	{
+		Light* def = &item->def->lights[i];
+		Light* light = item->lights[i];
+		glm_mat4_mulv3(item->transform, item->def->lights[i].position, 1, item->lights[i]->position);
+
+		if (light->cutoff > 0)
+		{
+			vec3 rotation;
+			mat4 m;
+			rotation[0] = glm_rad(def->dirX);
+			rotation[1] = glm_rad(def->dirY);
+			rotation[2] = glm_rad(def->dirZ);
+			glm_euler_yxz(rotation, m);
+			rotation[0] = m[2][0];
+			rotation[1] = m[2][1];
+			rotation[2] = m[2][2];
+			glm_mat4_mulv3(rotMat, rotation, 1, rotation);
+			light->dirX = rotation[0];
+			light->dirY = rotation[1];
+			light->dirZ = rotation[2];
+		}
+	}
+}
+
+void updateLights(Item* item)
+{
+	int len = dynList_size(item->def->lights);
+	for (int i = 0; i < len; i++)
+	{
+		Light* def = &item->def->lights[i];
+		Light* light = item->lights[i];
+		memcpy(light, def, sizeof(Light));
+		if (light->cutoff > 0)
+		{
+
+			light->cutoff = cosf(glm_rad(def->cutoff));
+		}
+	}
 }

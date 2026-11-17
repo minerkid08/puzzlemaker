@@ -1,16 +1,13 @@
 #include "cglm/quat.h"
 #include "dynList.h"
 #include "item/item.h"
+#include "renderer/light.h"
 #include "utils.h"
 #include <string.h>
 
 Item* itemList;
 
-#ifdef __linux__
 __attribute__((constructor)) static void itemListInit()
-#else
-void itemListInit()
-#endif
 {
 	itemList = dynList_newR(0, 32, sizeof(Item));
 	for (int i = 0; i < 32; i++)
@@ -20,14 +17,6 @@ void itemListInit()
 		itemList[i].def = 0;
 	}
 }
-
-#if defined(_MSC_VER)
-#pragma section(".CRT$XCU", read)
-
-__declspec(allocate(".CRT$XCU")) void (*itemListInitPtr)(void) = itemListInit;
-
-#pragma comment(linker, "/include:itemListInitPtr")
-#endif
 
 Item* getItemList()
 {
@@ -81,7 +70,12 @@ void removeItem(Item* item)
 			free(item->kv[i].value.s);
 	}
 
+	int len = dynList_size(item->lights);
+	for (int i = 0; i < len; i++)
+		removeLight(item->lights[i]);
+
 	dynList_free(item->kv);
+	dynList_free(item->lights);
 	dynList_free(item->outputs);
 	if (item->data)
 		free(item->data);
@@ -168,8 +162,6 @@ Item* addItem(int defId, ivec3 position)
 	glm_quat_identity(quat);
 	memcpy(item->quat, quat, sizeof(vec4));
 
-	updateItemTransform(item);
-
 	ItemDefinition* def = &getItemDefinitions()[defId];
 	item->def = def;
 
@@ -226,7 +218,15 @@ Item* addItem(int defId, ivec3 position)
 			item->kv[i].value = def->kvs[i].defaultValue;
 	}
 
+	len = dynList_size(def->lights);
+	item->lights = dynList_new(len, sizeof(Light*));
+	for (int i = 0; i < len; i++)
+		item->lights[i] = addLight();
+	updateLights(item);
+
 	item->def->callbacks->init(item);
+
+	updateItemTransform(item);
 
 	return item;
 }

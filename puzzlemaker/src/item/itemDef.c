@@ -1,3 +1,4 @@
+#include "cglm/util.h"
 #include "cjson.h"
 #include "dynList.h"
 #include "error.h"
@@ -146,7 +147,7 @@ void loadItemDefinitionFile(Package* package, const char* filename)
 
 		if (jsonGetBoolC(item, "deleteIntersectingVoxels", 0))
 			def->flags |= ITEM_FLAGS_DELVOXELS;
-    char d = (def->flags & ITEM_FLAGS_DELVOXELS) > 0;
+		char d = (def->flags & ITEM_FLAGS_DELVOXELS) > 0;
 		if (jsonGetBoolC(item, "deleteIntersectingVoxelsEditor", d))
 			def->flags |= ITEM_FLAGS_DELVOXELSEDITOR;
 		if (jsonGetBoolC(item, "genMissingVoxels", 1))
@@ -271,28 +272,28 @@ void loadItemDefinitionFile(Package* package, const char* filename)
 				float* v = malloc(sizeof(vec4));
 				jsonGetVec4(kv, "defaultValue", v);
 				kvDef->defaultValue.v = v;
-      }
+			}
 			if (strcmp(type, "color3") == 0)
 			{
 				kvDef->type = TYPE_COLOR3;
 				float* v = malloc(sizeof(vec3));
 				jsonGetVec3(kv, "defaultValue", v);
-        v[0] /= 255;
-        v[1] /= 255;
-        v[2] /= 255;
+				v[0] /= 255;
+				v[1] /= 255;
+				v[2] /= 255;
 				kvDef->defaultValue.v = v;
-      }
+			}
 			if (strcmp(type, "color4") == 0)
 			{
 				kvDef->type = TYPE_COLOR4;
 				float* v = malloc(sizeof(vec4));
 				jsonGetVec4(kv, "defaultValue", v);
-        v[0] /= 255;
-        v[1] /= 255;
-        v[2] /= 255;
-        v[3] /= 255;
+				v[0] /= 255;
+				v[1] /= 255;
+				v[2] /= 255;
+				v[3] /= 255;
 				kvDef->defaultValue.v = v;
-      }
+			}
 			if (strcmp(type, "drop-string") == 0)
 			{
 				kvDef->type = TYPE_STRING | TYPE_DROPDOWN;
@@ -414,6 +415,46 @@ void loadItemDefinitionFile(Package* package, const char* filename)
 				snprintf(def->staticKvs[i], l, "\"%s\" \"%s\"", kv->string, kv->valuestring);
 				kv = kv->next;
 				i++;
+			}
+			popStackFrame();
+		}
+
+		cJSON* lights = jsonGetArrayC(item, "lights");
+		if (lights == 0)
+			def->lights = dynList_new(0, sizeof(Light));
+		else
+		{
+			len = cJSON_GetArraySize(lights);
+			def->lights = dynList_new(len, sizeof(Light));
+			for (int i = 0; i < len; i++)
+			{
+				cJSON* light = jsonArrGetObject(lights, i);
+				Light* lightDef = &def->lights[i];
+
+				jsonGetVec3(light, "position", lightDef->position);
+				jsonGetVec3(light, "ambient", lightDef->ambient);
+				jsonGetVec3(light, "diffuse", lightDef->diffuse);
+				jsonGetVec3(light, "specular", lightDef->specular);
+				lightDef->constant = jsonGetFloat(light, "constant");
+				lightDef->linear = jsonGetFloat(light, "linear");
+				lightDef->quadratic = jsonGetFloat(light, "quadratic");
+				const char* t = jsonGetStr(light, "type");
+				if (strcmp(t, "point") == 0)
+				{
+					lightDef->cutoff = 0;
+				}
+				else if (strcmp(t, "spot") == 0)
+				{
+					lightDef->cutoff = jsonGetFloat(light, "cutoff");
+					vec3 rotation;
+					jsonGetVec3(light, "rotation", rotation);
+					lightDef->dirX = rotation[0];
+					lightDef->dirY = rotation[1];
+					lightDef->dirZ = rotation[2];
+				}
+				else
+					errorf("bad type for light\n");
+				popStackFrame();
 			}
 			popStackFrame();
 		}

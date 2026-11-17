@@ -2,8 +2,10 @@
 #include "camera.h"
 #include "cglm/mat4.h"
 #include "cglm/types.h"
+#include "cglm/vec3.h"
 #include "debug.h"
 #include "glad/glad.h"
+#include "renderer/light.h"
 #include "renderer/mesh.h"
 #include "renderer/shader.h"
 #include "renderer/texture.h"
@@ -12,7 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-static unsigned int shader;
+unsigned int shader;
 static unsigned int va;
 static unsigned int vb;
 static unsigned int ib;
@@ -21,6 +23,7 @@ static unsigned int ib;
 typedef struct
 {
 	float pos[3];
+	float normal[3];
 	float uv[2];
 	float tint[4];
 	int mat;
@@ -37,6 +40,7 @@ static unsigned int textures[16];
 int renderPass = 0;
 static char backfaceCull = 1;
 static char depthTest = 1;
+static char lighting = 0;
 
 #define NUM_QUADS 64
 #define NUM_VERTS NUM_QUADS * 4
@@ -64,6 +68,11 @@ void setDepthTest(char enable)
 		glDisable(GL_DEPTH_TEST);
 }
 
+void setLightingPreview(char enable)
+{
+	lighting = enable;
+}
+
 mat4* getProjMat()
 {
 	return &projMat;
@@ -72,6 +81,11 @@ mat4* getProjMat()
 mat4* getCamMat()
 {
 	return &camMat;
+}
+
+int getShader()
+{
+	return shader;
 }
 
 void setCamMat(mat4 mat)
@@ -109,13 +123,15 @@ void initRenderer()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * NUM_VERTS, 0, GL_DYNAMIC_DRAW);
 
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 10 * sizeof(float), 0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 13 * sizeof(float), 0);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 13 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)(5 * sizeof(float)));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 13 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(3);
-	glVertexAttribIPointer(3, 1, GL_INT, 10 * sizeof(float), (void*)(9 * sizeof(float)));
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 13 * sizeof(float), (void*)(8 * sizeof(float)));
+	glEnableVertexAttribArray(4);
+	glVertexAttribIPointer(4, 1, GL_INT, 13 * sizeof(float), (void*)(12 * sizeof(float)));
 
 	int indsSize = sizeof(unsigned int) * 6 * NUM_QUADS;
 	unsigned int* inds = malloc(indsSize);
@@ -160,6 +176,8 @@ void initRenderer()
 
 	for (int i = 0; i < 16; i++)
 		textures[i] = 0;
+
+	initLights();
 }
 
 void rendererCleanup()
@@ -192,9 +210,14 @@ void endFrame()
 		textures[i] = 0;
 	}
 
+	if (lighting)
+		updateLightBuffer();
+	setUniformi(shader, "lightingPreview", lighting);
 	setUniformMat4(shader, "cam", camMat);
 	setUniformMat4(shader, "mat", projMat);
 	setUniformi(shader, "pass", renderPass);
+	int l = glGetUniformLocation(shader, "camPos");
+	glUniform3fv(l, 1, cameraPos);
 
 	glDrawElements(GL_TRIANGLES, quadCount * 6, GL_UNSIGNED_INT, 0);
 
@@ -284,25 +307,43 @@ void genVerts(int direction, vec3 start, vec2 size, vec3* positions)
 
 void configVerts(Texture* texture)
 {
+	vec3 uDir;
+	vec3 vDir;
+
+	uDir[0] = verts[3].pos[0] - verts[2].pos[0];
+	uDir[1] = verts[3].pos[1] - verts[2].pos[1];
+	uDir[2] = verts[3].pos[2] - verts[2].pos[2];
+
+	vDir[0] = verts[1].pos[0] - verts[2].pos[0];
+	vDir[1] = verts[1].pos[1] - verts[2].pos[1];
+	vDir[2] = verts[1].pos[2] - verts[2].pos[2];
+
+	float width = uDir[0] * uDir[0] + uDir[1] * uDir[1] + uDir[2] * uDir[2];
+	float height = vDir[0] * vDir[0] + vDir[1] * vDir[1] + vDir[2] * vDir[2];
+
+	width = sqrtf(width);
+	height = sqrtf(height);
+	uDir[0] /= width;
+	uDir[1] /= width;
+	uDir[2] /= width;
+	vDir[0] /= height;
+	vDir[1] /= height;
+	vDir[2] /= height;
+
+	vec3 norm;
+	glm_vec3_cross(uDir, vDir, norm);
+	glm_normalize(norm);
+	norm[0] = -norm[0];
+	norm[1] = -norm[1];
+	norm[2] = -norm[2];
+
+	glm_vec3_copy(norm, verts[0].normal);
+	glm_vec3_copy(norm, verts[1].normal);
+	glm_vec3_copy(norm, verts[2].normal);
+	glm_vec3_copy(norm, verts[3].normal);
+
 	if (texture->alignment != TEX_ALIGNMENT_FIT)
 	{
-		vec3 uDir;
-		vec3 vDir;
-
-		uDir[0] = verts[3].pos[0] - verts[2].pos[0];
-		uDir[1] = verts[3].pos[1] - verts[2].pos[1];
-		uDir[2] = verts[3].pos[2] - verts[2].pos[2];
-
-		vDir[0] = verts[1].pos[0] - verts[2].pos[0];
-		vDir[1] = verts[1].pos[1] - verts[2].pos[1];
-		vDir[2] = verts[1].pos[2] - verts[2].pos[2];
-
-		float width = uDir[0] * uDir[0] + uDir[1] * uDir[1] + uDir[2] * uDir[2];
-		float height = vDir[0] * vDir[0] + vDir[1] * vDir[1] + vDir[2] * vDir[2];
-
-		width = sqrtf(width);
-		height = sqrtf(height);
-
 		width /= texture->size;
 		height /= texture->size;
 

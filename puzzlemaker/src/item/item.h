@@ -2,6 +2,7 @@
 
 #include "cjson.h"
 #include "packages/package.h"
+#include "renderer/light.h"
 #include "renderer/mesh.h"
 #include <cglm/cglm.h>
 
@@ -112,6 +113,7 @@ typedef struct
 
 	ItemKvDef* kvs;
 	char** staticKvs;
+	Light* lights;
 	ItemCallbacks* callbacks;
 
 	int type;
@@ -146,6 +148,7 @@ struct Item
 	ItemOutput* outputs;
 	const char* ioEnt;
 	ItemDefinition* def;
+	Light** lights;
 	void* data;
 	int id;
 	char highlighted;
@@ -167,6 +170,7 @@ void drawItems();
 
 void updateItemTransform(Item* item);
 void updateItemTransformRot(Item* item);
+void updateLights(Item* item);
 Item* getIntersectingItem(vec3 pos, Item** ignore);
 Item** getIntersectingItems(vec3 pos, Item** ignore);
 Item* getItem(int i);

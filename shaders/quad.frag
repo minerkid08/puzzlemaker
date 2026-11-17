@@ -2,45 +2,150 @@
 
 uniform sampler2D textures[16];
 uniform int pass;
+uniform vec3 camPos;
+uniform int lightingPreview;
 
 in vec2 iuv;
+in vec3 fragPos;
 in vec4 itint;
+in vec3 inorm;
 flat in int imatId;
 
 out vec4 color;
 
+struct Light
+{
+  vec3 position;
+  float constant;
+  float linear;
+  float quadratic;
+  float cutoff;
+  vec3 ambient;
+  float dirx;
+  vec3 diffuse;
+  float diry;
+  vec3 specular;
+  float dirz;
+};
+
+layout(std140) uniform LightBlock
+{
+  Light lights[128];
+};
+
+vec3 calcLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
+{
+  vec3 lightDir = normalize(light.position - fragPos);
+  // diffuse shading
+  float diff = max(dot(normal, lightDir), 0.0);
+  // specular shading
+  vec3 reflectDir = reflect(-lightDir, normal);
+  float spec = pow(max(dot(viewDir, reflectDir), 0.0), 0.4);
+  // attenuation
+  float distance = length(light.position - fragPos);
+  float attenuation = 1.0 / (light.constant + light.linear * distance +
+        light.quadratic * (distance * distance));
+  // combine results
+  vec3 ambient = light.ambient;
+  vec3 diffuse = light.diffuse * diff;
+  vec3 specular = light.specular * spec;
+  ambient *= attenuation;
+  diffuse *= attenuation;
+  specular *= attenuation;
+  return (ambient + diffuse + specular);
+}
+
 void main()
 {
-	switch (imatId)
+  vec4 texColor = vec4(0, 0, 0, 1);
+  switch (imatId)
   {
-		case 0:  color = texture(textures[0],  iuv); break;
-		case 1:  color = texture(textures[1],  iuv); break;
-		case 2:  color = texture(textures[2],  iuv); break;
-		case 3:  color = texture(textures[3],  iuv); break;
-		case 4:  color = texture(textures[4],  iuv); break;
-		case 5:  color = texture(textures[5],  iuv); break;
-		case 6:  color = texture(textures[6],  iuv); break;
-		case 7:  color = texture(textures[7],  iuv); break;
-		case 8:  color = texture(textures[8],  iuv); break;
-		case 9:  color = texture(textures[9],  iuv); break;
-		case 10:  color = texture(textures[10],  iuv); break;
-		case 11:  color = texture(textures[11],  iuv); break;
-		case 12:  color = texture(textures[12],  iuv); break;
-		case 13:  color = texture(textures[13],  iuv); break;
-		case 14:  color = texture(textures[14],  iuv); break;
-		case 15:  color = texture(textures[15],  iuv); break;
-	}
-	color.x *= itint.x;
-	color.y *= itint.y;
-	color.z *= itint.z;
-	if(pass == 0)
-	{
-		if(color.a < 1)
-			discard;
-	}
-	else
-	{
-		if(color.a == 1)
-			discard;
-	}
+    case 0:
+    texColor = texture(textures[0], iuv);
+    break;
+    case 1:
+    texColor = texture(textures[1], iuv);
+    break;
+    case 2:
+    texColor = texture(textures[2], iuv);
+    break;
+    case 3:
+    texColor = texture(textures[3], iuv);
+    break;
+    case 4:
+    texColor = texture(textures[4], iuv);
+    break;
+    case 5:
+    texColor = texture(textures[5], iuv);
+    break;
+    case 6:
+    texColor = texture(textures[6], iuv);
+    break;
+    case 7:
+    texColor = texture(textures[7], iuv);
+    break;
+    case 8:
+    texColor = texture(textures[8], iuv);
+    break;
+    case 9:
+    texColor = texture(textures[9], iuv);
+    break;
+    case 10:
+    texColor = texture(textures[10], iuv);
+    break;
+    case 11:
+    texColor = texture(textures[11], iuv);
+    break;
+    case 12:
+    texColor = texture(textures[12], iuv);
+    break;
+    case 13:
+    texColor = texture(textures[13], iuv);
+    break;
+    case 14:
+    texColor = texture(textures[14], iuv);
+    break;
+    case 15:
+    texColor = texture(textures[15], iuv);
+    break;
+  }
+  texColor.x *= itint.x;
+  texColor.y *= itint.y;
+  texColor.z *= itint.z;
+  if (pass == 0)
+  {
+    if (texColor.a < 1)
+      discard;
+  }
+  else
+  {
+    if (texColor.a == 1)
+      discard;
+  }
+
+  if (lightingPreview == 1)
+  {
+    vec3 viewDir = normalize(camPos - fragPos);
+
+    vec3 result = vec3(0, 0, 0);
+    for (int i = 0; i < 128; i++)
+    {
+      if (lights[i].position.x < 0)
+        continue;
+      if (lights[i].cutoff == 0)
+        result += calcLight(lights[i], inorm, fragPos, viewDir);
+      else
+      {
+        vec3 dir = vec3(lights[i].dirx, lights[i].diry, lights[i].dirz);
+        float theta = dot(lights[i].position - fragPos, -dir);
+        if (theta > lights[i].cutoff)
+          result += calcLight(lights[i], inorm, fragPos, viewDir);
+      }
+    }
+
+    color = vec4(result, 1.0);
+    color *= texColor;
+  }
+  else
+    color = texColor;
 }

@@ -10,6 +10,7 @@ void rendererCleanup();
 void setBackfaceCull(char enable);
 void setDepthTest(char enable);
 void setRenderPass(int i);
+void setLightingPreview(char enable);
 
 void setTransform(mat4 transform);
 void setProjMat(mat4 mat);

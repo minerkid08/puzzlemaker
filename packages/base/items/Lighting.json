@@ -1,46 +1,132 @@
 [
 	{
-    "type": "entity",
+		"type": "entity",
 		"id": "light",
 		"name": "Light",
 		"model": "light.obj",
-    "instance": "light",
-    "snapMode": "mini-center",
-    "bound1": [-1.25, -0.25, 0],
-    "bound2": [0.75, 0.25, 0.1]
+		"instance": "light",
+		"snapMode": "mini-center",
+		"bound1": [
+			-1.25,
+			-0.25,
+			0
+		],
+		"bound2": [
+			0.75,
+			0.25,
+			0.1
+		],
+		"lights": [
+			{
+				"type": "point",
+				"position": [
+					-0.25,
+					0,
+					0.25
+				],
+				"constant": 0,
+				"linear": 0.9,
+				"quadratic": 0.5,
+				"ambient": [
+					1,
+					1,
+					1
+				],
+				"diffuse": [
+					1,
+					1,
+					1
+				],
+				"specular": [
+					0,
+					0,
+					0
+				]
+			}
+		]
 	},
 	{
-    "type": "entity",
+		"type": "entity",
 		"id": "obroom",
 		"name": "Observation Room 4x2",
 		"model": "obroom.obj",
-    "instance": "obroom2",
-    "snapMode": "mini-corner",
-	  "bound1":	[-2, -1, -4],
-	  "bound2":	[2, 1, 0.1],
-    "deleteIntersectingVoxels": true,
-    "deleteIntersectingVoxelsEditor": false,
-    "genMissingVoxels": false,
+		"instance": "obroom2",
+		"snapMode": "mini-corner",
+		"bound1": [
+			-2,
+			-1,
+			-4
+		],
+		"bound2": [
+			2,
+			1,
+			0.1
+		],
+		"deleteIntersectingVoxels": true,
+		"deleteIntersectingVoxelsEditor": false,
+		"genMissingVoxels": false,
 		"inputs": [
 			{
 				"name": "Turn On",
 				"trueInput": "instance:light;TurnOn",
 				"falseInput": "instance:light;TurnOff"
 			}
+		],
+		"lights": [
+			{
+				"type": "spot",
+				"position": [
+					-0.25,
+					0,
+					0.25
+				],
+				"rotation": [
+					0,
+					0,
+					0
+				],
+				"cutoff": 12.5,
+				"constant": 0,
+				"linear": 0.9,
+				"quadratic": 0.5,
+				"ambient": [
+					1,
+					1,
+					1
+				],
+				"diffuse": [
+					1,
+					1,
+					1
+				],
+				"specular": [
+					0,
+					0,
+					0
+				]
+			}
 		]
 	},
 	{
-    "type": "entity",
+		"type": "entity",
 		"id": "obroom2",
 		"name": "Observation Room 2x2",
 		"model": "obroom2.obj",
-    "instance": "obroom",
-    "snapMode": "mini-corner",
-	  "bound1":	[-1, -1, -3],
-	  "bound2":	[1, 1, 0.1],
-    "deleteIntersectingVoxels": true,
-    "deleteIntersectingVoxelsEditor": false,
-    "genMissingVoxels": false,
+		"instance": "obroom",
+		"snapMode": "mini-corner",
+		"bound1": [
+			-1,
+			-1,
+			-3
+		],
+		"bound2": [
+			1,
+			1,
+			0.1
+		],
+		"deleteIntersectingVoxels": true,
+		"deleteIntersectingVoxelsEditor": false,
+		"genMissingVoxels": false,
 		"inputs": [
 			{
 				"name": "Turn On",

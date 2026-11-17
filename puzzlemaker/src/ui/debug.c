@@ -4,6 +4,8 @@
 #include "item/entityItem.h"
 #include "item/panel.h"
 #include "jsonUtils.h"
+#include "renderer/light.h"
+#include "renderer/renderer.h"
 #include <GLFW/glfw3.h>
 #include <stdbool.h>
 #include <string.h>
@@ -22,6 +24,7 @@ static bool open = 0;
 extern GLFWwindow* window;
 extern float fps;
 extern float fps2;
+static char lightEnable = 0;
 
 void copyEntityItem()
 {
@@ -107,6 +110,20 @@ void drawTransform(vec3 pos, vec3 rot, mat4 transform)
 	}
 }
 
+void drawLight(Light* light)
+{
+	igDragFloat3("pos", light->position, 0.1, -9999, 9999, "%.2f", 0);
+	igDragFloat("dx", &light->dirX, 0.005, 0, 1, "%.4f", 0);
+	igDragFloat("dy", &light->dirY, 0.005, 0, 1, "%.4f", 0);
+	igDragFloat("cutoff", &light->cutoff, 0.005, 0, 1, "%.4f", 0);
+	igColorEdit3("ambient", light->ambient, 0);
+	igColorEdit3("diffuse", light->diffuse, 0);
+	igColorEdit3("specular", light->specular, 0);
+	igDragFloat("constant", &light->constant, 0.005, 0, 1, "%.4f", 0);
+	igDragFloat("linear", &light->linear, 0.005, 0, 1, "%.4f", 0);
+	igDragFloat("quadratic", &light->quadratic, 0.005, 0, 1, "%.4f", 0);
+}
+
 void openItemDebug()
 {
 	open = !open;
@@ -125,8 +142,11 @@ void itemDebugRender()
 
 	igBegin("Item Debug", &open, 0);
 
-  igText("fps:  %.2f", fps);
-  igText("fps2: %.2f", fps2);
+	igText("fps:  %.2f", fps);
+	igText("fps2: %.2f", fps2);
+
+	if (igCheckbox("light preview", (bool*)&lightEnable))
+		setLightingPreview(lightEnable);
 
 	if (igTreeNodeEx_Str("Camera", treeNodeFlags))
 	{
@@ -229,6 +249,39 @@ void itemDebugRender()
 					igTreePop();
 				}
 			}
+		}
+		if (igTreeNodeEx_Str("Lights", treeNodeFlags))
+		{
+			int len = dynList_size(selection.item->def->lights);
+			for (int i = 0; i < len; i++)
+			{
+				char buf[4];
+				snprintf(buf, 4, "%d", i);
+				if (igTreeNode_Str(buf))
+				{
+					drawLight(&selection.item->def->lights[i]);
+					igTreePop();
+				}
+			}
+
+			if (igButton("Apply", zero))
+			{
+				Item* items = getItemList();
+				int l = dynList_size(items);
+				for (int i = 0; i < l; i++)
+				{
+					Item* item = &items[i];
+					if (!isItemValid(item))
+						continue;
+					if (item->def != selection.item->def)
+						continue;
+					for (int j = 0; j < len; j++)
+						updateLights(item);
+					updateItemTransform(item);
+				}
+			}
+
+			igTreePop();
 		}
 		igTreePop();
 	}

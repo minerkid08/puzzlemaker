@@ -39,9 +39,6 @@ void initDebug()
 	glGenBuffers(1, &ib);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(inds), inds, GL_STATIC_DRAW);
-
-	glLineWidth(10);
-	glPointSize(10);
 }
 
 void debugCleanup()
@@ -72,12 +69,14 @@ void drawDebugRect(vec3 a, vec3 b, mat4 transform, char color)
 	glDisable(GL_DEPTH_TEST);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, (void*)(4*0));
-	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, (void*)(4*4));
-	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, (void*)(4*8));
-	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, (void*)(4*12));
-	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, (void*)(4*16));
-	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, (void*)(4*20));
+	glLineWidth(10);
+
+	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, (void*)(4 * 0));
+	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, (void*)(4 * 4));
+	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, (void*)(4 * 8));
+	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, (void*)(4 * 12));
+	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, (void*)(4 * 16));
+	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, (void*)(4 * 20));
 
 	glEnable(GL_DEPTH_TEST);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -106,12 +105,14 @@ void drawDebugRectAntline(vec3 a, vec3 b, mat4 transform, char color)
 	glDisable(GL_DEPTH_TEST);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, (void*)(4*0));
-	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, (void*)(4*4));
-	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, (void*)(4*8));
-	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, (void*)(4*12));
-	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, (void*)(4*16));
-	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, (void*)(4*20));
+	glLineWidth(10);
+
+	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, (void*)(4 * 0));
+	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, (void*)(4 * 4));
+	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, (void*)(4 * 8));
+	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, (void*)(4 * 12));
+	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, (void*)(4 * 16));
+	glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, (void*)(4 * 20));
 
 	glEnable(GL_DEPTH_TEST);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -145,6 +146,7 @@ void drawDebugPoint(vec3 a, vec3 b, char col)
 	glDisable(GL_DEPTH_TEST);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+	glLineWidth(10);
 	glDrawArrays(GL_LINES, 0, 2);
 
 	glEnable(GL_DEPTH_TEST);

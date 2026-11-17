@@ -76,19 +76,19 @@
 			{
 				"type": "spot",
 				"position": [
-					-0.25,
 					0,
-					0.25
+					0,
+					-2
 				],
 				"rotation": [
-					0,
+					15,
 					0,
 					0
 				],
-				"cutoff": 12.5,
-				"constant": 0,
-				"linear": 0.9,
-				"quadratic": 0.5,
+				"cutoff": 45,
+				"constant": 2,
+				"linear": 0,
+				"quadratic": 0,
 				"ambient": [
 					1,
 					1,
@@ -132,6 +132,40 @@
 				"name": "Turn On",
 				"trueInput": "instance:light;TurnOn",
 				"falseInput": "instance:light;TurnOff"
+			}
+		],
+		"lights": [
+			{
+				"type": "spot",
+				"position": [
+					0,
+					0,
+					-1
+				],
+				"rotation": [
+					15,
+					0,
+					0
+				],
+				"cutoff": 45,
+				"constant": 2,
+				"linear": 0,
+				"quadratic": 0,
+				"ambient": [
+					1,
+					1,
+					1
+				],
+				"diffuse": [
+					1,
+					1,
+					1
+				],
+				"specular": [
+					0,
+					0,
+					0
+				]
 			}
 		]
 	}

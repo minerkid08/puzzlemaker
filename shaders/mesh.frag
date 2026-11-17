@@ -15,10 +15,14 @@ layout(std140) uniform MaterialBlock
 };
 
 uniform int pass;
+uniform vec3 camPos;
+uniform int lightingPreview;
 
 in VSOUT
 {
+	vec3 pos;
   vec2 uv;
+	vec3 normal;
   flat int materialId;
 } fragIn;
 
@@ -48,33 +52,127 @@ vec4 getColor(int tex)
 	return vec4(1, 1, 1, 1);
 }
 
+struct Light
+{
+  vec3 position;
+  float constant;
+  float linear;
+  float quadratic;
+  float cutoff;
+  vec3 ambient;
+  float dirx;
+  vec3 diffuse;
+  float diry;
+  vec3 specular;
+  float dirz;
+};
+
+layout(std140) uniform LightBlock
+{
+  Light lights[128];
+};
+
+vec3 calcDirectionalLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
+{
+  vec3 lightDir = normalize(light.position - fragPos);
+
+  vec3 dir = vec3(light.dirx, light.diry, light.dirz);
+  float theta = dot(lightDir, -dir);
+  float distance = length(light.position - fragPos);
+  float attenuation = 1.0 / (light.constant + light.linear * distance +
+        light.quadratic * (distance * distance));
+  vec3 ambient = light.ambient;
+  ambient *= attenuation;
+  if (theta > light.cutoff)
+  {
+    // diffuse shading
+    float diff = max(dot(normal, lightDir), 0.0);
+    // specular shading
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 0.4);
+    // attenuation
+    // combine results
+    vec3 diffuse = light.diffuse * diff;
+    vec3 specular = light.specular * spec;
+    diffuse *= attenuation;
+    specular *= attenuation;
+    return (ambient + diffuse + specular);
+  }
+  else
+    return ambient;
+}
+
+vec3 calcLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
+{
+  vec3 lightDir = normalize(light.position - fragPos);
+  // diffuse shading
+  float diff = max(dot(normal, lightDir), 0.0);
+  // specular shading
+  vec3 reflectDir = reflect(-lightDir, normal);
+  float spec = pow(max(dot(viewDir, reflectDir), 0.0), 0.4);
+  // attenuation
+  float distance = length(light.position - fragPos);
+  float attenuation = 1.0 / (light.constant + light.linear * distance +
+        light.quadratic * (distance * distance));
+  // combine results
+  vec3 ambient = light.ambient;
+  vec3 diffuse = light.diffuse * diff;
+  vec3 specular = light.specular * spec;
+  ambient *= attenuation;
+  diffuse *= attenuation;
+  specular *= attenuation;
+  return (ambient + diffuse + specular);
+}
+
 void main()
 {
   Material mat = materials[fragIn.materialId];
+	vec4 texColor = vec4(0, 0, 0, 1);
   if (mat.texIndex == 0)
-    color = mat.tint;
+    texColor = mat.tint;
   else
   {
-		color = getColor(mat.texIndex);
-    color = color * mat.tint;
+		texColor = getColor(mat.texIndex);
+    texColor = texColor * mat.tint;
   }
 
   if (mat.alphaTex != 0)
   {
-		color.a = getColor(mat.alphaTex).a;
-    color.a *= mat.tint.a;
+		texColor.a = getColor(mat.alphaTex).a;
+    texColor.a *= mat.tint.a;
   }
 
-  if (color.a <= 0)
+  if (texColor.a <= 0)
     discard;
   if (pass == 0)
   {
-    if (color.a < 1)
+    if (texColor.a < 1)
       discard;
   }
   else
   {
-    if (color.a >= 1)
+    if (texColor.a >= 1)
       discard;
   }
+
+  if (lightingPreview == 1)
+  {
+    vec3 viewDir = normalize(camPos - fragIn.pos);
+
+    vec3 result = vec3(0, 0, 0);
+    for (int i = 0; i < 128; i++)
+    {
+      if (lights[i].position.x < 0)
+        continue;
+      if (lights[i].cutoff == 0)
+        result += calcLight(lights[i], fragIn.normal, fragIn.pos, viewDir);
+      else
+        result += calcDirectionalLight(lights[i], fragIn.normal, fragIn.pos, viewDir);
+    }
+
+    color = vec4(result, 1.0);
+    color *= texColor;
+  }
+  else
+    color = texColor;
 }

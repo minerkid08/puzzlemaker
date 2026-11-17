@@ -8,6 +8,7 @@
 #include "renderer/framebuffer.h"
 #include "save.h"
 #include "settings.h"
+#include "sound.h"
 #include "ui/fileBrowser.h"
 #include "utils.h"
 #include <math.h>
@@ -124,6 +125,8 @@ int main(int argc, const char** argv)
 	framebuffer.height = 1080;
 	framebufferInit(&framebuffer);
 
+	initSounds();
+
 	double now = glfwGetTime();
 	double dt;
 	double lastTime = now;
@@ -206,6 +209,7 @@ int main(int argc, const char** argv)
 	}
 
 	saveEditorSettings();
+	shutdownSounds();
 	rendererCleanup();
 	debugCleanup();
 	assetManagerCleanup();

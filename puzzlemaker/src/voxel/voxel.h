@@ -23,10 +23,10 @@ extern ivec3 mapReigonEnd;
 
 typedef struct
 {
-	char solid;
+	unsigned char solid : 1;
+	unsigned char faces : 7;
 	char portalability[6];
-  char faces;
-  char subVoxels;
+	char subVoxels;
 } Voxel;
 
 void initVoxels();

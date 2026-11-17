@@ -19,6 +19,8 @@ static ImGuiIO* io;
 float uiScale = 1.0f;
 
 char queueCompile = 0;
+extern char lighting;
+extern char wireframe;
 ImVec2 zero;
 
 unsigned int iconTexture = 0;
@@ -43,7 +45,7 @@ void initUi(GLFWwindow* window)
 	loadImguiTheme();
 
 	ImGuiStyle* style = igGetStyle();
-	//ImGuiStyle_ScaleAllSizes(style, uiScale);
+	// ImGuiStyle_ScaleAllSizes(style, uiScale);
 
 	const char* glslVersion = "#version 330 core";
 	ImGui_ImplGlfw_InitForOpenGL(window, 1);
@@ -99,7 +101,7 @@ void uiEndFrame()
 		glfwMakeContextCurrent(ctx);
 	}
 
-	if(queueThemeUpdate)
+	if (queueThemeUpdate)
 	{
 		unloadImguiTheme();
 		loadImguiTheme();
@@ -195,6 +197,14 @@ void uiMenuBar()
 			openItemDebug();
 		if (igMenuItem_Bool("Keybinds", 0, 0, 1))
 			openKeybindsPanel();
+		igEndMenu();
+	}
+	if (igBeginMenu("Render", 1))
+	{
+		if (igMenuItem_Bool("Lighting Preview", 0, lighting, 1))
+			lighting = !lighting;
+		if (igMenuItem_Bool("Wireframe", 0, wireframe, 1))
+			wireframe = !wireframe;
 		igEndMenu();
 	}
 	igSeparator();

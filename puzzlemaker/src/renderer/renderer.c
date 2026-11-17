@@ -40,7 +40,8 @@ static unsigned int textures[16];
 int renderPass = 0;
 static char backfaceCull = 1;
 static char depthTest = 1;
-static char lighting = 0;
+char lighting = 0;
+char wireframe = 0;
 
 #define NUM_QUADS 64
 #define NUM_VERTS NUM_QUADS * 4
@@ -219,6 +220,11 @@ void endFrame()
 	int l = glGetUniformLocation(shader, "camPos");
 	glUniform3fv(l, 1, cameraPos);
 
+	glLineWidth(2);
+	if(wireframe)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	else
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glDrawElements(GL_TRIANGLES, quadCount * 6, GL_UNSIGNED_INT, 0);
 
 	glBindVertexArray(0);

@@ -24,7 +24,6 @@ static bool open = 0;
 extern GLFWwindow* window;
 extern float fps;
 extern float fps2;
-static char lightEnable = 0;
 
 void copyEntityItem()
 {
@@ -112,10 +111,21 @@ void drawTransform(vec3 pos, vec3 rot, mat4 transform)
 
 void drawLight(Light* light)
 {
-	igDragFloat3("pos", light->position, 0.1, -9999, 9999, "%.2f", 0);
-	igDragFloat("dx", &light->dirX, 0.005, 0, 1, "%.4f", 0);
-	igDragFloat("dy", &light->dirY, 0.005, 0, 1, "%.4f", 0);
-	igDragFloat("cutoff", &light->cutoff, 0.005, 0, 1, "%.4f", 0);
+	int type = light->cutoff > 0;
+	if (igCombo_Str("Type", &type, "Point\0Spot\0", 2))
+	{
+		if (type == 0)
+			light->cutoff = 0;
+		else
+			light->cutoff = 45;
+	}
+	igDragFloat3("Position", light->position, 0.1, -9999, 9999, "%.2f", 0);
+	if (light->cutoff > 0)
+	{
+		igDragFloat("pitch", &light->dirX, 15, 0, 1, "%.2f", 0);
+		igDragFloat("yaw", &light->dirY, 15, 0, 1, "%.2f", 0);
+		igDragFloat("cutoff", &light->cutoff, 0.5, 0, 1, "%.2f", 0);
+	}
 	igColorEdit3("ambient", light->ambient, 0);
 	igColorEdit3("diffuse", light->diffuse, 0);
 	igColorEdit3("specular", light->specular, 0);
@@ -144,9 +154,6 @@ void itemDebugRender()
 
 	igText("fps:  %.2f", fps);
 	igText("fps2: %.2f", fps2);
-
-	if (igCheckbox("light preview", (bool*)&lightEnable))
-		setLightingPreview(lightEnable);
 
 	if (igTreeNodeEx_Str("Camera", treeNodeFlags))
 	{
@@ -275,8 +282,7 @@ void itemDebugRender()
 						continue;
 					if (item->def != selection.item->def)
 						continue;
-					for (int j = 0; j < len; j++)
-						updateLights(item);
+					updateLights(item);
 					updateItemTransform(item);
 				}
 			}

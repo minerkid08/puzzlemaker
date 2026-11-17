@@ -5,10 +5,12 @@
 static unsigned int buffer;
 static int bindingPoint = 1;
 static int blockIndex;
+static int meshBlockIndex;
 
 extern unsigned int shader;
+extern unsigned int meshShader;
 
-#define LIGHT_COUNT 128
+#define LIGHT_COUNT 512
 
 static Light lights[LIGHT_COUNT];
 
@@ -21,6 +23,8 @@ void initLights()
 
 	blockIndex = glGetUniformBlockIndex(shader, "LightBlock");
 	glUniformBlockBinding(shader, blockIndex, bindingPoint);
+	meshBlockIndex = glGetUniformBlockIndex(meshShader, "LightBlock");
+	glUniformBlockBinding(meshShader, meshBlockIndex, bindingPoint);
 
 	glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, buffer);
 

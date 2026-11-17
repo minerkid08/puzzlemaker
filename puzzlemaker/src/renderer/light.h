@@ -18,5 +18,6 @@ typedef struct
 
 void initLights();
 Light* addLight();
+void updateShadows(Light* light);
 void removeLight(Light* light);
 void updateLightBuffer();

@@ -1,4 +1,5 @@
 #include "assetManager.h"
+#include "camera.h"
 #include "dynList.h"
 #include "error.h"
 #include "item/item.h"
@@ -21,6 +22,7 @@
 typedef struct
 {
 	float pos[3];
+	float normal[3];
 	float texCoord[2];
 	int material;
 } __attribute__((packed)) Vertex;
@@ -30,6 +32,8 @@ unsigned int uniformBuffer;
 
 unsigned int bindingPoint;
 unsigned int uniformBlockIndex;
+extern char lighting;
+extern char wireframe;
 
 static int size;
 
@@ -196,6 +200,7 @@ void loadMesh(Package* package, const char* filename, Mesh* mesh)
 		fastObjIndex* index = &m->indices[i];
 		Vertex* vert = &vertices[i];
 		memcpy(vert->pos, m->positions + 3 * index->p, sizeof(float) * 3);
+		memcpy(vert->normal, m->normals + 3 * index->n, sizeof(float) * 3);
 		memcpy(vert->texCoord, m->texcoords + 2 * index->t, sizeof(float) * 2);
 	}
 
@@ -234,9 +239,11 @@ void loadMesh(Package* package, const char* filename, Mesh* mesh)
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(2);
-	glVertexAttribIPointer(2, 1, GL_INT, sizeof(Vertex), (void*)(5 * sizeof(float)));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(6 * sizeof(float)));
+	glEnableVertexAttribArray(3);
+	glVertexAttribIPointer(3, 1, GL_INT, sizeof(Vertex), (void*)(8 * sizeof(float)));
 
 	glBindVertexArray(0);
 
@@ -269,10 +276,22 @@ void renderMesh(Mesh* mesh, mat4 transform)
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(MeshMaterial) * mesh->materialCount, mesh->materials);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
+	if (lighting)
+		updateLightBuffer();
+	setUniformi(meshShader, "lightingPreview", lighting);
 	setUniformMat4(meshShader, "cam", *getCamMat());
 	setUniformMat4(meshShader, "mat", *getProjMat());
 	setUniformMat4(meshShader, "trans", transform);
 	setUniformi(meshShader, "pass", renderPass);
+	setUniformi(meshShader, "pass", renderPass);
+	int l = glGetUniformLocation(meshShader, "camPos");
+	glUniform3fv(l, 1, cameraPos);
+
+	glLineWidth(2);
+	if (wireframe)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	else
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	glDrawElements(GL_TRIANGLES, mesh->vertCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);

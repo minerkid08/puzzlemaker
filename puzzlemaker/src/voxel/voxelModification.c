@@ -1,6 +1,7 @@
 #include "voxelModification.h"
 
 #include "selection.h"
+#include "sound.h"
 #include "utils.h"
 #include "voxel/voxel.h"
 
@@ -110,6 +111,7 @@ void modify2dSelection(int action)
 		selection.voxelPos[axis3] -= dir;
 		selection.voxel2Pos[axis3] -= dir;
 	}
+	playVoxelSfx();
 }
 
 void modify3dSelection(int action)
@@ -175,6 +177,9 @@ void modify3dSelection(int action)
 			}
 		}
 	}
+	if (action == ACTION_PORT || action == ACTION_SIZE)
+		return;
+	playVoxelSfx();
 }
 
 void voxelPush()

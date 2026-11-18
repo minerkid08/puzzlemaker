@@ -79,8 +79,13 @@ vec3 calcDirectionalLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
   vec3 dir = vec3(light.dirx, light.diry, light.dirz);
   float theta = dot(lightDir, -dir);
   float distance = length(light.position - fragPos);
-  float attenuation = 1.0 / (light.constant + light.linear * distance +
-        light.quadratic * (distance * distance));
+
+	float constant = light.constant;
+	float linear = light.linear / distance;
+	float quadratic = light.quadratic / (distance * distance);
+
+  float attenuation = constant + linear + quadratic;
+
   vec3 ambient = light.ambient;
   ambient *= attenuation;
   if (theta > light.cutoff)
@@ -112,8 +117,13 @@ vec3 calcLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
   float spec = pow(max(dot(viewDir, reflectDir), 0.0), 0.4);
   // attenuation
   float distance = length(light.position - fragPos);
-  float attenuation = 1.0 / (light.constant + light.linear * distance +
-        light.quadratic * (distance * distance));
+
+	float constant = light.constant;
+	float linear = light.linear / distance;
+	float quadratic = light.quadratic / (distance * distance);
+
+  float attenuation = constant + linear + quadratic;
+
   // combine results
   vec3 ambient = light.ambient;
   vec3 diffuse = light.diffuse * diff;

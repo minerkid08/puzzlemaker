@@ -358,9 +358,9 @@ void configVerts(Texture* texture)
 		verts[1].uv[0] = 0;
 		verts[1].uv[1] = 0;
 		verts[3].uv[0] = width;
-		verts[3].uv[1] = height / texture->size;
+		verts[3].uv[1] = height;
 		verts[2].uv[0] = 0;
-		verts[2].uv[1] = height / texture->size;
+		verts[2].uv[1] = height;
 	}
 	else
 	{

@@ -5,7 +5,6 @@
 #include "item/panel.h"
 #include "jsonUtils.h"
 #include "renderer/light.h"
-#include "renderer/renderer.h"
 #include <GLFW/glfw3.h>
 #include <stdbool.h>
 #include <string.h>
@@ -24,6 +23,8 @@ static bool open = 0;
 extern GLFWwindow* window;
 extern float fps;
 extern float fps2;
+extern unsigned int shadowMapPreview;
+extern ImVec2 zero;
 
 void copyEntityItem()
 {
@@ -109,7 +110,7 @@ void drawTransform(vec3 pos, vec3 rot, mat4 transform)
 	}
 }
 
-void drawLight(Light* light)
+void drawLight(Light* light, Light* target)
 {
 	int type = light->cutoff > 0;
 	if (igCombo_Str("Type", &type, "Point\0Spot\0", 2))
@@ -120,18 +121,23 @@ void drawLight(Light* light)
 			light->cutoff = 45;
 	}
 	igDragFloat3("Position", light->position, 0.1, -9999, 9999, "%.2f", 0);
-	if (light->cutoff > 0)
-	{
-		igDragFloat("pitch", &light->dirX, 15, 0, 1, "%.2f", 0);
-		igDragFloat("yaw", &light->dirY, 15, 0, 1, "%.2f", 0);
-		igDragFloat("cutoff", &light->cutoff, 0.5, 0, 1, "%.2f", 0);
-	}
 	igColorEdit3("ambient", light->ambient, 0);
 	igColorEdit3("diffuse", light->diffuse, 0);
 	igColorEdit3("specular", light->specular, 0);
 	igDragFloat("constant", &light->constant, 0.005, 0, 1, "%.4f", 0);
 	igDragFloat("linear", &light->linear, 0.005, 0, 1, "%.4f", 0);
 	igDragFloat("quadratic", &light->quadratic, 0.005, 0, 1, "%.4f", 0);
+
+	igBeginDisabled(light->cutoff == 0);
+	igCheckbox("shadowed", (bool*)&light->shadowMapIndex);
+	igDragFloat("pitch", &light->dirX, 15, 0, 1, "%.2f", 0);
+	igDragFloat("yaw", &light->dirY, 15, 0, 1, "%.2f", 0);
+	igDragFloat("cutoff", &light->cutoff, 0.5, 0, 1, "%.2f", 0);
+	igBeginDisabled(light->shadowMapIndex == 0);
+	if (igButton("updateShadows", zero))
+		updateShadows(target);
+	igEndDisabled();
+	igEndDisabled();
 }
 
 void openItemDebug()
@@ -151,6 +157,21 @@ void itemDebugRender()
 	int treeNodeFlags = ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DefaultOpen;
 
 	igBegin("Item Debug", &open, 0);
+
+	ImTextureRef_c ref;
+	ref._TexData = 0;
+	ref._TexID = shadowMapPreview;
+
+	ImVec2 a;
+	a.x = 0;
+	a.y = 1;
+	ImVec2 b;
+	b.x = 1;
+	b.y = 0;
+	ImVec2 size;
+	size.x = 256;
+	size.y = 256;
+	igImage(ref, size, a, b);
 
 	igText("fps:  %.2f", fps);
 	igText("fps2: %.2f", fps2);
@@ -266,7 +287,7 @@ void itemDebugRender()
 				snprintf(buf, 4, "%d", i);
 				if (igTreeNode_Str(buf))
 				{
-					drawLight(&selection.item->def->lights[i]);
+					drawLight(&selection.item->def->lights[i], selection.item->lights[i]);
 					igTreePop();
 				}
 			}
@@ -283,7 +304,6 @@ void itemDebugRender()
 					if (item->def != selection.item->def)
 						continue;
 					updateLights(item);
-					updateItemTransform(item);
 				}
 			}
 

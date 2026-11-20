@@ -6,6 +6,7 @@
 #include "mapsettings.h"
 #include "packages/package.h"
 #include "renderer/framebuffer.h"
+#include "renderer/light.h"
 #include "save.h"
 #include "settings.h"
 #include "sound.h"
@@ -61,6 +62,8 @@ unsigned int mouseOffsetX = 0;
 unsigned int mouseOffsetY = 0;
 
 extern char queueCompile;
+
+extern unsigned char shadowMap;
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void mouseCallback(GLFWwindow* window, int button, int action, int mods);
@@ -124,6 +127,8 @@ int main(int argc, const char** argv)
 	framebuffer.width = 1920;
 	framebuffer.height = 1080;
 	framebufferInit(&framebuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.id);
+	// glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMap, 0);
 
 	initSounds();
 
@@ -133,8 +138,6 @@ int main(int argc, const char** argv)
 	running = 1;
 	while (!glfwWindowShouldClose(window))
 	{
-		framebufferBind(&framebuffer);
-
 		now = glfwGetTime();
 		dt = now - lastTime;
 		lastTime = now;
@@ -177,9 +180,10 @@ int main(int argc, const char** argv)
 		cameraMoveForward(moveForward * dt * moveSpeed);
 		cameraMoveRight(moveRight * dt * moveSpeed);
 
+		framebufferBind(&framebuffer);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// printf("new frame\n");
+		updateLightBuffer();
 		drawVoxels();
 
 		renderAntlines();

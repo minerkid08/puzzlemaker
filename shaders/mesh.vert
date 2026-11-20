@@ -11,18 +11,19 @@ uniform mat4 trans;
 
 out VSOUT
 {
-	vec3 pos;
-	vec2 uv;
-	vec3 normal;
-	flat int materialId;
+  vec3 pos;
+  vec2 uv;
+  vec3 normal;
+  flat int materialId;
 } vertOut;
 
 void main()
 {
-	vec4 p = trans * vec4(pos, 1);
-	vertOut.pos = vec3(p.x, p.y, p.z);
-	vertOut.normal = normal;
-	vertOut.materialId = matId;
+  vec4 p = trans * vec4(pos, 1);
+  vertOut.pos = p.xyz;
+  vec4 n = trans * vec4(normal, 0);
+  vertOut.normal = n.xyz;
+  vertOut.materialId = matId;
   vertOut.uv = uv;
   gl_Position = mat * cam * p;
 }

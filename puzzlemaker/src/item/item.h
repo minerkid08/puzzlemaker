@@ -41,6 +41,7 @@
 #define ITEM_FLAGS_DELVOXELSEDITOR (1 << 9)
 #define ITEM_FLAGS_GENVOXELS (1 << 10)
 #define ITEM_FLAGS_NODEFAULTEXPORT (1 << 11)
+#define ITEM_FLAGS_SHADOWEDLIGHTS (1 << 11)
 
 #define SNAP_CORNER 0
 #define SNAP_CENTER 1
@@ -167,6 +168,7 @@ void loadItemDefinitionFile(Package* package, const char* filename);
 void itemLoaderEnd();
 
 void drawItems();
+void drawItemsShadow();
 
 void updateItemTransform(Item* item);
 void updateItemTransformRot(Item* item);

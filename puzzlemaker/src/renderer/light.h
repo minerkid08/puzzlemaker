@@ -7,14 +7,15 @@ typedef struct
 	float linear;
 	float quadratic;
 	float	cutoff;
-	float _;
+	int shadowMapIndex;
 	float ambient[3];
 	float dirX;
 	float diffuse[3];
 	float dirY;
 	float specular[3];
 	float dirZ;
-} __attribute__((packed)) Light;
+	float transform[4][4];
+} Light;
 
 void initLights();
 Light* addLight();

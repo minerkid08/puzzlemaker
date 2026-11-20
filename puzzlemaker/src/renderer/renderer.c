@@ -15,6 +15,7 @@
 #include <string.h>
 
 unsigned int shader;
+unsigned int shadowShader;
 static unsigned int va;
 static unsigned int vb;
 static unsigned int ib;
@@ -35,19 +36,23 @@ static Vertex* vertBase;
 static int vertCount = 0;
 static int quadCount = 0;
 
-static unsigned int textures[16];
+static unsigned int textures[15];
+extern unsigned int shadowMap;
 
 int renderPass = 0;
 static char backfaceCull = 1;
 static char depthTest = 1;
 char lighting = 0;
 char wireframe = 0;
+extern char shadow;
 
 #define NUM_QUADS 64
 #define NUM_VERTS NUM_QUADS * 4
 
 static mat4 camMat;
 static mat4 transform;
+mat4 shadowCamMat;
+mat4 shadowProjMat;
 
 void setRenderPass(int i)
 {
@@ -94,6 +99,11 @@ void setCamMat(mat4 mat)
 	memcpy(camMat, mat, sizeof(mat4));
 }
 
+void setProjMat(mat4 mat)
+{
+	memcpy(projMat, mat, sizeof(mat4));
+}
+
 void setTransform(mat4 mat)
 {
 	memcpy(transform, mat, sizeof(mat4));
@@ -115,6 +125,7 @@ void initRenderer()
 	initDebug();
 
 	shader = makeShader("quad");
+	shadowShader = makeShader("shadow");
 
 	glGenVertexArrays(1, &va);
 	glBindVertexArray(va);
@@ -165,17 +176,23 @@ void initRenderer()
 
 	glUseProgram(shader);
 
-	int texSlots[16];
-	for (int i = 0; i < 16; i++)
+	int texSlots[15];
+	for (int i = 0; i < 15; i++)
 		texSlots[i] = i;
 
 	int loc = glGetUniformLocation(shader, "textures");
-	glUniform1iv(loc, 16, texSlots);
+	glUniform1iv(loc, 15, texSlots);
+
+	setUniformi(shader, "shadowMap", 15);
+
+	glUseProgram(shadowShader);
+	loc = glGetUniformLocation(shadowShader, "textures");
+	glUniform1iv(loc, 15, texSlots);
 
 	for (int i = 0; i < NUM_VERTS; i++)
 		verts[i].mat = 0;
 
-	for (int i = 0; i < 16; i++)
+	for (int i = 0; i < 15; i++)
 		textures[i] = 0;
 
 	initLights();
@@ -195,14 +212,16 @@ void endFrame()
 	if (vertCount == 0)
 		return;
 
-	// printf("end frame %d\n", quadCount);
 	glBindVertexArray(va);
 	glBindBuffer(GL_ARRAY_BUFFER, vb);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * vertCount, vertBase);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib);
-	glUseProgram(shader);
+	if (shadow)
+		glUseProgram(shadowShader);
+	else
+		glUseProgram(shader);
 
-	for (int i = 0; i < 16; i++)
+	for (int i = 0; i < 15; i++)
 	{
 		if (textures[i] == 0)
 			break;
@@ -211,21 +230,31 @@ void endFrame()
 		textures[i] = 0;
 	}
 
-	if (lighting)
-		updateLightBuffer();
-	setUniformi(shader, "lightingPreview", lighting);
-	setUniformMat4(shader, "cam", camMat);
-	setUniformMat4(shader, "mat", projMat);
-	setUniformi(shader, "pass", renderPass);
-	int l = glGetUniformLocation(shader, "camPos");
-	glUniform3fv(l, 1, cameraPos);
-
-	glLineWidth(2);
-	if(wireframe)
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	else
+	if (shadow)
+	{
+		setUniformMat4(shadowShader, "cam", shadowCamMat);
+		setUniformMat4(shadowShader, "mat", shadowProjMat);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glDrawElements(GL_TRIANGLES, quadCount * 6, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, quadCount * 6, GL_UNSIGNED_INT, 0);
+	}
+	else
+	{
+		glActiveTexture(GL_TEXTURE15);
+		glBindTexture(GL_TEXTURE_2D, shadowMap);
+		setUniformi(shader, "lightingPreview", lighting);
+		setUniformMat4(shader, "cam", camMat);
+		setUniformMat4(shader, "mat", projMat);
+		setUniformi(shader, "pass", renderPass);
+		int l = glGetUniformLocation(shader, "camPos");
+		glUniform3fv(l, 1, cameraPos);
+
+		glLineWidth(2);
+		if (wireframe)
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		else
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glDrawElements(GL_TRIANGLES, quadCount * 6, GL_UNSIGNED_INT, 0);
+	}
 
 	glBindVertexArray(0);
 	verts = vertBase;
@@ -235,7 +264,7 @@ void endFrame()
 
 static unsigned int addTexture(unsigned int texture)
 {
-	for (int i = 0; i < 16; i++)
+	for (int i = 0; i < 15; i++)
 	{
 		if (textures[i] == texture)
 			return i;
@@ -413,19 +442,19 @@ void drawRectTintInv(vec3* positions, vec4 tint, Texture* texture)
 		memcpy(verts[i].tint, tint, sizeof(float) * 4);
 		verts[i].mat = tex;
 	}
-	glm_mat4_mulv3(transform, positions[0], 1, verts[2].pos);
-	glm_mat4_mulv3(transform, positions[1], 1, verts[1].pos);
-	glm_mat4_mulv3(transform, positions[2], 1, verts[0].pos);
-	glm_mat4_mulv3(transform, positions[3], 1, verts[3].pos);
+	glm_mat4_mulv3(transform, positions[0], 1, verts[1].pos);
+	glm_mat4_mulv3(transform, positions[1], 1, verts[0].pos);
+	glm_mat4_mulv3(transform, positions[2], 1, verts[3].pos);
+	glm_mat4_mulv3(transform, positions[3], 1, verts[2].pos);
 
 	configVerts(texture);
 
 	float a = verts[0].uv[0];
-	float b = verts[0].uv[1];
 	verts[0].uv[0] = verts[2].uv[0];
-	verts[0].uv[1] = verts[2].uv[1];
 	verts[2].uv[0] = a;
-	verts[2].uv[1] = b;
+	a = verts[1].uv[0];
+	verts[1].uv[0] = verts[3].uv[0];
+	verts[3].uv[0] = a;
 
 	verts += 4;
 
@@ -480,18 +509,18 @@ void drawRectTileInv(vec3* positions, float uStart, float uEnd, float vStart, fl
 		verts[i].tint[3] = 1;
 		verts[i].mat = tex;
 	}
-	glm_mat4_mulv3(transform, positions[0], 1, verts[2].pos);
-	glm_mat4_mulv3(transform, positions[1], 1, verts[1].pos);
-	glm_mat4_mulv3(transform, positions[2], 1, verts[0].pos);
-	glm_mat4_mulv3(transform, positions[3], 1, verts[3].pos);
+	glm_mat4_mulv3(transform, positions[0], 1, verts[1].pos);
+	glm_mat4_mulv3(transform, positions[1], 1, verts[0].pos);
+	glm_mat4_mulv3(transform, positions[2], 1, verts[3].pos);
+	glm_mat4_mulv3(transform, positions[3], 1, verts[2].pos);
 
-	verts[2].uv[0] = uStart;
+	verts[2].uv[0] = uEnd;
 	verts[2].uv[1] = vStart;
-	verts[1].uv[0] = uEnd;
+	verts[1].uv[0] = uStart;
 	verts[1].uv[1] = vStart;
-	verts[3].uv[0] = uStart;
+	verts[3].uv[0] = uEnd;
 	verts[3].uv[1] = vEnd;
-	verts[0].uv[0] = uEnd;
+	verts[0].uv[0] = uStart;
 	verts[0].uv[1] = vEnd;
 
 	verts += 4;

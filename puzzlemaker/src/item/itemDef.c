@@ -1,4 +1,3 @@
-#include "cglm/util.h"
 #include "cjson.h"
 #include "dynList.h"
 #include "error.h"
@@ -18,23 +17,11 @@
 ItemDefinition* definitions;
 ItemGroup* groups;
 
-#ifdef __linux__
 __attribute__((constructor)) static void itemDefInit()
-#else
-void itemDefInit()
-#endif
 {
 	definitions = dynList_new(0, sizeof(ItemDefinition));
 	groups = dynList_new(0, sizeof(ItemGroup));
 }
-
-#if defined(_MSC_VER)
-#pragma section(".CRT$XCU", read)
-
-__declspec(allocate(".CRT$XCU")) void (*itemDefInitPtr)(void) = itemDefInit;
-
-#pragma comment(linker, "/include:itemDefInitPtr")
-#endif
 
 ItemDefinition* getItemDefinitions()
 {
@@ -446,6 +433,9 @@ void loadItemDefinitionFile(Package* package, const char* filename)
 				else if (strcmp(t, "spot") == 0)
 				{
 					lightDef->cutoff = jsonGetFloat(light, "cutoff");
+					lightDef->shadowMapIndex = jsonGetBoolC(light, "shadowed", 0);
+					if (lightDef->shadowMapIndex)
+						def->flags |= ITEM_FLAGS_SHADOWEDLIGHTS;
 					vec3 rotation;
 					jsonGetVec3(light, "rotation", rotation);
 					lightDef->dirX = rotation[0];

@@ -9,18 +9,21 @@ layout(location = 4) in int matId;
 uniform mat4 mat;
 uniform mat4 cam;
 
-out vec3 fragPos;
-out vec2 iuv;
-out vec4 itint;
-out vec3 inorm;
-flat out int imatId;
+out VSOUT
+{
+  vec3 pos;
+  vec2 uv;
+  vec4 tint;
+  vec3 normal;
+  flat int materialId;
+} vertOut;
 
 void main()
 {
-  imatId = matId;
-  iuv = uv;
-  itint = tint;
-	inorm = norm;
-	fragPos = pos;
+  vertOut.pos = pos;
+  vertOut.uv = uv;
+  vertOut.tint = tint;
+  vertOut.normal = norm;
+  vertOut.materialId = matId;
   gl_Position = mat * cam * vec4(pos, 1);
 }

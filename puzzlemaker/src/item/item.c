@@ -5,6 +5,7 @@
 #include "jsonUtils.h"
 #include "raycast.h"
 #include "renderer/debug.h"
+#include "renderer/light.h"
 #include "renderer/renderer.h"
 #include "selection.h"
 #include "settings.h"
@@ -22,6 +23,23 @@ char moving = 0;
 char isItemValid(Item* item)
 {
 	return item->index != -1;
+}
+
+void drawItemsShadow()
+{
+	int len = dynList_size(itemList);
+	for (int i = 0; i < len; i++)
+	{
+		Item* item = &itemList[i];
+		if (!isItemValid(item))
+			continue;
+		if (!(item->def->flags & ITEM_FLAGS_OPAQUE))
+			continue;
+		if (item->hidden)
+			continue;
+		item->def->callbacks->render(item);
+	}
+	endFrame();
 }
 
 void drawItems()
@@ -288,23 +306,24 @@ void updateLightTransforms(Item* item)
 	{
 		Light* def = &item->def->lights[i];
 		Light* light = item->lights[i];
-		glm_mat4_mulv3(item->transform, item->def->lights[i].position, 1, item->lights[i]->position);
+		glm_mat4_mulv3(item->transform, def->position, 1, light->position);
 
 		if (light->cutoff > 0)
 		{
 			vec3 rotation;
 			mat4 m;
+			vec4 q;
 			rotation[0] = glm_rad(def->dirX);
 			rotation[1] = glm_rad(def->dirY);
 			rotation[2] = glm_rad(def->dirZ);
-			glm_euler_yxz(rotation, m);
-			rotation[0] = m[2][0];
-			rotation[1] = m[2][1];
-			rotation[2] = m[2][2];
-			glm_mat4_mulv3(item->transform, rotation, 0, rotation);
-			light->dirX = rotation[0];
-			light->dirY = rotation[1];
-			light->dirZ = rotation[2];
+			glm_euler_yxz_quat(rotation, q);
+			glm_quat_mul(item->quat, q, q);
+			glm_quat_mat4(q, m);
+			light->dirX = m[2][0];
+			light->dirY = m[2][1];
+			light->dirZ = m[2][2];
+			if (def->shadowMapIndex)
+				updateShadows(light);
 		}
 	}
 }
@@ -316,8 +335,17 @@ void updateLights(Item* item)
 	{
 		Light* def = &item->def->lights[i];
 		Light* light = item->lights[i];
+		int ind = light->shadowMapIndex;
 		memcpy(light, def, sizeof(Light));
+		light->shadowMapIndex = ind;
+
+		float f = def->constant + def->linear + def->quadratic;
+		light->constant = f / def->constant;
+		light->linear = f / def->linear;
+		light->quadratic = f / def->quadratic;
+
 		if (light->cutoff > 0)
 			light->cutoff = cosf(glm_rad(def->cutoff));
 	}
+	updateLightTransforms(item);
 }

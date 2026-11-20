@@ -94,7 +94,7 @@ int makeShaderInt(int type, const char* filename)
 		char* err = malloc(len);
     int len2;
 		glGetShaderInfoLog(id, len, &len2, err);
-		printf("shader err: %s\n", err);
+		printf("in %s\nshader err: %s\n", filename, err);
 		free(err);
 		glDeleteShader(id);
     exit(1);

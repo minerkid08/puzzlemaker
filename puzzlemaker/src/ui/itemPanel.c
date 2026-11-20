@@ -286,6 +286,11 @@ void itemPanelRender()
 						data->size[2] = def->minSize[2];
 				}
 			}
+			if (selection.item->def->flags & ITEM_FLAGS_SHADOWEDLIGHTS)
+			{
+				if (igButton("Update Lights", zero))
+					updateLights(selection.item);
+			}
 			igTreePop();
 		}
 

@@ -202,6 +202,19 @@ void renderAntlines()
 	}
 }
 
+void renderAntlinesShadow()
+{
+	int len = dynList_size(antlines);
+	for (int i = 0; i < len; i++)
+	{
+		Antline* antline = &antlines[i];
+		if (!isAntlineValid(antline))
+			continue;
+
+		drawAntline(antline);
+	}
+}
+
 void renderAntlineHover()
 {
 	int len = dynList_size(antlines);

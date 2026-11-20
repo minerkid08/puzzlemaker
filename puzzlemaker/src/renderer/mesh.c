@@ -28,12 +28,17 @@ typedef struct
 } __attribute__((packed)) Vertex;
 
 unsigned int meshShader;
+unsigned int meshShadowShader;
 unsigned int uniformBuffer;
 
 unsigned int bindingPoint;
 unsigned int uniformBlockIndex;
 extern char lighting;
 extern char wireframe;
+extern char shadow;
+extern unsigned int shadowMap;
+extern mat4 shadowCamMat;
+extern mat4 shadowProjMat;
 
 static int size;
 
@@ -115,6 +120,7 @@ unsigned long fileSize(void* file, void* user_data)
 void initMeshRenderer()
 {
 	meshShader = makeShader("mesh");
+	meshShadowShader = makeShader("shadowMesh");
 	glGenBuffers(1, &uniformBuffer);
 	glBindBuffer(GL_UNIFORM_BUFFER, uniformBuffer);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(MeshMaterial) * 8, 0, GL_DYNAMIC_DRAW);
@@ -123,6 +129,9 @@ void initMeshRenderer()
 	bindingPoint = 0;
 	uniformBlockIndex = glGetUniformBlockIndex(meshShader, "MaterialBlock");
 	glUniformBlockBinding(meshShader, uniformBlockIndex, bindingPoint);
+
+	uniformBlockIndex = glGetUniformBlockIndex(meshShadowShader, "MaterialBlock");
+	glUniformBlockBinding(meshShadowShader, uniformBlockIndex, bindingPoint);
 
 	glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, uniformBuffer);
 }
@@ -258,14 +267,20 @@ extern int renderPass;
 
 void renderMesh(Mesh* mesh, mat4 transform)
 {
-	glUseProgram(meshShader);
+	if (shadow)
+		glUseProgram(meshShadowShader);
+	else
+		glUseProgram(meshShader);
 	char buf[32];
 	for (int i = 0; i < mesh->textureCount; i++)
 	{
 		glActiveTexture(GL_TEXTURE0 + i);
 		glBindTexture(GL_TEXTURE_2D, mesh->textures[i]);
 		snprintf(buf, 32, "textures[%d]", i);
-		setUniformi(meshShader, buf, i);
+		if (shadow)
+			setUniformi(meshShadowShader, buf, i);
+		else
+			setUniformi(meshShader, buf, i);
 	}
 
 	glBindVertexArray(mesh->vertexArray);
@@ -276,22 +291,31 @@ void renderMesh(Mesh* mesh, mat4 transform)
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(MeshMaterial) * mesh->materialCount, mesh->materials);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-	if (lighting)
-		updateLightBuffer();
-	setUniformi(meshShader, "lightingPreview", lighting);
-	setUniformMat4(meshShader, "cam", *getCamMat());
-	setUniformMat4(meshShader, "mat", *getProjMat());
-	setUniformMat4(meshShader, "trans", transform);
-	setUniformi(meshShader, "pass", renderPass);
-	setUniformi(meshShader, "pass", renderPass);
-	int l = glGetUniformLocation(meshShader, "camPos");
-	glUniform3fv(l, 1, cameraPos);
-
-	glLineWidth(2);
-	if (wireframe)
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	if (shadow)
+	{
+		setUniformMat4(meshShadowShader, "cam", shadowCamMat);
+		setUniformMat4(meshShadowShader, "mat", shadowProjMat);
+		setUniformMat4(meshShadowShader, "trans", transform);
+	}
 	else
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	{
+		setUniformi(meshShader, "shadowMap", 8);
+		glActiveTexture(GL_TEXTURE8);
+		glBindTexture(GL_TEXTURE_2D, shadowMap);
+		setUniformi(meshShader, "lightingPreview", lighting);
+		setUniformMat4(meshShader, "cam", *getCamMat());
+		setUniformMat4(meshShader, "mat", *getProjMat());
+		setUniformMat4(meshShader, "trans", transform);
+		setUniformi(meshShader, "pass", renderPass);
+		int l = glGetUniformLocation(meshShader, "camPos");
+		glUniform3fv(l, 1, cameraPos);
+
+		glLineWidth(2);
+		if (wireframe)
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		else
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
 
 	glDrawElements(GL_TRIANGLES, mesh->vertCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);

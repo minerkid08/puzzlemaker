@@ -336,6 +336,7 @@ void load()
 		Item* item = getItem(i);
 		if (item->index == -1)
 			continue;
+		updateItemTransform(item);
 		int len = dynList_size(item->outputs);
 		for (int j = 0; j < len; j++)
 		{

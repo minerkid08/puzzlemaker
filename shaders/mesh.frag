@@ -55,19 +55,19 @@ vec4 getColor(int tex)
 
 struct Light
 {
+  mat4 transform;
   vec3 position;
   float constant;
-  float linear;
-  float quadratic;
-  float cutoff;
-  int shadowMapIndex;
   vec3 ambient;
-  float dirx;
+  float linear;
   vec3 diffuse;
-  float diry;
+  float quadratic;
   vec3 specular;
+  float cutoff;
+  float dirx;
+  float diry;
   float dirz;
-  mat4 transform;
+  int shadowMapIndex;
 };
 
 layout(std140) uniform LightBlock

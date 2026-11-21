@@ -340,9 +340,18 @@ void updateLights(Item* item)
 		light->shadowMapIndex = ind;
 
 		float f = def->constant + def->linear + def->quadratic;
-		light->constant = f / def->constant;
-		light->linear = f / def->linear;
-		light->quadratic = f / def->quadratic;
+		if (f == 0)
+		{
+			light->constant = 0;
+			light->linear = 0;
+			light->quadratic = 0;
+		}
+		else
+		{
+			light->constant = def->constant / f;
+			light->linear = def->linear / f;
+			light->quadratic = def->quadratic / f;
+		}
 
 		if (light->cutoff > 0)
 			light->cutoff = cosf(glm_rad(def->cutoff));

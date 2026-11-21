@@ -19,19 +19,19 @@ out vec4 color;
 
 struct Light
 {
+  mat4 transform;
   vec3 position;
   float constant;
-  float linear;
-  float quadratic;
-  float cutoff;
-  int shadowMapIndex;
   vec3 ambient;
-  float dirx;
+  float linear;
   vec3 diffuse;
-  float diry;
+  float quadratic;
   vec3 specular;
+  float cutoff;
+  float dirx;
+  float diry;
   float dirz;
-  mat4 transform;
+  int shadowMapIndex;
 };
 
 layout(std140) uniform LightBlock
@@ -41,17 +41,17 @@ layout(std140) uniform LightBlock
 
 float calcShadows(Light light, vec3 fragPos, vec3 lightDir, vec3 normal)
 {
-	if(light.shadowMapIndex == 0)
-		return 0.0;
+  if (light.shadowMapIndex == 0)
+    return 0.0;
 
   vec4 pos = light.transform * vec4(fragPos, 1);
   vec3 projCoords = pos.xyz / pos.w;
 
   projCoords = projCoords * 0.5 + 0.5;
-	float x = projCoords.x / 4;
-	float y = projCoords.y / 4;
-	x += ((light.shadowMapIndex - 1) % 4) * 0.25;
-	y += ((light.shadowMapIndex - 1) / 4) * 0.25;
+  float x = projCoords.x / 4;
+  float y = projCoords.y / 4;
+  x += ((light.shadowMapIndex - 1) % 4) * 0.25;
+  y += ((light.shadowMapIndex - 1) / 4) * 0.25;
   float closestDepth = texture(shadowMap, vec2(x, y)).r;
 
   float nearPlane = 0.1;
@@ -200,11 +200,6 @@ void main()
 
   if (lightingPreview == 1)
   {
-		color = vec4(fragIn.normal, 1);
-		color.x = color.x * 0.5 + 0.5;
-		color.y = color.y * 0.5 + 0.5;
-		color.z = color.z * 0.5 + 0.5;
-		return;
     color = vec4(0, 0, 0, 1);
     vec3 viewDir = normalize(camPos - fragIn.pos);
 

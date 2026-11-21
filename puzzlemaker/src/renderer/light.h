@@ -2,19 +2,19 @@
 
 typedef struct
 {
+	float transform[4][4];
 	float position[3];
 	float constant;
-	float linear;
-	float quadratic;
-	float	cutoff;
-	int shadowMapIndex;
 	float ambient[3];
-	float dirX;
+	float linear;
 	float diffuse[3];
-	float dirY;
+	float quadratic;
 	float specular[3];
+	float	cutoff;
+	float dirX;
+	float dirY;
 	float dirZ;
-	float transform[4][4];
+	int shadowMapIndex;
 } Light;
 
 void initLights();

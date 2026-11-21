@@ -377,6 +377,8 @@ void configVerts(Texture* texture)
 	glm_vec3_copy(norm, verts[2].normal);
 	glm_vec3_copy(norm, verts[3].normal);
 
+	if(texture == 0)
+		return;
 	if (texture->alignment != TEX_ALIGNMENT_FIT)
 	{
 		width /= texture->size;
@@ -478,6 +480,8 @@ void drawRectTile(vec3* positions, float uStart, float uEnd, float vStart, float
 		verts[i].mat = tex;
 	}
 
+	configVerts(0);
+
 	verts[0].uv[0] = uStart;
 	verts[0].uv[1] = vStart;
 	verts[1].uv[0] = uEnd;
@@ -513,6 +517,8 @@ void drawRectTileInv(vec3* positions, float uStart, float uEnd, float vStart, fl
 	glm_mat4_mulv3(transform, positions[1], 1, verts[0].pos);
 	glm_mat4_mulv3(transform, positions[2], 1, verts[3].pos);
 	glm_mat4_mulv3(transform, positions[3], 1, verts[2].pos);
+
+	configVerts(0);
 
 	verts[2].uv[0] = uEnd;
 	verts[2].uv[1] = vStart;

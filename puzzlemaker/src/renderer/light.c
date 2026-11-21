@@ -33,6 +33,16 @@ extern mat4 shadowProjMat;
 
 static Light lights[LIGHT_COUNT];
 
+#define glErrCheck()                                                                                                   \
+	{                                                                                                                  \
+		int error = glGetError();                                                                                      \
+		while (error)                                                                                                  \
+		{                                                                                                              \
+			printf("gl error: %d, %d\n", __LINE__, error);                                                             \
+			error = glGetError();                                                                                      \
+		}                                                                                                              \
+	}
+
 void initLights()
 {
 	glGenBuffers(1, &buffer);
@@ -183,4 +193,5 @@ void updateLightBuffer()
 	glBindBuffer(GL_UNIFORM_BUFFER, buffer);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Light) * LIGHT_COUNT, lights);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	glErrCheck();
 }

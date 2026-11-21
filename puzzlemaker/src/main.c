@@ -185,11 +185,9 @@ int main(int argc, const char** argv)
 
 		updateLightBuffer();
 		drawVoxels();
-
 		renderAntlines();
 		drawItems();
 		renderAntlineHover();
-
 		endFrame();
 		framebufferUnbind(&framebuffer);
 

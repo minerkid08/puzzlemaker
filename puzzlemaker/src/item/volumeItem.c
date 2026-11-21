@@ -13,11 +13,7 @@
 
 static ItemCallbacks callbacks;
 
-#ifdef __linux__
 __attribute__((constructor)) static void volumeItemProcInit()
-#else
-void volumeItemProcInit()
-#endif
 {
 	callbacks.init = volumeItemInit;
 	callbacks.exportItem = volumeItemExport;
@@ -26,14 +22,6 @@ void volumeItemProcInit()
 	callbacks.save = volumeItemSave;
 	callbacks.load = volumeItemLoad;
 }
-
-#if defined(_MSC_VER)
-#pragma section(".CRT$XCU", read)
-
-__declspec(allocate(".CRT$XCU")) void (*volumeItemProcInitPtr)(void) = volumeItemProcInit;
-
-#pragma comment(linker, "/include:volumeItemProcInitPtr")
-#endif
 
 void* loadVolumeItemDef(cJSON* item, ItemDefinition* itemDef)
 {
